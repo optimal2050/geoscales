@@ -1,0 +1,202 @@
+---
+title: "Building a Geoscale from Natural Earth"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Building a Geoscale from Natural Earth}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+has_ne <- requireNamespace("rnaturalearth", quietly = TRUE) &&
+  requireNamespace("rnaturalearthdata", quietly = TRUE) &&
+  requireNamespace("sf", quietly = TRUE)
+has_hires <- has_ne && requireNamespace("rnaturalearthhires", quietly = TRUE)
+knitr::opts_chunk$set(eval = has_ne)
+```
+
+```{r setup, eval = TRUE}
+library(geoscales)
+```
+
+## The package ships no maps
+
+`geoscales` contains integration code, not data. There is no `data/`
+directory and no bundled boundaries. A provider fetches a source table; the
+package records what was fetched.
+
+```{r, eval = TRUE}
+geo_list_providers()
+```
+
+Natural Earth is the default provider because its country table is *already*
+a wide leaves table — one `sf` object carries the whole nest as columns:
+
+```
+continent (8) -> region_un -> subregion (22) -> sovereignt
+              -> admin / adm0_a3 (177) -> geounit -> subunit
+```
+
+with `pop_est` and `gdp_md` as ready-made weights.
+
+```{r}
+gs <- ne_geoscale(scale = 110)
+gs
+```
+
+## Aggregating up
+
+We will follow Iceland through the hierarchy. It sits in Northern Europe:
+
+```{r}
+lf <- S7::prop(gs, "leaves")
+lf[lf$country == "ISL", c("continent", "subregion", "country", "pop_est")]
+```
+
+Rolling population up from countries to sub-regions is one call. `rule = "sum"`
+because population is *extensive* — it adds up:
+
+```{r}
+pop <- data.frame(country = lf$country, pop = lf$pop_est)
+pop <- pop[!is.na(pop$country), ]
+
+agg <- geo_recast(pop, gs, from = "country", to = "subregion", rule = "sum")
+agg[agg$subregion == "Northern Europe", ]
+```
+
+## ... and back down
+
+The same verb runs the other way. Going down, `rule = "sum"` splits a total in
+proportion to a weight, so the total is conserved:
+
+```{r}
+ne <- agg[agg$subregion == "Northern Europe", ]
+
+back <- geo_recast(ne, gs, from = "subregion", to = "country",
+                   rule = "sum", weight = "pop_est")
+head(back[order(-back$pop), ], 4)
+```
+
+Because we split by the same quantity we aggregated, the round trip is exact:
+
+```{r}
+back$pop[back$country == "ISL"]
+sum(back$pop) == sum(ne$pop)
+```
+
+That is the whole idea: **aggregation and disaggregation are one operation.**
+Direction follows the level ranks, and `geo_recast()` routes through the atom
+layer either way.
+
+## Iceland's own regions
+
+Natural Earth's admin-1 layer gives sub-country units. This needs
+`rnaturalearthhires`, which is **not on CRAN**:
+
+```{r, eval = FALSE}
+install.packages("rnaturalearthhires",
+                 repos = "https://ropensci.r-universe.dev")
+```
+
+```{r, eval = has_hires}
+s <- ne_source(level = "states", country = "Iceland")
+d <- as.data.frame(s)
+nrow(d)
+```
+
+Nine units — but Iceland has eight regions. `Reykjavik` and the surrounding
+capital area are separate admin-1 features that belong to the same region,
+which Natural Earth records in `gn_name`. That gives a genuinely **ragged**
+hierarchy: one group with two children, seven with one.
+
+```{r, eval = has_hires}
+isl <- data.frame(
+  country    = "ISL",
+  landshluti = d$gn_name,       # Iceland's eight regions
+  unit       = d$iso_3166_2,    # the nine Natural Earth units
+  stringsAsFactors = FALSE
+)
+
+g <- geoscale_from_leaves(isl, levels = c("country", "landshluti", "unit"),
+                          key = "unit", name = "iceland")
+g <- geo_attach_geometry(g, s, by = "iso_3166_2", level = "unit")
+g <- geo_area(g, name = "km2")
+g
+```
+
+No level is called `region` here: `geoscale_from_leaves()` uses that name for
+the internal atom key, so it is reserved for the finest level.
+
+The Capital Region is the one that has two units under it:
+
+```{r, eval = has_hires}
+geo_children(g, "landshluti", "Hofudborgarsvadi")
+geo_nests(g, "landshluti", "unit")
+```
+
+### Up: units to regions to country
+
+```{r, eval = has_hires}
+set.seed(1)
+x <- data.frame(unit = geo_regions(g, "unit"),
+                generation = round(runif(9, 50, 500)))
+
+geo_recast(x, g, from = "unit", to = "landshluti", rule = "sum")
+```
+
+```{r, eval = has_hires}
+geo_recast(x, g, from = "unit", to = "country", rule = "sum")
+sum(x$generation)
+```
+
+### Down: a national total split by area
+
+```{r, eval = has_hires}
+tot <- data.frame(country = "ISL", demand = 1000)
+
+dd <- geo_recast(tot, g, from = "country", to = "unit",
+                 rule = "sum", weight = "km2")
+dd[order(-dd$demand), ]
+```
+
+Look at what that produces. The Capital Region units receive almost nothing,
+because they are tiny — yet they hold most of Iceland's population and would
+consume most of its electricity. **Area is rarely the right weight for
+demand.** This is precisely why `geo_recast()` makes you name a `weight =`
+rather than picking one for you; with a population column on the leaves you
+would pass that instead.
+
+An *intensive* quantity must not be summed at all — use `weighted_mean`, which
+copies going down and weight-averages going up:
+
+```{r, eval = has_hires}
+cf <- data.frame(unit = geo_regions(g, "unit"),
+                 cf = round(runif(9, 0.2, 0.5), 3))
+
+geo_recast(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
+```
+
+### Geometry follows the levels
+
+`geo_geometry()` dissolves the atoms up to whatever level you ask for, so the
+nine units become eight regions:
+
+```{r, eval = has_hires}
+shp <- geo_geometry(g, level = "landshluti")
+nrow(shp)
+```
+
+```{r, eval = has_hires && requireNamespace("ggplot2", quietly = TRUE), fig.width = 7, fig.height = 4}
+geo_plot(g, level = "landshluti")
+```
+
+## Other providers
+
+The same interface accepts any source. Register one with
+`geo_register_provider()`, or pass an `sf` object straight to
+`geoscale_from_provider()`. Natural candidates are `giscoR` (authoritative
+NUTS for Europe), `geodata`/GADM (admin-2 and admin-3 — note its licence
+forbids commercial use) and `tigris` (US Census).

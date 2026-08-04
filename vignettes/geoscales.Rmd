@@ -1,0 +1,238 @@
+---
+title: "Getting started with geoscales"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with geoscales}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r setup}
+library(geoscales)
+```
+
+## What a Geoscale is
+
+A `Geoscale` is a nested spatial partition — the spatial companion to a
+`timescales::Calendar`. It holds:
+
+* **`leaves`** — one row per *atom* (the finest region), one column per level,
+  a unique `region` key, and one or more named weight columns;
+* **`levels`** — the hierarchy, ordered coarsest first;
+* **`members`** — the code vocabulary at each level;
+* **`meta`** — name, weights, source, CRS.
+
+Everything else — parent/child tables, ancestry, shares — is derived on
+demand. Nothing is cached on the object.
+
+```{r}
+gs <- geoscale_example()
+gs
+```
+
+## Levels are partitions, not necessarily a tree
+
+This is the main thing that differs from the time domain. Time levels nest
+cleanly: every hour belongs to exactly one day. Spatial levels frequently do
+not.
+
+In the example, zone `ZB` draws atoms from two different states, so `state`
+and `zone` cross-cut:
+
+```{r}
+geo_nests(gs, "country", "state")
+geo_nests(gs, "state", "zone")
+```
+
+Real data behaves the same way. In the IDEEA region table for India, the
+`reg32` code `APY` merges Andhra Pradesh with *part of* Puducherry, so
+`reg35` does not nest inside `reg32`.
+
+This is exactly why the atom layer exists, and why `geo_recast()` always
+routes through it.
+
+## Codes are not unique across levels
+
+The code `"N1"` exists at both `state` and `zone`. A bare code is therefore
+ambiguous, and every lookup must name its level:
+
+```{r}
+geo_children(gs, "state", "N1")
+geo_children(gs, "zone", "N1")
+```
+
+In IDEEA, 46 of 62 codes appear at more than one level — `AN` appears at
+seven. This is the norm, not an edge case.
+
+## Recasting: one verb, both directions
+
+`geo_recast()` projects source values down to atoms and then aggregates them
+up to the target, so aggregation and disaggregation are the same operation.
+The direction falls out of the level ranks.
+
+Going up, an extensive quantity is summed:
+
+```{r}
+cap <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+                  capacity = c(1, 2, 3, 4, 5, 6))
+geo_recast(cap, gs, from = "atom", to = "country", rule = "sum")
+```
+
+Going down, the same rule splits proportionally to a weight:
+
+```{r}
+y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
+geo_recast(y, gs, from = "country", to = "state",
+           rule = "sum", weight = "km2")
+```
+
+Totals are preserved, and a round trip is exact:
+
+```{r}
+up   <- geo_recast(cap, gs, "atom", "state", rule = "sum")
+back <- geo_recast(up, gs, "state", "atom", rule = "sum", weight = "km2")
+back
+```
+
+### Rules
+
+| rule | up (coarsen) | down (refine) | use for |
+|---|---|---|---|
+| `sum` | sum | split by weight | capacity, demand, area |
+| `weighted_mean` | weighted mean | copy | efficiency, price, capacity factor |
+| `mean` | plain mean | copy | diagnostics |
+| `copy` | common value | copy | region-invariant scalars |
+
+An intensive quantity must not be summed:
+
+```{r}
+eff <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+                  eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
+geo_recast(eff, gs, "atom", "state", rule = "weighted_mean", weight = "pop")
+```
+
+### Registering rules per parameter
+
+Rather than passing `rule=` at every call site, register it once. Each value
+column is then converted by its own rule in a single call:
+
+```{r}
+geo_register_rule("capacity", "sum")
+geo_register_rule("eff", "weighted_mean", weight = "pop")
+
+mix <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+                  capacity = c(1, 2, 3, 4, 5, 6),
+                  eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
+geo_recast(mix, gs, "atom", "state")
+```
+
+```{r, include = FALSE}
+geo_clear_rules()
+```
+
+An explicit `rule=` always overrides the registry.
+
+## Partial coverage
+
+Region tables routinely have atoms with no code at a coarser level — a
+rest-of-world row, offshore zones, unassigned territory. The example has an
+atom `ROW` with no country.
+
+`na_action` decides what happens to it:
+
+```{r}
+x <- rbind(cap, data.frame(atom = "ROW", capacity = 100))
+
+# "drop" (default) loses the uncovered share, and says so
+out <- suppressWarnings(
+  geo_recast(x, gs, "atom", "country", rule = "sum"))
+sum(out$capacity)
+
+# "keep" conserves the total in an explicit NA group
+kept <- geo_recast(x, gs, "atom", "country", rule = "sum",
+                   na_action = "keep")
+sum(kept$capacity)
+```
+
+Note that `energyRt` reads `NA` in a region column as *a wildcard meaning all
+regions*, so `"keep"` output should not be passed there unfiltered.
+
+## Identifier columns
+
+Columns that are neither the key nor a value are kept as grouping columns, so
+panel data converts in one call:
+
+```{r}
+panel <- data.frame(
+  atom = rep(c("A1", "A2", "A3"), each = 2),
+  year = rep(c(2020L, 2021L), 3),
+  capacity = c(1, 2, 3, 4, 5, 6)
+)
+geo_recast(panel, gs, "atom", "state", rule = "sum", values = "capacity")
+```
+
+## Navigating and subsetting
+
+```{r}
+geo_regions(gs, "state")
+geo_family(gs, "state", "zone")
+geo_descendants(gs, "country", "N")
+geo_share(gs, "state", weight = "km2", within = "country")
+```
+
+```{r}
+geo_filter(gs, "country", "N")
+gs["country", "N"]
+geo_prune(gs, "state")
+```
+
+## Building a Geoscale
+
+Three layers, from most to least convenient:
+
+```{r}
+# Layer 2: from crosswalks (ragged hierarchies are the norm in space)
+geoscale_build(
+  data.frame(country = c("N", "N", "S"), state = c("N1", "N2", "S1")),
+  data.frame(state = c("N1", "N1", "N2", "S1"),
+             atom  = c("A1", "A2", "A3", "A4")),
+  levels  = c("country", "state", "atom"),
+  weights = data.frame(atom = c("A1", "A2", "A3", "A4"),
+                       km2 = c(10, 20, 30, 40))
+)
+```
+
+```{r}
+# Layer 3: the escape hatch - a wide table you already have
+df <- data.frame(
+  country = c("C1", "C1", "C2"),
+  atom    = c("A1", "A2", "A3"),
+  km2     = c(100, 200, 300)
+)
+geoscale_from_leaves(df, levels = c("country", "atom"))
+```
+
+Layer 1 is `geoscale_from_provider()`; see `vignette("from-naturalearth")`.
+
+## Plotting
+
+`geo_autoplot()` draws the hierarchy itself as an icicle — one row per level,
+widths proportional to weight. It needs no geometry.
+
+```{r, fig.width = 7, fig.height = 3.2, eval = requireNamespace("ggplot2", quietly = TRUE)}
+geo_autoplot(gs)
+```
+
+With geometry attached via `geo_attach_geometry()`, `geo_plot()` draws a
+choropleth instead — pass a `data.frame` and name the column to colour by.
+`geoscale_example()` carries no geometry, so those figures need a map, and they
+live in the online article [Plotting
+geoscales](https://optimal2050.github.io/geoscales/r/articles/plotting.html):
+choropleths by level and by value, four alternative layouts over one hierarchy,
+recasting seen on the map, and where display names come from.

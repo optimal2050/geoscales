@@ -1,4 +1,5 @@
 Version: 1.0
+ProjectId: 7289f300-1302-4861-b704-c1d15217f7e6
 
 RestoreWorkspace: No
 SaveWorkspace: No
@@ -6,7 +7,7 @@ AlwaysSaveHistory: Default
 
 EnableCodeIndexing: Yes
 UseSpacesForTab: Yes
-NumSpaces: 2
+NumSpacesForTab: 2
 Encoding: UTF-8
 
 RnwWeave: Sweave
@@ -20,3 +21,5 @@ BuildType: Package
 PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
 PackageRoxygenize: rd,collate,namespace
+
+NumSpaces: 2

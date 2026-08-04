@@ -1,8 +1,10 @@
 Package: geoscales
 Title: Nested Regions and Spatial Hierarchies for Modeling
-Version: 0.0.0.9000
-Date: 2026-05-10
-URL: https://github.com/optimal2050/geoscales
+Version: 0.1.0.9000
+Date: 2026-08-04
+URL: https://optimal2050.github.io/geoscales/r/,
+    https://optimal2050.github.io/geoscales/,
+    https://github.com/optimal2050/geoscales
 BugReports: https://github.com/optimal2050/geoscales/issues
 Authors@R:
     person(given = "Oleg",
@@ -16,20 +18,28 @@ Description: Discrete spatial representations for optimization and simulation
     modeling and visualization. Spatial companion to 'timescales'.
 License: Apache License (>= 2)
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends:
     R (>= 4.2)
 Imports:
-    dplyr,
-    tibble,
-    tidyr
+    S7,
+    stats,
+    utils
 Suggests:
+    ggplot2,
     knitr,
     pkgdown,
     rmarkdown,
-    testthat (>= 3.0.0)
+    rnaturalearth,
+    rnaturalearthdata,
+    rnaturalearthhires,
+    sf,
+    testthat (>= 3.0.0),
+    yaml
+Additional_repositories: https://ropensci.r-universe.dev,
+    https://optimal2050.r-universe.dev
 Config/testthat/edition: 3
-Config/Needs/website: rmarkdown
+Config/Needs/website: pkgdown, rmarkdown, sf, ggplot2, rnaturalearth,
+    rnaturalearthdata, rnaturalearthhires, energyRt
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

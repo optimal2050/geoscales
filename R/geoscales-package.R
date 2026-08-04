@@ -5,8 +5,8 @@
 #' resolutions, and mapping of data onto region hierarchies for modeling and
 #' visualization.
 #'
-#' Spatial companion to the [timescales](https://github.com/optimal2050/timescales)
-#' package.
+#' Spatial companion to the
+#' [timescales](https://github.com/optimal2050/timescales) package.
 #'
 #' @keywords internal
 "_PACKAGE"

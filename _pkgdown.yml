@@ -1,0 +1,115 @@
+# pkgdown builds ONLY the R reference, into `docs/r/`. The `docs/` root is the
+# multi-language landing page (and, in a later phase, a Quarto site with
+# language-agnostic `concepts/` beside `r/`, `python/` and `cpp/`).
+url: https://optimal2050.github.io/geoscales/r/
+destination: docs/r
+
+template:
+  bootstrap: 5
+  light-switch: true
+
+# Pinned rather than `auto`: with `auto`, the first released version silently
+# switches pkgdown to devel mode and relocates the whole site into `r/dev/`.
+development:
+  mode: unreleased
+  version_label: danger
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github, lightswitch]
+  components:
+    intro:
+      text: Get started
+      href: articles/geoscales.html
+    articles:
+      text: Articles
+      menu:
+        - text: Getting started with geoscales
+          href: articles/geoscales.html
+        - text: Plotting geoscales
+          href: articles/plotting.html
+        - text: Building a Geoscale from Natural Earth
+          href: articles/from-naturalearth.html
+
+reference:
+  - title: The Geoscale class
+    desc: >
+      A nested spatial partition: a flat table of weighted leaf regions
+      ("atoms") plus the ordered levels that group them.
+    contents:
+      - Geoscale
+      - geoscale_example
+      - geo_levels
+      - geo_regions
+      - geo_rank
+      - geo_weights
+      - "[.Geoscale"
+
+  - title: Construction
+    desc: >
+      Three layers, from most to least convenient: a provider, parent-child
+      crosswalks, or a wide table you already have.
+    contents:
+      - geoscale_from_provider
+      - geoscale_build
+      - geoscale_from_leaves
+
+  - title: Conversion
+    desc: >
+      Aggregation and disaggregation are one operation. Values are projected
+      down to atoms and aggregated up to the target, so direction follows the
+      level ranks and cross-cutting levels need no special handling.
+    contents:
+      - geo_recast
+      - GEO_RULES
+      - geo_register_rule
+      - geo_get_rule
+      - geo_list_rules
+      - geo_clear_rules
+
+  - title: Navigation and subsetting
+    desc: >
+      Region codes are not unique across levels, so every lookup names its
+      level.
+    contents:
+      - geo_navigate
+      - geo_family
+      - geo_ancestry
+      - geo_nests
+      - geo_filter
+      - geo_prune
+      - geo_share
+
+  - title: Geometry and plotting
+    desc: >
+      Optional, and backed by 'sf'. The core is geometry-free; `geo_autoplot()`
+      draws the hierarchy itself and needs no map.
+    contents:
+      - geo_attach_geometry
+      - geo_geometry
+      - geo_area
+      - geo_autoplot
+      - geo_plot
+      - geo_layout
+
+  - title: Data providers
+    desc: >
+      geoscales ships integration code, not data. Natural Earth is the default
+      provider; its source and scale are recorded on the object, and no
+      boundaries are bundled.
+    contents:
+      - geo_provider
+      - geo_register_provider
+      - geo_list_providers
+      - ne_source
+      - ne_geoscale
+
+  - title: Levels
+    contents:
+      - CORE_LEVELS
+      - is_valid_level
+
+  - title: Package
+    contents:
+      - geoscales-package
