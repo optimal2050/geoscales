@@ -1,8 +1,10 @@
 # =============================================================================
-# geo_recast() — the central conversion verb
+# recast_geoscale() — the central conversion verb
 # =============================================================================
-# Named `geo_recast()` rather than `recast()` so it does not mask
-# `timescales::recast()`; both packages are loaded together downstream.
+# The bare pipeline verb `recast()` is an S7 generic OWNED BY timescales;
+# this package registers the Geoscale method on it (end of this file), so
+# `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")` chains across
+# both dimensions. `recast_geoscale()` is the explicit worker.
 #
 # Aggregation and disaggregation are ONE operation. Every conversion routes
 # through the atom layer, which is already materialised in `@leaves` (so,
@@ -44,7 +46,7 @@
 #'   numeric columns other than the key and any level names of `gs`. Numeric
 #'   identifiers (e.g. `year`) must be excluded explicitly.
 #' @param rule One of [`GEO_RULES`], or `NULL` (default) to look each value
-#'   column up with [`geo_get_rule()`], falling back to `"sum"`.
+#'   column up with [`get_geo_rule()`], falling back to `"sum"`.
 #' @param weight Weight column used by `sum` (splitting) and `weighted_mean`.
 #'   `NULL` uses the registered or default weight.
 #' @param na_action What to do with atoms that have no code at `from` or `to`:
@@ -65,19 +67,19 @@
 #' # Extensive quantity, fine -> coarse: totals are preserved
 #' x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
 #'                 capacity = c(1, 2, 3, 4, 5, 6))
-#' geo_recast(x, gs, from = "atom", to = "country", rule = "sum")
+#' recast_geoscale(x, gs, from = "atom", to = "country", rule = "sum")
 #'
 #' # Coarse -> fine: split proportionally to area
 #' y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-#' geo_recast(y, gs, from = "country", to = "state",
+#' recast_geoscale(y, gs, from = "country", to = "state",
 #'            rule = "sum", weight = "km2")
 #'
 #' # Intensive quantity: weighted mean going up, copied going down
 #' z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
 #'                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-#' geo_recast(z, gs, from = "atom", to = "state", rule = "weighted_mean")
+#' recast_geoscale(z, gs, from = "atom", to = "state", rule = "weighted_mean")
 #' @export
-geo_recast <- function(x, gs, from, to,
+recast_geoscale <- function(x, gs, from, to,
                        key = NULL,
                        values = NULL,
                        rule = NULL,
@@ -131,7 +133,7 @@ geo_recast <- function(x, gs, from, to,
       .resolve_weight(gs, unique(unlist(lapply(rules, `[[`, "weight")))),
       error = function(e) NULL
     )
-    if (is.null(wcol) && geo_rank(gs, to) > geo_rank(gs, from)) {
+    if (is.null(wcol) && geoscale_rank(gs, to) > geoscale_rank(gs, from)) {
       .warn(paste0("no weight column declared; splitting `%s` equally across ",
                    "the atoms of each `%s`. Declare a weight for an ",
                    "area- or population-proportional split."), to, from)
@@ -224,7 +226,7 @@ geo_recast <- function(x, gs, from, to,
   if (!is.null(rule)) {
     return(list(rule = match.arg(rule, GEO_RULES), weight = weight))
   }
-  reg <- geo_get_rule(v)
+  reg <- get_geo_rule(v)
   if (is.null(reg)) return(list(rule = "sum", weight = weight))
   list(rule = reg$rule, weight = weight %||% reg$weight)
 }
@@ -293,3 +295,37 @@ geo_recast <- function(x, gs, from, to,
   if (is.logical(orig)) return(as.logical(chr))
   chr
 }
+
+# -- the shared recast() generic ----------------------------------------------
+
+# Geoscale method on timescales' `recast()` generic: `from` is the
+# Geoscale, `to` the target level; the SOURCE level is `from_level`, or is
+# inferred when exactly one of the object's levels appears as a column of
+# `x`. Everything else forwards to recast_geoscale(). Registered against
+# the external generic (S7's cross-package mechanism; activated by
+# S7::methods_register() in .onLoad).
+.recast_generic <- S7::new_external_generic("timescales", "recast",
+                                            c("x", "from"))
+S7::method(.recast_generic, list(S7::class_any, Geoscale)) <-
+  function(x, from, to, from_level = NULL, key = NULL, values = NULL,
+           rule = NULL, weight = NULL,
+           na_action = c("drop", "error", "keep"), ...) {
+    if (is.null(from_level)) {
+      hit <- intersect(S7::prop(from, "levels"), names(x))
+      if (length(hit) != 1L) {
+        .stop(paste0("cannot infer the source level from `x`'s columns ",
+                     "(found: %s); pass `from_level=`"),
+              if (length(hit) == 0L) "none" else .preview(hit))
+      }
+      from_level <- hit
+    }
+    recast_geoscale(x, gs = from, from = from_level, to = to, key = key,
+                    values = values, rule = rule, weight = weight,
+                    na_action = na_action)
+  }
+
+# Re-export the generic: `library(geoscales)` alone provides the verb
+# (and satisfies R CMD check that the Imports dependency is used).
+#' @importFrom timescales recast
+#' @export
+timescales::recast

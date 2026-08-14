@@ -24,7 +24,7 @@
 # Two deliberate divergences from `timescales::Calendar`:
 #
 #   1. No stored `share` column. Space needs several weights (km2, pop, gdp)
-#      and share is weight-specific, so it is derived by `geo_share()`.
+#      and share is weight-specific, so it is derived by `geoscale_share()`.
 #   2. `levels` names the hierarchy (Calendar calls that `timeframes`) and
 #      `members` holds the per-level vocabulary (Calendar calls that `levels`).
 #      In the spatial domain "level" is the natural word for the hierarchy.
@@ -53,7 +53,7 @@
 #'
 #' @return A `Geoscale` object.
 #'
-#' @seealso [`geo_recast()`], [`geo_filter()`], [`geo_share()`]
+#' @seealso [`recast_geoscale()`], [`filter_geoscale()`], [`geoscale_share()`]
 #' @export
 Geoscale <- S7::new_class(
   "Geoscale",
@@ -174,7 +174,7 @@ Geoscale <- S7::new_class(
     # tree. Real hierarchies cross-cut: IDEEA's `reg32` code "APY" merges
     # Andhra Pradesh with part of Puducherry, so the `reg35` code "PY" has two
     # parents. That is precisely why the atom layer exists and why
-    # `geo_recast()` always routes through it. Use `geo_nests()` to test
+    # `recast_geoscale()` always routes through it. Use `geoscale_nests()` to test
     # whether a given pair of levels happens to nest cleanly.
 
     # weights -----------------------------------------------------------------
@@ -238,9 +238,9 @@ Geoscale <- S7::new_class(
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geo_rank(gs, c("zone", "atom"))
+#' geoscale_rank(gs, c("zone", "atom"))
 #' @export
-geo_rank <- function(x, level) {
+geoscale_rank <- function(x, level) {
   .check_geoscale(x)
   match(level, S7::prop(x, "levels"))
 }
@@ -258,10 +258,10 @@ geo_rank <- function(x, level) {
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geo_levels(gs)
-#' geo_levels(gs, finest = TRUE)
+#' geoscale_levels(gs)
+#' geoscale_levels(gs, finest = TRUE)
 #' @export
-geo_levels <- function(x, finest = FALSE) {
+geoscale_levels <- function(x, finest = FALSE) {
   .check_geoscale(x)
   lv <- S7::prop(x, "levels")
   if (isTRUE(finest)) lv[length(lv)] else lv
@@ -274,9 +274,9 @@ geo_levels <- function(x, finest = FALSE) {
 #' @return A character vector of weight column names (possibly empty).
 #'
 #' @examples
-#' geo_weights(geoscale_example())
+#' geoscale_weights(geoscale_example())
 #' @export
-geo_weights <- function(x) {
+geoscale_weights <- function(x) {
   .check_geoscale(x)
   S7::prop(x, "meta")$weights %||% character()
 }
@@ -311,7 +311,7 @@ geo_weights <- function(x) {
 #' Resolve the weight column to use
 #' @noRd
 .resolve_weight <- function(x, weight = NULL) {
-  wts <- geo_weights(x)
+  wts <- geoscale_weights(x)
   if (is.null(weight)) {
     weight <- S7::prop(x, "meta")$default_weight %||%
       (if (length(wts) > 0L) wts[[1L]] else NULL)
@@ -360,7 +360,7 @@ print.Geoscale <- function(x, ...) {
   }
   cat("Atoms: ", nrow(lf), "\n", sep = "")
 
-  wts <- geo_weights(x)
+  wts <- geoscale_weights(x)
   if (length(wts) > 0L) {
     dw <- meta$default_weight %||% wts[[1L]]
     cat("Weights: ", paste(wts, collapse = ", "),

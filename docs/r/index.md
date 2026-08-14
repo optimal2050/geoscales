@@ -37,8 +37,8 @@ gs <- geoscale_example()
 cap <- data.frame(atom = c("A1","A2","A3","A4","A5","A6"),
                   capacity = 1:6)
 
-geo_recast(cap, gs, from = "atom", to = "country", rule = "sum")
-geo_recast(cap, gs, from = "atom", to = "state",  rule = "weighted_mean",
+recast_geoscale(cap, gs, from = "atom", to = "country", rule = "sum")
+recast_geoscale(cap, gs, from = "atom", to = "state",  rule = "weighted_mean",
            weight = "pop")
 ```
 

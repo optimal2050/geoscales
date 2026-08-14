@@ -55,7 +55,7 @@ self-documenting and reproducible.
 as a grouping of atoms, so it can only ever be coarser than `feature`.
 
 Do not derive area weights from `scale = 110`; see
-[`geo_area()`](https://optimal2050.github.io/geoscales/r/reference/geo_area.md).
+[`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md).
 
 ## Examples
 
@@ -66,7 +66,7 @@ gs <- ne_geoscale(scale = 110)
 # roll population up from countries to sub-regions
 lf <- S7::prop(gs, "leaves")
 pop <- data.frame(country = lf$country, pop = lf$pop_est)
-geo_recast(pop[!is.na(pop$country), ], gs,
+recast_geoscale(pop[!is.na(pop$country), ], gs,
            from = "country", to = "subregion", rule = "sum")
 } # }
 ```

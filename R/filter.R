@@ -24,9 +24,9 @@
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geo_regions(gs, "state")
+#' geoscale_regions(gs, "state")
 #' @export
-geo_regions <- function(x, level) {
+geoscale_regions <- function(x, level) {
   .check_geoscale(x)
   .check_level(x, level)
   S7::prop(x, "members")[[level]]
@@ -43,16 +43,16 @@ geo_regions <- function(x, level) {
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geo_family(gs, "state", "zone")
+#' geoscale_family(gs, "state", "zone")
 #' @export
-geo_family <- function(x, parent = NULL, child = NULL) {
+geoscale_family <- function(x, parent = NULL, child = NULL) {
   .check_geoscale(x)
   lv <- S7::prop(x, "levels")
 
   if (is.null(parent) && is.null(child)) {
     if (length(lv) < 2L) return(.empty_family())
     parts <- lapply(seq_len(length(lv) - 1L), function(i) {
-      geo_family(x, lv[i], lv[i + 1L])
+      geoscale_family(x, lv[i], lv[i + 1L])
     })
     out <- do.call(rbind, parts)
     rownames(out) <- NULL
@@ -94,7 +94,7 @@ geo_family <- function(x, parent = NULL, child = NULL) {
 #' `reg32` code `APY` merges Andhra Pradesh with part of Puducherry, so
 #' `reg35` does not nest inside `reg32`.
 #'
-#' Nesting is *not* required by [`Geoscale`] — [`geo_recast()`] routes through
+#' Nesting is *not* required by [`Geoscale`] — [`recast_geoscale()`] routes through
 #' the atom layer and works either way. This function is a diagnostic.
 #'
 #' @param x A [`Geoscale`].
@@ -105,11 +105,11 @@ geo_family <- function(x, parent = NULL, child = NULL) {
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geo_nests(gs, "country", "state")  # TRUE
-#' geo_nests(gs, "state", "zone")     # FALSE - they cross-cut
+#' geoscale_nests(gs, "country", "state")  # TRUE
+#' geoscale_nests(gs, "state", "zone")     # FALSE - they cross-cut
 #' @export
-geo_nests <- function(x, parent, child) {
-  fam <- geo_family(x, parent, child)
+geoscale_nests <- function(x, parent, child) {
+  fam <- geoscale_family(x, parent, child)
   multi <- unique(fam$child[duplicated(fam$child)])
   ok <- length(multi) == 0L
   if (!ok) attr(ok, "offenders") <- multi
@@ -122,7 +122,7 @@ geo_nests <- function(x, parent, child) {
 #' level pairs.
 #'
 #' Computed **atom-mediated**, directly from `@leaves` — deliberately not as a
-#' transitive closure of [`geo_family()`]. `timeslices` can use a closure
+#' transitive closure of [`geoscale_family()`]. `timeslices` can use a closure
 #' because time levels genuinely nest; spatial levels cross-cut, and a closure
 #' then manufactures false relationships. In the example Geoscale, zone `ZB`
 #' straddles both countries, so closing `country -> state -> zone -> atom`
@@ -130,7 +130,7 @@ geo_nests <- function(x, parent, child) {
 #' country `S`.
 #'
 #' For levels that do not nest this relation is *overlap*, not containment —
-#' test a given pair with [`geo_nests()`].
+#' test a given pair with [`geoscale_nests()`].
 #'
 #' Level columns are retained because region codes are not unique across
 #' levels: in the example, `"N1"` exists at both `state` and `zone`, so a bare
@@ -142,9 +142,9 @@ geo_nests <- function(x, parent, child) {
 #'   `child_level`, `child`.
 #'
 #' @examples
-#' head(geo_ancestry(geoscale_example()))
+#' head(geoscale_ancestry(geoscale_example()))
 #' @export
-geo_ancestry <- function(x) {
+geoscale_ancestry <- function(x) {
   .check_geoscale(x)
   lv <- S7::prop(x, "levels")
   if (length(lv) < 2L) return(.empty_family())
@@ -152,7 +152,7 @@ geo_ancestry <- function(x) {
   parts <- list()
   for (i in seq_len(length(lv) - 1L)) {
     for (j in seq(i + 1L, length(lv))) {
-      parts[[length(parts) + 1L]] <- geo_family(x, lv[i], lv[j])
+      parts[[length(parts) + 1L]] <- geoscale_family(x, lv[i], lv[j])
     }
   }
   out <- do.call(rbind, parts)
@@ -164,8 +164,8 @@ geo_ancestry <- function(x) {
 
 #' Navigate a region hierarchy
 #'
-#' `geo_children()` and `geo_parents()` step one level; `geo_descendants()`
-#' and `geo_ancestors()` follow the transitive closure.
+#' `geoscale_children()` and `geoscale_parents()` step one level; `geoscale_descendants()`
+#' and `geoscale_ancestors()` follow the transitive closure.
 #'
 #' `level` is required in every case — region codes are not unique across
 #' levels, so a bare code is ambiguous.
@@ -173,28 +173,28 @@ geo_ancestry <- function(x) {
 #' @param x A [`Geoscale`].
 #' @param level Level that `region` belongs to.
 #' @param region Character vector of region codes at `level`.
-#' @param to Target level. For `geo_children()`/`geo_parents()` this defaults
+#' @param to Target level. For `geoscale_children()`/`geoscale_parents()` this defaults
 #'   to the adjacent level; for the transitive versions, `NULL` means all
 #'   levels below/above.
 #'
-#' @return `geo_children()` and `geo_parents()` return a character vector of
-#'   codes at a single level. `geo_descendants()` and `geo_ancestors()` span
+#' @return `geoscale_children()` and `geoscale_parents()` return a character vector of
+#'   codes at a single level. `geoscale_descendants()` and `geoscale_ancestors()` span
 #'   several levels and so return a `data.frame` with columns `level` and
 #'   `region` — a bare character vector would be ambiguous, since the same
 #'   code can occur at more than one level.
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geo_children(gs, "country", "N")
-#' geo_parents(gs, "state", "N1", to = "country")
-#' geo_descendants(gs, "country", "N")
-#' geo_ancestors(gs, "atom", "A5")
-#' @name geo_navigate
+#' geoscale_children(gs, "country", "N")
+#' geoscale_parents(gs, "state", "N1", to = "country")
+#' geoscale_descendants(gs, "country", "N")
+#' geoscale_ancestors(gs, "atom", "A5")
+#' @name geoscale_navigate
 NULL
 
-#' @rdname geo_navigate
+#' @rdname geoscale_navigate
 #' @export
-geo_children <- function(x, level, region, to = NULL) {
+geoscale_children <- function(x, level, region, to = NULL) {
   .check_geoscale(x)
   .check_level(x, level)
   lv <- S7::prop(x, "levels")
@@ -209,9 +209,9 @@ geo_children <- function(x, level, region, to = NULL) {
   .related(x, level, region, to)
 }
 
-#' @rdname geo_navigate
+#' @rdname geoscale_navigate
 #' @export
-geo_parents <- function(x, level, region, to = NULL) {
+geoscale_parents <- function(x, level, region, to = NULL) {
   .check_geoscale(x)
   .check_level(x, level)
   lv <- S7::prop(x, "levels")
@@ -226,9 +226,9 @@ geo_parents <- function(x, level, region, to = NULL) {
   .related(x, level, region, to)
 }
 
-#' @rdname geo_navigate
+#' @rdname geoscale_navigate
 #' @export
-geo_descendants <- function(x, level, region, to = NULL) {
+geoscale_descendants <- function(x, level, region, to = NULL) {
   .check_geoscale(x)
   .check_level(x, level)
   lv <- S7::prop(x, "levels")
@@ -242,9 +242,9 @@ geo_descendants <- function(x, level, region, to = NULL) {
   .related_df(x, level, region, targets)
 }
 
-#' @rdname geo_navigate
+#' @rdname geoscale_navigate
 #' @export
-geo_ancestors <- function(x, level, region, to = NULL) {
+geoscale_ancestors <- function(x, level, region, to = NULL) {
   .check_geoscale(x)
   .check_level(x, level)
   lv <- S7::prop(x, "levels")
@@ -303,9 +303,9 @@ geo_ancestors <- function(x, level, region, to = NULL) {
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geo_filter(gs, "country", "N")
+#' filter_geoscale(gs, "country", "N")
 #' @export
-geo_filter <- function(x, level, region, drop_empty_levels = FALSE) {
+filter_geoscale <- function(x, level, region, drop_empty_levels = FALSE) {
   .check_geoscale(x)
   .check_level(x, level)
   leaves <- S7::prop(x, "leaves")
@@ -335,9 +335,9 @@ geo_filter <- function(x, level, region, drop_empty_levels = FALSE) {
 #' @return A [`Geoscale`].
 #'
 #' @examples
-#' geo_prune(geoscale_example(), "state")
+#' prune_geoscale(geoscale_example(), "state")
 #' @export
-geo_prune <- function(x, level) {
+prune_geoscale <- function(x, level) {
   .check_geoscale(x)
   .check_level(x, level)
   lv <- S7::prop(x, "levels")
@@ -347,7 +347,7 @@ geo_prune <- function(x, level) {
   leaves <- leaves[!is.na(leaves[[level]]), , drop = FALSE]
   if (nrow(leaves) == 0L) .stop("no atoms have a code at level `%s`", level)
 
-  wts <- geo_weights(x)
+  wts <- geoscale_weights(x)
   grp <- leaves[, keep_lv, drop = FALSE]
   key <- do.call(paste, c(unname(as.list(grp)), sep = "\r"))
   idx <- !duplicated(key)
@@ -404,7 +404,7 @@ geo_prune <- function(x, level) {
 
 #' Subset a Geoscale with `[`
 #'
-#' `gs[level, region]` is shorthand for [`geo_filter()`].
+#' `gs[level, region]` is shorthand for [`filter_geoscale()`].
 #'
 #' @param x A [`Geoscale`].
 #' @param i Level name.
@@ -433,7 +433,7 @@ geo_prune <- function(x, level) {
   if (missing(i) || missing(j)) {
     .stop("subset a Geoscale as `gs[level, region]`")
   }
-  geo_filter(x, i, j)
+  filter_geoscale(x, i, j)
 }
 
 # Alias on the fully-qualified S7 class name: that is what `class()` returns
@@ -441,9 +441,6 @@ geo_prune <- function(x, level) {
 # to `[.S7_object`, which errors.
 #' @rdname sub-.Geoscale
 #' @export
-`[.geoscales::Geoscale` <- `[.Geoscale`
-
-#' @noRd
 `[.geoscales::Geoscale` <- `[.Geoscale`
 
 #' Weight shares within a level
@@ -457,15 +454,15 @@ geo_prune <- function(x, level) {
 #'   normalises over the whole object.
 #'
 #' @return A `data.frame` with a code column named `level` (matching the
-#'   convention of [`geo_recast()`]), the weight, and `share`. When `within`
+#'   convention of [`recast_geoscale()`]), the weight, and `share`. When `within`
 #'   is given, a column of that name carries the parent code.
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geo_share(gs, "state", weight = "km2")
-#' geo_share(gs, "state", weight = "km2", within = "country")
+#' geoscale_share(gs, "state", weight = "km2")
+#' geoscale_share(gs, "state", weight = "km2", within = "country")
 #' @export
-geo_share <- function(x, level, weight = NULL, within = NULL) {
+geoscale_share <- function(x, level, weight = NULL, within = NULL) {
   .check_geoscale(x)
   .check_level(x, level)
   weight <- .resolve_weight(x, weight)

@@ -53,6 +53,6 @@ Construct with
 
 ## See also
 
-[`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geo_recast.md),
-[`geo_filter()`](https://optimal2050.github.io/geoscales/r/reference/geo_filter.md),
-[`geo_share()`](https://optimal2050.github.io/geoscales/r/reference/geo_share.md)
+[`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
+[`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md),
+[`geoscale_share()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_share.md)

@@ -1,7 +1,7 @@
 # Subset a Geoscale with `[`
 
 `gs[level, region]` is shorthand for
-[`geo_filter()`](https://optimal2050.github.io/geoscales/r/reference/geo_filter.md).
+[`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md).
 
 ## Usage
 

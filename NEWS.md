@@ -1,5 +1,31 @@
 # geoscales 0.1.0.9000
 
+## Harmonized naming with timescales
+
+One convention across the sibling packages: **`verb_class()`** for data
+operations and object transforms, **class-prefixed nouns** for
+properties and queries, constructors unchanged, registries
+`register_/get_/list_/clear_` with a `geo` domain word. The old `geo_*`
+names warn and forward (removal before 1.0):
+
+* Verbs: `geo_recast()` -> `recast_geoscale()`, `geo_filter()` ->
+  `filter_geoscale()`, `geo_prune()` -> `prune_geoscale()`,
+  `geo_attach_geometry()` -> `attach_geometry_geoscale()`,
+  `geo_area()` -> `add_area_geoscale()`.
+* Properties/queries: `geo_<x>()` -> `geoscale_<x>()` (levels, rank,
+  weights, regions, family, nests, ancestry, children, parents,
+  descendants, ancestors, share, geometry, layout, autoplot, plot).
+  `geoscale_autoplot()`'s first argument is now `x`.
+* Registries: `geo_register_rule()` -> `register_geo_rule()` (and
+  get/list/clear alike); `geo_provider()` -> `get_geo_provider()`.
+* **`recast()` method registered on the timescales generic** (timescales
+  moved to Imports): `x |> recast(cal_a, cal_b) |> recast(gs, to =
+  "country")` chains time and space; the source level is inferred from
+  `x`'s columns or passed as `from_level=`.
+* New `join_geoscale()`: attach coarser-level membership plus
+  weight/share columns to region-keyed data — the spatial mirror of
+  `timescales::join_calendar()`.
+
 ## Milestone 1
 
 First working version: the `Geoscale` class, the conversion verb, navigation,

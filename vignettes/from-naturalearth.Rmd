@@ -29,7 +29,7 @@ directory and no bundled boundaries. A provider fetches a source table; the
 package records what was fetched.
 
 ```{r, eval = TRUE}
-geo_list_providers()
+list_geo_providers()
 ```
 
 Natural Earth is the default provider because its country table is *already*
@@ -63,7 +63,7 @@ because population is *extensive* — it adds up:
 pop <- data.frame(country = lf$country, pop = lf$pop_est)
 pop <- pop[!is.na(pop$country), ]
 
-agg <- geo_recast(pop, gs, from = "country", to = "subregion", rule = "sum")
+agg <- recast_geoscale(pop, gs, from = "country", to = "subregion", rule = "sum")
 agg[agg$subregion == "Northern Europe", ]
 ```
 
@@ -75,7 +75,7 @@ proportion to a weight, so the total is conserved:
 ```{r}
 ne <- agg[agg$subregion == "Northern Europe", ]
 
-back <- geo_recast(ne, gs, from = "subregion", to = "country",
+back <- recast_geoscale(ne, gs, from = "subregion", to = "country",
                    rule = "sum", weight = "pop_est")
 head(back[order(-back$pop), ], 4)
 ```
@@ -88,7 +88,7 @@ sum(back$pop) == sum(ne$pop)
 ```
 
 That is the whole idea: **aggregation and disaggregation are one operation.**
-Direction follows the level ranks, and `geo_recast()` routes through the atom
+Direction follows the level ranks, and `recast_geoscale()` routes through the atom
 layer either way.
 
 ## Iceland's own regions
@@ -122,8 +122,8 @@ isl <- data.frame(
 
 g <- geoscale_from_leaves(isl, levels = c("country", "landshluti", "unit"),
                           key = "unit", name = "iceland")
-g <- geo_attach_geometry(g, s, by = "iso_3166_2", level = "unit")
-g <- geo_area(g, name = "km2")
+g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", level = "unit")
+g <- add_area_geoscale(g, name = "km2")
 g
 ```
 
@@ -133,22 +133,22 @@ the internal atom key, so it is reserved for the finest level.
 The Capital Region is the one that has two units under it:
 
 ```{r, eval = has_hires}
-geo_children(g, "landshluti", "Hofudborgarsvadi")
-geo_nests(g, "landshluti", "unit")
+geoscale_children(g, "landshluti", "Hofudborgarsvadi")
+geoscale_nests(g, "landshluti", "unit")
 ```
 
 ### Up: units to regions to country
 
 ```{r, eval = has_hires}
 set.seed(1)
-x <- data.frame(unit = geo_regions(g, "unit"),
+x <- data.frame(unit = geoscale_regions(g, "unit"),
                 generation = round(runif(9, 50, 500)))
 
-geo_recast(x, g, from = "unit", to = "landshluti", rule = "sum")
+recast_geoscale(x, g, from = "unit", to = "landshluti", rule = "sum")
 ```
 
 ```{r, eval = has_hires}
-geo_recast(x, g, from = "unit", to = "country", rule = "sum")
+recast_geoscale(x, g, from = "unit", to = "country", rule = "sum")
 sum(x$generation)
 ```
 
@@ -157,7 +157,7 @@ sum(x$generation)
 ```{r, eval = has_hires}
 tot <- data.frame(country = "ISL", demand = 1000)
 
-dd <- geo_recast(tot, g, from = "country", to = "unit",
+dd <- recast_geoscale(tot, g, from = "country", to = "unit",
                  rule = "sum", weight = "km2")
 dd[order(-dd$demand), ]
 ```
@@ -165,7 +165,7 @@ dd[order(-dd$demand), ]
 Look at what that produces. The Capital Region units receive almost nothing,
 because they are tiny — yet they hold most of Iceland's population and would
 consume most of its electricity. **Area is rarely the right weight for
-demand.** This is precisely why `geo_recast()` makes you name a `weight =`
+demand.** This is precisely why `recast_geoscale()` makes you name a `weight =`
 rather than picking one for you; with a population column on the leaves you
 would pass that instead.
 
@@ -173,30 +173,30 @@ An *intensive* quantity must not be summed at all — use `weighted_mean`, which
 copies going down and weight-averages going up:
 
 ```{r, eval = has_hires}
-cf <- data.frame(unit = geo_regions(g, "unit"),
+cf <- data.frame(unit = geoscale_regions(g, "unit"),
                  cf = round(runif(9, 0.2, 0.5), 3))
 
-geo_recast(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
+recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
 ```
 
 ### Geometry follows the levels
 
-`geo_geometry()` dissolves the atoms up to whatever level you ask for, so the
+`geoscale_geometry()` dissolves the atoms up to whatever level you ask for, so the
 nine units become eight regions:
 
 ```{r, eval = has_hires}
-shp <- geo_geometry(g, level = "landshluti")
+shp <- geoscale_geometry(g, level = "landshluti")
 nrow(shp)
 ```
 
 ```{r, eval = has_hires && requireNamespace("ggplot2", quietly = TRUE), fig.width = 7, fig.height = 4}
-geo_plot(g, level = "landshluti")
+geoscale_plot(g, level = "landshluti")
 ```
 
 ## Other providers
 
 The same interface accepts any source. Register one with
-`geo_register_provider()`, or pass an `sf` object straight to
+`register_geo_provider()`, or pass an `sf` object straight to
 `geoscale_from_provider()`. Natural candidates are `giscoR` (authoritative
 NUTS for Europe), `geodata`/GADM (admin-2 and admin-3 — note its licence
 forbids commercial use) and `tigris` (US Census).

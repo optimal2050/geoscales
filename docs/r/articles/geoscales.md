@@ -46,9 +46,9 @@ In the example, zone `ZB` draws atoms from two different states, so
 
 ``` r
 
-geo_nests(gs, "country", "state")
+geoscale_nests(gs, "country", "state")
 #> [1] TRUE
-geo_nests(gs, "state", "zone")
+geoscale_nests(gs, "state", "zone")
 #> [1] FALSE
 #> attr(,"offenders")
 #> [1] "ZB"
@@ -59,7 +59,7 @@ Real data behaves the same way. In the IDEEA region table for India, the
 `reg35` does not nest inside `reg32`.
 
 This is exactly why the atom layer exists, and why
-[`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geo_recast.md)
+[`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 always routes through it.
 
 ## Codes are not unique across levels
@@ -69,9 +69,9 @@ therefore ambiguous, and every lookup must name its level:
 
 ``` r
 
-geo_children(gs, "state", "N1")
+geoscale_children(gs, "state", "N1")
 #> [1] "N1"
-geo_children(gs, "zone", "N1")
+geoscale_children(gs, "zone", "N1")
 #> [1] "A1" "A2"
 ```
 
@@ -80,7 +80,7 @@ seven. This is the norm, not an edge case.
 
 ## Recasting: one verb, both directions
 
-[`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geo_recast.md)
+[`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 projects source values down to atoms and then aggregates them up to the
 target, so aggregation and disaggregation are the same operation. The
 direction falls out of the level ranks.
@@ -91,7 +91,7 @@ Going up, an extensive quantity is summed:
 
 cap <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                   capacity = c(1, 2, 3, 4, 5, 6))
-geo_recast(cap, gs, from = "atom", to = "country", rule = "sum")
+recast_geoscale(cap, gs, from = "atom", to = "country", rule = "sum")
 #>   country capacity
 #> 1       N       10
 #> 2       S       11
@@ -102,7 +102,7 @@ Going down, the same rule splits proportionally to a weight:
 ``` r
 
 y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-geo_recast(y, gs, from = "country", to = "state",
+recast_geoscale(y, gs, from = "country", to = "state",
            rule = "sum", weight = "km2")
 #>   state capacity
 #> 1    N1        3
@@ -114,8 +114,8 @@ Totals are preserved, and a round trip is exact:
 
 ``` r
 
-up   <- geo_recast(cap, gs, "atom", "state", rule = "sum")
-back <- geo_recast(up, gs, "state", "atom", rule = "sum", weight = "km2")
+up   <- recast_geoscale(cap, gs, "atom", "state", rule = "sum")
+back <- recast_geoscale(up, gs, "state", "atom", rule = "sum", weight = "km2")
 back
 #>   atom capacity
 #> 1   A1        1
@@ -141,7 +141,7 @@ An intensive quantity must not be summed:
 
 eff <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                   eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-geo_recast(eff, gs, "atom", "state", rule = "weighted_mean", weight = "pop")
+recast_geoscale(eff, gs, "atom", "state", rule = "weighted_mean", weight = "pop")
 #>   state  eff
 #> 1    N1 0.39
 #> 2    N2 0.50
@@ -155,13 +155,13 @@ value column is then converted by its own rule in a single call:
 
 ``` r
 
-geo_register_rule("capacity", "sum")
-geo_register_rule("eff", "weighted_mean", weight = "pop")
+register_geo_rule("capacity", "sum")
+register_geo_rule("eff", "weighted_mean", weight = "pop")
 
 mix <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                   capacity = c(1, 2, 3, 4, 5, 6),
                   eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-geo_recast(mix, gs, "atom", "state")
+recast_geoscale(mix, gs, "atom", "state")
 #>   state capacity  eff
 #> 1    N1        3 0.39
 #> 2    N2        7 0.50
@@ -184,12 +184,12 @@ x <- rbind(cap, data.frame(atom = "ROW", capacity = 100))
 
 # "drop" (default) loses the uncovered share, and says so
 out <- suppressWarnings(
-  geo_recast(x, gs, "atom", "country", rule = "sum"))
+  recast_geoscale(x, gs, "atom", "country", rule = "sum"))
 sum(out$capacity)
 #> [1] 21
 
 # "keep" conserves the total in an explicit NA group
-kept <- geo_recast(x, gs, "atom", "country", rule = "sum",
+kept <- recast_geoscale(x, gs, "atom", "country", rule = "sum",
                    na_action = "keep")
 sum(kept$capacity)
 #> [1] 121
@@ -211,7 +211,7 @@ panel <- data.frame(
   year = rep(c(2020L, 2021L), 3),
   capacity = c(1, 2, 3, 4, 5, 6)
 )
-geo_recast(panel, gs, "atom", "state", rule = "sum", values = "capacity")
+recast_geoscale(panel, gs, "atom", "state", rule = "sum", values = "capacity")
 #>   state year capacity
 #> 1    N1 2020        4
 #> 2    N2 2020        5
@@ -223,15 +223,15 @@ geo_recast(panel, gs, "atom", "state", rule = "sum", values = "capacity")
 
 ``` r
 
-geo_regions(gs, "state")
+geoscale_regions(gs, "state")
 #> [1] "N1" "N2" "S1"
-geo_family(gs, "state", "zone")
+geoscale_family(gs, "state", "zone")
 #>   parent_level parent child_level child
 #> 1        state     N1        zone    N1
 #> 2        state     N2        zone    ZB
 #> 3        state     S1        zone    ZB
 #> 4        state     S1        zone    ZC
-geo_descendants(gs, "country", "N")
+geoscale_descendants(gs, "country", "N")
 #>   level region
 #> 1 state     N1
 #> 2 state     N2
@@ -241,7 +241,7 @@ geo_descendants(gs, "country", "N")
 #> 6  atom     A2
 #> 7  atom     A3
 #> 8  atom     A4
-geo_share(gs, "state", weight = "km2", within = "country")
+geoscale_share(gs, "state", weight = "km2", within = "country")
 #>   state country  km2 share
 #> 1    N1       N  300   0.3
 #> 2    N2       N  700   0.7
@@ -250,7 +250,7 @@ geo_share(gs, "state", weight = "km2", within = "country")
 
 ``` r
 
-geo_filter(gs, "country", "N")
+filter_geoscale(gs, "country", "N")
 #> Geoscale: example 
 #> Description: Synthetic example: reused code, non-nesting level pair, and an unassigned atom 
 #> Levels (4, coarsest first):
@@ -270,7 +270,7 @@ gs["country", "N"]
 #>         - atom (4)
 #> Atoms: 4
 #> Weights: km2, pop (default: km2)
-geo_prune(gs, "state")
+prune_geoscale(gs, "state")
 #> Geoscale: example 
 #> Description: Synthetic example: reused code, non-nesting level pair, and an unassigned atom 
 #> Levels (2, coarsest first):
@@ -328,20 +328,20 @@ see
 
 ## Plotting
 
-[`geo_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geo_autoplot.md)
+[`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
 draws the hierarchy itself as an icicle — one row per level, widths
 proportional to weight. It needs no geometry.
 
 ``` r
 
-geo_autoplot(gs)
+geoscale_autoplot(gs)
 ```
 
 ![](geoscales_files/figure-html/unnamed-chunk-17-1.png)
 
 With geometry attached via
-[`geo_attach_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geo_attach_geometry.md),
-[`geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geo_plot.md)
+[`attach_geometry_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.md),
+[`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md)
 draws a choropleth instead — pass a `data.frame` and name the column to
 colour by.
 [`geoscale_example()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_example.md)

@@ -4,16 +4,16 @@ test_that("the example Geoscale is well formed", {
   expect_equal(S7::prop(gs, "levels"),
                c("country", "state", "zone", "atom"))
   expect_equal(nrow(S7::prop(gs, "leaves")), 7L)
-  expect_equal(geo_regions(gs, "country"), c("N", "S"))
-  expect_equal(geo_weights(gs), c("km2", "pop"))
-  expect_equal(geo_rank(gs, c("zone", "country")), c(3L, 1L))
+  expect_equal(geoscale_regions(gs, "country"), c("N", "S"))
+  expect_equal(geoscale_weights(gs), c("km2", "pop"))
+  expect_equal(geoscale_rank(gs, c("zone", "country")), c(3L, 1L))
 })
 
 test_that("members hold exactly the non-NA codes at each level", {
   gs <- geoscale_example()
   leaves <- S7::prop(gs, "leaves")
   for (lvl in S7::prop(gs, "levels")) {
-    expect_setequal(geo_regions(gs, lvl),
+    expect_setequal(geoscale_regions(gs, lvl),
                     unique(stats::na.omit(leaves[[lvl]])))
   }
 })
@@ -23,7 +23,7 @@ test_that("blank codes are normalised to NA", {
                    km2 = c(1, 2, 3))
   gs <- geoscale_from_leaves(df, levels = c("top", "unit"))
   expect_true(is.na(S7::prop(gs, "leaves")$top[2]))
-  expect_equal(geo_regions(gs, "top"), "T")
+  expect_equal(geoscale_regions(gs, "top"), "T")
 })
 
 test_that("'region' is allowed as the finest level name only", {
@@ -34,8 +34,8 @@ test_that("'region' is allowed as the finest level name only", {
                km2 = c(1, 2, 3)),
     levels = c("zone", "region")
   )
-  expect_equal(geo_levels(ok, finest = TRUE), "region")
-  expect_equal(geo_children(ok, "zone", "N"), c("R1", "R2"))
+  expect_equal(geoscale_levels(ok, finest = TRUE), "region")
+  expect_equal(geoscale_children(ok, "zone", "N"), c("R1", "R2"))
 
   # As a coarser level it would clash with the key column.
   expect_error(
@@ -47,10 +47,10 @@ test_that("'region' is allowed as the finest level name only", {
   )
 })
 
-test_that("geo_levels reports the hierarchy", {
+test_that("geoscale_levels reports the hierarchy", {
   gs <- geoscale_example()
-  expect_equal(geo_levels(gs), c("country", "state", "zone", "atom"))
-  expect_equal(geo_levels(gs, finest = TRUE), "atom")
+  expect_equal(geoscale_levels(gs), c("country", "state", "zone", "atom"))
+  expect_equal(geoscale_levels(gs, finest = TRUE), "atom")
 })
 
 test_that("the validator rejects a duplicate atom key", {

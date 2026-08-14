@@ -41,7 +41,7 @@ gs
 #>         - atom (7)
 #> Atoms: 7
 #> Weights: km2, pop (default: km2)
-geo_nests(gs, "state", "zone")   # FALSE - they cross-cut
+geoscale_nests(gs, "state", "zone")   # FALSE - they cross-cut
 #> [1] FALSE
 #> attr(,"offenders")
 #> [1] "ZB"

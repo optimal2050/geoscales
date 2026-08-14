@@ -1,31 +1,31 @@
 test_that("rules can be registered, read back and cleared", {
-  geo_clear_rules()
-  on.exit(geo_clear_rules(), add = TRUE)
+  clear_geo_rules()
+  on.exit(clear_geo_rules(), add = TRUE)
 
-  geo_register_rule("capacity", "sum")
-  geo_register_rule("eff", "weighted_mean", weight = "pop")
+  register_geo_rule("capacity", "sum")
+  register_geo_rule("eff", "weighted_mean", weight = "pop")
 
-  expect_equal(geo_get_rule("capacity")$rule, "sum")
-  expect_equal(geo_get_rule("eff")$weight, "pop")
-  expect_null(geo_get_rule("never_registered"))
+  expect_equal(get_geo_rule("capacity")$rule, "sum")
+  expect_equal(get_geo_rule("eff")$weight, "pop")
+  expect_null(get_geo_rule("never_registered"))
 
-  tbl <- geo_list_rules()
+  tbl <- list_geo_rules()
   expect_equal(tbl$param, c("capacity", "eff"))
   expect_true(is.na(tbl$weight[tbl$param == "capacity"]))
 
-  geo_clear_rules("capacity")
-  expect_null(geo_get_rule("capacity"))
+  clear_geo_rules("capacity")
+  expect_null(get_geo_rule("capacity"))
 })
 
 test_that("an invalid rule name is rejected", {
-  expect_error(geo_register_rule("x", "nonsense"), "arg")
+  expect_error(register_geo_rule("x", "nonsense"), "arg")
 })
 
-test_that("geo_recast infers rules per column from the registry", {
-  geo_clear_rules()
-  on.exit(geo_clear_rules(), add = TRUE)
-  geo_register_rule("capacity", "sum")
-  geo_register_rule("eff", "weighted_mean", weight = "pop")
+test_that("recast_geoscale infers rules per column from the registry", {
+  clear_geo_rules()
+  on.exit(clear_geo_rules(), add = TRUE)
+  register_geo_rule("capacity", "sum")
+  register_geo_rule("eff", "weighted_mean", weight = "pop")
 
   gs <- geoscale_example()
   mix <- data.frame(
@@ -33,7 +33,7 @@ test_that("geo_recast infers rules per column from the registry", {
     capacity = c(1, 2, 3, 4, 5, 6),
     eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6)
   )
-  out <- geo_recast(mix, gs, "atom", "state")
+  out <- recast_geoscale(mix, gs, "atom", "state")
 
   # capacity summed, eff population-weighted, in the same call
   expect_equal(out$capacity[out$state == "N1"], 3, tolerance = 1e-9)
@@ -41,21 +41,21 @@ test_that("geo_recast infers rules per column from the registry", {
 })
 
 test_that("an explicit rule overrides the registry", {
-  geo_clear_rules()
-  on.exit(geo_clear_rules(), add = TRUE)
-  geo_register_rule("capacity", "sum")
+  clear_geo_rules()
+  on.exit(clear_geo_rules(), add = TRUE)
+  register_geo_rule("capacity", "sum")
 
   gs <- geoscale_example()
   x <- data.frame(atom = c("A1", "A2"), capacity = c(1, 3))
-  out <- geo_recast(x, gs, "atom", "state", rule = "mean")
+  out <- recast_geoscale(x, gs, "atom", "state", rule = "mean")
   expect_equal(out$capacity[out$state == "N1"], 2, tolerance = 1e-9)
 })
 
 test_that("unregistered columns default to sum", {
-  geo_clear_rules()
-  on.exit(geo_clear_rules(), add = TRUE)
+  clear_geo_rules()
+  on.exit(clear_geo_rules(), add = TRUE)
   gs <- geoscale_example()
   x <- data.frame(atom = c("A1", "A2"), whatever = c(1, 3))
-  out <- geo_recast(x, gs, "atom", "state")
+  out <- recast_geoscale(x, gs, "atom", "state")
   expect_equal(out$whatever, 4, tolerance = 1e-9)
 })

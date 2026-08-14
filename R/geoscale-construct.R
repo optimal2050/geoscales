@@ -166,7 +166,7 @@ geoscale_from_leaves <- function(leaves,
 #' @examples
 #' gs <- geoscale_example()
 #' gs
-#' geo_nests(gs, "state", "zone")   # FALSE - they cross-cut
+#' geoscale_nests(gs, "state", "zone")   # FALSE - they cross-cut
 #' @export
 geoscale_example <- function() {
   df <- data.frame(

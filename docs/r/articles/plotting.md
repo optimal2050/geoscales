@@ -16,6 +16,12 @@ or any real-world boundary.
 ``` r
 
 gs <- energyRt::utopia_geoscale("honeycomb")
+#> Warning in geoscales::geo_attach_geometry(gs, utopia$map[[layout]], by = "region", : 'geo_attach_geometry' is deprecated.
+#> Use 'attach_geometry_geoscale' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_area(gs, name = "area"): 'geo_area' is deprecated.
+#> Use 'add_area_geoscale' instead.
+#> See help("Deprecated")
 gs
 #> Geoscale: utopia 
 #> Description: UTOPIA reference regions, nested nation -> zone -> region 
@@ -46,23 +52,29 @@ head(as.data.frame(S7::prop(gs, "leaves")), 4)
 
 A `Geoscale` is a hierarchy that *may* carry geometry, and the two are
 drawn by different functions.
-[`geo_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geo_autoplot.md)
+[`geo_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
 shows the **structure** — one row per level, widths proportional to
 weight — and needs no geometry at all:
 
 ``` r
 
 geo_autoplot(gs)
+#> Warning in geo_autoplot(gs): 'geo_autoplot' is deprecated.
+#> Use 'geoscale_autoplot' instead.
+#> See help("Deprecated")
 ```
 
 ![](plotting_files/figure-html/unnamed-chunk-5-1.png)
 
-[`geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geo_plot.md)
+[`geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
 shows the same regions in **space**:
 
 ``` r
 
 geo_plot(gs, label = TRUE)
+#> Warning in geo_plot(gs, label = TRUE): 'geo_plot' is deprecated.
+#> Use 'geoscale_plot' instead.
+#> See help("Deprecated")
 ```
 
 ![](plotting_files/figure-html/unnamed-chunk-6-1.png)
@@ -79,7 +91,7 @@ UTOPIA ships four alternative layouts. The hierarchy is identical in all
 of them — only the shapes differ, which is exactly the point: a
 `Geoscale` is a nesting first and a map second.
 
-[`geo_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geo_geometry.md)
+[`geo_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
 returns an ordinary `sf` object, so combining the layouts into one
 faceted figure needs nothing from this package:
 
@@ -92,6 +104,42 @@ shapes <- do.call(rbind, lapply(layouts, function(l) {
   s$layout <- l
   s
 }))
+#> Warning in geo_geometry(energyRt::utopia_geoscale(l), level = "region"): 'geo_geometry' is deprecated.
+#> Use 'geoscale_geometry' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_attach_geometry(gs, utopia$map[[layout]], by = "region", : 'geo_attach_geometry' is deprecated.
+#> Use 'attach_geometry_geoscale' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_area(gs, name = "area"): 'geo_area' is deprecated.
+#> Use 'add_area_geoscale' instead.
+#> See help("Deprecated")
+#> Warning in geo_geometry(energyRt::utopia_geoscale(l), level = "region"): 'geo_geometry' is deprecated.
+#> Use 'geoscale_geometry' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_attach_geometry(gs, utopia$map[[layout]], by = "region", : 'geo_attach_geometry' is deprecated.
+#> Use 'attach_geometry_geoscale' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_area(gs, name = "area"): 'geo_area' is deprecated.
+#> Use 'add_area_geoscale' instead.
+#> See help("Deprecated")
+#> Warning in geo_geometry(energyRt::utopia_geoscale(l), level = "region"): 'geo_geometry' is deprecated.
+#> Use 'geoscale_geometry' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_attach_geometry(gs, utopia$map[[layout]], by = "region", : 'geo_attach_geometry' is deprecated.
+#> Use 'attach_geometry_geoscale' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_area(gs, name = "area"): 'geo_area' is deprecated.
+#> Use 'add_area_geoscale' instead.
+#> See help("Deprecated")
+#> Warning in geo_geometry(energyRt::utopia_geoscale(l), level = "region"): 'geo_geometry' is deprecated.
+#> Use 'geoscale_geometry' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_attach_geometry(gs, utopia$map[[layout]], by = "region", : 'geo_attach_geometry' is deprecated.
+#> Use 'attach_geometry_geoscale' instead.
+#> See help("Deprecated")
+#> Warning in geoscales::geo_area(gs, name = "area"): 'geo_area' is deprecated.
+#> Use 'add_area_geoscale' instead.
+#> See help("Deprecated")
 
 ggplot2::ggplot(shapes) +
   ggplot2::geom_sf(fill = "grey92", colour = "white") +
@@ -114,7 +162,22 @@ levels_sf <- do.call(rbind, lapply(geo_levels(gs), function(l) {
   s$level <- l
   s
 }))
+#> Warning in geo_levels(gs): 'geo_levels' is deprecated.
+#> Use 'geoscale_levels' instead.
+#> See help("Deprecated")
+#> Warning in geo_geometry(gs, level = l): 'geo_geometry' is deprecated.
+#> Use 'geoscale_geometry' instead.
+#> See help("Deprecated")
+#> Warning in geo_geometry(gs, level = l): 'geo_geometry' is deprecated.
+#> Use 'geoscale_geometry' instead.
+#> See help("Deprecated")
+#> Warning in geo_geometry(gs, level = l): 'geo_geometry' is deprecated.
+#> Use 'geoscale_geometry' instead.
+#> See help("Deprecated")
 levels_sf$level <- factor(levels_sf$level, levels = geo_levels(gs))
+#> Warning in geo_levels(gs): 'geo_levels' is deprecated.
+#> Use 'geoscale_levels' instead.
+#> See help("Deprecated")
 
 ggplot2::ggplot(levels_sf) +
   ggplot2::geom_sf(ggplot2::aes(fill = code), colour = "white",
@@ -135,29 +198,37 @@ column to colour by:
 set.seed(1)
 gen <- data.frame(region = geo_regions(gs, "region"),
                   gen = round(runif(11, 10, 100)))
+#> Warning in geo_regions(gs, "region"): 'geo_regions' is deprecated.
+#> Use 'geoscale_regions' instead.
+#> See help("Deprecated")
 
 geo_plot(gs, gen, level = "region", fill = "gen",
          palette = "D", title = "Generation", subtitle = "TWh by region")
+#> Warning in geo_plot(gs, gen, level = "region", fill = "gen", palette = "D", : 'geo_plot' is deprecated.
+#> Use 'geoscale_plot' instead.
+#> See help("Deprecated")
 ```
 
 ![](plotting_files/figure-html/unnamed-chunk-9-1.png)
 
-[`geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geo_plot.md)
+[`geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
 is the package’s only choropleth renderer, and it is deliberately
 ignorant of what your numbers mean. Callers that *do* know —
-[`energyRt::geo_map()`](https://energyRt.org/reference/geo_map.html) is
-one — prepare the `data.frame` and hand it here rather than drawing
-their own `geom_sf()`.
+`energyRt::geo_map()` is one — prepare the `data.frame` and hand it here
+rather than drawing their own `geom_sf()`.
 
 ## Recasting, seen on the map
 
-[`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geo_recast.md)
+[`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
 is the one verb that moves data between levels, in both directions.
 Aggregating eleven regions into three zones with `rule = "sum"`:
 
 ``` r
 
 by_zone <- geo_recast(gen, gs, from = "region", to = "zone", rule = "sum")
+#> Warning in geo_recast(gen, gs, from = "region", to = "zone", rule = "sum"): 'geo_recast' is deprecated.
+#> Use 'recast_geoscale' instead.
+#> See help("Deprecated")
 by_zone
 #>      zone gen
 #> 1 CENTRAL 306
@@ -172,6 +243,9 @@ sum(by_zone$gen) == sum(gen$gen)
 geo_plot(gs, by_zone, level = "zone", fill = "gen",
          palette = "D", title = "Generation", subtitle = "aggregated to zones",
          label = TRUE)
+#> Warning in geo_plot(gs, by_zone, level = "zone", fill = "gen", palette = "D", : 'geo_plot' is deprecated.
+#> Use 'geoscale_plot' instead.
+#> See help("Deprecated")
 ```
 
 ![](plotting_files/figure-html/unnamed-chunk-11-1.png)
@@ -184,9 +258,15 @@ total in proportion to a weight, so the national figure is conserved:
 national <- data.frame(nation = "UTOPIA", gen = 1000)
 split_back <- geo_recast(national, gs, from = "nation", to = "region",
                          rule = "sum", weight = "area")
+#> Warning in geo_recast(national, gs, from = "nation", to = "region", rule = "sum", : 'geo_recast' is deprecated.
+#> Use 'recast_geoscale' instead.
+#> See help("Deprecated")
 
 geo_plot(gs, split_back, level = "region", fill = "gen", palette = "D",
          title = "A national total split by area")
+#> Warning in geo_plot(gs, split_back, level = "region", fill = "gen", palette = "D", : 'geo_plot' is deprecated.
+#> Use 'geoscale_plot' instead.
+#> See help("Deprecated")
 ```
 
 ![](plotting_files/figure-html/unnamed-chunk-12-1.png)
@@ -201,10 +281,19 @@ not: averaging it needs a weight, and summing it is meaningless.
 
 cf <- data.frame(region = geo_regions(gs, "region"),
                  cf = round(runif(11, 0.2, 0.6), 2))
+#> Warning in geo_regions(gs, "region"): 'geo_regions' is deprecated.
+#> Use 'geoscale_regions' instead.
+#> See help("Deprecated")
 
 right <- geo_recast(cf, gs, "region", "zone", rule = "weighted_mean",
                     weight = "area")
+#> Warning in geo_recast(cf, gs, "region", "zone", rule = "weighted_mean", : 'geo_recast' is deprecated.
+#> Use 'recast_geoscale' instead.
+#> See help("Deprecated")
 wrong <- geo_recast(cf, gs, "region", "zone", rule = "sum")
+#> Warning in geo_recast(cf, gs, "region", "zone", rule = "sum"): 'geo_recast' is deprecated.
+#> Use 'recast_geoscale' instead.
+#> See help("Deprecated")
 merge(right, wrong, by = "zone", suffixes = c("_weighted_mean", "_sum"))
 #>      zone cf_weighted_mean cf_sum
 #> 1 CENTRAL        0.5000000   2.00
@@ -221,14 +310,20 @@ see
 
 ## Subsetting
 
-[`geo_filter()`](https://optimal2050.github.io/geoscales/r/reference/geo_filter.md)
+[`geo_filter()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
 returns a smaller `Geoscale`, geometry included, so it plots like any
 other:
 
 ``` r
 
 west <- geo_filter(gs, level = "zone", region = "WEST")
+#> Warning in geo_filter(gs, level = "zone", region = "WEST"): 'geo_filter' is deprecated.
+#> Use 'filter_geoscale' instead.
+#> See help("Deprecated")
 geo_plot(west, label = TRUE, title = "WEST only")
+#> Warning in geo_plot(west, label = TRUE, title = "WEST only"): 'geo_plot' is deprecated.
+#> Use 'geoscale_plot' instead.
+#> See help("Deprecated")
 ```
 
 ![](plotting_files/figure-html/unnamed-chunk-14-1.png)

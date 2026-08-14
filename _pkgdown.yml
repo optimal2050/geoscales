@@ -40,10 +40,10 @@ reference:
     contents:
       - Geoscale
       - geoscale_example
-      - geo_levels
-      - geo_regions
-      - geo_rank
-      - geo_weights
+      - geoscale_levels
+      - geoscale_regions
+      - geoscale_rank
+      - geoscale_weights
       - "[.Geoscale"
 
   - title: Construction
@@ -61,37 +61,38 @@ reference:
       down to atoms and aggregated up to the target, so direction follows the
       level ranks and cross-cutting levels need no special handling.
     contents:
-      - geo_recast
+      - recast_geoscale
+      - join_geoscale
       - GEO_RULES
-      - geo_register_rule
-      - geo_get_rule
-      - geo_list_rules
-      - geo_clear_rules
+      - register_geo_rule
+      - get_geo_rule
+      - list_geo_rules
+      - clear_geo_rules
 
   - title: Navigation and subsetting
     desc: >
       Region codes are not unique across levels, so every lookup names its
       level.
     contents:
-      - geo_navigate
-      - geo_family
-      - geo_ancestry
-      - geo_nests
-      - geo_filter
-      - geo_prune
-      - geo_share
+      - geoscale_navigate
+      - geoscale_family
+      - geoscale_ancestry
+      - geoscale_nests
+      - filter_geoscale
+      - prune_geoscale
+      - geoscale_share
 
   - title: Geometry and plotting
     desc: >
-      Optional, and backed by 'sf'. The core is geometry-free; `geo_autoplot()`
+      Optional, and backed by 'sf'. The core is geometry-free; `geoscale_autoplot()`
       draws the hierarchy itself and needs no map.
     contents:
-      - geo_attach_geometry
-      - geo_geometry
-      - geo_area
-      - geo_autoplot
-      - geo_plot
-      - geo_layout
+      - attach_geometry_geoscale
+      - geoscale_geometry
+      - add_area_geoscale
+      - geoscale_autoplot
+      - geoscale_plot
+      - geoscale_layout
 
   - title: Data providers
     desc: >
@@ -99,9 +100,9 @@ reference:
       provider; its source and scale are recorded on the object, and no
       boundaries are bundled.
     contents:
-      - geo_provider
-      - geo_register_provider
-      - geo_list_providers
+      - get_geo_provider
+      - register_geo_provider
+      - list_geo_providers
       - ne_source
       - ne_geoscale
 
@@ -109,6 +110,10 @@ reference:
     contents:
       - CORE_LEVELS
       - is_valid_level
+
+  - title: Deprecated
+    contents:
+      - geoscales-deprecated
 
   - title: Package
     contents:

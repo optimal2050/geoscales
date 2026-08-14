@@ -5,8 +5,8 @@
 # level, laid out on a shared cumulative-weight axis, so the nesting structure
 # reads at a glance.
 #
-# With geometry attached, `geo_plot()` draws a choropleth. Without `sf` — or
-# without geometry — `geo_autoplot()` gives an icicle instead, mirroring how
+# With geometry attached, `geoscale_plot()` draws a choropleth. Without `sf` — or
+# without geometry — `geoscale_autoplot()` gives an icicle instead, mirroring how
 # `energyRt::plot_trade_map()` degrades to points and arrows when `sf` is
 # missing.
 #
@@ -81,9 +81,9 @@
 #'   `xmax`, `ymin`, `ymax`, `weight`, `share`.
 #'
 #' @examples
-#' head(geo_layout(geoscale_example()))
+#' head(geoscale_layout(geoscale_example()))
 #' @export
-geo_layout <- function(x, weight = NULL) {
+geoscale_layout <- function(x, weight = NULL) {
   .check_geoscale(x)
   weight <- .resolve_weight(x, weight)
   lv     <- S7::prop(x, "levels")
@@ -135,12 +135,12 @@ geo_layout <- function(x, weight = NULL) {
 #' each region's width proportional to its share of the weight.
 #'
 #' This is the *structure* plot — it shows the Geoscale itself and needs no
-#' geometry. For a map of values over regions, see [`geo_plot()`].
+#' geometry. For a map of values over regions, see [`geoscale_plot()`].
 #'
 #' Also registered as an `autoplot()` method, so `ggplot2::autoplot(gs)` works
 #' when ggplot2 is installed.
 #'
-#' @param object A [`Geoscale`].
+#' @param x A [`Geoscale`].
 #' @param weight Weight column determining widths. `NULL` uses the default.
 #' @param fill What to colour by: `"level"` or `"region"`.
 #' @param label Draw region codes on the rectangles.
@@ -150,25 +150,25 @@ geo_layout <- function(x, weight = NULL) {
 #'
 #' @examples
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   geo_autoplot(geoscale_example())
+#'   geoscale_autoplot(geoscale_example())
 #' }
 #' @export
-geo_autoplot <- function(object, weight = NULL,
-                         fill = c("level", "region"),
-                         label = TRUE, ...) {
-  .need_ggplot("geo_autoplot()")
+geoscale_autoplot <- function(x, weight = NULL,
+                              fill = c("level", "region"),
+                              label = TRUE, ...) {
+  .need_ggplot("geoscale_autoplot()")
   fill <- match.arg(fill)
-  d <- geo_layout(object, weight = weight)
+  d <- geoscale_layout(x, weight = weight)
   d$.fill <- d[[fill]]
-  lv <- S7::prop(object, "levels")
-  nm <- S7::prop(object, "meta")$name
+  lv <- S7::prop(x, "levels")
+  nm <- S7::prop(x, "meta")$name
 
   # Display names are resolved per level (each level has its own lookup) but
   # written back in place, so row order stays aligned with the rectangles.
   d$.label <- d$region
   for (l in unique(d$level)) {
     i <- d$level == l
-    d$.label[i] <- .apply_labels(d$region[i], .region_labels(object, l))
+    d$.label[i] <- .apply_labels(d$region[i], .region_labels(x, l))
   }
 
   p <- ggplot2::ggplot(d) +
@@ -195,15 +195,15 @@ geo_autoplot <- function(object, weight = NULL,
   p
 }
 
-#' @rdname geo_autoplot
+#' @rdname geoscale_autoplot
 #' @param x A [`Geoscale`].
 #' @export
-autoplot.Geoscale <- function(x, ...) geo_autoplot(x, ...)
+autoplot.Geoscale <- function(x, ...) geoscale_autoplot(x, ...)
 
 #' Map data onto a Geoscale
 #'
 #' Draws a choropleth of `data` at `level`. Requires `sf`, `ggplot2`, and
-#' geometry attached with [`geo_attach_geometry()`].
+#' geometry attached with [`attach_geometry_geoscale()`].
 #'
 #' This is the package's single choropleth renderer: callers that know what
 #' their numbers *mean* (which variable, extensive or intensive, what units)
@@ -228,23 +228,23 @@ autoplot.Geoscale <- function(x, ...) geo_autoplot(x, ...)
 #'
 #' @examples
 #' \dontrun{
-#' geo_plot(gs, capacity_by_state, level = "state", fill = "capacity")
+#' geoscale_plot(gs, capacity_by_state, level = "state", fill = "capacity")
 #'
 #' # titled, viridis, with region names drawn on
-#' geo_plot(gs, gen, level = "zone", fill = "value",
+#' geoscale_plot(gs, gen, level = "zone", fill = "value",
 #'          palette = "D", title = "Generation", label = TRUE)
 #' }
 #' @export
-geo_plot <- function(x, data = NULL, level = NULL, fill = NULL,
+geoscale_plot <- function(x, data = NULL, level = NULL, fill = NULL,
                      palette = NULL, title = NULL, subtitle = NULL,
                      fill_label = fill, label = FALSE, ...) {
   .check_geoscale(x)
-  .need_sf("geo_plot()")
-  .need_ggplot("geo_plot()")
+  .need_sf("geoscale_plot()")
+  .need_ggplot("geoscale_plot()")
   lv    <- S7::prop(x, "levels")
   level <- level %||% lv[length(lv)]
 
-  shp <- geo_geometry(x, level = level)
+  shp <- geoscale_geometry(x, level = level)
   if (!is.null(data)) {
     if (!level %in% names(data)) .stop("`data` has no column `%s`", level)
     if (is.null(fill) || !fill %in% names(data)) {

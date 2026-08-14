@@ -1,7 +1,7 @@
 # =============================================================================
 # Geometry — optional, sf-backed
 # =============================================================================
-# The core is geometry-free: `geo_recast()` and everything in filter.R operate
+# The core is geometry-free: `recast_geoscale()` and everything in filter.R operate
 # on tables only. Geometry is needed for three jobs — building atoms from
 # shapefiles, computing area weights, and plotting — all of which are R-side
 # and optional. `sf` is therefore in Suggests, and every entry point here
@@ -33,12 +33,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' gs <- geo_attach_geometry(gs, sf_polygons, by = "adm0_a3")
+#' gs <- attach_geometry_geoscale(gs, sf_polygons, by = "adm0_a3")
 #' }
 #' @export
-geo_attach_geometry <- function(x, geom, by = NULL, level = NULL) {
+attach_geometry_geoscale <- function(x, geom, by = NULL, level = NULL) {
   .check_geoscale(x)
-  .need_sf("geo_attach_geometry()")
+  .need_sf("attach_geometry_geoscale()")
   leaves <- S7::prop(x, "leaves")
   lv     <- S7::prop(x, "levels")
   level  <- level %||% lv[length(lv)]
@@ -88,15 +88,15 @@ geo_attach_geometry <- function(x, geom, by = NULL, level = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' geo_geometry(gs, level = "reg32")
+#' geoscale_geometry(gs, level = "reg32")
 #' }
 #' @export
-geo_geometry <- function(x, level = NULL) {
+geoscale_geometry <- function(x, level = NULL) {
   .check_geoscale(x)
-  .need_sf("geo_geometry()")
+  .need_sf("geoscale_geometry()")
   geom <- S7::prop(x, "geometry")
   if (is.null(geom)) {
-    .stop("no geometry attached; see `geo_attach_geometry()`")
+    .stop("no geometry attached; see `attach_geometry_geoscale()`")
   }
   lv    <- S7::prop(x, "levels")
   level <- level %||% lv[length(lv)]
@@ -144,15 +144,15 @@ geo_geometry <- function(x, level = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' gs <- geo_area(gs, name = "km2")
+#' gs <- add_area_geoscale(gs, name = "km2")
 #' }
 #' @export
-geo_area <- function(x, name = "km2", crs = "ESRI:54034") {
+add_area_geoscale <- function(x, name = "km2", crs = "ESRI:54034") {
   .check_geoscale(x)
-  .need_sf("geo_area()")
+  .need_sf("add_area_geoscale()")
   geom <- S7::prop(x, "geometry")
   if (is.null(geom)) {
-    .stop("no geometry attached; see `geo_attach_geometry()`")
+    .stop("no geometry attached; see `attach_geometry_geoscale()`")
   }
   # Geometry with no CRS is in arbitrary planar units (synthetic or teaching
   # maps often are), and `st_transform()` errors on it. Measure it as-is and

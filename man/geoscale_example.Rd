@@ -27,5 +27,5 @@ tree;
 \examples{
 gs <- geoscale_example()
 gs
-geo_nests(gs, "state", "zone")   # FALSE - they cross-cut
+geoscale_nests(gs, "state", "zone")   # FALSE - they cross-cut
 }

@@ -46,15 +46,15 @@ In the example, zone `ZB` draws atoms from two different states, so `state`
 and `zone` cross-cut:
 
 ```{r}
-geo_nests(gs, "country", "state")
-geo_nests(gs, "state", "zone")
+geoscale_nests(gs, "country", "state")
+geoscale_nests(gs, "state", "zone")
 ```
 
 Real data behaves the same way. In the IDEEA region table for India, the
 `reg32` code `APY` merges Andhra Pradesh with *part of* Puducherry, so
 `reg35` does not nest inside `reg32`.
 
-This is exactly why the atom layer exists, and why `geo_recast()` always
+This is exactly why the atom layer exists, and why `recast_geoscale()` always
 routes through it.
 
 ## Codes are not unique across levels
@@ -63,8 +63,8 @@ The code `"N1"` exists at both `state` and `zone`. A bare code is therefore
 ambiguous, and every lookup must name its level:
 
 ```{r}
-geo_children(gs, "state", "N1")
-geo_children(gs, "zone", "N1")
+geoscale_children(gs, "state", "N1")
+geoscale_children(gs, "zone", "N1")
 ```
 
 In IDEEA, 46 of 62 codes appear at more than one level — `AN` appears at
@@ -72,7 +72,7 @@ seven. This is the norm, not an edge case.
 
 ## Recasting: one verb, both directions
 
-`geo_recast()` projects source values down to atoms and then aggregates them
+`recast_geoscale()` projects source values down to atoms and then aggregates them
 up to the target, so aggregation and disaggregation are the same operation.
 The direction falls out of the level ranks.
 
@@ -81,22 +81,22 @@ Going up, an extensive quantity is summed:
 ```{r}
 cap <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                   capacity = c(1, 2, 3, 4, 5, 6))
-geo_recast(cap, gs, from = "atom", to = "country", rule = "sum")
+recast_geoscale(cap, gs, from = "atom", to = "country", rule = "sum")
 ```
 
 Going down, the same rule splits proportionally to a weight:
 
 ```{r}
 y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-geo_recast(y, gs, from = "country", to = "state",
+recast_geoscale(y, gs, from = "country", to = "state",
            rule = "sum", weight = "km2")
 ```
 
 Totals are preserved, and a round trip is exact:
 
 ```{r}
-up   <- geo_recast(cap, gs, "atom", "state", rule = "sum")
-back <- geo_recast(up, gs, "state", "atom", rule = "sum", weight = "km2")
+up   <- recast_geoscale(cap, gs, "atom", "state", rule = "sum")
+back <- recast_geoscale(up, gs, "state", "atom", rule = "sum", weight = "km2")
 back
 ```
 
@@ -114,7 +114,7 @@ An intensive quantity must not be summed:
 ```{r}
 eff <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                   eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-geo_recast(eff, gs, "atom", "state", rule = "weighted_mean", weight = "pop")
+recast_geoscale(eff, gs, "atom", "state", rule = "weighted_mean", weight = "pop")
 ```
 
 ### Registering rules per parameter
@@ -123,17 +123,17 @@ Rather than passing `rule=` at every call site, register it once. Each value
 column is then converted by its own rule in a single call:
 
 ```{r}
-geo_register_rule("capacity", "sum")
-geo_register_rule("eff", "weighted_mean", weight = "pop")
+register_geo_rule("capacity", "sum")
+register_geo_rule("eff", "weighted_mean", weight = "pop")
 
 mix <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                   capacity = c(1, 2, 3, 4, 5, 6),
                   eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-geo_recast(mix, gs, "atom", "state")
+recast_geoscale(mix, gs, "atom", "state")
 ```
 
 ```{r, include = FALSE}
-geo_clear_rules()
+clear_geo_rules()
 ```
 
 An explicit `rule=` always overrides the registry.
@@ -151,11 +151,11 @@ x <- rbind(cap, data.frame(atom = "ROW", capacity = 100))
 
 # "drop" (default) loses the uncovered share, and says so
 out <- suppressWarnings(
-  geo_recast(x, gs, "atom", "country", rule = "sum"))
+  recast_geoscale(x, gs, "atom", "country", rule = "sum"))
 sum(out$capacity)
 
 # "keep" conserves the total in an explicit NA group
-kept <- geo_recast(x, gs, "atom", "country", rule = "sum",
+kept <- recast_geoscale(x, gs, "atom", "country", rule = "sum",
                    na_action = "keep")
 sum(kept$capacity)
 ```
@@ -174,22 +174,22 @@ panel <- data.frame(
   year = rep(c(2020L, 2021L), 3),
   capacity = c(1, 2, 3, 4, 5, 6)
 )
-geo_recast(panel, gs, "atom", "state", rule = "sum", values = "capacity")
+recast_geoscale(panel, gs, "atom", "state", rule = "sum", values = "capacity")
 ```
 
 ## Navigating and subsetting
 
 ```{r}
-geo_regions(gs, "state")
-geo_family(gs, "state", "zone")
-geo_descendants(gs, "country", "N")
-geo_share(gs, "state", weight = "km2", within = "country")
+geoscale_regions(gs, "state")
+geoscale_family(gs, "state", "zone")
+geoscale_descendants(gs, "country", "N")
+geoscale_share(gs, "state", weight = "km2", within = "country")
 ```
 
 ```{r}
-geo_filter(gs, "country", "N")
+filter_geoscale(gs, "country", "N")
 gs["country", "N"]
-geo_prune(gs, "state")
+prune_geoscale(gs, "state")
 ```
 
 ## Building a Geoscale
@@ -222,14 +222,14 @@ Layer 1 is `geoscale_from_provider()`; see `vignette("from-naturalearth")`.
 
 ## Plotting
 
-`geo_autoplot()` draws the hierarchy itself as an icicle — one row per level,
+`geoscale_autoplot()` draws the hierarchy itself as an icicle — one row per level,
 widths proportional to weight. It needs no geometry.
 
 ```{r, fig.width = 7, fig.height = 3.2, eval = requireNamespace("ggplot2", quietly = TRUE)}
-geo_autoplot(gs)
+geoscale_autoplot(gs)
 ```
 
-With geometry attached via `geo_attach_geometry()`, `geo_plot()` draws a
+With geometry attached via `attach_geometry_geoscale()`, `geoscale_plot()` draws a
 choropleth instead — pass a `data.frame` and name the column to colour by.
 `geoscale_example()` carries no geometry, so those figures need a map, and they
 live in the online article [Plotting

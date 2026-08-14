@@ -36,5 +36,5 @@ Construct with \code{\link[=geoscale_from_leaves]{geoscale_from_leaves()}} (the 
 \code{\link[=geoscale_from_provider]{geoscale_from_provider()}} (from a data source such as Natural Earth).
 }
 \seealso{
-\code{\link[=geo_recast]{geo_recast()}}, \code{\link[=geo_filter]{geo_filter()}}, \code{\link[=geo_share]{geo_share()}}
+\code{\link[=recast_geoscale]{recast_geoscale()}}, \code{\link[=filter_geoscale]{filter_geoscale()}}, \code{\link[=geoscale_share]{geoscale_share()}}
 }

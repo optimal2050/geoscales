@@ -127,7 +127,7 @@ ne_source <- function(scale = 110, level = c("country", "states"),
 #'   object is self-documenting and reproducible.
 #'
 #' @details
-#' Do not derive area weights from `scale = 110`; see [`geo_area()`].
+#' Do not derive area weights from `scale = 110`; see [`add_area_geoscale()`].
 #'
 #' @examples
 #' \dontrun{
@@ -136,7 +136,7 @@ ne_source <- function(scale = 110, level = c("country", "states"),
 #' # roll population up from countries to sub-regions
 #' lf <- S7::prop(gs, "leaves")
 #' pop <- data.frame(country = lf$country, pop = lf$pop_est)
-#' geo_recast(pop[!is.na(pop$country), ], gs,
+#' recast_geoscale(pop[!is.na(pop$country), ], gs,
 #'            from = "country", to = "subregion", rule = "sum")
 #' }
 #' @export
@@ -177,7 +177,7 @@ ne_geoscale <- function(scale = 110,
 
 #' @noRd
 .register_builtin_providers <- function() {
-  geo_register_provider(
+  register_geo_provider(
     "naturalearth",
     fetch   = function(...) ne_source(...),
     levels  = c("continent", "subregion", "country", "feature"),

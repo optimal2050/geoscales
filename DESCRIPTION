@@ -1,6 +1,6 @@
 Package: geoscales
 Title: Nested Regions and Spatial Hierarchies for Modeling
-Version: 0.1.0.9000
+Version: 0.2.0.9000
 Date: 2026-08-04
 URL: https://optimal2050.github.io/geoscales/r/,
     https://optimal2050.github.io/geoscales/,
@@ -24,6 +24,7 @@ Depends:
 Imports:
     S7,
     stats,
+    timescales,
     utils
 Suggests:
     ggplot2,

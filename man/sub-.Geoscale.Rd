@@ -22,7 +22,7 @@
 A \code{\link{Geoscale}}.
 }
 \description{
-\code{gs[level, region]} is shorthand for \code{\link[=geo_filter]{geo_filter()}}.
+\code{gs[level, region]} is shorthand for \code{\link[=filter_geoscale]{filter_geoscale()}}.
 }
 \details{
 S7 ships a \verb{[.S7_object} that errors, so a method must be registered for

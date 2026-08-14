@@ -37,7 +37,7 @@ weighted by population and GDP.
 \code{feature} is the atom: the Natural Earth unit. \code{country} sits above it as a
 grouping of atoms, so it can only ever be coarser than \code{feature}.
 
-Do not derive area weights from \code{scale = 110}; see \code{\link[=geo_area]{geo_area()}}.
+Do not derive area weights from \code{scale = 110}; see \code{\link[=add_area_geoscale]{add_area_geoscale()}}.
 }
 \examples{
 \dontrun{
@@ -46,7 +46,7 @@ gs <- ne_geoscale(scale = 110)
 # roll population up from countries to sub-regions
 lf <- S7::prop(gs, "leaves")
 pop <- data.frame(country = lf$country, pop = lf$pop_est)
-geo_recast(pop[!is.na(pop$country), ], gs,
+recast_geoscale(pop[!is.na(pop$country), ], gs,
            from = "country", to = "subregion", rule = "sum")
 }
 }

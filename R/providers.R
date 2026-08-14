@@ -28,15 +28,15 @@
 #' @return Invisibly, the registered provider.
 #'
 #' @examples
-#' geo_register_provider(
+#' register_geo_provider(
 #'   "toy",
 #'   fetch = function(...) data.frame(top = c("T", "T"),
 #'                                    unit = c("a", "b"), km2 = c(1, 2)),
 #'   levels = c("top", "unit"), weights = "km2"
 #' )
-#' geo_list_providers()
+#' list_geo_providers()
 #' @export
-geo_register_provider <- function(name, fetch, levels = NULL,
+register_geo_provider <- function(name, fetch, levels = NULL,
                                   weights = NULL, desc = "") {
   if (!is.character(name) || length(name) != 1L || !nzchar(name)) {
     .stop("`name` must be a single non-empty string")
@@ -55,9 +55,9 @@ geo_register_provider <- function(name, fetch, levels = NULL,
 #' @return The provider entry, or an error if unknown.
 #'
 #' @examples
-#' geo_provider("naturalearth")$desc
+#' get_geo_provider("naturalearth")$desc
 #' @export
-geo_provider <- function(name) {
+get_geo_provider <- function(name) {
   if (!is.character(name) || length(name) != 1L ||
       !exists(name, envir = .PROVIDER_REGISTRY, inherits = FALSE)) {
     .stop("unknown provider \"%s\"; registered: %s",
@@ -72,13 +72,13 @@ geo_provider <- function(name) {
 #' @return A `data.frame` with columns `name` and `desc`.
 #'
 #' @examples
-#' geo_list_providers()
+#' list_geo_providers()
 #' @export
-geo_list_providers <- function() {
+list_geo_providers <- function() {
   nms <- sort(ls(envir = .PROVIDER_REGISTRY))
   data.frame(
     name = nms,
-    desc = vapply(nms, function(n) geo_provider(n)$desc %||% "",
+    desc = vapply(nms, function(n) get_geo_provider(n)$desc %||% "",
                   character(1)),
     stringsAsFactors = FALSE,
     row.names = NULL
@@ -120,7 +120,7 @@ geoscale_from_provider <- function(provider = "naturalearth",
                                    desc = "",
                                    ...) {
   if (is.character(provider)) {
-    p   <- geo_provider(provider)
+    p   <- get_geo_provider(provider)
     src <- p$fetch(...)
     levels  <- levels  %||% p$levels
     weights <- weights %||% p$weights

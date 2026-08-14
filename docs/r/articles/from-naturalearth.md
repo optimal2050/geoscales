@@ -13,7 +13,7 @@ the package records what was fetched.
 
 ``` r
 
-geo_list_providers()
+list_geo_providers()
 #>           name                                          desc
 #> 1 naturalearth Natural Earth admin-0/admin-1 (rnaturalearth)
 ```
@@ -65,7 +65,7 @@ Rolling population up from countries to sub-regions is one call.
 pop <- data.frame(country = lf$country, pop = lf$pop_est)
 pop <- pop[!is.na(pop$country), ]
 
-agg <- geo_recast(pop, gs, from = "country", to = "subregion", rule = "sum")
+agg <- recast_geoscale(pop, gs, from = "country", to = "subregion", rule = "sum")
 agg[agg$subregion == "Northern Europe", ]
 #>          subregion       pop
 #> 13 Northern Europe 105135601
@@ -80,7 +80,7 @@ total in proportion to a weight, so the total is conserved:
 
 ne <- agg[agg$subregion == "Northern Europe", ]
 
-back <- geo_recast(ne, gs, from = "subregion", to = "country",
+back <- recast_geoscale(ne, gs, from = "subregion", to = "country",
                    rule = "sum", weight = "pop_est")
 head(back[order(-back$pop), ], 4)
 #>    country      pop
@@ -103,7 +103,7 @@ sum(back$pop) == sum(ne$pop)
 
 That is the whole idea: **aggregation and disaggregation are one
 operation.** Direction follows the level ranks, and
-[`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geo_recast.md)
+[`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 routes through the atom layer either way.
 
 ## Iceland’s own regions
@@ -142,8 +142,8 @@ isl <- data.frame(
 
 g <- geoscale_from_leaves(isl, levels = c("country", "landshluti", "unit"),
                           key = "unit", name = "iceland")
-g <- geo_attach_geometry(g, s, by = "iso_3166_2", level = "unit")
-g <- geo_area(g, name = "km2")
+g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", level = "unit")
+g <- add_area_geoscale(g, name = "km2")
 g
 #> Geoscale: iceland 
 #> Levels (3, coarsest first):
@@ -165,9 +165,9 @@ The Capital Region is the one that has two units under it:
 
 ``` r
 
-geo_children(g, "landshluti", "Hofudborgarsvadi")
+geoscale_children(g, "landshluti", "Hofudborgarsvadi")
 #> [1] "IS-0" "IS-1"
-geo_nests(g, "landshluti", "unit")
+geoscale_nests(g, "landshluti", "unit")
 #> [1] TRUE
 ```
 
@@ -176,10 +176,10 @@ geo_nests(g, "landshluti", "unit")
 ``` r
 
 set.seed(1)
-x <- data.frame(unit = geo_regions(g, "unit"),
+x <- data.frame(unit = geoscale_regions(g, "unit"),
                 generation = round(runif(9, 50, 500)))
 
-geo_recast(x, g, from = "unit", to = "landshluti", rule = "sum")
+recast_geoscale(x, g, from = "unit", to = "landshluti", rule = "sum")
 #>          landshluti generation
 #> 1        Austurland        169
 #> 2  Hofudborgarsvadi        600
@@ -193,7 +193,7 @@ geo_recast(x, g, from = "unit", to = "landshluti", rule = "sum")
 
 ``` r
 
-geo_recast(x, g, from = "unit", to = "country", rule = "sum")
+recast_geoscale(x, g, from = "unit", to = "country", rule = "sum")
 #>   country generation
 #> 1     ISL       2903
 sum(x$generation)
@@ -206,7 +206,7 @@ sum(x$generation)
 
 tot <- data.frame(country = "ISL", demand = 1000)
 
-dd <- geo_recast(tot, g, from = "country", to = "unit",
+dd <- recast_geoscale(tot, g, from = "country", to = "unit",
                  rule = "sum", weight = "km2")
 dd[order(-dd$demand), ]
 #>   unit     demand
@@ -225,7 +225,7 @@ Look at what that produces. The Capital Region units receive almost
 nothing, because they are tiny — yet they hold most of Iceland’s
 population and would consume most of its electricity. **Area is rarely
 the right weight for demand.** This is precisely why
-[`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geo_recast.md)
+[`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 makes you name a `weight =` rather than picking one for you; with a
 population column on the leaves you would pass that instead.
 
@@ -234,10 +234,10 @@ which copies going down and weight-averages going up:
 
 ``` r
 
-cf <- data.frame(unit = geo_regions(g, "unit"),
+cf <- data.frame(unit = geoscale_regions(g, "unit"),
                  cf = round(runif(9, 0.2, 0.5), 3))
 
-geo_recast(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
+recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
 #>          landshluti       cf
 #> 1        Austurland 0.219000
 #> 2  Hofudborgarsvadi 0.348207
@@ -251,20 +251,20 @@ geo_recast(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
 
 ### Geometry follows the levels
 
-[`geo_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geo_geometry.md)
+[`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md)
 dissolves the atoms up to whatever level you ask for, so the nine units
 become eight regions:
 
 ``` r
 
-shp <- geo_geometry(g, level = "landshluti")
+shp <- geoscale_geometry(g, level = "landshluti")
 nrow(shp)
 #> [1] 8
 ```
 
 ``` r
 
-geo_plot(g, level = "landshluti")
+geoscale_plot(g, level = "landshluti")
 ```
 
 ![](from-naturalearth_files/figure-html/unnamed-chunk-17-1.png)
@@ -272,7 +272,7 @@ geo_plot(g, level = "landshluti")
 ## Other providers
 
 The same interface accepts any source. Register one with
-[`geo_register_provider()`](https://optimal2050.github.io/geoscales/r/reference/geo_register_provider.md),
+[`register_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_provider.md),
 or pass an `sf` object straight to
 [`geoscale_from_provider()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_provider.md).
 Natural candidates are `giscoR` (authoritative NUTS for Europe),

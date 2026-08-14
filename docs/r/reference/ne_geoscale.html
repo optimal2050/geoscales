@@ -101,7 +101,7 @@ object is self-documenting and reproducible.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>feature</code> is the atom: the Natural Earth unit. <code>country</code> sits above it as a
 grouping of atoms, so it can only ever be coarser than <code>feature</code>.</p>
-<p>Do not derive area weights from <code>scale = 110</code>; see <code><a href="geo_area.html">geo_area()</a></code>.</p>
+<p>Do not derive area weights from <code>scale = 110</code>; see <code><a href="add_area_geoscale.html">add_area_geoscale()</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -112,7 +112,7 @@ grouping of atoms, so it can only ever be coarser than <code>feature</code>.</p>
 <span class="r-in"><span><span class="co"># roll population up from countries to sub-regions</span></span></span>
 <span class="r-in"><span><span class="va">lf</span> <span class="op">&lt;-</span> <span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop.html" class="external-link">prop</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"leaves"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country <span class="op">=</span> <span class="va">lf</span><span class="op">$</span><span class="va">country</span>, pop <span class="op">=</span> <span class="va">lf</span><span class="op">$</span><span class="va">pop_est</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="geo_recast.html">geo_recast</a></span><span class="op">(</span><span class="va">pop</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">pop</span><span class="op">$</span><span class="va">country</span><span class="op">)</span>, <span class="op">]</span>, <span class="va">gs</span>,</span></span>
+<span class="r-in"><span><span class="fu"><a href="recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">pop</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">pop</span><span class="op">$</span><span class="va">country</span><span class="op">)</span>, <span class="op">]</span>, <span class="va">gs</span>,</span></span>
 <span class="r-in"><span>           from <span class="op">=</span> <span class="st">"country"</span>, to <span class="op">=</span> <span class="st">"subregion"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

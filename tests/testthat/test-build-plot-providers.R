@@ -9,8 +9,8 @@ test_that("geoscale_build assembles crosswalks into a wide table", {
   )
   expect_equal(S7::prop(b, "levels"), c("country", "state", "atom"))
   expect_equal(nrow(S7::prop(b, "leaves")), 4L)
-  expect_equal(geo_children(b, "country", "N"), c("N1", "N2"))
-  expect_equal(geo_weights(b), "km2")
+  expect_equal(geoscale_children(b, "country", "N"), c("N1", "N2"))
+  expect_equal(geoscale_weights(b), "km2")
 })
 
 test_that("geoscale_build accepts a cross-cutting level", {
@@ -25,8 +25,8 @@ test_that("geoscale_build accepts a cross-cutting level", {
     levels = c("country", "zone", "state", "atom")
   )
   expect_equal(nrow(S7::prop(b, "leaves")), 4L)
-  expect_true(geo_nests(b, "country", "state"))
-  expect_false(geo_nests(b, "zone", "state"))
+  expect_true(geoscale_nests(b, "country", "state"))
+  expect_false(geoscale_nests(b, "zone", "state"))
 })
 
 test_that("geoscale_build reports unreachable and duplicated input", {
@@ -45,9 +45,9 @@ test_that("geoscale_build reports unreachable and duplicated input", {
   )
 })
 
-test_that("geo_layout tiles each level across the full width", {
+test_that("geoscale_layout tiles each level across the full width", {
   gs <- geoscale_example()
-  d <- geo_layout(gs, weight = "km2")
+  d <- geoscale_layout(gs, weight = "km2")
   expect_named(d, c("level", "region", "rank", "xmin", "xmax",
                     "ymin", "ymax", "weight", "share"))
   # Atoms cover the whole axis; coarser levels omit the unassigned ROW atom
@@ -59,9 +59,9 @@ test_that("geo_layout tiles each level across the full width", {
                tolerance = 1e-9)
 })
 
-test_that("geo_layout keeps sibling regions contiguous", {
+test_that("geoscale_layout keeps sibling regions contiguous", {
   gs <- geoscale_example()
-  d <- geo_layout(gs, weight = "km2")
+  d <- geoscale_layout(gs, weight = "km2")
   cn <- d[d$level == "country", ]
   # Two countries, each a single unbroken rectangle
   expect_equal(nrow(cn), 2L)
@@ -72,7 +72,7 @@ test_that("geo_layout keeps sibling regions contiguous", {
 test_that("plotting works when ggplot2 is available", {
   skip_if_not_installed("ggplot2")
   gs <- geoscale_example()
-  p <- geo_autoplot(gs)
+  p <- geoscale_autoplot(gs)
   expect_s3_class(p, "ggplot")
   expect_s3_class(ggplot2::autoplot(gs), "ggplot")
 })
@@ -88,34 +88,34 @@ test_that("plotting works when ggplot2 is available", {
                    km2 = c(1, 2, 3, 4), stringsAsFactors = FALSE)
   g <- geoscale_from_leaves(lf, levels = c("top", "zone", "unit"),
                             key = "unit", weights = "km2", name = "fx", ...)
-  geo_attach_geometry(
+  attach_geometry_geoscale(
     g, sf::st_sf(unit = lf$unit, geometry = sf::st_sfc(lapply(0:3, sq))),
     by = "unit", level = "unit")
 }
 
-test_that("geo_plot draws outlines and a filled choropleth", {
+test_that("geoscale_plot draws outlines and a filled choropleth", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("sf")
   gs <- .plot_fixture()
   d <- data.frame(unit = c("u1", "u2", "u3", "u4"), x = c(10, 20, 30, 40))
 
-  expect_s3_class(geo_plot(gs), "ggplot")
-  p <- geo_plot(gs, d, level = "unit", fill = "x")
+  expect_s3_class(geoscale_plot(gs), "ggplot")
+  p <- geoscale_plot(gs, d, level = "unit", fill = "x")
   expect_s3_class(p, "ggplot")
   # geometry is dissolved to the requested level before drawing
-  expect_equal(nrow(ggplot2::ggplot_build(geo_plot(gs, level = "zone"))$data[[1]]), 2L)
+  expect_equal(nrow(ggplot2::ggplot_build(geoscale_plot(gs, level = "zone"))$data[[1]]), 2L)
 
-  expect_error(geo_plot(gs, d, level = "zone", fill = "x"), "no column")
-  expect_error(geo_plot(gs, d, level = "unit", fill = "nope"), "`fill` must name")
+  expect_error(geoscale_plot(gs, d, level = "zone", fill = "x"), "no column")
+  expect_error(geoscale_plot(gs, d, level = "unit", fill = "nope"), "`fill` must name")
 })
 
-test_that("geo_plot honours palette, titles and the legend label", {
+test_that("geoscale_plot honours palette, titles and the legend label", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("sf")
   gs <- .plot_fixture()
   d <- data.frame(unit = c("u1", "u2", "u3", "u4"), x = c(10, 20, 30, 40))
 
-  p <- geo_plot(gs, d, level = "unit", fill = "x", palette = "D",
+  p <- geoscale_plot(gs, d, level = "unit", fill = "x", palette = "D",
                 title = "Gen", subtitle = "by unit", fill_label = NULL)
   expect_equal(p$labels$title, "Gen")
   expect_equal(p$labels$subtitle, "by unit")
@@ -124,7 +124,7 @@ test_that("geo_plot honours palette, titles and the legend label", {
   expect_equal(as.character(ggplot2::ggplot_build(p)$data[[1]]$fill)[1], "#440154")
 
   # defaults must reproduce the pre-enrichment output
-  q <- geo_plot(gs, d, level = "unit", fill = "x")
+  q <- geoscale_plot(gs, d, level = "unit", fill = "x")
   expect_equal(as.character(ggplot2::ggplot_build(q)$data[[1]]$fill)[1], "#132B43")
   expect_equal(q$labels$fill, "x")
   expect_null(q$labels$title)
@@ -139,44 +139,44 @@ test_that("labels are used only where they are unambiguous", {
   gsl <- .plot_fixture(labels = "name")
   txt <- function(p) ggplot2::ggplot_build(p)$data[[2]]$label
 
-  expect_equal(txt(geo_plot(gsl, level = "unit", label = TRUE)),
+  expect_equal(txt(geoscale_plot(gsl, level = "unit", label = TRUE)),
                c("Alpha", "Beta", "Gamma", "Delta"))
-  expect_equal(txt(geo_plot(gsl, level = "zone", label = TRUE)), c("Z1", "Z2"))
-  expect_equal(txt(geo_autoplot(gsl)),
+  expect_equal(txt(geoscale_plot(gsl, level = "zone", label = TRUE)), c("Z1", "Z2"))
+  expect_equal(txt(geoscale_autoplot(gsl)),
                c("T", "Z1", "Z2", "Alpha", "Beta", "Gamma", "Delta"))
 
   # no `labels` declared -> codes everywhere, exactly as before
   gs <- .plot_fixture()
-  expect_equal(txt(geo_plot(gs, level = "unit", label = TRUE)),
+  expect_equal(txt(geoscale_plot(gs, level = "unit", label = TRUE)),
                c("u1", "u2", "u3", "u4"))
-  expect_equal(txt(geo_autoplot(gs)),
+  expect_equal(txt(geoscale_autoplot(gs)),
                c("T", "Z1", "Z2", "u1", "u2", "u3", "u4"))
 })
 
 test_that("geometry entry points error clearly without geometry", {
   gs <- geoscale_example()
   skip_if_not_installed("sf")
-  expect_error(geo_geometry(gs), "no geometry attached")
-  expect_error(geo_area(gs), "no geometry attached")
+  expect_error(geoscale_geometry(gs), "no geometry attached")
+  expect_error(add_area_geoscale(gs), "no geometry attached")
 })
 
 test_that("providers can be registered and listed", {
-  geo_register_provider(
+  register_geo_provider(
     "toy",
     fetch = function(...) {
       data.frame(top = c("T", "T"), unit = c("a", "b"), km2 = c(1, 2))
     },
     levels = c("top", "unit"), weights = "km2", desc = "toy"
   )
-  expect_true("toy" %in% geo_list_providers()$name)
-  expect_true("naturalearth" %in% geo_list_providers()$name)
+  expect_true("toy" %in% list_geo_providers()$name)
+  expect_true("naturalearth" %in% list_geo_providers()$name)
 
   gs <- geoscale_from_provider("toy")
   expect_equal(S7::prop(gs, "levels"), c("top", "unit"))
-  expect_equal(geo_weights(gs), "km2")
+  expect_equal(geoscale_weights(gs), "km2")
   expect_equal(S7::prop(gs, "meta")$source, "toy")
 
-  expect_error(geo_provider("nope"), "unknown provider")
+  expect_error(get_geo_provider("nope"), "unknown provider")
 })
 
 test_that("the Natural Earth provider errors helpfully when absent", {

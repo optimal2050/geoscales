@@ -48,6 +48,16 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0.9000" id="geoscales-0109000">geoscales 0.1.0.9000<a class="anchor" aria-label="anchor" href="#geoscales-0109000"></a></h2>
 <div class="section level3">
+<h3 id="harmonized-naming-with-timescales-0-1-0-9000">Harmonized naming with timescales<a class="anchor" aria-label="anchor" href="#harmonized-naming-with-timescales-0-1-0-9000"></a></h3>
+<p>One convention across the sibling packages: <strong><code>verb_class()</code></strong> for data operations and object transforms, <strong>class-prefixed nouns</strong> for properties and queries, constructors unchanged, registries <code>register_/get_/list_/clear_</code> with a <code>geo</code> domain word. The old <code>geo_*</code> names warn and forward (removal before 1.0):</p>
+<ul><li>Verbs: <code><a href="../reference/geoscales-deprecated.html">geo_recast()</a></code> -&gt; <code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_filter()</a></code> -&gt; <code><a href="../reference/filter_geoscale.html">filter_geoscale()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_prune()</a></code> -&gt; <code><a href="../reference/prune_geoscale.html">prune_geoscale()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_attach_geometry()</a></code> -&gt; <code><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_area()</a></code> -&gt; <code><a href="../reference/add_area_geoscale.html">add_area_geoscale()</a></code>.</li>
+<li>Properties/queries: <code>geo_&lt;x&gt;()</code> -&gt; <code>geoscale_&lt;x&gt;()</code> (levels, rank, weights, regions, family, nests, ancestry, children, parents, descendants, ancestors, share, geometry, layout, autoplot, plot). <code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code>’s first argument is now <code>x</code>.</li>
+<li>Registries: <code><a href="../reference/geoscales-deprecated.html">geo_register_rule()</a></code> -&gt; <code><a href="../reference/register_geo_rule.html">register_geo_rule()</a></code> (and get/list/clear alike); <code><a href="../reference/geoscales-deprecated.html">geo_provider()</a></code> -&gt; <code><a href="../reference/get_geo_provider.html">get_geo_provider()</a></code>.</li>
+<li>
+<strong><code><a href="https://optimal2050.github.io/timescales/r/reference/recast.html" class="external-link">recast()</a></code> method registered on the timescales generic</strong> (timescales moved to Imports): <code>x |&gt; recast(cal_a, cal_b) |&gt; recast(gs, to = "country")</code> chains time and space; the source level is inferred from <code>x</code>’s columns or passed as <code>from_level=</code>.</li>
+<li>New <code><a href="../reference/join_geoscale.html">join_geoscale()</a></code>: attach coarser-level membership plus weight/share columns to region-keyed data — the spatial mirror of <code><a href="https://optimal2050.github.io/timescales/r/reference/join_calendar.html" class="external-link">timescales::join_calendar()</a></code>.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="milestone-0-1-0-9000">Milestone 1<a class="anchor" aria-label="anchor" href="#milestone-0-1-0-9000"></a></h3>
 <p>First working version: the <code>Geoscale</code> class, the conversion verb, navigation, plotting, and the Natural Earth provider.</p>
 <div class="section level4">
@@ -61,10 +71,10 @@
 <div class="section level4">
 <h4 id="conversion-0-1-0-9000">Conversion<a class="anchor" aria-label="anchor" href="#conversion-0-1-0-9000"></a></h4>
 <ul><li>
-<code><a href="../reference/geo_recast.html">geo_recast()</a></code> — aggregation and disaggregation as a single operation. Source values are projected down to atoms and then aggregated up to the target, so direction falls out of the level ranks and cross-cutting levels work without special handling.</li>
+<code><a href="../reference/geoscales-deprecated.html">geo_recast()</a></code> — aggregation and disaggregation as a single operation. Source values are projected down to atoms and then aggregated up to the target, so direction falls out of the level ranks and cross-cutting levels work without special handling.</li>
 <li>Rules <code>sum</code>, <code>weighted_mean</code>, <code>mean</code> and <code>copy</code>, each defined in both directions.</li>
 <li>
-<code><a href="../reference/geo_register_rule.html">geo_register_rule()</a></code> / <code><a href="../reference/geo_get_rule.html">geo_get_rule()</a></code> / <code><a href="../reference/geo_list_rules.html">geo_list_rules()</a></code> — a per-parameter rule registry, with an explicit <code>rule=</code> always taking precedence.</li>
+<code><a href="../reference/geoscales-deprecated.html">geo_register_rule()</a></code> / <code><a href="../reference/geoscales-deprecated.html">geo_get_rule()</a></code> / <code><a href="../reference/geoscales-deprecated.html">geo_list_rules()</a></code> — a per-parameter rule registry, with an explicit <code>rule=</code> always taking precedence.</li>
 <li>
 <code>na_action = "drop" | "error" | "keep"</code> for partial coverage. <code>"drop"</code> genuinely loses the uncovered share and warns with a count; <code>"keep"</code> conserves totals into an explicit <code>NA</code> group.</li>
 <li>Identifier columns are preserved as grouping columns, so panel data converts in one call.</li>
@@ -72,23 +82,23 @@
 <div class="section level4">
 <h4 id="navigation-and-subsetting-0-1-0-9000">Navigation and subsetting<a class="anchor" aria-label="anchor" href="#navigation-and-subsetting-0-1-0-9000"></a></h4>
 <ul><li>
-<code><a href="../reference/geo_navigate.html">geo_children()</a></code>, <code><a href="../reference/geo_navigate.html">geo_parents()</a></code>, <code><a href="../reference/geo_navigate.html">geo_descendants()</a></code>, <code><a href="../reference/geo_navigate.html">geo_ancestors()</a></code>, <code><a href="../reference/geo_regions.html">geo_regions()</a></code>, <code><a href="../reference/geo_filter.html">geo_filter()</a></code>, <code><a href="../reference/geo_prune.html">geo_prune()</a></code>, <code><a href="../reference/geo_share.html">geo_share()</a></code> and <code>[</code>.</li>
+<code><a href="../reference/geoscales-deprecated.html">geo_children()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_parents()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_descendants()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_ancestors()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_regions()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_filter()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_prune()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_share()</a></code> and <code>[</code>.</li>
 <li>
 <code>level</code> is a required argument throughout: region codes are not unique across levels, so a bare code is ambiguous.</li>
 <li>
-<code><a href="../reference/geo_family.html">geo_family()</a></code>, <code><a href="../reference/geo_ancestry.html">geo_ancestry()</a></code> and <code><a href="../reference/geo_nests.html">geo_nests()</a></code>. Ancestry is computed atom-mediated rather than as a transitive closure — closing over a cross-cutting level would manufacture false relationships.</li>
+<code><a href="../reference/geoscales-deprecated.html">geo_family()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_ancestry()</a></code> and <code><a href="../reference/geoscales-deprecated.html">geo_nests()</a></code>. Ancestry is computed atom-mediated rather than as a transitive closure — closing over a cross-cutting level would manufacture false relationships.</li>
 </ul></div>
 <div class="section level4">
 <h4 id="geometry-and-plotting-0-1-0-9000">Geometry and plotting<a class="anchor" aria-label="anchor" href="#geometry-and-plotting-0-1-0-9000"></a></h4>
 <ul><li>
-<code><a href="../reference/geo_attach_geometry.html">geo_attach_geometry()</a></code>, <code><a href="../reference/geo_geometry.html">geo_geometry()</a></code> (dissolve to a level) and <code><a href="../reference/geo_area.html">geo_area()</a></code>. <code>sf</code> is in Suggests; the core is geometry-free.</li>
+<code><a href="../reference/geoscales-deprecated.html">geo_attach_geometry()</a></code>, <code><a href="../reference/geoscales-deprecated.html">geo_geometry()</a></code> (dissolve to a level) and <code><a href="../reference/geoscales-deprecated.html">geo_area()</a></code>. <code>sf</code> is in Suggests; the core is geometry-free.</li>
 <li>
-<code><a href="../reference/geo_autoplot.html">geo_autoplot()</a></code> draws the hierarchy as an icicle and needs no geometry; <code><a href="../reference/geo_plot.html">geo_plot()</a></code> draws a choropleth when geometry is attached. <code><a href="../reference/geo_layout.html">geo_layout()</a></code> exposes the rectangle coordinates for other plotting systems.</li>
+<code><a href="../reference/geoscales-deprecated.html">geo_autoplot()</a></code> draws the hierarchy as an icicle and needs no geometry; <code><a href="../reference/geoscales-deprecated.html">geo_plot()</a></code> draws a choropleth when geometry is attached. <code><a href="../reference/geoscales-deprecated.html">geo_layout()</a></code> exposes the rectangle coordinates for other plotting systems.</li>
 </ul></div>
 <div class="section level4">
 <h4 id="providers-0-1-0-9000">Providers<a class="anchor" aria-label="anchor" href="#providers-0-1-0-9000"></a></h4>
 <ul><li>
-<code><a href="../reference/geo_register_provider.html">geo_register_provider()</a></code> / <code><a href="../reference/geo_provider.html">geo_provider()</a></code> / <code><a href="../reference/geo_list_providers.html">geo_list_providers()</a></code>.</li>
+<code><a href="../reference/geoscales-deprecated.html">geo_register_provider()</a></code> / <code><a href="../reference/geoscales-deprecated.html">geo_provider()</a></code> / <code><a href="../reference/geoscales-deprecated.html">geo_list_providers()</a></code>.</li>
 <li>Natural Earth via <code><a href="../reference/ne_source.html">ne_source()</a></code> and <code><a href="../reference/ne_geoscale.html">ne_geoscale()</a></code>, with <code>source</code> and <code>scale</code> recorded in <code>meta</code>. <strong>The package ships no maps and selects no boundaries.</strong>
 </li>
 <li>Three Natural Earth pitfalls are handled: <code>adm0_a3</code> is used as the join key (<code>iso_a3</code> is <code>-99</code> for five countries at 1:110m); area weights are refused at scale 110 with a warning; and <code>-99</code> is converted to <code>NA</code> in numeric attributes as well as code columns.</li>
