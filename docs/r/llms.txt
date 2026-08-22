@@ -10,6 +10,105 @@ modeling stack and the spatial companion to
 This is a **multi-language** project. The R package is the current focus
 (Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.
 
+## Quick demo
+
+A `Geoscale` is a nested spatial partition: a flat table of weighted
+leaf regions (“atoms”) plus the ordered geoframes that group them.
+Aggregation and disaggregation are ONE verb — direction comes from the
+geoframe ranks, and totals are preserved either way:
+
+``` r
+
+library(geoscales)
+
+gs <- geoscale_from_leaftable(
+  data.frame(
+    country = c("N", "N", "N", "N", "S", "S"),
+    state   = c("N1", "N1", "N2", "N2", "S1", "S1"),
+    atom    = paste0("A", 1:6),
+    km2     = c(100, 200, 300, 400, 500, 600)
+  ),
+  geoframes = c("country", "state", "atom"),
+  name = "demo"
+)
+
+cap <- data.frame(atom = paste0("A", 1:6), capacity = 1:6)
+cap |> recast_geoscale(gs, from = "atom", to = "country", rule = "sum")
+#>   country capacity
+#> 1       N       10
+#> 2       S       11
+
+# ... and back down, split by area
+data.frame(country = c("N", "S"), capacity = c(10, 20)) |>
+  recast_geoscale(gs, from = "country", to = "state",
+                  rule = "sum", weight = "km2")
+#>   state capacity
+#> 1    N1        3
+#> 2    N2        7
+#> 3    S1       20
+```
+
+With geometry attached, values land on a map as one ggplot2 layer
+([`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md));
+without any geometry,
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws the
+hierarchy itself:
+
+``` r
+
+library(ggplot2)
+sq <- function(x, y) sf::st_polygon(list(cbind(
+  c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
+gs <- attach_geometry_geoscale(gs, sf::st_sfc(
+  sq(0, 1), sq(0, 0), sq(1, 1), sq(1, 0), sq(2, 1), sq(2, 0)))
+
+cap |>
+  recast_geoscale(gs, from = "atom", to = "state", rule = "sum") |>
+  ggplot() +
+  geom_geoscale(gs = gs, z = "capacity", geoframe = "state",
+                colour = "white", linewidth = 0.6) +
+  scale_fill_viridis_c(option = "G") +
+  labs(title = "Capacity recast to states, on the map", fill = NULL) +
+  theme_geoscale()
+```
+
+![](reference/figures/README-demo-map-1.png)
+
+``` r
+
+plot(gs)
+```
+
+![](reference/figures/README-demo-icicle-1.png)
+
+See
+[`vignette("geoscales")`](https://optimal2050.github.io/geoscales/r/articles/geoscales.md)
+for the 5-minute tour, and the [visualization
+article](https://optimal2050.github.io/geoscales/r/articles/visualization.html)
+for choropleths, recasts seen on the map, and a real-map tour of Iceland
+with data attached.
+
+Two things about space that the time domain does not have to deal with,
+and which shape the whole design:
+
+- **Geoframes need not nest.** In India’s IDEEA region table, the
+  `reg32` code `APY` merges Andhra Pradesh with *part of* Puducherry, so
+  `reg35` does not nest inside `reg32`. Every conversion therefore
+  routes through the atom layer, and cross-cutting geoframes work
+  without special handling.
+- **Region codes are not unique across geoframes.** 46 of 62 IDEEA codes
+  appear at more than one geoframe (`AN` at seven). So `geoframe` is a
+  required argument everywhere — nothing is inferred from a bare code.
+
+### No bundled maps
+
+`geoscales` ships integration code, not data: no boundaries are bundled,
+and no map source is selected for you. Providers (Natural Earth via
+[`ne_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.md),
+or your own via
+[`register_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_provider.md))
+pass a point of view through and record it in `@meta`.
+
 ## Documentation
 
 - **[Project site](https://optimal2050.github.io/geoscales/)** — entry
@@ -19,99 +118,48 @@ This is a **multi-language** project. The R package is the current focus
 
 ## Status
 
-🚧 Pre-release — APIs are unstable. Repository is private until first
-pre-release.
-
-## What it does
-
-A `Geoscale` is a nested spatial partition: a flat table of weighted
-leaf regions (“atoms”) plus the ordered levels that group them.
-
-``` r
-
-library(geoscales)
-gs <- geoscale_example()
-
-# Aggregation and disaggregation are ONE verb. Direction comes from the
-# level ranks; totals are preserved either way.
-cap <- data.frame(atom = c("A1","A2","A3","A4","A5","A6"),
-                  capacity = 1:6)
-
-recast_geoscale(cap, gs, from = "atom", to = "country", rule = "sum")
-recast_geoscale(cap, gs, from = "atom", to = "state",  rule = "weighted_mean",
-           weight = "pop")
-```
-
-Two things about space that the time domain does not have to deal with,
-and which shape the whole design:
-
-- **Levels need not nest.** In India’s IDEEA region table, the `reg32`
-  code `APY` merges Andhra Pradesh with *part of* Puducherry, so `reg35`
-  does not nest inside `reg32`. Every conversion therefore routes
-  through the atom layer, and cross-cutting levels work without special
-  handling.
-- **Region codes are not unique across levels.** 46 of 62 IDEEA codes
-  appear at more than one level (`AN` at seven). So `level` is a
-  required argument everywhere — nothing is inferred from a bare code.
-
-### No bundled maps
-
-The package ships integration code, not data: no `data/` directory and
-no boundaries. `rnaturalearth` is the recommended source and is wired up
-out of the box, behind a pluggable provider interface.
-
-``` r
-
-gs <- ne_geoscale(scale = 110)                 # coarse, fast
-gs <- ne_geoscale(scale = 10)                  # detailed; use this for areas
-```
-
-The source and scale are recorded in `meta`, so a `Geoscale` is
-self-documenting. See
-[`vignette("from-naturalearth")`](https://optimal2050.github.io/geoscales/r/articles/from-naturalearth.md)
-for the Natural Earth pitfalls the provider handles for you.
+🚧 In development — pre-1.0, APIs may still change between minor
+versions. Feedback and issues are welcome.
 
 ## Installation
 
 ``` r
 
-# From GitHub (private during pre-release; requires access)
-# remotes::install_github("optimal2050/geoscales")
+# From GitHub
+remotes::install_github("optimal2050/geoscales")
 ```
 
-After pre-release, also via
-[r-universe](https://optimal2050.r-universe.dev/):
+Or via [r-universe](https://optimal2050.r-universe.dev/):
 
 ``` r
 
-# install.packages("geoscales", repos = "https://optimal2050.r-universe.dev")
+install.packages("geoscales", repos = "https://optimal2050.r-universe.dev")
 ```
 
 ## Repository layout
 
-    geoscales/
-    ├── DESCRIPTION, NAMESPACE, R/, man/, tests/, vignettes/   # R package (root)
-    ├── inst/include/geoscales/                                # C++ headers (Phase 2)
-    ├── src/                                                   # Rcpp glue (Phase 2)
-    ├── cpp/                                                   # standalone C++ core (Phase 2)
-    ├── python/                                                # Python package (Phase 3)
-    ├── docs/                                                  # unified Quarto site
-    ├── specs/                                                 # cross-language golden tests
-    ├── benchmark/                                             # cross-language benchmarks
-    └── .github/workflows/                                     # CI
+``` R
+geoscales/
+├── DESCRIPTION, NAMESPACE, R/, man/, tests/, vignettes/   # R package (root)
+├── inst/include/geoscales/                                # C++ headers (Phase 2)
+├── cpp/                                                   # standalone C++ core (Phase 2)
+├── python/                                                # Python package (Phase 3)
+├── docs/                                                  # unified Quarto site
+├── specs/                                                 # cross-language golden tests
+└── .github/workflows/                                     # CI
+```
 
 ## License
 
 Apache-2.0. See
-[LICENSE](https://optimal2050.github.io/geoscales/r/LICENSE) and
-[NOTICE](https://optimal2050.github.io/geoscales/r/NOTICE).
+[LICENSE](https://optimal2050.github.io/geoscales/r/LICENSE).
 
 # Package index
 
 ## The Geoscale class
 
 A nested spatial partition: a flat table of weighted leaf regions
-(“atoms”) plus the ordered levels that group them.
+(“atoms”) plus the ordered geoframes that group them.
 
 - [`Geoscale()`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
   : Geoscale (S7 class)
@@ -119,14 +167,14 @@ A nested spatial partition: a flat table of weighted leaf regions
 - [`geoscale_example()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_example.md)
   : A small example Geoscale
 
-- [`geoscale_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_levels.md)
-  : Levels of a Geoscale
+- [`geoscale_geoframes()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.md)
+  : Geoframes of a Geoscale
 
 - [`geoscale_regions()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_regions.md)
-  : Regions present at a level
+  : Regions present at a geoframe (the members)
 
 - [`geoscale_rank()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_rank.md)
-  : Level rank
+  : Geoframe rank
 
 - [`geoscale_weights()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_weights.md)
   : Weight columns of a Geoscale
@@ -146,19 +194,33 @@ crosswalks, or a wide table you already have.
   : Build a Geoscale from a provider
 - [`geoscale_build()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_build.md)
   : Build a Geoscale from parent-child crosswalks
-- [`geoscale_from_leaves()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaves.md)
+- [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md)
   : Build a Geoscale from a flat table of leaf regions
 
 ## Conversion
 
 Aggregation and disaggregation are one operation. Values are projected
 down to atoms and aggregated up to the target, so direction follows the
-level ranks and cross-cutting levels need no special handling.
+geoframe ranks and cross-cutting geoframes need no special handling.
 
 - [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
-  : Recast values from one spatial level to another
+  : Recast values from one spatial resolution to another
+- [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
+  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
+  : Recast region data down to the atom layer, and back
+- [`reexports`](https://optimal2050.github.io/geoscales/r/reference/reexports.md)
+  [`recast`](https://optimal2050.github.io/geoscales/r/reference/reexports.md)
+  : Objects exported from other packages
+- [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
+  : Crosswalk between two spatial resolutions through the atom layer
+- [`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
+  [`get_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
+  [`list_geo_maps()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
+  : Register / look up a direct spatial crosswalk
+- [`clear_geo_maps()`](https://optimal2050.github.io/geoscales/r/reference/clear_geo_maps.md)
+  : Clear the registered spatial crosswalks
 - [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
-  : Attach Geoscale metadata to region-keyed data
+  : Attach a Geoscale to region-keyed data
 - [`GEO_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEO_RULES.md)
   : Supported aggregation rules
 - [`register_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_rule.md)
@@ -172,8 +234,8 @@ level ranks and cross-cutting levels need no special handling.
 
 ## Navigation and subsetting
 
-Region codes are not unique across levels, so every lookup names its
-level.
+Region codes are not unique across geoframes, so every lookup names its
+geoframe.
 
 - [`geoscale_children()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_navigate.md)
   [`geoscale_parents()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_navigate.md)
@@ -181,32 +243,44 @@ level.
   [`geoscale_ancestors()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_navigate.md)
   : Navigate a region hierarchy
 - [`geoscale_family()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_family.md)
-  : Immediate parent-child table between two levels
+  : Immediate parent-child table between two geoframes
 - [`geoscale_ancestry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_ancestry.md)
-  : Ancestry between all level pairs
+  : Ancestry between all geoframe pairs
 - [`geoscale_nests()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_nests.md)
-  : Do two levels nest?
+  : Do two geoframes nest?
 - [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md)
   : Subset a Geoscale by region
 - [`prune_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.md)
-  : Collapse a Geoscale to a coarser level
+  : Collapse a Geoscale to a coarser geoframe
 - [`geoscale_share()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_share.md)
-  : Weight shares within a level
+  : Weight shares within a geoframe
 
-## Geometry and plotting
+## Geometry
 
-Optional, and backed by ‘sf’. The core is geometry-free;
-[`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
-draws the hierarchy itself and needs no map.
+Optional, and backed by ‘sf’. The core is geometry-free.
 
 - [`attach_geometry_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.md)
   : Attach geometry to a Geoscale
 - [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md)
-  : Geometry dissolved to a level
+  : Geometry dissolved to a geoframe
 - [`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md)
   : Compute area weights from attached geometry
+
+## Visualization
+
+Composable choropleth layers, the structure icicle, and their plain-data
+workers.
+[`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
+needs no map.
+
+- [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
+  [`theme_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
+  : Geoscale layers for ggplot2
 - [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
   [`autoplot.Geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
+  : Plot a Geoscale
+- [`plot(`*`<Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/plot.Geoscale.md)
+  [`plot(`*`<geoscales::Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/plot.Geoscale.md)
   : Plot a Geoscale
 - [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md)
   : Map data onto a Geoscale
@@ -230,12 +304,12 @@ boundaries are bundled.
 - [`ne_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.md)
   : Build a Geoscale from Natural Earth
 
-## Levels
+## Geoframes
 
-- [`CORE_LEVELS`](https://optimal2050.github.io/geoscales/r/reference/CORE_LEVELS.md)
-  : Core spatial levels
-- [`is_valid_level()`](https://optimal2050.github.io/geoscales/r/reference/is_valid_level.md)
-  : Validate level names
+- [`CORE_GEOFRAMES`](https://optimal2050.github.io/geoscales/r/reference/CORE_GEOFRAMES.md)
+  : Core spatial geoframes
+- [`is_valid_geoframe()`](https://optimal2050.github.io/geoscales/r/reference/is_valid_geoframe.md)
+  : Validate geoframe names
 
 ## Deprecated
 
@@ -267,6 +341,10 @@ boundaries are bundled.
   [`geo_register_provider()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
   [`geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
   [`geo_list_providers()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
+  [`geoscale_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
+  [`is_valid_level()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
+  [`geoscale_from_leaves()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
+  [`CORE_LEVELS`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
   : Deprecated geoscales functions
 
 ## Package
@@ -277,11 +355,39 @@ boundaries are bundled.
 
 # Articles
 
-### All vignettes
+### Reference
+
+- [Concepts](https://optimal2050.github.io/geoscales/r/articles/concepts.md):
+
+  The mental model behind geoscales: atoms, geoframes as partitions (not
+  a tree), authored region IDs, shares and weights, and the naming
+  lattice shared with timescales.
+
+- [Data
+  structures](https://optimal2050.github.io/geoscales/r/articles/data-structures.md):
+
+  Anatomy of a Geoscale: the leaftable, geoframes, members, geometry and
+  meta properties, what the validator guarantees, and the
+  rule/map/provider registries.
+
+- [Data manipulation with
+  geoscales](https://optimal2050.github.io/geoscales/r/articles/data-manipulation.md):
+
+  The tidy workflow end to end: attach a Geoscale to region-keyed
+  tables, recast values between resolutions, inspect the crosswalk,
+  chain time and space with recast(), and run the same pipelines over
+  data.table and arrow backends.
 
 - [Building a Geoscale from Natural
   Earth](https://optimal2050.github.io/geoscales/r/articles/from-naturalearth.md):
-- [Getting started with
-  geoscales](https://optimal2050.github.io/geoscales/r/articles/geoscales.md):
-- [Plotting
-  geoscales](https://optimal2050.github.io/geoscales/r/articles/plotting.md):
+
+  Providers in practice: pull Natural Earth admin layers into a
+  Geoscale, aggregate up and split back down, and let geometry follow
+  the geoframes.
+
+- [Visualization with
+  ggplot2](https://optimal2050.github.io/geoscales/r/articles/visualization.md):
+
+  The geoscales viz surface on real maps: composable geom_geoscale()
+  choropleths, recasts seen on the map, per-geoframe facets, the
+  structure figures, and a real-map tour of Iceland with data attached.

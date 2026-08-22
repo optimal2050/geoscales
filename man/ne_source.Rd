@@ -4,13 +4,13 @@
 \alias{ne_source}
 \title{Fetch a Natural Earth source table}
 \usage{
-ne_source(scale = 110, level = c("country", "states"), country = NULL, ...)
+ne_source(scale = 110, geoframe = c("country", "states"), country = NULL, ...)
 }
 \arguments{
 \item{scale}{Natural Earth scale: \code{110}, \code{50} or \code{10}. Note that \code{110} is
 unsuitable for area weights (see details).}
 
-\item{level}{\code{"country"} (admin-0) or \code{"states"} (admin-1). Admin-1
+\item{geoframe}{\code{"country"} (admin-0) or \code{"states"} (admin-1). Admin-1
 requires \code{rnaturalearthhires}, which is \strong{not on CRAN} — install it from
 \url{https://ropensci.r-universe.dev}.}
 
@@ -30,16 +30,16 @@ normalises the country-code column.
 }
 \details{
 \code{feature} is the atom and \code{country} is a grouping of atoms on top of it. At
-admin-0 the two are the same code; at admin-1 (\code{level = "states"}) \code{feature}
+admin-0 the two are the same code; at admin-1 (\code{geoframe = "states"}) \code{feature}
 is the state and \code{country} is the admin-0 unit it belongs to.
 
 Codes of \code{"-99"} mean \emph{unassigned} and are returned as \code{NA}. That is why
-\code{country} is a level rather than the atom key: it may be missing, whereas an
+\code{country} is a geoframe rather than the atom key: it may be missing, whereas an
 atom key may not.
 }
 \examples{
 \dontrun{
 ne_source(scale = 110)
-ne_source(scale = 10, level = "states", country = "Iceland")
+ne_source(scale = 10, geoframe = "states", country = "Iceland")
 }
 }

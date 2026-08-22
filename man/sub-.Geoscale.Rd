@@ -12,7 +12,7 @@
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
-\item{i}{Level name.}
+\item{i}{Geoframe name.}
 
 \item{j}{Character vector of region codes.}
 
@@ -22,7 +22,7 @@
 A \code{\link{Geoscale}}.
 }
 \description{
-\code{gs[level, region]} is shorthand for \code{\link[=filter_geoscale]{filter_geoscale()}}.
+\code{gs[geoframe, region]} is shorthand for \code{\link[=filter_geoscale]{filter_geoscale()}}.
 }
 \details{
 S7 ships a \verb{[.S7_object} that errors, so a method must be registered for

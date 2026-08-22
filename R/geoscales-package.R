@@ -9,4 +9,5 @@
 #' [timescales](https://github.com/optimal2050/timescales) package.
 #'
 #' @keywords internal
+#' @importFrom rlang .data :=
 "_PACKAGE"

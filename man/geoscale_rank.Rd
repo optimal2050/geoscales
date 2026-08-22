@@ -2,21 +2,21 @@
 % Please edit documentation in R/geoscale-class.R
 \name{geoscale_rank}
 \alias{geoscale_rank}
-\title{Level rank}
+\title{Geoframe rank}
 \usage{
-geoscale_rank(x, level)
+geoscale_rank(x, geoframe)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
-\item{level}{Character vector of level names.}
+\item{geoframe}{Character vector of geoframe names.}
 }
 \value{
-An integer vector of ranks; \code{NA} for names that are not levels of
+An integer vector of ranks; \code{NA} for names that are not geoframes of
 \code{x}.
 }
 \description{
-Position of a level in the hierarchy: 1 is the coarsest.
+Position of a geoframe in the hierarchy: 1 is the coarsest.
 }
 \examples{
 gs <- geoscale_example()

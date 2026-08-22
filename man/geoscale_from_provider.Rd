@@ -6,7 +6,7 @@
 \usage{
 geoscale_from_provider(
   provider = "naturalearth",
-  levels = NULL,
+  geoframes = NULL,
   weights = NULL,
   geometry = TRUE,
   name = "",
@@ -18,7 +18,7 @@ geoscale_from_provider(
 \item{provider}{Provider name, or a source \code{sf}/\code{data.frame} to use
 directly.}
 
-\item{levels}{Level columns, coarsest first.}
+\item{geoframes}{Geoframe columns, coarsest first.}
 
 \item{weights}{Weight columns.}
 
@@ -33,7 +33,7 @@ A \code{\link{Geoscale}}.
 }
 \description{
 Fetches a source table from a registered provider and turns it into a
-\code{\link{Geoscale}}. Level and weight defaults come from the provider when not
+\code{\link{Geoscale}}. Geoframe and weight defaults come from the provider when not
 given.
 }
 \examples{
@@ -41,7 +41,7 @@ given.
 # Countries nested in UN subregion and continent, weighted by population
 gs <- geoscale_from_provider(
   "naturalearth",
-  levels  = c("continent", "subregion", "adm0_a3"),
+  geoframes  = c("continent", "subregion", "adm0_a3"),
   weights = c("pop_est", "gdp_md"),
   scale   = 110
 )

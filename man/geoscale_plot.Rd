@@ -7,7 +7,7 @@
 geoscale_plot(
   x,
   data = NULL,
-  level = NULL,
+  geoframe = NULL,
   fill = NULL,
   palette = NULL,
   title = NULL,
@@ -20,10 +20,10 @@ geoscale_plot(
 \arguments{
 \item{x}{A \code{\link{Geoscale}} with geometry attached.}
 
-\item{data}{Optional \code{data.frame} with a code column named \code{level} and the
+\item{data}{Optional \code{data.frame} with a code column named \code{geoframe} and the
 column named by \code{fill}. When \code{NULL}, region outlines are drawn.}
 
-\item{level}{Level to draw. Defaults to the atom level.}
+\item{geoframe}{Geoframe to draw. Defaults to the atom geoframe.}
 
 \item{fill}{Name of the value column in \code{data} to colour by.}
 
@@ -44,7 +44,7 @@ region codes.}
 A \code{ggplot} object.
 }
 \description{
-Draws a choropleth of \code{data} at \code{level}. Requires \code{sf}, \code{ggplot2}, and
+Draws a choropleth of \code{data} at \code{geoframe}. Requires \code{sf}, \code{ggplot2}, and
 geometry attached with \code{\link[=attach_geometry_geoscale]{attach_geometry_geoscale()}}.
 }
 \details{
@@ -55,10 +55,10 @@ should prepare a \code{data.frame} and hand it here rather than draw their own
 }
 \examples{
 \dontrun{
-geoscale_plot(gs, capacity_by_state, level = "state", fill = "capacity")
+geoscale_plot(gs, capacity_by_state, geoframe = "state", fill = "capacity")
 
 # titled, viridis, with region names drawn on
-geoscale_plot(gs, gen, level = "zone", fill = "value",
+geoscale_plot(gs, gen, geoframe = "zone", fill = "value",
          palette = "D", title = "Generation", label = TRUE)
 }
 }

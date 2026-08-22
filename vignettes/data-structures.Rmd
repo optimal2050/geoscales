@@ -1,0 +1,150 @@
+---
+title: "Data structures"
+description: "Anatomy of a Geoscale: the leaftable, geoframes, members, geometry and meta properties, what the validator guarantees, and the rule/map/provider registries."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data structures}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(geoscales)
+```
+
+## The Geoscale object
+
+A `Geoscale` is an S7 object with five properties:
+
+```{r}
+gs <- geoscale_example()
+S7::prop_names(gs)
+```
+
+| property | type | holds |
+|---|---|---|
+| `@leaftable` | `data.frame` | one row per **atom**: one column per geoframe, the unique `region` key, weight columns |
+| `@geoframes` | `character` | the hierarchy, ordered coarsest first |
+| `@members` | named `list` | the ordered code vocabulary at each geoframe |
+| `@geometry` | `sfc` or `NULL` | optional atom polygons, aligned to leaftable rows |
+| `@meta` | `list` | `name`, `desc`, `weights`, `default_weight`, `crs`, `source`, `labels` |
+
+Everything else — parent/child tables, ancestry, shares, dissolved
+shapes — is derived on demand; nothing is cached on the object.
+
+## The leaftable
+
+```{r}
+gs@leaftable
+```
+
+Each row is one atom. The `region` column is the **authored node ID**
+(unique, non-missing); geoframe columns may hold `NA` — an atom with no
+code at a coarser geoframe (a rest-of-world row, offshore areas) simply
+does not participate at that resolution, and `na_action=` decides what
+recasts do about it.
+
+## Geoframes, members, ranks
+
+```{r}
+geoscale_geoframes(gs)
+geoscale_geoframes(gs, finest = TRUE)   # the atom geoframe
+geoscale_regions(gs, "state")           # the members at one geoframe
+geoscale_rank(gs, c("zone", "atom"))    # positions, coarsest = 1
+```
+
+Geoframe names must be syntactically valid column names;
+`CORE_GEOFRAMES` is recommended vocabulary, not enforcement:
+
+```{r}
+CORE_GEOFRAMES
+is_valid_geoframe(c("COUNTRY", "reg32", "", "2bad"))
+```
+
+Navigation is derived on demand from the leaftable — and because
+geoframes may cross-cut, ancestry is computed atom-mediated, never as a
+transitive closure:
+
+```{r}
+geoscale_parents(gs, "zone", "ZB", to = "state")   # cross-cut: two parents
+geoscale_ancestors(gs, "atom", "A5")
+geoscale_descendants(gs, "country", "N")
+head(geoscale_ancestry(gs), 4)
+```
+
+## Weights and meta
+
+```{r}
+geoscale_weights(gs)
+gs@meta[c("name", "weights", "default_weight")]
+```
+
+`meta$name` is load-bearing: conversion and attach name their working
+columns after the object (`geoscale_map()` label columns,
+`join_geoscale()`'s `"<name>."` prefixes), so both require a named
+Geoscale. `geoscale_build()` derives a default name from the geoframes;
+`geoscale_from_leaftable()` takes `name=`.
+
+## What the validator guarantees
+
+Construction (any layer: `geoscale_from_provider()`,
+`geoscale_build()`, `geoscale_from_leaftable()`) enforces:
+
+- `region` present, character, unique, no missing/empty values;
+- every geoframe present as a leaftable column; members exactly the
+  non-`NA` values of that column, in a stable order;
+- weights numeric, finite, non-negative, with a positive sum;
+  `default_weight` one of the declared weights;
+- geometry, when attached, aligned 1:1 with leaftable rows (see
+  `attach_geometry_geoscale()`; the CRS is recorded in `meta$crs`);
+- a warning (not an error) when geoframes look ordered finer-to-coarser
+  — order carries meaning: aggregation direction follows it.
+
+The old argument names `leaves=`/`levels=` are rejected with a pointer
+to the current spelling.
+
+## The registries
+
+Three package-level registries change behavior explicitly — the only
+way anything global changes:
+
+**Rules** map value-column names to their aggregation rule (there is no
+fallback — unregistered columns without `rule=` error):
+
+```{r}
+GEO_RULES
+register_geo_rule("capacity", "sum")
+register_geo_rule("eff", "weighted_mean", weight = "pop")
+get_geo_rule("eff")
+list_geo_rules()
+clear_geo_rules()
+```
+
+**Maps** hold exact crosswalks that short-circuit the atom-layer
+derivation in `geoscale_map()` — for hand-audited concordances:
+
+```{r}
+fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
+                   n_overlap = 1L, w = 1, w_from = 1)
+register_geo_map("state", "zone", fake, gs = gs)
+list_geo_maps()
+get_geo_map("state", "zone", gs = gs)
+clear_geo_maps()
+```
+
+**Providers** are named map sources (`fetch` functions returning a wide
+`sf`/`data.frame`); the package ships one:
+
+```{r}
+list_geo_providers()
+get_geo_provider("naturalearth")$desc
+```
+
+## Where to next?
+
+- [Concepts](concepts.html) — why the structures look this way.
+- [Data manipulation](data-manipulation.html) — the verbs over these
+  structures.
+- [Building from Natural Earth](from-naturalearth.html) — providers in
+  practice.

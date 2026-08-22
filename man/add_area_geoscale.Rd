@@ -16,11 +16,11 @@ Cylindrical Equal Area, is global; a local equal-area projection is more
 accurate for a single region.}
 }
 \value{
-A \code{\link{Geoscale}} with the area column added to \verb{@leaves} and
+A \code{\link{Geoscale}} with the area column added to \verb{@leaftable} and
 registered in \code{meta$weights}.
 }
 \description{
-Adds an area column to \verb{@leaves}, measured on an equal-area projection.
+Adds an area column to \verb{@leaftable}, measured on an equal-area projection.
 }
 \details{
 Areas are only as good as the geometry. Cartographic sources are

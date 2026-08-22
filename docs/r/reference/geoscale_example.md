@@ -1,6 +1,6 @@
 # A small example Geoscale
 
-A synthetic 3-level hierarchy used in examples and tests. It
+A synthetic 3-geoframe hierarchy used in examples and tests. It
 deliberately reproduces three awkward features of real region tables:
 
 ## Usage
@@ -13,18 +13,18 @@ geoscale_example()
 
 A
 [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
-with 7 atoms and levels `country`/`state`/`zone`/`atom`.
+with 7 atoms and geoframes `country`/`state`/`zone`/`atom`.
 
 ## Details
 
-- a code (`"N1"`) reused at more than one level, so bare codes are
-  ambiguous and every lookup must name its level;
+- a code (`"N1"`) reused at more than one geoframe, so bare codes are
+  ambiguous and every lookup must name its geoframe;
 
-- a non-nesting pair of levels — zone `"ZB"` draws atoms from two
+- a non-nesting pair of geoframes — zone `"ZB"` draws atoms from two
   different states (and two different countries), so `state` and `zone`
   do not form a tree;
 
-- an atom (`"ROW"`) with no code at any coarser level (partial
+- an atom (`"ROW"`) with no code at any coarser geoframe (partial
   coverage).
 
 ## Examples
@@ -33,8 +33,8 @@ with 7 atoms and levels `country`/`state`/`zone`/`atom`.
 gs <- geoscale_example()
 gs
 #> Geoscale: example 
-#> Description: Synthetic example: reused code, non-nesting level pair, and an unassigned atom 
-#> Levels (4, coarsest first):
+#> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
+#> Geoframes (4, coarsest first):
 #>   - country (2)  [1 atom(s) unassigned]
 #>     - state (3)  [1 atom(s) unassigned]
 #>       - zone (3)  [1 atom(s) unassigned]

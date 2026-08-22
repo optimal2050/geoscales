@@ -6,7 +6,7 @@
 # view through, records it in `@meta`, and leaves the choice to the user.
 #
 # A provider turns an external source into a wide `sf`/data.frame that
-# `geoscale_from_leaves()` can consume. `rnaturalearth` is the default;
+# `geoscale_from_leaftable()` can consume. `rnaturalearth` is the default;
 # giscoR (NUTS), geodata/GADM and tigris slot into the same interface.
 # =============================================================================
 
@@ -16,12 +16,12 @@
 #' Register a Geoscale data provider
 #'
 #' A provider is a function `function(...)` returning either an `sf` object or
-#' a `data.frame`, wide enough that its columns can be used as levels and
+#' a `data.frame`, wide enough that its columns can be used as geoframes and
 #' weights.
 #'
 #' @param name Provider name.
 #' @param fetch Function returning the source table.
-#' @param levels Default level columns, coarsest first.
+#' @param geoframes Default geoframe columns, coarsest first.
 #' @param weights Default weight columns.
 #' @param desc One-line description.
 #'
@@ -32,17 +32,17 @@
 #'   "toy",
 #'   fetch = function(...) data.frame(top = c("T", "T"),
 #'                                    unit = c("a", "b"), km2 = c(1, 2)),
-#'   levels = c("top", "unit"), weights = "km2"
+#'   geoframes = c("top", "unit"), weights = "km2"
 #' )
 #' list_geo_providers()
 #' @export
-register_geo_provider <- function(name, fetch, levels = NULL,
+register_geo_provider <- function(name, fetch, geoframes = NULL,
                                   weights = NULL, desc = "") {
   if (!is.character(name) || length(name) != 1L || !nzchar(name)) {
     .stop("`name` must be a single non-empty string")
   }
   if (!is.function(fetch)) .stop("`fetch` must be a function")
-  entry <- list(name = name, fetch = fetch, levels = levels,
+  entry <- list(name = name, fetch = fetch, geoframes = geoframes,
                 weights = weights, desc = desc)
   assign(name, entry, envir = .PROVIDER_REGISTRY)
   invisible(entry)
@@ -88,12 +88,12 @@ list_geo_providers <- function() {
 #' Build a Geoscale from a provider
 #'
 #' Fetches a source table from a registered provider and turns it into a
-#' [`Geoscale`]. Level and weight defaults come from the provider when not
+#' [`Geoscale`]. Geoframe and weight defaults come from the provider when not
 #' given.
 #'
 #' @param provider Provider name, or a source `sf`/`data.frame` to use
 #'   directly.
-#' @param levels Level columns, coarsest first.
+#' @param geoframes Geoframe columns, coarsest first.
 #' @param weights Weight columns.
 #' @param geometry Attach geometry when the source is an `sf` object.
 #' @param name,desc Short name and description for the result.
@@ -106,14 +106,14 @@ list_geo_providers <- function() {
 #' # Countries nested in UN subregion and continent, weighted by population
 #' gs <- geoscale_from_provider(
 #'   "naturalearth",
-#'   levels  = c("continent", "subregion", "adm0_a3"),
+#'   geoframes  = c("continent", "subregion", "adm0_a3"),
 #'   weights = c("pop_est", "gdp_md"),
 #'   scale   = 110
 #' )
 #' }
 #' @export
 geoscale_from_provider <- function(provider = "naturalearth",
-                                   levels = NULL,
+                                   geoframes = NULL,
                                    weights = NULL,
                                    geometry = TRUE,
                                    name = "",
@@ -122,15 +122,15 @@ geoscale_from_provider <- function(provider = "naturalearth",
   if (is.character(provider)) {
     p   <- get_geo_provider(provider)
     src <- p$fetch(...)
-    levels  <- levels  %||% p$levels
+    geoframes  <- geoframes  %||% p$geoframes
     weights <- weights %||% p$weights
     src_name <- provider
   } else {
     src <- provider
     src_name <- "custom"
   }
-  if (is.null(levels)) {
-    .stop("`levels` must be given (the provider declares no default)")
+  if (is.null(geoframes)) {
+    .stop("`geoframes` must be given (the provider declares no default)")
   }
 
   geom <- NULL
@@ -144,21 +144,21 @@ geoscale_from_provider <- function(provider = "naturalearth",
   src <- as.data.frame(src, stringsAsFactors = FALSE)
   src$geometry <- NULL
 
-  missing_lv <- setdiff(levels, names(src))
+  missing_lv <- setdiff(geoframes, names(src))
   if (length(missing_lv) > 0L) {
     .stop("source has no column(s): %s", .preview(missing_lv))
   }
 
-  keep <- c(levels, intersect(weights, names(src)))
+  keep <- c(geoframes, intersect(weights, names(src)))
   out <- src[, keep, drop = FALSE]
 
-  gs <- geoscale_from_leaves(
-    out, levels = levels, weights = intersect(weights, names(src)),
+  gs <- geoscale_from_leaftable(
+    out, geoframes = geoframes, weights = intersect(weights, names(src)),
     name = name, desc = desc, source = src_name
   )
   if (!is.null(geom)) {
     gs <- Geoscale(
-      leaves = S7::prop(gs, "leaves"), levels = S7::prop(gs, "levels"),
+      leaftable = S7::prop(gs, "leaftable"), geoframes = S7::prop(gs, "geoframes"),
       members = S7::prop(gs, "members"), geometry = geom,
       meta = S7::prop(gs, "meta")
     )

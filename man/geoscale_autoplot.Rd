@@ -8,7 +8,7 @@
 geoscale_autoplot(
   x,
   weight = NULL,
-  fill = c("level", "region"),
+  fill = c("geoframe", "region"),
   label = TRUE,
   ...
 )
@@ -20,7 +20,7 @@ autoplot.Geoscale(x, ...)
 
 \item{weight}{Weight column determining widths. \code{NULL} uses the default.}
 
-\item{fill}{What to colour by: \code{"level"} or \code{"region"}.}
+\item{fill}{What to colour by: \code{"geoframe"} or \code{"region"}.}
 
 \item{label}{Draw region codes on the rectangles.}
 
@@ -30,7 +30,7 @@ autoplot.Geoscale(x, ...)
 A \code{ggplot} object.
 }
 \description{
-Draws the hierarchy as an icicle: one row per level, coarsest at the top,
+Draws the hierarchy as an icicle: one row per geoframe, coarsest at the top,
 each region's width proportional to its share of the weight.
 }
 \details{

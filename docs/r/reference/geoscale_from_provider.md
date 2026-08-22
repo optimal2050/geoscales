@@ -2,14 +2,14 @@
 
 Fetches a source table from a registered provider and turns it into a
 [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
-Level and weight defaults come from the provider when not given.
+Geoframe and weight defaults come from the provider when not given.
 
 ## Usage
 
 ``` r
 geoscale_from_provider(
   provider = "naturalearth",
-  levels = NULL,
+  geoframes = NULL,
   weights = NULL,
   geometry = TRUE,
   name = "",
@@ -24,9 +24,9 @@ geoscale_from_provider(
 
   Provider name, or a source `sf`/`data.frame` to use directly.
 
-- levels:
+- geoframes:
 
-  Level columns, coarsest first.
+  Geoframe columns, coarsest first.
 
 - weights:
 
@@ -56,7 +56,7 @@ if (FALSE) { # \dontrun{
 # Countries nested in UN subregion and continent, weighted by population
 gs <- geoscale_from_provider(
   "naturalearth",
-  levels  = c("continent", "subregion", "adm0_a3"),
+  geoframes  = c("continent", "subregion", "adm0_a3"),
   weights = c("pop_est", "gdp_md"),
   scale   = 110
 )

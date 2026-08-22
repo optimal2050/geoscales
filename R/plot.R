@@ -1,8 +1,8 @@
 # =============================================================================
 # Plotting
 # =============================================================================
-# Ports the "by level" idea from `timeslices::autoplot.Calendar()`: one row per
-# level, laid out on a shared cumulative-weight axis, so the nesting structure
+# Ports the "by geoframe" idea from `timeslices::autoplot.Calendar()`: one row per
+# geoframe, laid out on a shared cumulative-weight axis, so the nesting structure
 # reads at a glance.
 #
 # With geometry attached, `geoscale_plot()` draws a choropleth. Without `sf` — or
@@ -15,30 +15,30 @@
 # ggplot2 is actually installed.
 # =============================================================================
 
-# Human-readable names for the regions of one level.
+# Human-readable names for the regions of one geoframe.
 #
 # `@meta$labels` names a column of `leaves` holding a display name (energyRt's
 # UTOPIA geoscale sets `labels = "name"`, giving "Oswestia" for "R1").
 #
 # The column is per-atom, so a label is only used where it is UNAMBIGUOUS for
 # the region: every atom in the group must carry the same value. At the atom
-# level that is always true; at a coarser level a zone made of Oswestia and
+# geoframe that is always true; at a coarser geoframe a zone made of Oswestia and
 # Antidia has no name of its own, and labelling it "Oswestia" would be a
 # fabrication -- so the code is kept instead.
 #
 # Returns a named character vector (code -> label) covering only the
 # unambiguous codes, or NULL when the geoscale declares no labels.
 #' @noRd
-.region_labels <- function(x, level) {
+.region_labels <- function(x, geoframe) {
   meta <- S7::prop(x, "meta")
   col  <- meta$labels
   if (is.null(col) || length(col) != 1L || is.na(col) || !nzchar(col)) {
     return(NULL)
   }
-  leaves <- S7::prop(x, "leaves")
-  if (!col %in% names(leaves) || !level %in% names(leaves)) return(NULL)
+  leaves <- S7::prop(x, "leaftable")
+  if (!col %in% names(leaves) || !geoframe %in% names(leaves)) return(NULL)
 
-  code <- as.character(leaves[[level]])
+  code <- as.character(leaves[[geoframe]])
   lab  <- as.character(leaves[[col]])
   keep <- !is.na(code) & !is.na(lab)
   if (!any(keep)) return(NULL)
@@ -70,14 +70,14 @@
 
 #' Icicle layout for a Geoscale
 #'
-#' Rectangle coordinates for a level-by-level structure plot: one row per
-#' level, each region a rectangle whose width is its share of the weight.
+#' Rectangle coordinates for a geoframe-by-geoframe structure plot: one row per
+#' geoframe, each region a rectangle whose width is its share of the weight.
 #' Exposed so the layout can be drawn with something other than ggplot2.
 #'
 #' @param x A [`Geoscale`].
 #' @param weight Weight column. `NULL` uses the default.
 #'
-#' @return A `data.frame` with columns `level`, `region`, `rank`, `xmin`,
+#' @return A `data.frame` with columns `geoframe`, `region`, `rank`, `xmin`,
 #'   `xmax`, `ymin`, `ymax`, `weight`, `share`.
 #'
 #' @examples
@@ -86,8 +86,8 @@
 geoscale_layout <- function(x, weight = NULL) {
   .check_geoscale(x)
   weight <- .resolve_weight(x, weight)
-  lv     <- S7::prop(x, "levels")
-  leaves <- S7::prop(x, "leaves")
+  lv     <- S7::prop(x, "geoframes")
+  leaves <- S7::prop(x, "leaftable")
   members <- S7::prop(x, "members")
 
   # Order atoms so that every parent group is contiguous.
@@ -106,13 +106,13 @@ geoscale_layout <- function(x, weight = NULL) {
 
   parts <- lapply(seq_along(lv), function(i) {
     codes <- as.character(leaves[[lv[i]]])
-    # Contiguous runs of the same code at this level
+    # Contiguous runs of the same code at this geoframe
     r <- rle(ifelse(is.na(codes), "\r_NA_", codes))
     end_i   <- cumsum(r$lengths)
     start_i <- end_i - r$lengths + 1L
     keep    <- r$values != "\r_NA_"
     data.frame(
-      level  = lv[i],
+      geoframe  = lv[i],
       region = r$values[keep],
       rank   = i,
       xmin   = starts[start_i][keep] / total,
@@ -131,7 +131,7 @@ geoscale_layout <- function(x, weight = NULL) {
 
 #' Plot a Geoscale
 #'
-#' Draws the hierarchy as an icicle: one row per level, coarsest at the top,
+#' Draws the hierarchy as an icicle: one row per geoframe, coarsest at the top,
 #' each region's width proportional to its share of the weight.
 #'
 #' This is the *structure* plot — it shows the Geoscale itself and needs no
@@ -142,7 +142,7 @@ geoscale_layout <- function(x, weight = NULL) {
 #'
 #' @param x A [`Geoscale`].
 #' @param weight Weight column determining widths. `NULL` uses the default.
-#' @param fill What to colour by: `"level"` or `"region"`.
+#' @param fill What to colour by: `"geoframe"` or `"region"`.
 #' @param label Draw region codes on the rectangles.
 #' @param ... Unused.
 #'
@@ -154,20 +154,20 @@ geoscale_layout <- function(x, weight = NULL) {
 #' }
 #' @export
 geoscale_autoplot <- function(x, weight = NULL,
-                              fill = c("level", "region"),
+                              fill = c("geoframe", "region"),
                               label = TRUE, ...) {
   .need_ggplot("geoscale_autoplot()")
   fill <- match.arg(fill)
   d <- geoscale_layout(x, weight = weight)
   d$.fill <- d[[fill]]
-  lv <- S7::prop(x, "levels")
+  lv <- S7::prop(x, "geoframes")
   nm <- S7::prop(x, "meta")$name
 
-  # Display names are resolved per level (each level has its own lookup) but
+  # Display names are resolved per geoframe (each geoframe has its own lookup) but
   # written back in place, so row order stays aligned with the rectangles.
   d$.label <- d$region
-  for (l in unique(d$level)) {
-    i <- d$level == l
+  for (l in unique(d$geoframe)) {
+    i <- d$geoframe == l
     d$.label[i] <- .apply_labels(d$region[i], .region_labels(x, l))
   }
 
@@ -191,7 +191,7 @@ geoscale_autoplot <- function(x, weight = NULL,
       size = 2.8, colour = "grey10"
     )
   }
-  if (fill == "level") p <- p + ggplot2::guides(fill = "none")
+  if (fill == "geoframe") p <- p + ggplot2::guides(fill = "none")
   p
 }
 
@@ -202,7 +202,7 @@ autoplot.Geoscale <- function(x, ...) geoscale_autoplot(x, ...)
 
 #' Map data onto a Geoscale
 #'
-#' Draws a choropleth of `data` at `level`. Requires `sf`, `ggplot2`, and
+#' Draws a choropleth of `data` at `geoframe`. Requires `sf`, `ggplot2`, and
 #' geometry attached with [`attach_geometry_geoscale()`].
 #'
 #' This is the package's single choropleth renderer: callers that know what
@@ -211,9 +211,9 @@ autoplot.Geoscale <- function(x, ...) geoscale_autoplot(x, ...)
 #' `geom_sf()`. `energyRt::geo_map()` works exactly that way.
 #'
 #' @param x A [`Geoscale`] with geometry attached.
-#' @param data Optional `data.frame` with a code column named `level` and the
+#' @param data Optional `data.frame` with a code column named `geoframe` and the
 #'   column named by `fill`. When `NULL`, region outlines are drawn.
-#' @param level Level to draw. Defaults to the atom level.
+#' @param geoframe Geoframe to draw. Defaults to the atom geoframe.
 #' @param fill Name of the value column in `data` to colour by.
 #' @param palette Viridis palette option (`"A"`..`"H"`) for the fill scale.
 #'   `NULL` (default) leaves ggplot2's own scale in place.
@@ -228,29 +228,29 @@ autoplot.Geoscale <- function(x, ...) geoscale_autoplot(x, ...)
 #'
 #' @examples
 #' \dontrun{
-#' geoscale_plot(gs, capacity_by_state, level = "state", fill = "capacity")
+#' geoscale_plot(gs, capacity_by_state, geoframe = "state", fill = "capacity")
 #'
 #' # titled, viridis, with region names drawn on
-#' geoscale_plot(gs, gen, level = "zone", fill = "value",
+#' geoscale_plot(gs, gen, geoframe = "zone", fill = "value",
 #'          palette = "D", title = "Generation", label = TRUE)
 #' }
 #' @export
-geoscale_plot <- function(x, data = NULL, level = NULL, fill = NULL,
+geoscale_plot <- function(x, data = NULL, geoframe = NULL, fill = NULL,
                      palette = NULL, title = NULL, subtitle = NULL,
                      fill_label = fill, label = FALSE, ...) {
   .check_geoscale(x)
   .need_sf("geoscale_plot()")
   .need_ggplot("geoscale_plot()")
-  lv    <- S7::prop(x, "levels")
-  level <- level %||% lv[length(lv)]
+  lv    <- S7::prop(x, "geoframes")
+  geoframe <- geoframe %||% lv[length(lv)]
 
-  shp <- geoscale_geometry(x, level = level)
+  shp <- geoscale_geometry(x, geoframe = geoframe)
   if (!is.null(data)) {
-    if (!level %in% names(data)) .stop("`data` has no column `%s`", level)
+    if (!geoframe %in% names(data)) .stop("`data` has no column `%s`", geoframe)
     if (is.null(fill) || !fill %in% names(data)) {
       .stop("`fill` must name a column of `data`")
     }
-    shp <- merge(shp, data[, c(level, fill)], by = level, all.x = TRUE)
+    shp <- merge(shp, data[, c(geoframe, fill)], by = geoframe, all.x = TRUE)
   }
 
   shp$.fill <- if (is.null(fill)) NULL else shp[[fill]]
@@ -269,7 +269,7 @@ geoscale_plot <- function(x, data = NULL, level = NULL, fill = NULL,
     p <- p + ggplot2::labs(title = title, subtitle = subtitle)
   }
   if (isTRUE(label)) {
-    shp$.label <- .apply_labels(shp[[level]], .region_labels(x, level))
+    shp$.label <- .apply_labels(shp[[geoframe]], .region_labels(x, geoframe))
     p <- p + ggplot2::geom_sf_text(
       data = shp, ggplot2::aes(label = .label), size = 2.8, colour = "grey20"
     )

@@ -3,14 +3,16 @@
 # =============================================================================
 # Mirrors the token registry in `timescales/R/tokens.R`: a package-level
 # environment mapping a parameter name to the rule used when recasting it,
-# plus an optional weight column. `recast_geoscale()` consults the registry when
-# the caller does not pass `rule=`; an explicit argument always wins.
+# plus an optional weight column. `recast_geoscale()` consults the registry
+# when the caller does not pass `rule=`; an explicit argument always wins.
+# A column with neither an explicit rule nor a registry entry is an ERROR --
+# there is deliberately no fallback (user ruling 2026-08-13).
 # =============================================================================
 
 #' Supported aggregation rules
 #'
 #' Each rule defines behaviour in **both** directions. Direction is taken from
-#' the level ranks, so aggregation and disaggregation are one operation:
+#' the geoframe ranks, so aggregation and disaggregation are one operation:
 #'
 #' \describe{
 #'   \item{`sum`}{Up: sum. Down: split proportionally to the weight.
@@ -20,13 +22,15 @@
 #'   \item{`mean`}{Up: unweighted mean. Down: copy unchanged.}
 #'   \item{`copy`}{Up: the common value, erroring if it is not constant.
 #'     Down: copy unchanged. For region-invariant scalars.}
+#'   \item{`sd`}{Up: standard deviation over the atoms (aggregation only;
+#'     going down it degenerates to `NA` for single-atom groups).}
 #' }
 #'
-#' @format A character vector of length 4.
+#' @format A character vector of length 5.
 #' @examples
 #' GEO_RULES
 #' @export
-GEO_RULES <- c("sum", "weighted_mean", "mean", "copy")
+GEO_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd")
 
 #' @noRd
 .RULE_REGISTRY <- new.env(parent = emptyenv())

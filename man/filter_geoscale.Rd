@@ -4,22 +4,22 @@
 \alias{filter_geoscale}
 \title{Subset a Geoscale by region}
 \usage{
-filter_geoscale(x, level, region, drop_empty_levels = FALSE)
+filter_geoscale(x, geoframe, region, drop_empty_geoframes = FALSE)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
-\item{level}{Level that \code{region} belongs to.}
+\item{geoframe}{Geoframe that \code{region} belongs to.}
 
 \item{region}{Character vector of region codes to keep.}
 
-\item{drop_empty_levels}{Drop levels left with no codes at all.}
+\item{drop_empty_geoframes}{Drop geoframes left with no codes at all.}
 }
 \value{
 A \code{\link{Geoscale}}.
 }
 \description{
-Keeps only the atoms belonging to \code{region} at \code{level}, and rebuilds the
+Keeps only the atoms belonging to \code{region} at \code{geoframe}, and rebuilds the
 member vocabularies accordingly. Geometry, when attached, is subset in step.
 }
 \examples{

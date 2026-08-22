@@ -1,11 +1,11 @@
-# Regions present at a level
+# Regions present at a geoframe (the members)
 
-Regions present at a level
+Regions present at a geoframe (the members)
 
 ## Usage
 
 ``` r
-geoscale_regions(x, level)
+geoscale_regions(x, geoframe)
 ```
 
 ## Arguments
@@ -15,9 +15,9 @@ geoscale_regions(x, level)
   A
   [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
 
-- level:
+- geoframe:
 
-  A single level name.
+  A single geoframe name.
 
 ## Value
 

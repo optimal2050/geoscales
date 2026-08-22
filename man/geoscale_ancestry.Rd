@@ -2,7 +2,7 @@
 % Please edit documentation in R/filter.R
 \name{geoscale_ancestry}
 \alias{geoscale_ancestry}
-\title{Ancestry between all level pairs}
+\title{Ancestry between all geoframe pairs}
 \usage{
 geoscale_ancestry(x)
 }
@@ -10,27 +10,27 @@ geoscale_ancestry(x)
 \item{x}{A \code{\link{Geoscale}}.}
 }
 \value{
-A \code{data.frame} with columns \code{parent_level}, \code{parent},
-\code{child_level}, \code{child}.
+A \code{data.frame} with columns \code{parent_geoframe}, \code{parent},
+\code{child_geoframe}, \code{child}.
 }
 \description{
 Every \verb{(coarser, finer)} code pair that shares at least one atom, for all
-level pairs.
+geoframe pairs.
 }
 \details{
-Computed \strong{atom-mediated}, directly from \verb{@leaves} — deliberately not as a
+Computed \strong{atom-mediated}, directly from \verb{@leaftable} — deliberately not as a
 transitive closure of \code{\link[=geoscale_family]{geoscale_family()}}. \code{timeslices} can use a closure
-because time levels genuinely nest; spatial levels cross-cut, and a closure
+because time geoframes genuinely nest; spatial geoframes cross-cut, and a closure
 then manufactures false relationships. In the example Geoscale, zone \code{ZB}
 straddles both countries, so closing \code{country -> state -> zone -> atom}
 would wrongly report country \code{N} as an ancestor of atom \code{A5}, which lies in
 country \code{S}.
 
-For levels that do not nest this relation is \emph{overlap}, not containment —
+For geoframes that do not nest this relation is \emph{overlap}, not containment —
 test a given pair with \code{\link[=geoscale_nests]{geoscale_nests()}}.
 
-Level columns are retained because region codes are not unique across
-levels: in the example, \code{"N1"} exists at both \code{state} and \code{zone}, so a bare
+Geoframe columns are retained because region codes are not unique across
+geoframes: in the example, \code{"N1"} exists at both \code{state} and \code{zone}, so a bare
 \verb{(parent, child)} pair would read as a self-loop.
 }
 \examples{

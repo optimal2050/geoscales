@@ -1,238 +1,133 @@
 ---
 title: "Getting started with geoscales"
+description: "A short, end-to-end tour: build a Geoscale, recast values between resolutions, attach it to data, and draw a map."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting started with geoscales}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-```
-
-```{r setup}
 library(geoscales)
+library(dplyr, warn.conflicts = FALSE)
 ```
 
-## What a Geoscale is
+## What problem does this solve?
 
-A `Geoscale` is a nested spatial partition — the spatial companion to a
-`timescales::Calendar`. It holds:
+Energy-system, climate, and policy models carve space into discrete
+*regions*, and different models pick different carvings: one nation,
+five grid regions, thirty-two model regions, forty-six zones. The codes
+are arbitrary, the weights (area, population) are data, and region
+systems drawn by different hands rarely nest — converting values
+between them is where unit errors live.
 
-* **`leaves`** — one row per *atom* (the finest region), one column per level,
-  a unique `region` key, and one or more named weight columns;
-* **`levels`** — the hierarchy, ordered coarsest first;
-* **`members`** — the code vocabulary at each level;
-* **`meta`** — name, weights, source, CRS.
+`geoscales` represents any such carving as a **Geoscale**: a set of
+*atoms* (the finest regions) plus ordered *geoframes* that group them —
+the spatial companion to a `timescales::Calendar`. With one object you
+get:
 
-Everything else — parent/child tables, ancestry, shares — is derived on
-demand. Nothing is cached on the object.
+- a stable schema for region codes and their weights,
+- well-defined conversions between any two resolutions — including
+  cross-cutting ones, because every conversion routes through the atom
+  layer,
+- attachment of hierarchy columns to your tables, and ggplot2-ready
+  maps.
+
+## A 5-minute tour
+
+### 1. Build a Geoscale
+
+Three construction layers, from most to least convenient — a provider,
+parent-child crosswalks, or a wide table you already have:
 
 ```{r}
-gs <- geoscale_example()
+gs <- geoscale_from_leaftable(
+  data.frame(
+    country = c("N", "N", "N", "N", "S", "S"),
+    state   = c("N1", "N1", "N2", "N2", "S1", "S1"),
+    atom    = c("A1", "A2", "A3", "A4", "A5", "A6"),
+    km2     = c(100, 200, 300, 400, 500, 600)
+  ),
+  geoframes = c("country", "state", "atom"),
+  name = "tour"
+)
 gs
 ```
 
-## Levels are partitions, not necessarily a tree
+(`geoscale_build()` assembles the same thing from ragged parent-child
+crosswalks; `geoscale_from_provider()` pulls a source like Natural
+Earth — see `vignette("from-naturalearth")`.)
 
-This is the main thing that differs from the time domain. Time levels nest
-cleanly: every hour belongs to exactly one day. Spatial levels frequently do
-not.
-
-In the example, zone `ZB` draws atoms from two different states, so `state`
-and `zone` cross-cut:
+### 2. Inspect the structure
 
 ```{r}
-geoscale_nests(gs, "country", "state")
-geoscale_nests(gs, "state", "zone")
-```
-
-Real data behaves the same way. In the IDEEA region table for India, the
-`reg32` code `APY` merges Andhra Pradesh with *part of* Puducherry, so
-`reg35` does not nest inside `reg32`.
-
-This is exactly why the atom layer exists, and why `recast_geoscale()` always
-routes through it.
-
-## Codes are not unique across levels
-
-The code `"N1"` exists at both `state` and `zone`. A bare code is therefore
-ambiguous, and every lookup must name its level:
-
-```{r}
-geoscale_children(gs, "state", "N1")
-geoscale_children(gs, "zone", "N1")
-```
-
-In IDEEA, 46 of 62 codes appear at more than one level — `AN` appears at
-seven. This is the norm, not an edge case.
-
-## Recasting: one verb, both directions
-
-`recast_geoscale()` projects source values down to atoms and then aggregates them
-up to the target, so aggregation and disaggregation are the same operation.
-The direction falls out of the level ranks.
-
-Going up, an extensive quantity is summed:
-
-```{r}
-cap <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
-                  capacity = c(1, 2, 3, 4, 5, 6))
-recast_geoscale(cap, gs, from = "atom", to = "country", rule = "sum")
-```
-
-Going down, the same rule splits proportionally to a weight:
-
-```{r}
-y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-recast_geoscale(y, gs, from = "country", to = "state",
-           rule = "sum", weight = "km2")
-```
-
-Totals are preserved, and a round trip is exact:
-
-```{r}
-up   <- recast_geoscale(cap, gs, "atom", "state", rule = "sum")
-back <- recast_geoscale(up, gs, "state", "atom", rule = "sum", weight = "km2")
-back
-```
-
-### Rules
-
-| rule | up (coarsen) | down (refine) | use for |
-|---|---|---|---|
-| `sum` | sum | split by weight | capacity, demand, area |
-| `weighted_mean` | weighted mean | copy | efficiency, price, capacity factor |
-| `mean` | plain mean | copy | diagnostics |
-| `copy` | common value | copy | region-invariant scalars |
-
-An intensive quantity must not be summed:
-
-```{r}
-eff <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
-                  eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-recast_geoscale(eff, gs, "atom", "state", rule = "weighted_mean", weight = "pop")
-```
-
-### Registering rules per parameter
-
-Rather than passing `rule=` at every call site, register it once. Each value
-column is then converted by its own rule in a single call:
-
-```{r}
-register_geo_rule("capacity", "sum")
-register_geo_rule("eff", "weighted_mean", weight = "pop")
-
-mix <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
-                  capacity = c(1, 2, 3, 4, 5, 6),
-                  eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-recast_geoscale(mix, gs, "atom", "state")
-```
-
-```{r, include = FALSE}
-clear_geo_rules()
-```
-
-An explicit `rule=` always overrides the registry.
-
-## Partial coverage
-
-Region tables routinely have atoms with no code at a coarser level — a
-rest-of-world row, offshore zones, unassigned territory. The example has an
-atom `ROW` with no country.
-
-`na_action` decides what happens to it:
-
-```{r}
-x <- rbind(cap, data.frame(atom = "ROW", capacity = 100))
-
-# "drop" (default) loses the uncovered share, and says so
-out <- suppressWarnings(
-  recast_geoscale(x, gs, "atom", "country", rule = "sum"))
-sum(out$capacity)
-
-# "keep" conserves the total in an explicit NA group
-kept <- recast_geoscale(x, gs, "atom", "country", rule = "sum",
-                   na_action = "keep")
-sum(kept$capacity)
-```
-
-Note that `energyRt` reads `NA` in a region column as *a wildcard meaning all
-regions*, so `"keep"` output should not be passed there unfiltered.
-
-## Identifier columns
-
-Columns that are neither the key nor a value are kept as grouping columns, so
-panel data converts in one call:
-
-```{r}
-panel <- data.frame(
-  atom = rep(c("A1", "A2", "A3"), each = 2),
-  year = rep(c(2020L, 2021L), 3),
-  capacity = c(1, 2, 3, 4, 5, 6)
-)
-recast_geoscale(panel, gs, "atom", "state", rule = "sum", values = "capacity")
-```
-
-## Navigating and subsetting
-
-```{r}
+gs@geoframes                 # the hierarchy, coarsest first
+head(gs@leaftable, 3)        # one row per atom
 geoscale_regions(gs, "state")
-geoscale_family(gs, "state", "zone")
-geoscale_descendants(gs, "country", "N")
 geoscale_share(gs, "state", weight = "km2", within = "country")
 ```
 
-```{r}
-filter_geoscale(gs, "country", "N")
-gs["country", "N"]
-prune_geoscale(gs, "state")
-```
+### 3. Convert data between resolutions
 
-## Building a Geoscale
-
-Three layers, from most to least convenient:
+One rule per value column; aggregation and disaggregation are the same
+operation, and totals conserve under `"sum"`:
 
 ```{r}
-# Layer 2: from crosswalks (ragged hierarchies are the norm in space)
-geoscale_build(
-  data.frame(country = c("N", "N", "S"), state = c("N1", "N2", "S1")),
-  data.frame(state = c("N1", "N1", "N2", "S1"),
-             atom  = c("A1", "A2", "A3", "A4")),
-  levels  = c("country", "state", "atom"),
-  weights = data.frame(atom = c("A1", "A2", "A3", "A4"),
-                       km2 = c(10, 20, 30, 40))
-)
+cap <- tibble(atom = paste0("A", 1:6), capacity = c(1, 2, 3, 4, 5, 6))
+cap |> recast_geoscale(gs, from = "atom", to = "country", rule = "sum")
+
+# ... and back down, split by area
+tibble(country = c("N", "S"), capacity = c(10, 20)) |>
+  recast_geoscale(gs, from = "country", to = "state",
+                  rule = "sum", weight = "km2")
 ```
+
+The `rule` is deliberately mandatory — pass one, or register it per
+column with `register_geo_rule()`; a silently guessed rule would be a
+silent unit error.
+
+### 4. Attach a Geoscale to a table
+
+`join_geoscale()` decorates rather than converts — membership and
+share/weight columns arrive `"<name>."`-prefixed, so several Geoscales
+can coexist on one dataset:
 
 ```{r}
-# Layer 3: the escape hatch - a wide table you already have
-df <- data.frame(
-  country = c("C1", "C1", "C2"),
-  atom    = c("A1", "A2", "A3"),
-  km2     = c(100, 200, 300)
-)
-geoscale_from_leaves(df, levels = c("country", "atom"))
+tibble(state = c("N1", "N2", "S1"), v = 1:3) |>
+  join_geoscale(gs, geoframes = TRUE, meta = TRUE)
 ```
 
-Layer 1 is `geoscale_from_provider()`; see `vignette("from-naturalearth")`.
+### 5. Visualize
 
-## Plotting
+`geoscale_autoplot()` (also `plot()`) draws the hierarchy itself — no
+geometry needed. With geometry attached, `geom_geoscale()` puts values
+on a map inside a normal `ggplot()` pipeline:
 
-`geoscale_autoplot()` draws the hierarchy itself as an icicle — one row per level,
-widths proportional to weight. It needs no geometry.
-
-```{r, fig.width = 7, fig.height = 3.2, eval = requireNamespace("ggplot2", quietly = TRUE)}
+```{r, fig.width = 7, fig.height = 3, eval = requireNamespace("ggplot2", quietly = TRUE)}
 geoscale_autoplot(gs)
 ```
 
-With geometry attached via `attach_geometry_geoscale()`, `geoscale_plot()` draws a
-choropleth instead — pass a `data.frame` and name the column to colour by.
-`geoscale_example()` carries no geometry, so those figures need a map, and they
-live in the online article [Plotting
-geoscales](https://optimal2050.github.io/geoscales/r/articles/plotting.html):
-choropleths by level and by value, four alternative layouts over one hierarchy,
-recasting seen on the map, and where display names come from.
+```{r, eval = FALSE}
+# with attached geometry (see the visualization article):
+ggplot(cap) +
+  geom_geoscale(gs = gs, z = "capacity", geoframe = "state") +
+  scale_fill_viridis_c() +
+  theme_geoscale()
+```
+
+## Where to next?
+
+- [Concepts](concepts.html) — atoms, partitions vs trees, the shared
+  *scales glossary.
+- [Data structures](data-structures.html) — anatomy of a `Geoscale`
+  and its registries.
+- [Data manipulation](data-manipulation.html) — attach, recast, route
+  halves, crosswalks, backends, and chaining time with space.
+- [Building from Natural Earth](from-naturalearth.html) — providers in
+  practice.
+- [Visualization](visualization.html) — maps with `geom_geoscale()`,
+  on a real multi-layer example.

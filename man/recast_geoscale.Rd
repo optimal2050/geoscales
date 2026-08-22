@@ -2,66 +2,117 @@
 % Please edit documentation in R/recast.R
 \name{recast_geoscale}
 \alias{recast_geoscale}
-\title{Recast values from one spatial level to another}
+\title{Recast values from one spatial resolution to another}
 \usage{
 recast_geoscale(
   x,
   gs,
-  from,
+  from = NULL,
   to,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
-  na_action = c("drop", "error", "keep")
+  na_action = c("drop", "error", "keep"),
+  collect = NULL
 )
 }
 \arguments{
-\item{x}{A \code{data.frame} with a region-code column plus one or more numeric
-value columns.}
+\item{x}{The data to recast, in any supported backend, with a column
+named by \code{key} plus one or more numeric value columns; other columns
+are preserved as identifiers.}
 
-\item{gs}{A \code{\link{Geoscale}}.}
+\item{gs}{The \code{\link{Geoscale}} the codes in \code{x} belong to.}
 
-\item{from}{Level name that the codes in \code{x} belong to.}
+\item{from}{Geoframe name the codes belong to. \code{NULL} (default) is
+inferred: \code{key} when it is a geoframe name, else the single geoframe
+name appearing among \code{x}'s columns.}
 
-\item{to}{Target level name.}
+\item{to}{Target geoframe name of \code{gs}, or another (named) \code{\link{Geoscale}}
+-- then the target is that object's atom layer, matched on the atom
+\code{region} keys the two objects share.}
 
-\item{key}{Name of the region-code column in \code{x}. Defaults to \code{from} when
-present, otherwise \code{"region"}.}
+\item{key}{Name of the region-code column in \code{x}. Defaults to \code{from}
+when that column exists, otherwise \code{"region"}.}
 
-\item{values}{Character vector of value columns to convert. Defaults to all
-numeric columns other than the key and any level names of \code{gs}. Numeric
-identifiers (e.g. \code{year}) must be excluded explicitly.}
+\item{values}{Character vector of value columns to convert. Default: all
+numeric columns other than the key and \code{gs}'s geoframe columns.
+Numeric identifiers (e.g. \code{year}) must be excluded explicitly.}
 
-\item{rule}{One of \code{\link{GEO_RULES}}, or \code{NULL} (default) to look each value
-column up with \code{\link[=get_geo_rule]{get_geo_rule()}}, falling back to \code{"sum"}.}
+\item{rule}{One of \code{\link{GEO_RULES}}, applied to every value column; or
+\code{NULL} (default) to look each column up with \code{\link[=get_geo_rule]{get_geo_rule()}}. A
+column with neither an explicit \verb{rule=} nor a registry entry is an
+ERROR -- there is deliberately no fallback (a silently guessed rule is
+a silent unit error).}
 
-\item{weight}{Weight column used by \code{sum} (splitting) and \code{weighted_mean}.
-\code{NULL} uses the registered or default weight.}
+\item{weight}{Weight column used by \code{sum} (splitting), \code{weighted_mean}
+and the attached shares. \code{NULL} uses each column's registered weight,
+falling back to the object's default weight; when the object declares
+no weights at all, atoms weigh 1 (an equal split, with a warning when
+that choice is material, i.e. when disaggregating).}
 
-\item{na_action}{What to do with atoms that have no code at \code{from} or \code{to}:
-\code{"drop"} (default, with a warning), \code{"error"}, or \code{"keep"} (retain an
-explicit \code{NA} group so totals conserve).}
+\item{na_action}{What to do with atoms that have no code at \code{from} or
+\code{to}: \code{"drop"} (default, with a warning -- the affected source share
+is genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA}
+region row so totals conserve).}
+
+\item{collect}{For lazy inputs (arrow, dtplyr): materialise the result
+(\code{TRUE}) or return the uncollected query (default).}
 }
 \value{
-A \code{data.frame} keyed by a column named \code{to}, with the identifier
-columns of \code{x} and the same value columns.
+The recast table in the input's class, with columns
+\code{c(to, identifiers, values)}: per identifier combination, one row per
+member of \code{to} (the full target vocabulary, \code{NA} where uncovered),
+plus an \code{NA} region row under \code{na_action = "keep"}. Identifier column
+types are preserved.
 }
 \description{
-The central conversion verb: takes a \code{data.frame} keyed by region code at
-level \code{from} and returns one keyed at level \code{to}. Handles both
-aggregation (fine to coarse) and disaggregation (coarse to fine) with a
-single rule per value column.
+The central conversion verb: takes a table keyed by region code at
+geoframe \code{from} and returns one keyed at \code{to} -- a geoframe name of the
+same \code{\link{Geoscale}}, or ANOTHER Geoscale (whose atom layer is the target,
+matched on shared atom \code{region} keys). Handles both aggregation (fine to
+coarse) and disaggregation (coarse to fine) with a single rule per value
+column; geoframes that cross-cut work too, because the route always goes
+through the atom layer. The route is evaluated as one dplyr pipeline
+against the \code{\link[=geoscale_map]{geoscale_map()}} crosswalk, so \code{x} may live in any
+supported backend (see below). A crosswalk registered with
+\code{\link[=register_geo_map]{register_geo_map()}} short-circuits the derivation.
 }
 \details{
-Columns of \code{x} that are neither the key nor a value column are treated as
-identifiers and are preserved as grouping columns, so panel data (by date,
-technology, ...) recasts correctly in one call.
+Columns of \code{x} that are neither the key nor a value column are treated
+as identifiers (panel columns -- a year, a technology) and preserved as
+grouping columns, so panel data recasts correctly in one call; this is
+what makes mixed pipelines like
+\code{x |> recast_calendar(...) |> recast_geoscale(...)} work. Columns named
+like \code{gs}'s geoframes are treated as region attributes and dropped.
+
+The public halves of the route are \code{\link[=recast_to_geoatoms]{recast_to_geoatoms()}} and
+\code{\link[=recast_from_geoatoms]{recast_from_geoatoms()}}; \code{recast_geoscale(x, gs, from, to)} is
+equivalent to
+\code{recast_from_geoatoms(recast_to_geoatoms(x, gs, from), gs, to)}.
+
+Rules (see \code{\link{GEO_RULES}}): \code{"sum"} splits each source value across its
+region's atoms proportionally to the weight before summing up, so totals
+are conserved. \code{"weighted_mean"} weights by the atom weights;  \code{"mean"}
+is the plain atom-count mean -- the two differ exactly when atom weights
+differ. \code{"copy"} requires a constant value per target region; \code{"sd"} is
+aggregation-only.
 
 \code{na_action = "keep"} emits \code{NA} in the output key column. Note that
-downstream, \code{energyRt} reads \code{NA} in a region column as a \emph{wildcard meaning
-all regions}, so \code{"keep"} output should not be passed there unfiltered.
+downstream, \code{energyRt} reads \code{NA} in a region column as a \emph{wildcard
+meaning all regions}, so \code{"keep"} output should not be passed there
+unfiltered.
 }
+\section{Backends}{
+
+\code{x} may be a \code{data.frame}, tibble, \code{data.table}, \code{dtplyr} lazy table,
+or an arrow Dataset/Table/query. The result comes back in the input's
+class; lazy inputs (arrow, dtplyr) return the uncollected query unless
+\code{collect = TRUE}. Lazy results contain the observed target regions
+only -- the full-vocabulary completion (and its \code{NA} rows) applies when
+the result is materialised.
+}
+
 \examples{
 gs <- geoscale_example()
 
@@ -73,10 +124,11 @@ recast_geoscale(x, gs, from = "atom", to = "country", rule = "sum")
 # Coarse -> fine: split proportionally to area
 y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
 recast_geoscale(y, gs, from = "country", to = "state",
-           rule = "sum", weight = "km2")
+                rule = "sum", weight = "km2")
 
 # Intensive quantity: weighted mean going up, copied going down
 z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-recast_geoscale(z, gs, from = "atom", to = "state", rule = "weighted_mean")
+recast_geoscale(z, gs, from = "atom", to = "state",
+                rule = "weighted_mean")
 }

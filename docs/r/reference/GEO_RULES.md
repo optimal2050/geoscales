@@ -1,7 +1,7 @@
 # Supported aggregation rules
 
 Each rule defines behaviour in **both** directions. Direction is taken
-from the level ranks, so aggregation and disaggregation are one
+from the geoframe ranks, so aggregation and disaggregation are one
 operation:
 
 ## Usage
@@ -12,7 +12,7 @@ GEO_RULES
 
 ## Format
 
-A character vector of length 4.
+A character vector of length 5.
 
 ## Details
 
@@ -35,9 +35,15 @@ A character vector of length 4.
   Up: the common value, erroring if it is not constant. Down: copy
   unchanged. For region-invariant scalars.
 
+- `sd`:
+
+  Up: standard deviation over the atoms (aggregation only; going down it
+  degenerates to `NA` for single-atom groups).
+
 ## Examples
 
 ``` r
 GEO_RULES
 #> [1] "sum"           "weighted_mean" "mean"          "copy"         
+#> [5] "sd"           
 ```

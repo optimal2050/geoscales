@@ -2,20 +2,20 @@
 % Please edit documentation in R/filter.R
 \name{geoscale_regions}
 \alias{geoscale_regions}
-\title{Regions present at a level}
+\title{Regions present at a geoframe (the members)}
 \usage{
-geoscale_regions(x, level)
+geoscale_regions(x, geoframe)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
-\item{level}{A single level name.}
+\item{geoframe}{A single geoframe name.}
 }
 \value{
 A character vector of region codes, in the object's canonical order.
 }
 \description{
-Regions present at a level
+Regions present at a geoframe (the members)
 }
 \examples{
 gs <- geoscale_example()

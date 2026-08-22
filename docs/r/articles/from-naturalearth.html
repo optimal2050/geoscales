@@ -11,6 +11,8 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Building a Geoscale from Natural Earth">
+<meta name="description" content="Providers in practice: pull Natural Earth admin layers into a Geoscale, aggregate up and split back down, and let geometry follow the geoframes.">
+<meta property="og:description" content="Providers in practice: pull Natural Earth admin layers into a Geoscale, aggregate up and split back down, and let geometry follow the geoframes.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -20,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.1.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,9 +36,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/geoscales.html">Getting started with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/plotting.html">Plotting geoscales</a></li>
+<li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
     <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -89,8 +93,8 @@ fetches a source table; the package records what was fetched.</p>
 <span><span class="co">#&gt;           name                                          desc</span></span>
 <span><span class="co">#&gt; 1 naturalearth Natural Earth admin-0/admin-1 (rnaturalearth)</span></span></code></pre></div>
 <p>Natural Earth is the default provider because its country table is
-<em>already</em> a wide leaves table — one <code>sf</code> object
-carries the whole nest as columns:</p>
+<em>already</em> a wide leaftable — one <code>sf</code> object carries
+the whole nest as columns:</p>
 <pre><code>continent (8) -&gt; region_un -&gt; subregion (22) -&gt; sovereignt
               -&gt; admin / adm0_a3 (177) -&gt; geounit -&gt; subunit</code></pre>
 <p>with <code>pop_est</code> and <code>gdp_md</code> as ready-made
@@ -100,7 +104,7 @@ weights.</p>
 <span><span class="va">gs</span></span>
 <span><span class="co">#&gt; Geoscale: naturalearth-110 </span></span>
 <span><span class="co">#&gt; Description: Natural Earth admin-0 hierarchy </span></span>
-<span><span class="co">#&gt; Levels (4, coarsest first):</span></span>
+<span><span class="co">#&gt; Geoframes (4, coarsest first):</span></span>
 <span><span class="co">#&gt;   - continent (8)</span></span>
 <span><span class="co">#&gt;     - subregion (22)</span></span>
 <span><span class="co">#&gt;       - country (177)</span></span>
@@ -116,7 +120,7 @@ weights.</p>
 <p>We will follow Iceland through the hierarchy. It sits in Northern
 Europe:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lf</span> <span class="op">&lt;-</span> <span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop.html" class="external-link">prop</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"leaves"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">lf</span> <span class="op">&lt;-</span> <span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop.html" class="external-link">prop</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"leaftable"</span><span class="op">)</span></span>
 <span><span class="va">lf</span><span class="op">[</span><span class="va">lf</span><span class="op">$</span><span class="va">country</span> <span class="op">==</span> <span class="st">"ISL"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"continent"</span>, <span class="st">"subregion"</span>, <span class="st">"country"</span>, <span class="st">"pop_est"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;     continent       subregion country pop_est</span></span>
 <span><span class="co">#&gt; 145    Europe Northern Europe     ISL  361313</span></span></code></pre></div>
@@ -130,7 +134,7 @@ adds up:</p>
 <span><span class="va">agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">pop</span>, <span class="va">gs</span>, from <span class="op">=</span> <span class="st">"country"</span>, to <span class="op">=</span> <span class="st">"subregion"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="va">agg</span><span class="op">[</span><span class="va">agg</span><span class="op">$</span><span class="va">subregion</span> <span class="op">==</span> <span class="st">"Northern Europe"</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;          subregion       pop</span></span>
-<span><span class="co">#&gt; 13 Northern Europe 105135601</span></span></code></pre></div>
+<span><span class="co">#&gt; 11 Northern Europe 105135601</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="and-back-down">… and back down<a class="anchor" aria-label="anchor" href="#and-back-down"></a>
@@ -143,21 +147,23 @@ the total is conserved:</p>
 <span></span>
 <span><span class="va">back</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">ne</span>, <span class="va">gs</span>, from <span class="op">=</span> <span class="st">"subregion"</span>, to <span class="op">=</span> <span class="st">"country"</span>,</span>
 <span>                   rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"pop_est"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: 21 source region(s) present in the Geoscale but missing from `x` (e.g.</span></span>
+<span><span class="co">#&gt; Antarctica, Australia and New Zealand, Caribbean, ... (21 total)); produced NAs</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">back</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">back</span><span class="op">$</span><span class="va">pop</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    country      pop</span></span>
-<span><span class="co">#&gt; 4      GBR 66834405</span></span>
-<span><span class="co">#&gt; 10     SWE 10285453</span></span>
-<span><span class="co">#&gt; 1      DNK  5818553</span></span>
-<span><span class="co">#&gt; 3      FIN  5520314</span></span></code></pre></div>
+<span><span class="co">#&gt;     country      pop</span></span>
+<span><span class="co">#&gt; 144     GBR 66834405</span></span>
+<span><span class="co">#&gt; 111     SWE 10285453</span></span>
+<span><span class="co">#&gt; 143     DNK  5818553</span></span>
+<span><span class="co">#&gt; 152     FIN  5520314</span></span></code></pre></div>
 <p>Because we split by the same quantity we aggregated, the round trip
 is exact:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">back</span><span class="op">$</span><span class="va">pop</span><span class="op">[</span><span class="va">back</span><span class="op">$</span><span class="va">country</span> <span class="op">==</span> <span class="st">"ISL"</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] 361313</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">back</span><span class="op">$</span><span class="va">pop</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ne</span><span class="op">$</span><span class="va">pop</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] NA</span></span></code></pre></div>
 <p>That is the whole idea: <strong>aggregation and disaggregation are
-one operation.</strong> Direction follows the level ranks, and
+one operation.</strong> Direction follows the geoframe ranks, and
 <code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> routes through the atom layer either
 way.</p>
 </div>
@@ -171,7 +177,7 @@ CRAN</strong>:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rnaturalearthhires"</span>,</span>
 <span>                 repos <span class="op">=</span> <span class="st">"https://ropensci.r-universe.dev"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ne_source.html">ne_source</a></span><span class="op">(</span>level <span class="op">=</span> <span class="st">"states"</span>, country <span class="op">=</span> <span class="st">"Iceland"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ne_source.html">ne_source</a></span><span class="op">(</span>geoframe <span class="op">=</span> <span class="st">"states"</span>, country <span class="op">=</span> <span class="st">"Iceland"</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 9</span></span></code></pre></div>
@@ -188,13 +194,13 @@ hierarchy: one group with two children, seven with one.</p>
 <span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaves.html">geoscale_from_leaves</a></span><span class="op">(</span><span class="va">isl</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"unit"</span><span class="op">)</span>,</span>
+<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span><span class="va">isl</span>, geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"unit"</span><span class="op">)</span>,</span>
 <span>                          key <span class="op">=</span> <span class="st">"unit"</span>, name <span class="op">=</span> <span class="st">"iceland"</span><span class="op">)</span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">g</span>, <span class="va">s</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, level <span class="op">=</span> <span class="st">"unit"</span><span class="op">)</span></span>
+<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">g</span>, <span class="va">s</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"unit"</span><span class="op">)</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_area_geoscale.html">add_area_geoscale</a></span><span class="op">(</span><span class="va">g</span>, name <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span>
 <span><span class="co">#&gt; Geoscale: iceland </span></span>
-<span><span class="co">#&gt; Levels (3, coarsest first):</span></span>
+<span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
 <span><span class="co">#&gt;   - country (1)</span></span>
 <span><span class="co">#&gt;     - landshluti (8)</span></span>
 <span><span class="co">#&gt;       - unit (9)</span></span>
@@ -202,9 +208,9 @@ hierarchy: one group with two children, seven with one.</p>
 <span><span class="co">#&gt; Weights: km2 (default: km2)</span></span>
 <span><span class="co">#&gt; CRS: WGS 84</span></span>
 <span><span class="co">#&gt; Geometry: attached (9 features)</span></span></code></pre></div>
-<p>No level is called <code>region</code> here:
-<code><a href="../reference/geoscale_from_leaves.html">geoscale_from_leaves()</a></code> uses that name for the internal atom
-key, so it is reserved for the finest level.</p>
+<p>No geoframe is called <code>region</code> here:
+<code><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable()</a></code> uses that name for the internal
+atom key, so it is reserved for the finest geoframe.</p>
 <p>The Capital Region is the one that has two units under it:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_navigate.html">geoscale_children</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"landshluti"</span>, <span class="st">"Hofudborgarsvadi"</span><span class="op">)</span></span>
@@ -222,13 +228,13 @@ key, so it is reserved for the finest level.</p>
 <span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">g</span>, from <span class="op">=</span> <span class="st">"unit"</span>, to <span class="op">=</span> <span class="st">"landshluti"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          landshluti generation</span></span>
 <span><span class="co">#&gt; 1        Austurland        169</span></span>
-<span><span class="co">#&gt; 2  Hofudborgarsvadi        600</span></span>
-<span><span class="co">#&gt; 3 Nordurland Eystra        333</span></span>
-<span><span class="co">#&gt; 4 Nordurland Vestra        347</span></span>
-<span><span class="co">#&gt; 5         Sudurland        217</span></span>
-<span><span class="co">#&gt; 6          Sudurnes        308</span></span>
-<span><span class="co">#&gt; 7        Vestfirdir        475</span></span>
-<span><span class="co">#&gt; 8        Vesturland        454</span></span></code></pre></div>
+<span><span class="co">#&gt; 2         Sudurland        217</span></span>
+<span><span class="co">#&gt; 3          Sudurnes        308</span></span>
+<span><span class="co">#&gt; 4  Hofudborgarsvadi        600</span></span>
+<span><span class="co">#&gt; 5        Vesturland        454</span></span>
+<span><span class="co">#&gt; 6        Vestfirdir        475</span></span>
+<span><span class="co">#&gt; 7 Nordurland Vestra        347</span></span>
+<span><span class="co">#&gt; 8 Nordurland Eystra        333</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">g</span>, from <span class="op">=</span> <span class="st">"unit"</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   country generation</span></span>
@@ -246,22 +252,22 @@ key, so it is reserved for the finest level.</p>
 <span>                 rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="va">dd</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">dd</span><span class="op">$</span><span class="va">demand</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;   unit     demand</span></span>
-<span><span class="co">#&gt; 9 IS-8 243.839793</span></span>
-<span><span class="co">#&gt; 7 IS-6 218.218704</span></span>
-<span><span class="co">#&gt; 8 IS-7 209.284719</span></span>
-<span><span class="co">#&gt; 6 IS-5 123.058147</span></span>
-<span><span class="co">#&gt; 5 IS-4  93.745309</span></span>
-<span><span class="co">#&gt; 4 IS-3  93.738848</span></span>
+<span><span class="co">#&gt; 2 IS-8 243.839793</span></span>
+<span><span class="co">#&gt; 9 IS-6 218.218704</span></span>
+<span><span class="co">#&gt; 1 IS-7 209.284719</span></span>
+<span><span class="co">#&gt; 8 IS-5 123.058147</span></span>
+<span><span class="co">#&gt; 7 IS-4  93.745309</span></span>
+<span><span class="co">#&gt; 6 IS-3  93.738848</span></span>
 <span><span class="co">#&gt; 3 IS-2   8.612705</span></span>
-<span><span class="co">#&gt; 2 IS-1   6.034461</span></span>
-<span><span class="co">#&gt; 1 IS-0   3.467314</span></span></code></pre></div>
+<span><span class="co">#&gt; 5 IS-1   6.034461</span></span>
+<span><span class="co">#&gt; 4 IS-0   3.467314</span></span></code></pre></div>
 <p>Look at what that produces. The Capital Region units receive almost
 nothing, because they are tiny — yet they hold most of Iceland’s
 population and would consume most of its electricity. <strong>Area is
 rarely the right weight for demand.</strong> This is precisely why
 <code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> makes you name a <code>weight =</code>
-rather than picking one for you; with a population column on the leaves
-you would pass that instead.</p>
+rather than picking one for you; with a population column on the
+leaftable you would pass that instead.</p>
 <p>An <em>intensive</em> quantity must not be summed at all — use
 <code>weighted_mean</code>, which copies going down and weight-averages
 going up:</p>
@@ -272,25 +278,25 @@ going up:</p>
 <span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">cf</span>, <span class="va">g</span>, <span class="st">"unit"</span>, <span class="st">"landshluti"</span>, rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          landshluti       cf</span></span>
 <span><span class="co">#&gt; 1        Austurland 0.219000</span></span>
-<span><span class="co">#&gt; 2  Hofudborgarsvadi 0.348207</span></span>
-<span><span class="co">#&gt; 3 Nordurland Eystra 0.498000</span></span>
-<span><span class="co">#&gt; 4 Nordurland Vestra 0.415000</span></span>
-<span><span class="co">#&gt; 5         Sudurland 0.262000</span></span>
-<span><span class="co">#&gt; 6          Sudurnes 0.253000</span></span>
-<span><span class="co">#&gt; 7        Vestfirdir 0.349000</span></span>
-<span><span class="co">#&gt; 8        Vesturland 0.431000</span></span></code></pre></div>
+<span><span class="co">#&gt; 2         Sudurland 0.262000</span></span>
+<span><span class="co">#&gt; 3          Sudurnes 0.253000</span></span>
+<span><span class="co">#&gt; 4  Hofudborgarsvadi 0.348207</span></span>
+<span><span class="co">#&gt; 5        Vesturland 0.431000</span></span>
+<span><span class="co">#&gt; 6        Vestfirdir 0.349000</span></span>
+<span><span class="co">#&gt; 7 Nordurland Vestra 0.415000</span></span>
+<span><span class="co">#&gt; 8 Nordurland Eystra 0.498000</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="geometry-follows-the-levels">Geometry follows the levels<a class="anchor" aria-label="anchor" href="#geometry-follows-the-levels"></a>
+<h3 id="geometry-follows-the-geoframes">Geometry follows the geoframes<a class="anchor" aria-label="anchor" href="#geometry-follows-the-geoframes"></a>
 </h3>
 <p><code><a href="../reference/geoscale_geometry.html">geoscale_geometry()</a></code> dissolves the atoms up to whatever
-level you ask for, so the nine units become eight regions:</p>
+geoframe you ask for, so the nine units become eight regions:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_geometry.html">geoscale_geometry</a></span><span class="op">(</span><span class="va">g</span>, level <span class="op">=</span> <span class="st">"landshluti"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_geometry.html">geoscale_geometry</a></span><span class="op">(</span><span class="va">g</span>, geoframe <span class="op">=</span> <span class="st">"landshluti"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">shp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 8</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_plot.html">geoscale_plot</a></span><span class="op">(</span><span class="va">g</span>, level <span class="op">=</span> <span class="st">"landshluti"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_plot.html">geoscale_plot</a></span><span class="op">(</span><span class="va">g</span>, geoframe <span class="op">=</span> <span class="st">"landshluti"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="from-naturalearth_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 </div>
@@ -311,11 +317,11 @@ forbids commercial use) and <code>tigris</code> (US Census).</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer>

@@ -1,4 +1,4 @@
-# Weight shares within a level
+# Weight shares within a geoframe
 
 Normalised weights, either of the whole object or within each parent
 group.
@@ -6,7 +6,7 @@ group.
 ## Usage
 
 ``` r
-geoscale_share(x, level, weight = NULL, within = NULL)
+geoscale_share(x, geoframe, weight = NULL, within = NULL)
 ```
 
 ## Arguments
@@ -16,9 +16,9 @@ geoscale_share(x, level, weight = NULL, within = NULL)
   A
   [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
 
-- level:
+- geoframe:
 
-  Level to report shares for.
+  Geoframe to report shares for.
 
 - weight:
 
@@ -26,13 +26,13 @@ geoscale_share(x, level, weight = NULL, within = NULL)
 
 - within:
 
-  Optional coarser level to normalise within. `NULL` normalises over the
-  whole object.
+  Optional coarser geoframe to normalise within. `NULL` normalises over
+  the whole object.
 
 ## Value
 
-A `data.frame` with a code column named `level` (matching the convention
-of
+A `data.frame` with a code column named `geoframe` (matching the
+convention of
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)),
 the weight, and `share`. When `within` is given, a column of that name
 carries the parent code.

@@ -19,8 +19,8 @@ list_geo_providers()
 ```
 
 Natural Earth is the default provider because its country table is
-*already* a wide leaves table — one `sf` object carries the whole nest
-as columns:
+*already* a wide leaftable — one `sf` object carries the whole nest as
+columns:
 
     continent (8) -> region_un -> subregion (22) -> sovereignt
                   -> admin / adm0_a3 (177) -> geounit -> subunit
@@ -33,7 +33,7 @@ gs <- ne_geoscale(scale = 110)
 gs
 #> Geoscale: naturalearth-110 
 #> Description: Natural Earth admin-0 hierarchy 
-#> Levels (4, coarsest first):
+#> Geoframes (4, coarsest first):
 #>   - continent (8)
 #>     - subregion (22)
 #>       - country (177)
@@ -51,7 +51,7 @@ Europe:
 
 ``` r
 
-lf <- S7::prop(gs, "leaves")
+lf <- S7::prop(gs, "leaftable")
 lf[lf$country == "ISL", c("continent", "subregion", "country", "pop_est")]
 #>     continent       subregion country pop_est
 #> 145    Europe Northern Europe     ISL  361313
@@ -68,7 +68,7 @@ pop <- pop[!is.na(pop$country), ]
 agg <- recast_geoscale(pop, gs, from = "country", to = "subregion", rule = "sum")
 agg[agg$subregion == "Northern Europe", ]
 #>          subregion       pop
-#> 13 Northern Europe 105135601
+#> 11 Northern Europe 105135601
 ```
 
 ## … and back down
@@ -82,12 +82,14 @@ ne <- agg[agg$subregion == "Northern Europe", ]
 
 back <- recast_geoscale(ne, gs, from = "subregion", to = "country",
                    rule = "sum", weight = "pop_est")
+#> Warning: 21 source region(s) present in the Geoscale but missing from `x` (e.g.
+#> Antarctica, Australia and New Zealand, Caribbean, ... (21 total)); produced NAs
 head(back[order(-back$pop), ], 4)
-#>    country      pop
-#> 4      GBR 66834405
-#> 10     SWE 10285453
-#> 1      DNK  5818553
-#> 3      FIN  5520314
+#>     country      pop
+#> 144     GBR 66834405
+#> 111     SWE 10285453
+#> 143     DNK  5818553
+#> 152     FIN  5520314
 ```
 
 Because we split by the same quantity we aggregated, the round trip is
@@ -98,11 +100,11 @@ exact:
 back$pop[back$country == "ISL"]
 #> [1] 361313
 sum(back$pop) == sum(ne$pop)
-#> [1] FALSE
+#> [1] NA
 ```
 
 That is the whole idea: **aggregation and disaggregation are one
-operation.** Direction follows the level ranks, and
+operation.** Direction follows the geoframe ranks, and
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 routes through the atom layer either way.
 
@@ -119,7 +121,7 @@ install.packages("rnaturalearthhires",
 
 ``` r
 
-s <- ne_source(level = "states", country = "Iceland")
+s <- ne_source(geoframe = "states", country = "Iceland")
 d <- as.data.frame(s)
 nrow(d)
 #> [1] 9
@@ -140,13 +142,13 @@ isl <- data.frame(
   stringsAsFactors = FALSE
 )
 
-g <- geoscale_from_leaves(isl, levels = c("country", "landshluti", "unit"),
+g <- geoscale_from_leaftable(isl, geoframes = c("country", "landshluti", "unit"),
                           key = "unit", name = "iceland")
-g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", level = "unit")
+g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", geoframe = "unit")
 g <- add_area_geoscale(g, name = "km2")
 g
 #> Geoscale: iceland 
-#> Levels (3, coarsest first):
+#> Geoframes (3, coarsest first):
 #>   - country (1)
 #>     - landshluti (8)
 #>       - unit (9)
@@ -156,10 +158,10 @@ g
 #> Geometry: attached (9 features)
 ```
 
-No level is called `region` here:
-[`geoscale_from_leaves()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaves.md)
+No geoframe is called `region` here:
+[`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md)
 uses that name for the internal atom key, so it is reserved for the
-finest level.
+finest geoframe.
 
 The Capital Region is the one that has two units under it:
 
@@ -182,13 +184,13 @@ x <- data.frame(unit = geoscale_regions(g, "unit"),
 recast_geoscale(x, g, from = "unit", to = "landshluti", rule = "sum")
 #>          landshluti generation
 #> 1        Austurland        169
-#> 2  Hofudborgarsvadi        600
-#> 3 Nordurland Eystra        333
-#> 4 Nordurland Vestra        347
-#> 5         Sudurland        217
-#> 6          Sudurnes        308
-#> 7        Vestfirdir        475
-#> 8        Vesturland        454
+#> 2         Sudurland        217
+#> 3          Sudurnes        308
+#> 4  Hofudborgarsvadi        600
+#> 5        Vesturland        454
+#> 6        Vestfirdir        475
+#> 7 Nordurland Vestra        347
+#> 8 Nordurland Eystra        333
 ```
 
 ``` r
@@ -210,15 +212,15 @@ dd <- recast_geoscale(tot, g, from = "country", to = "unit",
                  rule = "sum", weight = "km2")
 dd[order(-dd$demand), ]
 #>   unit     demand
-#> 9 IS-8 243.839793
-#> 7 IS-6 218.218704
-#> 8 IS-7 209.284719
-#> 6 IS-5 123.058147
-#> 5 IS-4  93.745309
-#> 4 IS-3  93.738848
+#> 2 IS-8 243.839793
+#> 9 IS-6 218.218704
+#> 1 IS-7 209.284719
+#> 8 IS-5 123.058147
+#> 7 IS-4  93.745309
+#> 6 IS-3  93.738848
 #> 3 IS-2   8.612705
-#> 2 IS-1   6.034461
-#> 1 IS-0   3.467314
+#> 5 IS-1   6.034461
+#> 4 IS-0   3.467314
 ```
 
 Look at what that produces. The Capital Region units receive almost
@@ -227,7 +229,7 @@ population and would consume most of its electricity. **Area is rarely
 the right weight for demand.** This is precisely why
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 makes you name a `weight =` rather than picking one for you; with a
-population column on the leaves you would pass that instead.
+population column on the leaftable you would pass that instead.
 
 An *intensive* quantity must not be summed at all — use `weighted_mean`,
 which copies going down and weight-averages going up:
@@ -240,31 +242,31 @@ cf <- data.frame(unit = geoscale_regions(g, "unit"),
 recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
 #>          landshluti       cf
 #> 1        Austurland 0.219000
-#> 2  Hofudborgarsvadi 0.348207
-#> 3 Nordurland Eystra 0.498000
-#> 4 Nordurland Vestra 0.415000
-#> 5         Sudurland 0.262000
-#> 6          Sudurnes 0.253000
-#> 7        Vestfirdir 0.349000
-#> 8        Vesturland 0.431000
+#> 2         Sudurland 0.262000
+#> 3          Sudurnes 0.253000
+#> 4  Hofudborgarsvadi 0.348207
+#> 5        Vesturland 0.431000
+#> 6        Vestfirdir 0.349000
+#> 7 Nordurland Vestra 0.415000
+#> 8 Nordurland Eystra 0.498000
 ```
 
-### Geometry follows the levels
+### Geometry follows the geoframes
 
 [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md)
-dissolves the atoms up to whatever level you ask for, so the nine units
-become eight regions:
+dissolves the atoms up to whatever geoframe you ask for, so the nine
+units become eight regions:
 
 ``` r
 
-shp <- geoscale_geometry(g, level = "landshluti")
+shp <- geoscale_geometry(g, geoframe = "landshluti")
 nrow(shp)
 #> [1] 8
 ```
 
 ``` r
 
-geoscale_plot(g, level = "landshluti")
+geoscale_plot(g, geoframe = "landshluti")
 ```
 
 ![](from-naturalearth_files/figure-html/unnamed-chunk-17-1.png)

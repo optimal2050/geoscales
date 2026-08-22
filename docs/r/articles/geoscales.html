@@ -11,6 +11,8 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with geoscales">
+<meta name="description" content="A short, end-to-end tour: build a Geoscale, recast values between resolutions, attach it to data, and draw a map.">
+<meta property="og:description" content="A short, end-to-end tour: build a Geoscale, recast values between resolutions, attach it to data, and draw a map.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -20,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.1.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,9 +36,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/geoscales.html">Getting started with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/plotting.html">Plotting geoscales</a></li>
+<li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
     <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -76,345 +80,163 @@
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/geoscales/r/">geoscales</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="what-a-geoscale-is">What a Geoscale is<a class="anchor" aria-label="anchor" href="#what-a-geoscale-is"></a>
+<h2 id="what-problem-does-this-solve">What problem does this solve?<a class="anchor" aria-label="anchor" href="#what-problem-does-this-solve"></a>
 </h2>
-<p>A <code>Geoscale</code> is a nested spatial partition — the spatial
-companion to a <code><a href="https://optimal2050.github.io/timescales/r/reference/Calendar.html" class="external-link">timescales::Calendar</a></code>. It holds:</p>
+<p>Energy-system, climate, and policy models carve space into discrete
+<em>regions</em>, and different models pick different carvings: one
+nation, five grid regions, thirty-two model regions, forty-six zones.
+The codes are arbitrary, the weights (area, population) are data, and
+region systems drawn by different hands rarely nest — converting values
+between them is where unit errors live.</p>
+<p><code>geoscales</code> represents any such carving as a
+<strong>Geoscale</strong>: a set of <em>atoms</em> (the finest regions)
+plus ordered <em>geoframes</em> that group them — the spatial companion
+to a <code><a href="https://optimal2050.github.io/timescales/r/reference/Calendar.html" class="external-link">timescales::Calendar</a></code>. With one object you get:</p>
 <ul>
-<li>
-<strong><code>leaves</code></strong> — one row per <em>atom</em>
-(the finest region), one column per level, a unique <code>region</code>
-key, and one or more named weight columns;</li>
-<li>
-<strong><code>levels</code></strong> — the hierarchy, ordered
-coarsest first;</li>
-<li>
-<strong><code>members</code></strong> — the code vocabulary at each
-level;</li>
-<li>
-<strong><code>meta</code></strong> — name, weights, source,
-CRS.</li>
+<li>a stable schema for region codes and their weights,</li>
+<li>well-defined conversions between any two resolutions — including
+cross-cutting ones, because every conversion routes through the atom
+layer,</li>
+<li>attachment of hierarchy columns to your tables, and ggplot2-ready
+maps.</li>
 </ul>
-<p>Everything else — parent/child tables, ancestry, shares — is derived
-on demand. Nothing is cached on the object.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">gs</span></span>
-<span><span class="co">#&gt; Geoscale: example </span></span>
-<span><span class="co">#&gt; Description: Synthetic example: reused code, non-nesting level pair, and an unassigned atom </span></span>
-<span><span class="co">#&gt; Levels (4, coarsest first):</span></span>
-<span><span class="co">#&gt;   - country (2)  [1 atom(s) unassigned]</span></span>
-<span><span class="co">#&gt;     - state (3)  [1 atom(s) unassigned]</span></span>
-<span><span class="co">#&gt;       - zone (3)  [1 atom(s) unassigned]</span></span>
-<span><span class="co">#&gt;         - atom (7)</span></span>
-<span><span class="co">#&gt; Atoms: 7</span></span>
-<span><span class="co">#&gt; Weights: km2, pop (default: km2)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="levels-are-partitions-not-necessarily-a-tree">Levels are partitions, not necessarily a tree<a class="anchor" aria-label="anchor" href="#levels-are-partitions-not-necessarily-a-tree"></a>
+<h2 id="a-5-minute-tour">A 5-minute tour<a class="anchor" aria-label="anchor" href="#a-5-minute-tour"></a>
 </h2>
-<p>This is the main thing that differs from the time domain. Time levels
-nest cleanly: every hour belongs to exactly one day. Spatial levels
-frequently do not.</p>
-<p>In the example, zone <code>ZB</code> draws atoms from two different
-states, so <code>state</code> and <code>zone</code> cross-cut:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_nests.html">geoscale_nests</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"country"</span>, <span class="st">"state"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="fu"><a href="../reference/geoscale_nests.html">geoscale_nests</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; attr(,"offenders")</span></span>
-<span><span class="co">#&gt; [1] "ZB"</span></span></code></pre></div>
-<p>Real data behaves the same way. In the IDEEA region table for India,
-the <code>reg32</code> code <code>APY</code> merges Andhra Pradesh with
-<em>part of</em> Puducherry, so <code>reg35</code> does not nest inside
-<code>reg32</code>.</p>
-<p>This is exactly why the atom layer exists, and why
-<code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> always routes through it.</p>
-</div>
-<div class="section level2">
-<h2 id="codes-are-not-unique-across-levels">Codes are not unique across levels<a class="anchor" aria-label="anchor" href="#codes-are-not-unique-across-levels"></a>
-</h2>
-<p>The code <code>"N1"</code> exists at both <code>state</code> and
-<code>zone</code>. A bare code is therefore ambiguous, and every lookup
-must name its level:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_navigate.html">geoscale_children</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"N1"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "N1"</span></span>
-<span><span class="fu"><a href="../reference/geoscale_navigate.html">geoscale_children</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"zone"</span>, <span class="st">"N1"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "A1" "A2"</span></span></code></pre></div>
-<p>In IDEEA, 46 of 62 codes appear at more than one level —
-<code>AN</code> appears at seven. This is the norm, not an edge
-case.</p>
-</div>
-<div class="section level2">
-<h2 id="recasting-one-verb-both-directions">Recasting: one verb, both directions<a class="anchor" aria-label="anchor" href="#recasting-one-verb-both-directions"></a>
-</h2>
-<p><code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> projects source values down to atoms
-and then aggregates them up to the target, so aggregation and
-disaggregation are the same operation. The direction falls out of the
-level ranks.</p>
-<p>Going up, an extensive quantity is summed:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span>, <span class="st">"A5"</span>, <span class="st">"A6"</span><span class="op">)</span>,</span>
-<span>                  capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">cap</span>, <span class="va">gs</span>, from <span class="op">=</span> <span class="st">"atom"</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   country capacity</span></span>
-<span><span class="co">#&gt; 1       N       10</span></span>
-<span><span class="co">#&gt; 2       S       11</span></span></code></pre></div>
-<p>Going down, the same rule splits proportionally to a weight:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gs</span>, from <span class="op">=</span> <span class="st">"country"</span>, to <span class="op">=</span> <span class="st">"state"</span>,</span>
-<span>           rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   state capacity</span></span>
-<span><span class="co">#&gt; 1    N1        3</span></span>
-<span><span class="co">#&gt; 2    N2        7</span></span>
-<span><span class="co">#&gt; 3    S1       20</span></span></code></pre></div>
-<p>Totals are preserved, and a round trip is exact:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">up</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">cap</span>, <span class="va">gs</span>, <span class="st">"atom"</span>, <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
-<span><span class="va">back</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">up</span>, <span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"atom"</span>, rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
-<span><span class="va">back</span></span>
-<span><span class="co">#&gt;   atom capacity</span></span>
-<span><span class="co">#&gt; 1   A1        1</span></span>
-<span><span class="co">#&gt; 2   A2        2</span></span>
-<span><span class="co">#&gt; 3   A3        3</span></span>
-<span><span class="co">#&gt; 4   A4        4</span></span>
-<span><span class="co">#&gt; 5   A5        5</span></span>
-<span><span class="co">#&gt; 6   A6        6</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="rules">Rules<a class="anchor" aria-label="anchor" href="#rules"></a>
+<h3 id="build-a-geoscale">1. Build a Geoscale<a class="anchor" aria-label="anchor" href="#build-a-geoscale"></a>
 </h3>
-<table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
-<thead><tr class="header">
-<th>rule</th>
-<th>up (coarsen)</th>
-<th>down (refine)</th>
-<th>use for</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>sum</code></td>
-<td>sum</td>
-<td>split by weight</td>
-<td>capacity, demand, area</td>
-</tr>
-<tr class="even">
-<td><code>weighted_mean</code></td>
-<td>weighted mean</td>
-<td>copy</td>
-<td>efficiency, price, capacity factor</td>
-</tr>
-<tr class="odd">
-<td><code>mean</code></td>
-<td>plain mean</td>
-<td>copy</td>
-<td>diagnostics</td>
-</tr>
-<tr class="even">
-<td><code>copy</code></td>
-<td>common value</td>
-<td>copy</td>
-<td>region-invariant scalars</td>
-</tr>
-</tbody>
-</table>
-<p>An intensive quantity must not be summed:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span>, <span class="st">"A5"</span>, <span class="st">"A6"</span><span class="op">)</span>,</span>
-<span>                  eff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">eff</span>, <span class="va">gs</span>, <span class="st">"atom"</span>, <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"pop"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   state  eff</span></span>
-<span><span class="co">#&gt; 1    N1 0.39</span></span>
-<span><span class="co">#&gt; 2    N2 0.50</span></span>
-<span><span class="co">#&gt; 3    S1 0.60</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="registering-rules-per-parameter">Registering rules per parameter<a class="anchor" aria-label="anchor" href="#registering-rules-per-parameter"></a>
-</h3>
-<p>Rather than passing <code>rule=</code> at every call site, register
-it once. Each value column is then converted by its own rule in a single
-call:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_geo_rule.html">register_geo_rule</a></span><span class="op">(</span><span class="st">"capacity"</span>, <span class="st">"sum"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/register_geo_rule.html">register_geo_rule</a></span><span class="op">(</span><span class="st">"eff"</span>, <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"pop"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span>, <span class="st">"A5"</span>, <span class="st">"A6"</span><span class="op">)</span>,</span>
-<span>                  capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span>,</span>
-<span>                  eff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">mix</span>, <span class="va">gs</span>, <span class="st">"atom"</span>, <span class="st">"state"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   state capacity  eff</span></span>
-<span><span class="co">#&gt; 1    N1        3 0.39</span></span>
-<span><span class="co">#&gt; 2    N2        7 0.50</span></span>
-<span><span class="co">#&gt; 3    S1       11 0.60</span></span></code></pre></div>
-<p>An explicit <code>rule=</code> always overrides the registry.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="partial-coverage">Partial coverage<a class="anchor" aria-label="anchor" href="#partial-coverage"></a>
-</h2>
-<p>Region tables routinely have atoms with no code at a coarser level —
-a rest-of-world row, offshore zones, unassigned territory. The example
-has an atom <code>ROW</code> with no country.</p>
-<p><code>na_action</code> decides what happens to it:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">cap</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>atom <span class="op">=</span> <span class="st">"ROW"</span>, capacity <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># "drop" (default) loses the uncovered share, and says so</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">gs</span>, <span class="st">"atom"</span>, <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">capacity</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 21</span></span>
-<span></span>
-<span><span class="co"># "keep" conserves the total in an explicit NA group</span></span>
-<span><span class="va">kept</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">gs</span>, <span class="st">"atom"</span>, <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span>,</span>
-<span>                   na_action <span class="op">=</span> <span class="st">"keep"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">kept</span><span class="op">$</span><span class="va">capacity</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 121</span></span></code></pre></div>
-<p>Note that <code>energyRt</code> reads <code>NA</code> in a region
-column as <em>a wildcard meaning all regions</em>, so
-<code>"keep"</code> output should not be passed there unfiltered.</p>
-</div>
-<div class="section level2">
-<h2 id="identifier-columns">Identifier columns<a class="anchor" aria-label="anchor" href="#identifier-columns"></a>
-</h2>
-<p>Columns that are neither the key nor a value are kept as grouping
-columns, so panel data converts in one call:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2020L</span>, <span class="fl">2021L</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>  capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span></span>
+<p>Three construction layers, from most to least convenient — a
+provider, parent-child crosswalks, or a wide table you already have:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"S"</span>, <span class="st">"S"</span><span class="op">)</span>,</span>
+<span>    state   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span>, <span class="st">"S1"</span><span class="op">)</span>,</span>
+<span>    atom    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span>, <span class="st">"A5"</span>, <span class="st">"A6"</span><span class="op">)</span>,</span>
+<span>    km2     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span>, <span class="fl">600</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"state"</span>, <span class="st">"atom"</span><span class="op">)</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"tour"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">panel</span>, <span class="va">gs</span>, <span class="st">"atom"</span>, <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span>, values <span class="op">=</span> <span class="st">"capacity"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   state year capacity</span></span>
-<span><span class="co">#&gt; 1    N1 2020        4</span></span>
-<span><span class="co">#&gt; 2    N2 2020        5</span></span>
-<span><span class="co">#&gt; 3    N1 2021        6</span></span>
-<span><span class="co">#&gt; 4    N2 2021        6</span></span></code></pre></div>
+<span><span class="va">gs</span></span>
+<span><span class="co">#&gt; Geoscale: tour </span></span>
+<span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
+<span><span class="co">#&gt;   - country (2)</span></span>
+<span><span class="co">#&gt;     - state (3)</span></span>
+<span><span class="co">#&gt;       - atom (6)</span></span>
+<span><span class="co">#&gt; Atoms: 6</span></span>
+<span><span class="co">#&gt; Weights: km2 (default: km2)</span></span></code></pre></div>
+<p>(<code><a href="../reference/geoscale_build.html">geoscale_build()</a></code> assembles the same thing from ragged
+parent-child crosswalks; <code><a href="../reference/geoscale_from_provider.html">geoscale_from_provider()</a></code> pulls a
+source like Natural Earth — see
+<code><a href="../articles/from-naturalearth.html">vignette("from-naturalearth")</a></code>.)</p>
 </div>
-<div class="section level2">
-<h2 id="navigating-and-subsetting">Navigating and subsetting<a class="anchor" aria-label="anchor" href="#navigating-and-subsetting"></a>
-</h2>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span><span class="op">)</span></span>
+<div class="section level3">
+<h3 id="inspect-the-structure">2. Inspect the structure<a class="anchor" aria-label="anchor" href="#inspect-the-structure"></a>
+</h3>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gs</span><span class="op">@</span><span class="va">geoframes</span>                 <span class="co"># the hierarchy, coarsest first</span></span>
+<span><span class="co">#&gt; [1] "country" "state"   "atom"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gs</span><span class="op">@</span><span class="va">leaftable</span>, <span class="fl">3</span><span class="op">)</span>        <span class="co"># one row per atom</span></span>
+<span><span class="co">#&gt;   country state atom km2 region</span></span>
+<span><span class="co">#&gt; 1       N    N1   A1 100     A1</span></span>
+<span><span class="co">#&gt; 2       N    N1   A2 200     A2</span></span>
+<span><span class="co">#&gt; 3       N    N2   A3 300     A3</span></span>
+<span><span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "N1" "N2" "S1"</span></span>
-<span><span class="fu"><a href="../reference/geoscale_family.html">geoscale_family</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   parent_level parent child_level child</span></span>
-<span><span class="co">#&gt; 1        state     N1        zone    N1</span></span>
-<span><span class="co">#&gt; 2        state     N2        zone    ZB</span></span>
-<span><span class="co">#&gt; 3        state     S1        zone    ZB</span></span>
-<span><span class="co">#&gt; 4        state     S1        zone    ZC</span></span>
-<span><span class="fu"><a href="../reference/geoscale_navigate.html">geoscale_descendants</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"country"</span>, <span class="st">"N"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   level region</span></span>
-<span><span class="co">#&gt; 1 state     N1</span></span>
-<span><span class="co">#&gt; 2 state     N2</span></span>
-<span><span class="co">#&gt; 3  zone     N1</span></span>
-<span><span class="co">#&gt; 4  zone     ZB</span></span>
-<span><span class="co">#&gt; 5  atom     A1</span></span>
-<span><span class="co">#&gt; 6  atom     A2</span></span>
-<span><span class="co">#&gt; 7  atom     A3</span></span>
-<span><span class="co">#&gt; 8  atom     A4</span></span>
 <span><span class="fu"><a href="../reference/geoscale_share.html">geoscale_share</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, weight <span class="op">=</span> <span class="st">"km2"</span>, within <span class="op">=</span> <span class="st">"country"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   state country  km2 share</span></span>
 <span><span class="co">#&gt; 1    N1       N  300   0.3</span></span>
 <span><span class="co">#&gt; 2    N2       N  700   0.7</span></span>
 <span><span class="co">#&gt; 3    S1       S 1100   1.0</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/filter_geoscale.html">filter_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"country"</span>, <span class="st">"N"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Geoscale: example </span></span>
-<span><span class="co">#&gt; Description: Synthetic example: reused code, non-nesting level pair, and an unassigned atom </span></span>
-<span><span class="co">#&gt; Levels (4, coarsest first):</span></span>
-<span><span class="co">#&gt;   - country (1)</span></span>
-<span><span class="co">#&gt;     - state (2)</span></span>
-<span><span class="co">#&gt;       - zone (2)</span></span>
-<span><span class="co">#&gt;         - atom (4)</span></span>
-<span><span class="co">#&gt; Atoms: 4</span></span>
-<span><span class="co">#&gt; Weights: km2, pop (default: km2)</span></span>
-<span><span class="va">gs</span><span class="op">[</span><span class="st">"country"</span>, <span class="st">"N"</span><span class="op">]</span></span>
-<span><span class="co">#&gt; Geoscale: example </span></span>
-<span><span class="co">#&gt; Description: Synthetic example: reused code, non-nesting level pair, and an unassigned atom </span></span>
-<span><span class="co">#&gt; Levels (4, coarsest first):</span></span>
-<span><span class="co">#&gt;   - country (1)</span></span>
-<span><span class="co">#&gt;     - state (2)</span></span>
-<span><span class="co">#&gt;       - zone (2)</span></span>
-<span><span class="co">#&gt;         - atom (4)</span></span>
-<span><span class="co">#&gt; Atoms: 4</span></span>
-<span><span class="co">#&gt; Weights: km2, pop (default: km2)</span></span>
-<span><span class="fu"><a href="../reference/prune_geoscale.html">prune_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Geoscale: example </span></span>
-<span><span class="co">#&gt; Description: Synthetic example: reused code, non-nesting level pair, and an unassigned atom </span></span>
-<span><span class="co">#&gt; Levels (2, coarsest first):</span></span>
-<span><span class="co">#&gt;   - country (2)</span></span>
-<span><span class="co">#&gt;     - state (3)</span></span>
-<span><span class="co">#&gt; Atoms: 3</span></span>
-<span><span class="co">#&gt; Weights: km2, pop (default: km2)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="building-a-geoscale">Building a Geoscale<a class="anchor" aria-label="anchor" href="#building-a-geoscale"></a>
-</h2>
-<p>Three layers, from most to least convenient:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Layer 2: from crosswalks (ragged hierarchies are the norm in space)</span></span>
-<span><span class="fu"><a href="../reference/geoscale_build.html">geoscale_build</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span><span class="op">)</span>,</span>
-<span>             atom  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  levels  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"state"</span>, <span class="st">"atom"</span><span class="op">)</span>,</span>
-<span>  weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span><span class="op">)</span>,</span>
-<span>                       km2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">40</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Geoscale: &lt;unnamed&gt; </span></span>
-<span><span class="co">#&gt; Levels (3, coarsest first):</span></span>
-<span><span class="co">#&gt;   - country (2)</span></span>
-<span><span class="co">#&gt;     - state (3)</span></span>
-<span><span class="co">#&gt;       - atom (4)</span></span>
-<span><span class="co">#&gt; Atoms: 4</span></span>
-<span><span class="co">#&gt; Weights: km2 (default: km2)</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Layer 3: the escape hatch - a wide table you already have</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C1"</span>, <span class="st">"C2"</span><span class="op">)</span>,</span>
-<span>  atom    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span><span class="op">)</span>,</span>
-<span>  km2     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/geoscale_from_leaves.html">geoscale_from_leaves</a></span><span class="op">(</span><span class="va">df</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"atom"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Geoscale: &lt;unnamed&gt; </span></span>
-<span><span class="co">#&gt; Levels (2, coarsest first):</span></span>
-<span><span class="co">#&gt;   - country (2)</span></span>
-<span><span class="co">#&gt;     - atom (3)</span></span>
-<span><span class="co">#&gt; Atoms: 3</span></span>
-<span><span class="co">#&gt; Weights: km2 (default: km2)</span></span></code></pre></div>
-<p>Layer 1 is <code><a href="../reference/geoscale_from_provider.html">geoscale_from_provider()</a></code>; see
-<code><a href="../articles/from-naturalearth.html">vignette("from-naturalearth")</a></code>.</p>
+<div class="section level3">
+<h3 id="convert-data-between-resolutions">3. Convert data between resolutions<a class="anchor" aria-label="anchor" href="#convert-data-between-resolutions"></a>
+</h3>
+<p>One rule per value column; aggregation and disaggregation are the
+same operation, and totals conserve under <code>"sum"</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cap</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, from <span class="op">=</span> <span class="st">"atom"</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
+<span><span class="co">#&gt;   country capacity</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N             10</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> S             11</span></span>
+<span></span>
+<span><span class="co"># ... and back down, split by area</span></span>
+<span><span class="fu">tibble</span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, from <span class="op">=</span> <span class="st">"country"</span>, to <span class="op">=</span> <span class="st">"state"</span>,</span>
+<span>                  rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
+<span><span class="co">#&gt;   state capacity</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1           3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2           7</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1          20</span></span></code></pre></div>
+<p>The <code>rule</code> is deliberately mandatory — pass one, or
+register it per column with <code><a href="../reference/register_geo_rule.html">register_geo_rule()</a></code>; a silently
+guessed rule would be a silent unit error.</p>
 </div>
-<div class="section level2">
-<h2 id="plotting">Plotting<a class="anchor" aria-label="anchor" href="#plotting"></a>
-</h2>
-<p><code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code> draws the hierarchy itself as an
-icicle — one row per level, widths proportional to weight. It needs no
-geometry.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="section level3">
+<h3 id="attach-a-geoscale-to-a-table">4. Attach a Geoscale to a table<a class="anchor" aria-label="anchor" href="#attach-a-geoscale-to-a-table"></a>
+</h3>
+<p><code><a href="../reference/join_geoscale.html">join_geoscale()</a></code> decorates rather than converts —
+membership and share/weight columns arrive
+<code>"&lt;name&gt;."</code>-prefixed, so several Geoscales can coexist
+on one dataset:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">tibble</span><span class="op">(</span>state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span><span class="op">)</span>, v <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/join_geoscale.html">join_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, geoframes <span class="op">=</span> <span class="cn">TRUE</span>, meta <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 6</span></span></span>
+<span><span class="co">#&gt;   state     v tour.country tour.weight tour.share tour </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1        1 N                    300      0.143 N1   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2        2 N                    700      0.333 N2   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1        3 S                   <span style="text-decoration: underline;">1</span>100      0.524 S1</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualize">5. Visualize<a class="anchor" aria-label="anchor" href="#visualize"></a>
+</h3>
+<p><code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code> (also <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>) draws the
+hierarchy itself — no geometry needed. With geometry attached,
+<code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> puts values on a map inside a normal
+<code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code> pipeline:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_autoplot.html">geoscale_autoplot</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></code></pre></div>
-<p><img src="geoscales_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="672"></p>
-<p>With geometry attached via <code><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale()</a></code>,
-<code><a href="../reference/geoscale_plot.html">geoscale_plot()</a></code> draws a choropleth instead — pass a
-<code>data.frame</code> and name the column to colour by.
-<code><a href="../reference/geoscale_example.html">geoscale_example()</a></code> carries no geometry, so those figures
-need a map, and they live in the online article <a href="https://optimal2050.github.io/geoscales/r/articles/plotting.html">Plotting
-geoscales</a>: choropleths by level and by value, four alternative
-layouts over one hierarchy, recasting seen on the map, and where display
-names come from.</p>
+<p><img src="geoscales_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># with attached geometry (see the visualization article):</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">cap</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">gs</span>, z <span class="op">=</span> <span class="st">"capacity"</span>, geoframe <span class="op">=</span> <span class="st">"state"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/geom_geoscale.html">theme_geoscale</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="where-to-next">Where to next?<a class="anchor" aria-label="anchor" href="#where-to-next"></a>
+</h2>
+<ul>
+<li>
+<a href="concepts.html">Concepts</a> — atoms, partitions vs trees,
+the shared *scales glossary.</li>
+<li>
+<a href="data-structures.html">Data structures</a> — anatomy of a
+<code>Geoscale</code> and its registries.</li>
+<li>
+<a href="data-manipulation.html">Data manipulation</a> — attach,
+recast, route halves, crosswalks, backends, and chaining time with
+space.</li>
+<li>
+<a href="from-naturalearth.html">Building from Natural Earth</a> —
+providers in practice.</li>
+<li>
+<a href="visualization.html">Visualization</a> — maps with
+<code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code>, on a real multi-layer example.</li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -423,11 +245,11 @@ names come from.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer>

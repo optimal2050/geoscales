@@ -1,6 +1,6 @@
 # Plot a Geoscale
 
-Draws the hierarchy as an icicle: one row per level, coarsest at the
+Draws the hierarchy as an icicle: one row per geoframe, coarsest at the
 top, each region's width proportional to its share of the weight.
 
 ## Usage
@@ -9,7 +9,7 @@ top, each region's width proportional to its share of the weight.
 geoscale_autoplot(
   x,
   weight = NULL,
-  fill = c("level", "region"),
+  fill = c("geoframe", "region"),
   label = TRUE,
   ...
 )
@@ -30,7 +30,7 @@ autoplot.Geoscale(x, ...)
 
 - fill:
 
-  What to colour by: `"level"` or `"region"`.
+  What to colour by: `"geoframe"` or `"region"`.
 
 - label:
 
@@ -50,8 +50,9 @@ This is the *structure* plot — it shows the Geoscale itself and needs no
 geometry. For a map of values over regions, see
 [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md).
 
-Also registered as an `autoplot()` method, so `ggplot2::autoplot(gs)`
-works when ggplot2 is installed.
+Also registered as an
+[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+method, so `ggplot2::autoplot(gs)` works when ggplot2 is installed.
 
 ## Examples
 

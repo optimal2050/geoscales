@@ -1,7 +1,7 @@
-# Do two levels nest?
+# Do two geoframes nest?
 
-Tests whether every code at the finer level falls entirely within a
-single code at the coarser level. Real hierarchies often fail this:
+Tests whether every code at the finer geoframe falls entirely within a
+single code at the coarser geoframe. Real hierarchies often fail this:
 IDEEA's `reg32` code `APY` merges Andhra Pradesh with part of
 Puducherry, so `reg35` does not nest inside `reg32`.
 
@@ -20,7 +20,7 @@ geoscale_nests(x, parent, child)
 
 - parent, child:
 
-  Level names.
+  Geoframe names.
 
 ## Value
 

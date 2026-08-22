@@ -2,22 +2,22 @@
 % Please edit documentation in R/filter.R
 \name{geoscale_share}
 \alias{geoscale_share}
-\title{Weight shares within a level}
+\title{Weight shares within a geoframe}
 \usage{
-geoscale_share(x, level, weight = NULL, within = NULL)
+geoscale_share(x, geoframe, weight = NULL, within = NULL)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
-\item{level}{Level to report shares for.}
+\item{geoframe}{Geoframe to report shares for.}
 
 \item{weight}{Weight column. \code{NULL} uses the default.}
 
-\item{within}{Optional coarser level to normalise within. \code{NULL}
+\item{within}{Optional coarser geoframe to normalise within. \code{NULL}
 normalises over the whole object.}
 }
 \value{
-A \code{data.frame} with a code column named \code{level} (matching the
+A \code{data.frame} with a code column named \code{geoframe} (matching the
 convention of \code{\link[=recast_geoscale]{recast_geoscale()}}), the weight, and \code{share}. When \code{within}
 is given, a column of that name carries the parent code.
 }

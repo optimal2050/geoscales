@@ -1,7 +1,7 @@
 Package: geoscales
 Title: Nested Regions and Spatial Hierarchies for Modeling
-Version: 0.2.0.9000
-Date: 2026-08-04
+Version: 0.4.0.9000
+Date: 2026-08-21
 URL: https://optimal2050.github.io/geoscales/r/,
     https://optimal2050.github.io/geoscales/,
     https://github.com/optimal2050/geoscales
@@ -22,11 +22,16 @@ Roxygen: list(markdown = TRUE)
 Depends:
     R (>= 4.2)
 Imports:
+    dplyr,
+    rlang,
     S7,
     stats,
     timescales,
     utils
 Suggests:
+    arrow,
+    data.table,
+    dtplyr,
     ggplot2,
     knitr,
     pkgdown,
@@ -36,6 +41,7 @@ Suggests:
     rnaturalearthhires,
     sf,
     testthat (>= 3.0.0),
+    tibble,
     yaml
 Additional_repositories: https://ropensci.r-universe.dev,
     https://optimal2050.r-universe.dev
