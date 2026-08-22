@@ -62,3 +62,7 @@ Thumbs.db
 
 # Working / temp
 tmp/
+
+# raw Global Wind Atlas downloads (regenerate with data-raw/iceland_wind.R);
+# the small derived data-raw/iceland_wind.rds IS committed
+data-raw/gwa/

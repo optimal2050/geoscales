@@ -2,23 +2,23 @@
 % Please edit documentation in R/geometry.R
 \name{geoscale_geometry}
 \alias{geoscale_geometry}
-\title{Geometry dissolved to a level}
+\title{Geometry dissolved to a geoframe}
 \usage{
-geoscale_geometry(x, level = NULL)
+geoscale_geometry(x, geoframe = NULL)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}} with geometry attached.}
 
-\item{level}{Level to dissolve to. Defaults to the atom level.}
+\item{geoframe}{Geoframe to dissolve to. Defaults to the atom geoframe.}
 }
 \value{
-An \code{sf} object with a code column named \code{level} plus \code{geometry}.
+An \code{sf} object with a code column named \code{geoframe} plus \code{geometry}.
 }
 \description{
-Unions the atom geometries within each code at \code{level}.
+Unions the atom geometries within each code at \code{geoframe}.
 }
 \examples{
 \dontrun{
-geoscale_geometry(gs, level = "reg32")
+geoscale_geometry(gs, geoframe = "reg32")
 }
 }

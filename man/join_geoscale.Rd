@@ -2,49 +2,73 @@
 % Please edit documentation in R/join.R
 \name{join_geoscale}
 \alias{join_geoscale}
-\title{Attach Geoscale metadata to region-keyed data}
+\title{Attach a Geoscale to region-keyed data}
 \usage{
 join_geoscale(
   x,
   gs,
   key = NULL,
-  level = NULL,
-  levels = NULL,
+  geoframe = NULL,
+  geoframes = NULL,
+  meta = FALSE,
   weight = NULL,
-  as_factor = TRUE
+  as_factor = TRUE,
+  collect = NULL
 )
 }
 \arguments{
-\item{x}{A \code{data.frame} keyed by region code.}
+\item{x}{The dataset, in any supported backend (see
+\code{\link[=recast_geoscale]{recast_geoscale()}}'s Backends section).}
 
-\item{gs}{A \code{\link{Geoscale}}.}
+\item{gs}{A named \code{\link{Geoscale}}.}
 
-\item{key}{Name of the code column in \code{x}. Defaults to \code{level} when
-that column exists, otherwise \code{"region"}.}
+\item{key}{Name of the code column in \code{x}. \code{NULL} (default)
+auto-detects as described above.}
 
-\item{level}{Level the codes belong to. Inferred when exactly one of
-the object's level names is a column of \code{x}.}
+\item{geoframe}{Geoframe the codes belong to. Inferred when exactly one
+of the object's geoframe names is a column of \code{x}.}
 
-\item{levels}{Coarser levels to attach. Default: all levels coarser
-than \code{level}.}
+\item{geoframes}{Coarser geoframes to attach as \code{"<name>.<geoframe>"}
+membership columns (default: none). \code{TRUE} attaches all geoframes
+coarser than \code{geoframe}.}
 
-\item{weight}{Weight column for \code{weight}/\code{share}; \code{NULL} uses the
-default weight (when the object has none, the columns are skipped).}
+\item{meta}{Attach \code{"<name>.share"} and \code{"<name>.weight"} columns
+(summed atom weights of each keyed code, shares normalised over the
+geoframe; default \code{FALSE}). Skipped with a warning when the object
+declares no weights.}
 
-\item{as_factor}{Attach the level columns as factors ordered by the
-object's member vocabulary (default \code{TRUE}).}
+\item{weight}{Weight column for the meta columns; \code{NULL} uses the
+default weight.}
+
+\item{as_factor}{Attach membership columns as vocabulary-ordered
+factors (default \code{TRUE}) or plain character. (Lazy backends store
+them as dictionary/character columns.)}
+
+\item{collect}{For lazy inputs: materialise (\code{TRUE}) or return the
+query (default).}
 }
 \value{
-\code{x} with the requested columns appended.
+\code{x} with the new column(s) appended, in the input's class
+(lazy in, lazy out).
 }
 \description{
-Joins hierarchy columns onto \code{x}: one column per coarser level (the
-membership of each keyed code), plus \code{weight} (summed atom weights)
-and \code{share} (weights normalised over the level). The spatial mirror
-of \code{timescales::join_calendar()}.
+Adds a region-label column named after the Geoscale (its \code{meta$name}),
+plus optionally coarser-geoframe membership columns (each code's
+country, continent, ...) and share/weight, all prefixed \code{"<name>."}.
+Because every Geoscale attaches under its own name, several can be
+joined to the same dataset -- and a dataset carrying two label columns
+is a direct crosswalk between those objects. The spatial mirror of
+\code{timescales::join_calendar()}.
+}
+\details{
+The key is auto-detected: an existing column named like the Geoscale is
+used as-is; else a column named like the keyed geoframe; else \code{region}.
+Codes are validated against the geoframe (unknown codes warn).
+Existing columns are never overwritten; the join errors instead.
 }
 \examples{
 gs <- geoscale_example()
 x <- data.frame(state = c("N1", "N2", "S1"), v = 1:3)
-join_geoscale(x, gs)
+join_geoscale(x, gs, geoframes = TRUE)
+join_geoscale(x, gs, meta = TRUE)
 }

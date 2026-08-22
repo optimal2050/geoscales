@@ -13,7 +13,7 @@ geo_filter(...)
 
 geo_prune(...)
 
-geo_attach_geometry(...)
+geo_attach_geometry(x, geom, by = NULL, level = NULL, ...)
 
 geo_area(...)
 
@@ -62,6 +62,14 @@ geo_register_provider(...)
 geo_provider(...)
 
 geo_list_providers(...)
+
+geoscale_levels(...)
+
+is_valid_level(...)
+
+geoscale_from_leaves(leaves, levels, ...)
+
+CORE_LEVELS
 ```
 
 ## Arguments
@@ -91,7 +99,7 @@ generic), `geo_filter()` -\>
 [`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md).
 
 Properties and queries (`geoscale_*`): `geo_levels()` -\>
-[`geoscale_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_levels.md),
+[`geoscale_geoframes()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.md),
 `geo_rank()` -\>
 [`geoscale_rank()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_rank.md),
 `geo_weights()` -\>

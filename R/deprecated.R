@@ -4,7 +4,7 @@
 # Renamed 2026-08 under the harmonized *scales convention shared with
 # timescales: verb_class for data operations and object transforms
 # (recast_geoscale, filter_geoscale), class-prefixed nouns for
-# properties/queries (geoscale_levels, geoscale_children), and
+# properties/queries (geoscale_geoframes, geoscale_children), and
 # register_/get_/list_/clear_ registries carrying a `geo` domain word.
 # These aliases warn and forward; they will be removed before 1.0.
 
@@ -22,7 +22,7 @@
 #' `geo_area()` -> [add_area_geoscale()].
 #'
 #' Properties and queries (`geoscale_*`):
-#' `geo_levels()` -> [geoscale_levels()], `geo_rank()` ->
+#' `geo_levels()` -> [geoscale_geoframes()], `geo_rank()` ->
 #' [geoscale_rank()], `geo_weights()` -> [geoscale_weights()],
 #' `geo_regions()` -> [geoscale_regions()], `geo_family()` ->
 #' [geoscale_family()], `geo_nests()` -> [geoscale_nests()],
@@ -70,8 +70,10 @@ geo_prune <- .dep("geo_prune", "prune_geoscale")
 
 #' @rdname geoscales-deprecated
 #' @export
-geo_attach_geometry <- .dep("geo_attach_geometry",
-                            "attach_geometry_geoscale")
+geo_attach_geometry <- function(x, geom, by = NULL, level = NULL, ...) {
+  .Deprecated("attach_geometry_geoscale", old = "geo_attach_geometry")
+  attach_geometry_geoscale(x, geom, by = by, geoframe = level, ...)
+}
 
 #' @rdname geoscales-deprecated
 #' @export
@@ -79,7 +81,7 @@ geo_area <- .dep("geo_area", "add_area_geoscale")
 
 #' @rdname geoscales-deprecated
 #' @export
-geo_levels <- .dep("geo_levels", "geoscale_levels")
+geo_levels <- .dep("geo_levels", "geoscale_geoframes")
 
 #' @rdname geoscales-deprecated
 #' @export
@@ -169,3 +171,21 @@ geo_provider <- .dep("geo_provider", "get_geo_provider")
 #' @rdname geoscales-deprecated
 #' @export
 geo_list_providers <- .dep("geo_list_providers", "list_geo_providers")
+
+# 2026-08 naming lattice: the word "levels" retires from both siblings.
+# Hierarchy names are `geoframes`, the leaf enumeration is `leaftable`.
+
+#' @rdname geoscales-deprecated
+#' @export
+geoscale_levels <- .dep("geoscale_levels", "geoscale_geoframes")
+
+#' @rdname geoscales-deprecated
+#' @export
+is_valid_level <- .dep("is_valid_level", "is_valid_geoframe")
+
+#' @rdname geoscales-deprecated
+#' @export
+geoscale_from_leaves <- function(leaves, levels, ...) {
+  .Deprecated("geoscale_from_leaftable")
+  geoscale_from_leaftable(leaftable = leaves, geoframes = levels, ...)
+}

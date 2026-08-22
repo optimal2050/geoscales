@@ -1,6 +1,7 @@
 # Compute area weights from attached geometry
 
-Adds an area column to `@leaves`, measured on an equal-area projection.
+Adds an area column to `@leaftable`, measured on an equal-area
+projection.
 
 ## Usage
 
@@ -30,7 +31,7 @@ add_area_geoscale(x, name = "km2", crs = "ESRI:54034")
 
 A
 [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
-with the area column added to `@leaves` and registered in
+with the area column added to `@leaftable` and registered in
 `meta$weights`.
 
 ## Details

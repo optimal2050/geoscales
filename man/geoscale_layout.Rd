@@ -12,12 +12,12 @@ geoscale_layout(x, weight = NULL)
 \item{weight}{Weight column. \code{NULL} uses the default.}
 }
 \value{
-A \code{data.frame} with columns \code{level}, \code{region}, \code{rank}, \code{xmin},
+A \code{data.frame} with columns \code{geoframe}, \code{region}, \code{rank}, \code{xmin},
 \code{xmax}, \code{ymin}, \code{ymax}, \code{weight}, \code{share}.
 }
 \description{
-Rectangle coordinates for a level-by-level structure plot: one row per
-level, each region a rectangle whose width is its share of the weight.
+Rectangle coordinates for a geoframe-by-geoframe structure plot: one row per
+geoframe, each region a rectangle whose width is its share of the weight.
 Exposed so the layout can be drawn with something other than ggplot2.
 }
 \examples{

@@ -1,5 +1,6 @@
 ---
 title: "Building a Geoscale from Natural Earth"
+description: "Providers in practice: pull Natural Earth admin layers into a Geoscale, aggregate up and split back down, and let geometry follow the geoframes."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Building a Geoscale from Natural Earth}
@@ -33,7 +34,7 @@ list_geo_providers()
 ```
 
 Natural Earth is the default provider because its country table is *already*
-a wide leaves table — one `sf` object carries the whole nest as columns:
+a wide leaftable — one `sf` object carries the whole nest as columns:
 
 ```
 continent (8) -> region_un -> subregion (22) -> sovereignt
@@ -52,7 +53,7 @@ gs
 We will follow Iceland through the hierarchy. It sits in Northern Europe:
 
 ```{r}
-lf <- S7::prop(gs, "leaves")
+lf <- S7::prop(gs, "leaftable")
 lf[lf$country == "ISL", c("continent", "subregion", "country", "pop_est")]
 ```
 
@@ -88,7 +89,7 @@ sum(back$pop) == sum(ne$pop)
 ```
 
 That is the whole idea: **aggregation and disaggregation are one operation.**
-Direction follows the level ranks, and `recast_geoscale()` routes through the atom
+Direction follows the geoframe ranks, and `recast_geoscale()` routes through the atom
 layer either way.
 
 ## Iceland's own regions
@@ -102,7 +103,7 @@ install.packages("rnaturalearthhires",
 ```
 
 ```{r, eval = has_hires}
-s <- ne_source(level = "states", country = "Iceland")
+s <- ne_source(geoframe = "states", country = "Iceland")
 d <- as.data.frame(s)
 nrow(d)
 ```
@@ -120,15 +121,15 @@ isl <- data.frame(
   stringsAsFactors = FALSE
 )
 
-g <- geoscale_from_leaves(isl, levels = c("country", "landshluti", "unit"),
+g <- geoscale_from_leaftable(isl, geoframes = c("country", "landshluti", "unit"),
                           key = "unit", name = "iceland")
-g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", level = "unit")
+g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", geoframe = "unit")
 g <- add_area_geoscale(g, name = "km2")
 g
 ```
 
-No level is called `region` here: `geoscale_from_leaves()` uses that name for
-the internal atom key, so it is reserved for the finest level.
+No geoframe is called `region` here: `geoscale_from_leaftable()` uses that name for
+the internal atom key, so it is reserved for the finest geoframe.
 
 The Capital Region is the one that has two units under it:
 
@@ -166,7 +167,7 @@ Look at what that produces. The Capital Region units receive almost nothing,
 because they are tiny — yet they hold most of Iceland's population and would
 consume most of its electricity. **Area is rarely the right weight for
 demand.** This is precisely why `recast_geoscale()` makes you name a `weight =`
-rather than picking one for you; with a population column on the leaves you
+rather than picking one for you; with a population column on the leaftable you
 would pass that instead.
 
 An *intensive* quantity must not be summed at all — use `weighted_mean`, which
@@ -179,18 +180,18 @@ cf <- data.frame(unit = geoscale_regions(g, "unit"),
 recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
 ```
 
-### Geometry follows the levels
+### Geometry follows the geoframes
 
-`geoscale_geometry()` dissolves the atoms up to whatever level you ask for, so the
+`geoscale_geometry()` dissolves the atoms up to whatever geoframe you ask for, so the
 nine units become eight regions:
 
 ```{r, eval = has_hires}
-shp <- geoscale_geometry(g, level = "landshluti")
+shp <- geoscale_geometry(g, geoframe = "landshluti")
 nrow(shp)
 ```
 
 ```{r, eval = has_hires && requireNamespace("ggplot2", quietly = TRUE), fig.width = 7, fig.height = 4}
-geoscale_plot(g, level = "landshluti")
+geoscale_plot(g, geoframe = "landshluti")
 ```
 
 ## Other providers

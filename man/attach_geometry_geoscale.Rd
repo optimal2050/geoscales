@@ -4,25 +4,25 @@
 \alias{attach_geometry_geoscale}
 \title{Attach geometry to a Geoscale}
 \usage{
-attach_geometry_geoscale(x, geom, by = NULL, level = NULL)
+attach_geometry_geoscale(x, geom, by = NULL, geoframe = NULL)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
 \item{geom}{An \code{sf} object or \code{sfc}. When \code{sf} with a code column, it is
-matched on \code{by}; when \code{sfc}, it must already be in \verb{@leaves} row order.}
+matched on \code{by}; when \code{sfc}, it must already be in \verb{@leaftable} row order.}
 
 \item{by}{Name of the code column in \code{geom} to match on. Defaults to the
-atom level, then \code{"region"}.}
+atom geoframe, then \code{"region"}.}
 
-\item{level}{Level that \code{geom}'s codes refer to. Defaults to the atom
-level. When coarser, each atom inherits its parent's geometry.}
+\item{geoframe}{Geoframe that \code{geom}'s codes refer to. Defaults to the atom
+geoframe. When coarser, each atom inherits its parent's geometry.}
 }
 \value{
 A \code{\link{Geoscale}} with \verb{@geometry} populated.
 }
 \description{
-Stores an \code{sfc} on the object, aligned to \verb{@leaves} row order.
+Stores an \code{sfc} on the object, aligned to \verb{@leaftable} row order.
 }
 \examples{
 \dontrun{

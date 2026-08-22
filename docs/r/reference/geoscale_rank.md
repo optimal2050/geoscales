@@ -1,11 +1,11 @@
-# Level rank
+# Geoframe rank
 
-Position of a level in the hierarchy: 1 is the coarsest.
+Position of a geoframe in the hierarchy: 1 is the coarsest.
 
 ## Usage
 
 ``` r
-geoscale_rank(x, level)
+geoscale_rank(x, geoframe)
 ```
 
 ## Arguments
@@ -15,13 +15,14 @@ geoscale_rank(x, level)
   A
   [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
 
-- level:
+- geoframe:
 
-  Character vector of level names.
+  Character vector of geoframe names.
 
 ## Value
 
-An integer vector of ranks; `NA` for names that are not levels of `x`.
+An integer vector of ranks; `NA` for names that are not geoframes of
+`x`.
 
 ## Examples
 

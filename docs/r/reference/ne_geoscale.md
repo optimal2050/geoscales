@@ -12,7 +12,7 @@ population and GDP.
 ``` r
 ne_geoscale(
   scale = 110,
-  levels = c("continent", "subregion", "country", "feature"),
+  geoframes = c("continent", "subregion", "country", "feature"),
   weights = c("pop_est", "gdp_md"),
   geometry = TRUE,
   ...
@@ -26,9 +26,9 @@ ne_geoscale(
   Natural Earth scale: `110`, `50` or `10`. Note that `110` is
   unsuitable for area weights (see details).
 
-- levels:
+- geoframes:
 
-  Level columns, coarsest first.
+  Geoframe columns, coarsest first.
 
 - weights:
 
@@ -64,7 +64,7 @@ if (FALSE) { # \dontrun{
 gs <- ne_geoscale(scale = 110)
 
 # roll population up from countries to sub-regions
-lf <- S7::prop(gs, "leaves")
+lf <- S7::prop(gs, "leaftable")
 pop <- data.frame(country = lf$country, pop = lf$pop_est)
 recast_geoscale(pop[!is.na(pop$country), ], gs,
            from = "country", to = "subregion", rule = "sum")

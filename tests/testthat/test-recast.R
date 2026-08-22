@@ -39,7 +39,7 @@ test_that("intensive values are copied down and weight-averaged up", {
   expect_equal(down$eff[down$atom == "A2"], 0.39, tolerance = 1e-9)
 })
 
-test_that("cross-cutting levels aggregate through the atom layer", {
+test_that("cross-cutting geoframes aggregate through the atom layer", {
   # zone ZB straddles states N2 and S1, so it must draw from both.
   s <- data.frame(state = c("N1", "N2", "S1"), capacity = c(3, 7, 11))
   out <- recast_geoscale(s, gs, "state", "zone", rule = "sum", weight = "km2")
@@ -54,12 +54,17 @@ test_that("identifier columns are preserved as grouping columns", {
     year = rep(c(2020L, 2021L), 3),
     capacity = c(1, 2, 3, 4, 5, 6)
   )
-  out <- recast_geoscale(p, gs, "atom", "state", rule = "sum",
-                    values = "capacity")
-  expect_equal(nrow(out), 4L)
+  expect_warning(
+    out <- recast_geoscale(p, gs, "atom", "state", rule = "sum",
+                           values = "capacity"),
+    "missing from")
+  # completion contract: the FULL state vocabulary per identifier group,
+  # NA where no atoms carried data
+  expect_equal(nrow(out), 2L * length(geoscale_regions(gs, "state")))
   expect_type(out$year, "integer")
   got <- out$capacity[out$state == "N1" & out$year == 2020]
   expect_equal(got, 4, tolerance = 1e-9)
+  expect_true(all(is.na(out$capacity[out$state == "S1"])))
 })
 
 test_that("na_action controls partial coverage", {
@@ -67,7 +72,7 @@ test_that("na_action controls partial coverage", {
 
   expect_warning(
     drop <- recast_geoscale(x2, gs, "atom", "country", rule = "sum"),
-    "no code at level"
+    "no code at geoframe"
   )
   expect_equal(sum(drop$capacity), 21, tolerance = 1e-9)
 
@@ -85,7 +90,7 @@ test_that("na_action controls partial coverage", {
 test_that("a partly uncovered source region loses its uncovered share", {
   df <- data.frame(top = c("T", "T", "T"), mid = c("M1", "M2", NA),
                    leaf = c("L1", "L2", "L3"), km2 = c(100, 100, 200))
-  g <- geoscale_from_leaves(df, levels = c("top", "mid", "leaf"))
+  g <- geoscale_from_leaftable(df, geoframes = c("top", "mid", "leaf"))
   v <- data.frame(top = "T", capacity = 100)
 
   expect_warning(out <- recast_geoscale(v, g, "top", "mid", rule = "sum"),
@@ -98,10 +103,17 @@ test_that("a partly uncovered source region loses its uncovered share", {
 })
 
 test_that("unknown source codes warn and are dropped", {
-  x <- data.frame(atom = c("A1", "NOPE"), capacity = c(5, 9))
+  x <- rbind(cap, data.frame(atom = "NOPE", capacity = 9))
   expect_warning(out <- recast_geoscale(x, gs, "atom", "country", rule = "sum"),
-                 "not present at level")
-  expect_equal(sum(out$capacity), 5, tolerance = 1e-9)
+                 "not present at geoframe")
+  expect_equal(sum(out$capacity), sum(cap$capacity), tolerance = 1e-9)
+
+  # a source region missing from `x` produces NA, with a warning
+  x2 <- data.frame(atom = c("A1", "A2"), capacity = c(5, 9))
+  expect_warning(out2 <- recast_geoscale(x2, gs, "atom", "country",
+                                         rule = "sum"),
+                 "missing from")
+  expect_true(is.na(out2$capacity[out2$country == "S"]))
 })
 
 test_that("the copy rule requires constant values", {
@@ -114,9 +126,9 @@ test_that("the copy rule requires constant values", {
                "not constant")
 })
 
-test_that("bad levels and missing keys error clearly", {
-  expect_error(recast_geoscale(cap, gs, "nope", "country"), "not a level")
-  expect_error(recast_geoscale(cap, gs, "atom", "nope"), "not a level")
+test_that("bad geoframes and missing keys error clearly", {
+  expect_error(recast_geoscale(cap, gs, "nope", "country"), "not a geoframe")
+  expect_error(recast_geoscale(cap, gs, "atom", "nope"), "not a geoframe")
   expect_error(recast_geoscale(data.frame(v = 1), gs, "atom", "country"),
                "no column named")
 })

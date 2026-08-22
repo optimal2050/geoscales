@@ -4,15 +4,15 @@
 \alias{geoscale_build}
 \title{Build a Geoscale from parent-child crosswalks}
 \usage{
-geoscale_build(..., levels, weights = NULL, name = "", desc = "")
+geoscale_build(..., geoframes, weights = NULL, name = "", desc = "")
 }
 \arguments{
-\item{...}{Additional arguments passed to \code{\link[=geoscale_from_leaves]{geoscale_from_leaves()}}.}
+\item{...}{Additional arguments passed to \code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}}.}
 
-\item{levels}{Ordered character vector of level names, coarsest first. The
-last entry is the atom level.}
+\item{geoframes}{Ordered character vector of geoframe names, coarsest first. The
+last entry is the atom geoframe.}
 
-\item{weights}{Optional \code{data.frame} keyed by the atom level, carrying one
+\item{weights}{Optional \code{data.frame} keyed by the atom geoframe, carrying one
 or more numeric weight columns.}
 
 \item{name, desc}{Short name and description.}
@@ -21,15 +21,15 @@ or more numeric weight columns.}
 A \code{\link{Geoscale}}.
 }
 \description{
-Assembles a wide leaves table from a set of two-column crosswalks. Each
-crosswalk is a \code{data.frame} whose column names are two level names; the
-builder joins them together, starting from the finest level, until every
-level in \code{levels} is present.
+Assembles a wide leaftable table from a set of two-column crosswalks. Each
+crosswalk is a \code{data.frame} whose column names are two geoframe names; the
+builder joins them together, starting from the finest geoframe, until every
+geoframe in \code{geoframes} is present.
 }
 \details{
-Crosswalks need not form a strict chain: a level that cross-cuts the others
+Crosswalks need not form a strict chain: a geoframe that cross-cuts the others
 (a grid zone crossing state lines, say) is expressed simply by giving its
-crosswalk against the finest level.
+crosswalk against the finest geoframe.
 }
 \examples{
 geoscale_build(
@@ -37,7 +37,7 @@ geoscale_build(
              state   = c("N1", "N2", "S1")),
   data.frame(state = c("N1", "N1", "N2", "S1"),
              atom  = c("A1", "A2", "A3", "A4")),
-  levels  = c("country", "state", "atom"),
+  geoframes  = c("country", "state", "atom"),
   weights = data.frame(atom = c("A1", "A2", "A3", "A4"),
                        km2  = c(10, 20, 30, 40))
 )

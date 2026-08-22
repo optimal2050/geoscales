@@ -1,0 +1,17 @@
+---
+title: "dev"
+format: html
+---
+
+```{r}
+library(here)
+setwd(here())
+getwd()
+usethis::use_logo("dev/logo.png")
+pkgdown::build_favicons(overwrite = TRUE)
+
+pkgdown::build_site()
+pkgdown::preview_site()
+
+```
+

@@ -2,22 +2,22 @@
 % Please edit documentation in R/filter.R
 \name{geoscale_nests}
 \alias{geoscale_nests}
-\title{Do two levels nest?}
+\title{Do two geoframes nest?}
 \usage{
 geoscale_nests(x, parent, child)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
-\item{parent, child}{Level names.}
+\item{parent, child}{Geoframe names.}
 }
 \value{
 \code{TRUE} or \code{FALSE}. When \code{FALSE}, the offending child codes are
 attached as the \code{"offenders"} attribute.
 }
 \description{
-Tests whether every code at the finer level falls entirely within a single
-code at the coarser level. Real hierarchies often fail this: IDEEA's
+Tests whether every code at the finer geoframe falls entirely within a single
+code at the coarser geoframe. Real hierarchies often fail this: IDEEA's
 \code{reg32} code \code{APY} merges Andhra Pradesh with part of Puducherry, so
 \code{reg35} does not nest inside \code{reg32}.
 }

@@ -7,6 +7,12 @@ destination: docs/r
 template:
   bootstrap: 5
   light-switch: true
+  # Twin-site theming: the siblings share structure and typography and
+  # differ by one hue -- timescales #31688E (viridis blue, time),
+  # geoscales #1F9E89 (viridis teal-green, space).
+  bslib:
+    primary: "#1F9E89"
+    link-color: "#1F9E89"
 
 # Pinned rather than `auto`: with `auto`, the first released version silently
 # switches pkgdown to devel mode and relocates the whole site into `r/dev/`.
@@ -14,33 +20,54 @@ development:
   mode: unreleased
   version_label: danger
 
-navbar:
+# Convention: figures are built on a SOLID background -- transparent PNGs
+# are illegible in the site's dark mode.
+figures:
+  bg: "white"
+
+# Home sidebar without the "Developers" box (citation covers attribution);
+# footer without "Developed by ..." (built_with only).
+home:
+  sidebar:
+    structure: [links, license, community, citation, dev]
+
+footer:
   structure:
-    left:  [intro, reference, articles, news]
-    right: [search, github, lightswitch]
+    left: built_with
+    right: blank
   components:
-    intro:
-      text: Get started
-      href: articles/geoscales.html
-    articles:
-      text: Articles
-      menu:
-        - text: Getting started with geoscales
-          href: articles/geoscales.html
-        - text: Plotting geoscales
-          href: articles/plotting.html
-        - text: Building a Geoscale from Natural Earth
-          href: articles/from-naturalearth.html
+    blank: ""
+
+navbar:
+  bg: primary
+
+# The intro (vignettes/geoscales.Rmd, package-named) surfaces as the
+# top-level "Get started" navbar item; everything else sits DIRECTLY in
+# the Articles dropdown (`navbar: ~` = no "More articles..." detour).
+articles:
+  - title: "Reference"
+    navbar: ~
+    contents:
+      - concepts
+      - data-structures
+      - data-manipulation
+      - from-naturalearth
+      - articles/visualization
+
+# Old article URLs kept alive: plotting rewritten as visualization
+# (2026-08 parity pass).
+redirects:
+  - ["articles/plotting.html", "articles/visualization.html"]
 
 reference:
   - title: The Geoscale class
     desc: >
       A nested spatial partition: a flat table of weighted leaf regions
-      ("atoms") plus the ordered levels that group them.
+      ("atoms") plus the ordered geoframes that group them.
     contents:
       - Geoscale
       - geoscale_example
-      - geoscale_levels
+      - geoscale_geoframes
       - geoscale_regions
       - geoscale_rank
       - geoscale_weights
@@ -53,15 +80,20 @@ reference:
     contents:
       - geoscale_from_provider
       - geoscale_build
-      - geoscale_from_leaves
+      - geoscale_from_leaftable
 
   - title: Conversion
     desc: >
       Aggregation and disaggregation are one operation. Values are projected
       down to atoms and aggregated up to the target, so direction follows the
-      level ranks and cross-cutting levels need no special handling.
+      geoframe ranks and cross-cutting geoframes need no special handling.
     contents:
       - recast_geoscale
+      - recast_to_geoatoms
+      - recast
+      - geoscale_map
+      - register_geo_map
+      - clear_geo_maps
       - join_geoscale
       - GEO_RULES
       - register_geo_rule
@@ -71,8 +103,8 @@ reference:
 
   - title: Navigation and subsetting
     desc: >
-      Region codes are not unique across levels, so every lookup names its
-      level.
+      Region codes are not unique across geoframes, so every lookup names
+      its geoframe.
     contents:
       - geoscale_navigate
       - geoscale_family
@@ -82,15 +114,22 @@ reference:
       - prune_geoscale
       - geoscale_share
 
-  - title: Geometry and plotting
+  - title: Geometry
     desc: >
-      Optional, and backed by 'sf'. The core is geometry-free; `geoscale_autoplot()`
-      draws the hierarchy itself and needs no map.
+      Optional, and backed by 'sf'. The core is geometry-free.
     contents:
       - attach_geometry_geoscale
       - geoscale_geometry
       - add_area_geoscale
+
+  - title: Visualization
+    desc: >
+      Composable choropleth layers, the structure icicle, and their
+      plain-data workers. `geoscale_autoplot()` needs no map.
+    contents:
+      - geom_geoscale
       - geoscale_autoplot
+      - plot.Geoscale
       - geoscale_plot
       - geoscale_layout
 
@@ -106,10 +145,10 @@ reference:
       - ne_source
       - ne_geoscale
 
-  - title: Levels
+  - title: Geoframes
     contents:
-      - CORE_LEVELS
-      - is_valid_level
+      - CORE_GEOFRAMES
+      - is_valid_geoframe
 
   - title: Deprecated
     contents:

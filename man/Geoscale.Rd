@@ -4,21 +4,21 @@
 \alias{Geoscale}
 \title{Geoscale (S7 class)}
 \usage{
-Geoscale(leaves, levels, members, geometry = NULL, meta = list())
+Geoscale(leaftable, geoframes, members, geometry = NULL, meta = list())
 }
 \arguments{
-\item{leaves}{\code{data.frame} with a unique \code{region} key column, one column per
-level in \code{levels}, and one or more numeric weight columns.}
+\item{leaftable}{\code{data.frame} with a unique \code{region} key column, one column per
+geoframe in \code{geoframes}, and one or more numeric weight columns.}
 
-\item{levels}{Ordered character vector of level names (coarsest first); each
-name must appear as a column in \code{leaves}.}
+\item{geoframes}{Ordered character vector of geoframe names (coarsest first); each
+name must appear as a column in \code{leaftable}.}
 
 \item{members}{Named list; \code{members[[lvl]]} is the full ordered set of codes
-present at level \code{lvl}. Must equal the non-\code{NA} values of \code{leaves[[lvl]]}
+present at geoframe \code{lvl}. Must equal the non-\code{NA} values of \code{leaftable[[lvl]]}
 as a set.}
 
 \item{geometry}{Optional \code{sfc} (or \code{NULL}) with one geometry per row of
-\code{leaves}, in the same order.}
+\code{leaftable}, in the same order.}
 
 \item{meta}{Named list of attributes (\code{name}, \code{desc}, \code{weights},
 \code{default_weight}, \code{crs}, \code{source}, \code{labels}).}
@@ -28,10 +28,10 @@ A \code{Geoscale} object.
 }
 \description{
 A nested spatial partition: a flat table of weighted leaf regions ("atoms")
-plus the ordered hierarchy of levels that groups them.
+plus the ordered hierarchy of geoframes that groups them.
 }
 \details{
-Construct with \code{\link[=geoscale_from_leaves]{geoscale_from_leaves()}} (the general escape hatch),
+Construct with \code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}} (the general escape hatch),
 \code{\link[=geoscale_build]{geoscale_build()}} (from a parent-child mapping), or
 \code{\link[=geoscale_from_provider]{geoscale_from_provider()}} (from a data source such as Natural Earth).
 }

@@ -47,15 +47,23 @@ test_that("an explicit rule overrides the registry", {
 
   gs <- geoscale_example()
   x <- data.frame(atom = c("A1", "A2"), capacity = c(1, 3))
-  out <- recast_geoscale(x, gs, "atom", "state", rule = "mean")
+  # A1/A2 cover only state N1; the other states' missing-source warning
+  # is expected here
+  expect_warning(
+    out <- recast_geoscale(x, gs, "atom", "state", rule = "mean"),
+    "missing from")
   expect_equal(out$capacity[out$state == "N1"], 2, tolerance = 1e-9)
 })
 
-test_that("unregistered columns default to sum", {
+test_that("unregistered columns error: no rule fallback", {
   clear_geo_rules()
   on.exit(clear_geo_rules(), add = TRUE)
   gs <- geoscale_example()
   x <- data.frame(atom = c("A1", "A2"), whatever = c(1, 3))
-  out <- recast_geoscale(x, gs, "atom", "state")
-  expect_equal(out$whatever, 4, tolerance = 1e-9)
+  expect_error(recast_geoscale(x, gs, "atom", "state"),
+               "no aggregation rule.*whatever.*register_geo_rule")
+  # registering the column (or passing rule=) resolves it
+  register_geo_rule("whatever", "sum")
+  out <- suppressWarnings(recast_geoscale(x, gs, "atom", "state"))
+  expect_equal(out$whatever[out$state == "N1"], 4, tolerance = 1e-9)
 })

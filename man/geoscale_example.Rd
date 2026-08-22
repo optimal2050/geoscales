@@ -7,21 +7,21 @@
 geoscale_example()
 }
 \value{
-A \code{\link{Geoscale}} with 7 atoms and levels
+A \code{\link{Geoscale}} with 7 atoms and geoframes
 \code{country}/\code{state}/\code{zone}/\code{atom}.
 }
 \description{
-A synthetic 3-level hierarchy used in examples and tests. It deliberately
+A synthetic 3-geoframe hierarchy used in examples and tests. It deliberately
 reproduces three awkward features of real region tables:
 }
 \details{
 \itemize{
-\item a code (\code{"N1"}) reused at more than one level, so bare codes are
-ambiguous and every lookup must name its level;
-\item a non-nesting pair of levels — zone \code{"ZB"} draws atoms from two different
+\item a code (\code{"N1"}) reused at more than one geoframe, so bare codes are
+ambiguous and every lookup must name its geoframe;
+\item a non-nesting pair of geoframes — zone \code{"ZB"} draws atoms from two different
 states (and two different countries), so \code{state} and \code{zone} do not form a
 tree;
-\item an atom (\code{"ROW"}) with no code at any coarser level (partial coverage).
+\item an atom (\code{"ROW"}) with no code at any coarser geoframe (partial coverage).
 }
 }
 \examples{

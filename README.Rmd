@@ -1,0 +1,238 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Edit THIS file, then knit:
+     devtools::build_readme()  (or knitr::knit("README.Rmd"))          -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%",
+  dpi = 110
+)
+# pre-built by data-raw/iceland_wind.R (needs a one-time ~64 MB download)
+has_wind <- file.exists("data-raw/iceland_wind.rds")
+```
+
+# geoscales <a href="https://optimal2050.github.io/geoscales/r/"><img src="man/figures/logo.png" align="right" height="138" alt="geoscales website" /></a>
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/optimal2050/geoscales/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/optimal2050/geoscales/actions/workflows/R-CMD-check.yaml)
+[![test-coverage](https://github.com/optimal2050/geoscales/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/optimal2050/geoscales/actions/workflows/test-coverage.yaml)
+[![lint](https://github.com/optimal2050/geoscales/actions/workflows/lint.yaml/badge.svg)](https://github.com/optimal2050/geoscales/actions/workflows/lint.yaml)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
+> Nested regions and spatial hierarchies for optimization and simulation models.
+
+One `Geoscale`, three resolutions of the same country: Iceland's onshore
+wind resource (Global Wind Atlas, 100 m) clustered by wind speed within
+each region — the whole hierarchy drawn as a single perspective stack,
+every plane coloured with the Global Wind Atlas palette on its absolute
+scale (from [energypal](https://github.com/optimal2050/energypal)).
+`vignette("geoscales")` shows how the cluster layer is built.
+
+```{r hero-iceland-wind, eval = has_wind, fig.width = 8, fig.height = 3.6, dpi = 300, message = FALSE, echo=FALSE}
+library(geoscales)
+iceland <- readRDS("data-raw/iceland_wind.rds")
+
+geoscale_autoplot(iceland$gs, type = "stack", view = "perspective",
+                  direction = "down", data = iceland$wind, z = "wind",
+                  labels = "landshluti", palette = NULL, gap = .27,
+                  # colour = c("grey35", "grey35", "grey35"),  # no cluster borders
+                  colour = ggplot2::alpha("grey35", .75),
+                  linewidth = c(0.2, 0.2, 0.1),
+                  frame = TRUE, connectors = TRUE,
+                  frame_fill = ggplot2::alpha("#6FA8DC", 0.25)) +
+  # scale_fill_viridis_c(option = "D") +
+  energypal::scale_fill_energy_b(palette = "windatlas", limits = c(6.5, 11.5)) +
+  ggplot2::labs(fill = "m/s")
+```
+
+*Wind data: [Global Wind Atlas](https://globalwindatlas.info) — DTU,
+in partnership with the World Bank Group, data by Vortex, funded by
+ESMAP.*
+
+## What geoscales offers
+
+`geoscales` is the **spatial-domain** package of the optimal2050
+modeling stack (its time companion is
+[`timescales`](https://github.com/optimal2050/timescales) — the two
+share one design and one vocabulary):
+
+- **Organize model data in nested geo structures** — a `Geoscale` is
+  ordered geoframes, their members, and one leaftable row per region
+  atom with its weights (area, population, capacity).
+- **Reshape between geoframes** — recast up or down with explicit
+  rules and conserved totals, cross-cutting region systems included;
+  joins decorate your tables instead of replacing them.
+- **Your tables stay tables** — data.frame, tibble, or data.table in,
+  the same class out; dtplyr/arrow queries stay lazy. Keep the data in
+  csv, R data files, or arrow/parquet — the package never owns a
+  storage format.
+- **Flexible model design** — pick the geoframes a model run needs;
+  prune and filter region subsets; build cluster layers from resource
+  data (the wind clusters above).
+- **See every level** — choropleths, icicles, and axonometric stacks,
+  all data-aware and multi-level.
+
+This is a **multi-language** project. The R package is the current focus
+(Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.
+
+## Quick demo
+
+A `Geoscale` is a nested spatial partition: a flat table of weighted
+leaf regions ("atoms") plus the ordered geoframes that group them.
+Aggregation and disaggregation are ONE verb — direction comes from the
+geoframe ranks, and totals are preserved either way:
+
+```{r demo-table}
+library(geoscales)
+
+gs <- geoscale_from_leaftable(
+  data.frame(
+    country = c("N", "N", "N", "N", "S", "S"),
+    state   = c("N1", "N1", "N2", "N2", "S1", "S1"),
+    atom    = paste0("A", 1:6),
+    km2     = c(100, 200, 300, 400, 500, 600)
+  ),
+  geoframes = c("country", "state", "atom"),
+  name = "demo"
+)
+
+cap <- data.frame(atom = paste0("A", 1:6), capacity = 1:6)
+cap |> recast_geoscale(gs, from = "atom", to = "country", rule = "sum")
+
+# ... and back down, split by area
+data.frame(country = c("N", "S"), capacity = c(10, 20)) |>
+  recast_geoscale(gs, from = "country", to = "state",
+                  rule = "sum", weight = "km2")
+```
+
+With geometry attached, values land on a map as one ggplot2 layer
+(`geom_geoscale()`); without any geometry, `plot()` draws the hierarchy
+itself:
+
+```{r demo-map, fig.width = 7, fig.height = 2.8, message = FALSE}
+library(ggplot2)
+sq <- function(x, y) sf::st_polygon(list(cbind(
+  c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
+gs <- attach_geometry_geoscale(gs, sf::st_sfc(
+  sq(0, 1), sq(0, 0), sq(1, 1), sq(1, 0), sq(2, 1), sq(2, 0)))
+
+cap |>
+  recast_geoscale(gs, from = "atom", to = "state", rule = "sum") |>
+  ggplot() +
+  geom_geoscale(gs = gs, z = "capacity", geoframe = "state",
+                colour = "white", linewidth = 0.6) +
+  scale_fill_viridis_c(option = "G") +
+  labs(title = "Capacity recast to states, on the map", fill = NULL) +
+  theme_geoscale()
+```
+
+```{r demo-icicle, fig.width = 7, fig.height = 2.2, message = FALSE}
+plot(gs)
+```
+
+And the icicle carries data too — every band filled with the value
+recast to that geoframe, by the same machinery that converts the
+tables:
+
+```{r demo-icicle-data, fig.width = 7, fig.height = 2.2, message = FALSE}
+geoscale_autoplot(gs, data = cap, z = "capacity", label = TRUE) +
+  labs(fill = "capacity")
+```
+
+And the same idea as an axonometric **layer stack** -- every geoframe of
+one object, one plane per resolution (`view` presets from `"top-down"`
+to `"military"`; here UTOPIA's reference regions and Iceland built from
+Natural Earth):
+
+```{r demo-stack-utopia, fig.width = 5, fig.height = 4.6, dpi = 300, message = FALSE}
+geoscale_autoplot(energyRt::utopia_geoscale("honeycomb"), 
+                  colour = ggplot2::alpha("grey35", .75),
+                  linewidth = c(0.2, 0.2, 0.1), gap = .35,
+                  frame = TRUE, connectors = TRUE,
+                  frame_fill = ggplot2::alpha("#6FA8DC", 0.05),
+                  type = "stack", view = "cabinet")
+```
+
+```{r demo-stack-iceland, fig.width = 5.5, fig.height = 4.4, out.width = "100%", message = FALSE, dpi = 300}
+ne <- ne_source(geoframe = "states", country = "Iceland")
+d <- as.data.frame(ne)
+iceland <- geoscale_from_leaftable(
+  data.frame(country = "ISL", landshluti = d$gn_name,
+             unit = d$iso_3166_2),
+  geoframes = c("country", "landshluti", "unit"),
+  key = "unit", name = "iceland"
+) |>
+  attach_geometry_geoscale(ne, by = "iso_3166_2", geoframe = "unit")
+geoscale_autoplot(iceland, type = "stack", view = "top-down", gap = .35)
+```
+
+See `vignette("geoscales")` for the 5-minute tour, and the
+[visualization article](https://optimal2050.github.io/geoscales/r/articles/visualization.html)
+for choropleths, recasts seen on the map, and a real-map tour of
+Iceland with data attached.
+
+Two things about space that the time domain does not have to deal with, and
+which shape the whole design:
+
+* **Geoframes need not nest.** In India's IDEEA region table, the `reg32` code
+  `APY` merges Andhra Pradesh with *part of* Puducherry, so `reg35` does not
+  nest inside `reg32`. Every conversion therefore routes through the atom
+  layer, and cross-cutting geoframes work without special handling.
+* **Region codes are not unique across geoframes.** 46 of 62 IDEEA codes appear
+  at more than one geoframe (`AN` at seven). So `geoframe` is a required
+  argument everywhere — nothing is inferred from a bare code.
+
+### No bundled maps
+
+`geoscales` ships integration code, not data: no boundaries are bundled,
+and no map source is selected for you. Providers (Natural Earth via
+`ne_geoscale()`, or your own via `register_geo_provider()`) pass a point
+of view through and record it in `@meta`.
+
+## Documentation
+
+- **[Project site](https://optimal2050.github.io/geoscales/)** — entry point
+  for all language flavours
+- **[R reference and articles](https://optimal2050.github.io/geoscales/r/)**
+
+## Status
+
+🚧 In development — pre-1.0, APIs may still change between minor
+versions. Feedback and issues are welcome.
+
+## Installation
+
+```r
+# From GitHub
+remotes::install_github("optimal2050/geoscales")
+```
+
+Or via [r-universe](https://optimal2050.r-universe.dev/):
+
+```r
+install.packages("geoscales", repos = "https://optimal2050.r-universe.dev")
+```
+
+## Repository layout
+
+```
+geoscales/
+├── DESCRIPTION, NAMESPACE, R/, man/, tests/, vignettes/   # R package (root)
+├── inst/include/geoscales/                                # C++ headers (Phase 2)
+├── cpp/                                                   # standalone C++ core (Phase 2)
+├── python/                                                # Python package (Phase 3)
+├── docs/                                                  # unified Quarto site
+├── specs/                                                 # cross-language golden tests
+└── .github/workflows/                                     # CI
+```
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).

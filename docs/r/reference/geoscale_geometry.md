@@ -1,11 +1,11 @@
-# Geometry dissolved to a level
+# Geometry dissolved to a geoframe
 
-Unions the atom geometries within each code at `level`.
+Unions the atom geometries within each code at `geoframe`.
 
 ## Usage
 
 ``` r
-geoscale_geometry(x, level = NULL)
+geoscale_geometry(x, geoframe = NULL)
 ```
 
 ## Arguments
@@ -16,18 +16,18 @@ geoscale_geometry(x, level = NULL)
   [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
   with geometry attached.
 
-- level:
+- geoframe:
 
-  Level to dissolve to. Defaults to the atom level.
+  Geoframe to dissolve to. Defaults to the atom geoframe.
 
 ## Value
 
-An `sf` object with a code column named `level` plus `geometry`.
+An `sf` object with a code column named `geoframe` plus `geometry`.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-geoscale_geometry(gs, level = "reg32")
+geoscale_geometry(gs, geoframe = "reg32")
 } # }
 ```

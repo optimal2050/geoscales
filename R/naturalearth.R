@@ -19,7 +19,7 @@
 #'
 #' @param scale Natural Earth scale: `110`, `50` or `10`. Note that `110` is
 #'   unsuitable for area weights (see details).
-#' @param level `"country"` (admin-0) or `"states"` (admin-1). Admin-1
+#' @param geoframe `"country"` (admin-0) or `"states"` (admin-1). Admin-1
 #'   requires `rnaturalearthhires`, which is **not on CRAN** — install it from
 #'   <https://ropensci.r-universe.dev>.
 #' @param country Optional country filter passed through to
@@ -32,28 +32,28 @@
 #'
 #' @details
 #' `feature` is the atom and `country` is a grouping of atoms on top of it. At
-#' admin-0 the two are the same code; at admin-1 (`level = "states"`) `feature`
+#' admin-0 the two are the same code; at admin-1 (`geoframe = "states"`) `feature`
 #' is the state and `country` is the admin-0 unit it belongs to.
 #'
 #' Codes of `"-99"` mean *unassigned* and are returned as `NA`. That is why
-#' `country` is a level rather than the atom key: it may be missing, whereas an
+#' `country` is a geoframe rather than the atom key: it may be missing, whereas an
 #' atom key may not.
 #'
 #' @examples
 #' \dontrun{
 #' ne_source(scale = 110)
-#' ne_source(scale = 10, level = "states", country = "Iceland")
+#' ne_source(scale = 10, geoframe = "states", country = "Iceland")
 #' }
 #' @export
-ne_source <- function(scale = 110, level = c("country", "states"),
+ne_source <- function(scale = 110, geoframe = c("country", "states"),
                       country = NULL, ...) {
-  level <- match.arg(level)
+  geoframe <- match.arg(geoframe)
   if (!requireNamespace("rnaturalearth", quietly = TRUE)) {
     .stop(paste0("the Natural Earth provider requires 'rnaturalearth'. ",
                  "Install it with install.packages(\"rnaturalearth\")."))
   }
 
-  if (level == "states") {
+  if (geoframe == "states") {
     if (!requireNamespace("rnaturalearthhires", quietly = TRUE)) {
       .stop(paste0("admin-1 data requires 'rnaturalearthhires', which is not ",
                    "on CRAN. Install it with:\n  install.packages(",
@@ -119,7 +119,7 @@ ne_source <- function(scale = 110, level = c("country", "states"),
 #' grouping of atoms, so it can only ever be coarser than `feature`.
 #'
 #' @inheritParams ne_source
-#' @param levels Level columns, coarsest first.
+#' @param geoframes Geoframe columns, coarsest first.
 #' @param weights Weight columns.
 #' @param geometry Attach geometry.
 #'
@@ -134,14 +134,14 @@ ne_source <- function(scale = 110, level = c("country", "states"),
 #' gs <- ne_geoscale(scale = 110)
 #'
 #' # roll population up from countries to sub-regions
-#' lf <- S7::prop(gs, "leaves")
+#' lf <- S7::prop(gs, "leaftable")
 #' pop <- data.frame(country = lf$country, pop = lf$pop_est)
 #' recast_geoscale(pop[!is.na(pop$country), ], gs,
 #'            from = "country", to = "subregion", rule = "sum")
 #' }
 #' @export
 ne_geoscale <- function(scale = 110,
-                        levels = c("continent", "subregion", "country",
+                        geoframes = c("continent", "subregion", "country",
                                    "feature"),
                         weights = c("pop_est", "gdp_md"),
                         geometry = TRUE,
@@ -160,7 +160,7 @@ ne_geoscale <- function(scale = 110,
   }
 
   gs <- geoscale_from_provider(
-    src, levels = levels, weights = weights, geometry = geometry,
+    src, geoframes = geoframes, weights = weights, geometry = geometry,
     name = sprintf("naturalearth-%s", scale),
     desc = "Natural Earth admin-0 hierarchy"
   )
@@ -168,7 +168,7 @@ ne_geoscale <- function(scale = 110,
   meta <- S7::prop(gs, "meta")
   meta$source <- "naturalearth"
   meta$scale  <- scale
-  Geoscale(leaves = S7::prop(gs, "leaves"), levels = S7::prop(gs, "levels"),
+  Geoscale(leaftable = S7::prop(gs, "leaftable"), geoframes = S7::prop(gs, "geoframes"),
            members = S7::prop(gs, "members"),
            geometry = S7::prop(gs, "geometry"), meta = meta)
 }
@@ -180,7 +180,7 @@ ne_geoscale <- function(scale = 110,
   register_geo_provider(
     "naturalearth",
     fetch   = function(...) ne_source(...),
-    levels  = c("continent", "subregion", "country", "feature"),
+    geoframes  = c("continent", "subregion", "country", "feature"),
     weights = c("pop_est", "gdp_md"),
     desc    = "Natural Earth admin-0/admin-1 (rnaturalearth)"
   )

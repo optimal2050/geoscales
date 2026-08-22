@@ -2,22 +2,22 @@
 % Please edit documentation in R/filter.R
 \name{geoscale_family}
 \alias{geoscale_family}
-\title{Immediate parent-child table between two levels}
+\title{Immediate parent-child table between two geoframes}
 \usage{
 geoscale_family(x, parent = NULL, child = NULL)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
-\item{parent, child}{Level names. Defaults to every adjacent pair in
-\code{x@levels}.}
+\item{parent, child}{Geoframe names. Defaults to every adjacent pair in
+\code{x@geoframes}.}
 }
 \value{
-A \code{data.frame} with columns \code{parent_level}, \code{parent},
-\code{child_level}, \code{child}. Atoms unassigned at either level are omitted.
+A \code{data.frame} with columns \code{parent_geoframe}, \code{parent},
+\code{child_geoframe}, \code{child}. Atoms unassigned at either geoframe are omitted.
 }
 \description{
-Immediate parent-child table between two levels
+Immediate parent-child table between two geoframes
 }
 \examples{
 gs <- geoscale_example()

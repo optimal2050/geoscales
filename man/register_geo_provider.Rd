@@ -4,14 +4,14 @@
 \alias{register_geo_provider}
 \title{Register a Geoscale data provider}
 \usage{
-register_geo_provider(name, fetch, levels = NULL, weights = NULL, desc = "")
+register_geo_provider(name, fetch, geoframes = NULL, weights = NULL, desc = "")
 }
 \arguments{
 \item{name}{Provider name.}
 
 \item{fetch}{Function returning the source table.}
 
-\item{levels}{Default level columns, coarsest first.}
+\item{geoframes}{Default geoframe columns, coarsest first.}
 
 \item{weights}{Default weight columns.}
 
@@ -22,7 +22,7 @@ Invisibly, the registered provider.
 }
 \description{
 A provider is a function \verb{function(...)} returning either an \code{sf} object or
-a \code{data.frame}, wide enough that its columns can be used as levels and
+a \code{data.frame}, wide enough that its columns can be used as geoframes and
 weights.
 }
 \examples{
@@ -30,7 +30,7 @@ register_geo_provider(
   "toy",
   fetch = function(...) data.frame(top = c("T", "T"),
                                    unit = c("a", "b"), km2 = c(1, 2)),
-  levels = c("top", "unit"), weights = "km2"
+  geoframes = c("top", "unit"), weights = "km2"
 )
 list_geo_providers()
 }

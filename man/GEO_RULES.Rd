@@ -4,14 +4,14 @@
 \alias{GEO_RULES}
 \title{Supported aggregation rules}
 \format{
-A character vector of length 4.
+A character vector of length 5.
 }
 \usage{
 GEO_RULES
 }
 \description{
 Each rule defines behaviour in \strong{both} directions. Direction is taken from
-the level ranks, so aggregation and disaggregation are one operation:
+the geoframe ranks, so aggregation and disaggregation are one operation:
 }
 \details{
 \describe{
@@ -22,6 +22,8 @@ For intensive quantities (efficiency, price, capacity factor).}
 \item{\code{mean}}{Up: unweighted mean. Down: copy unchanged.}
 \item{\code{copy}}{Up: the common value, erroring if it is not constant.
 Down: copy unchanged. For region-invariant scalars.}
+\item{\code{sd}}{Up: standard deviation over the atoms (aggregation only;
+going down it degenerates to \code{NA} for single-atom groups).}
 }
 }
 \examples{

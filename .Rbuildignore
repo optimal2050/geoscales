@@ -35,3 +35,6 @@
 ^\.vscode$
 ^\.editorconfig$
 ^\.claude$
+# generation scripts and raw Global Wind Atlas downloads -- data-raw/gwa
+# is additionally gitignored, ~64 MB of GeoTIFF
+^data-raw$

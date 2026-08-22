@@ -1,6 +1,6 @@
 # Subset a Geoscale with `[`
 
-`gs[level, region]` is shorthand for
+`gs[geoframe, region]` is shorthand for
 [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md).
 
 ## Usage
@@ -22,7 +22,7 @@ x[i, j, ...]
 
 - i:
 
-  Level name.
+  Geoframe name.
 
 - j:
 
@@ -58,8 +58,8 @@ unexported.
 gs <- geoscale_example()
 gs["country", "N"]
 #> Geoscale: example 
-#> Description: Synthetic example: reused code, non-nesting level pair, and an unassigned atom 
-#> Levels (4, coarsest first):
+#> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
+#> Geoframes (4, coarsest first):
 #>   - country (1)
 #>     - state (2)
 #>       - zone (2)
