@@ -5,8 +5,8 @@ Nested regions and spatial hierarchies for modeling — the spatial companion to
 (`cpp/`, `python/` are placeholders for later phases).
 
 Stack-wide rules (naming, style, git policy, API principles) live in the
-unified conventions document: `energyRt/CONVENTIONS.md`
-(https://github.com/optimal2050/energyRt/blob/main/CONVENTIONS.md).
+unified conventions document: `optimal2050/.github/CONVENTIONS.md`
+(https://github.com/optimal2050/.github/blob/main/CONVENTIONS.md).
 Everything below is repo-specific — things you would otherwise discover
 the hard way.
 

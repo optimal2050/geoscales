@@ -1,9 +1,7 @@
 # Geoscale layers for ggplot2
 
 Composable choropleth layers that put region-keyed data on a map inside
-a normal
-[`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html)
-pipeline (the assembled-figure counterparts are
+a normal `ggplot()` pipeline (the assembled-figure counterparts are
 [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md)
 and
 [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)):
@@ -18,6 +16,7 @@ geom_geoscale(
   region = NULL,
   fun = mean,
   data = NULL,
+  precision = 0,
   ...
 )
 
@@ -58,6 +57,12 @@ theme_geoscale(...)
 - data:
 
   A `data.frame`; `NULL` (default) uses the plot data.
+
+- precision:
+
+  Optional GEOS precision for the dissolve, forwarded to
+  [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md).
+  Default `0` = off.
 
 - ...:
 
@@ -101,14 +106,19 @@ stack on top.
 if (requireNamespace("ggplot2", quietly = TRUE) &&
     requireNamespace("sf", quietly = TRUE)) {
   library(ggplot2)
-  # geoscale_example() carries no geometry; see the visualization
-  # article for maps drawn on real fixtures. Boundaries-only layers
-  # need geometry too, so this example only shows the calls:
-  if (FALSE) { # \dontrun{
-  ggplot(x) +
+  sq <- function(x0) sf::st_polygon(list(cbind(
+    c(x0, x0 + 1, x0 + 1, x0, x0), c(0, 0, 1, 1, 0))))
+  gs <- geoscale_from_leaftable(
+    data.frame(state = c("N", "N", "S"), atom = c("a", "b", "c"),
+               km2 = c(1, 2, 3)),
+    geoframes = c("state", "atom"), name = "toy"
+  ) |>
+    attach_geometry_geoscale(sf::st_sfc(sq(0), sq(1), sq(2)))
+
+  # data keyed at the drawn geoframe (recast finer data up first)
+  ggplot(data.frame(state = c("N", "S"), capacity = c(1, 3))) +
     geom_geoscale(gs = gs, z = "capacity", geoframe = "state") +
     scale_fill_viridis_c() +
     theme_geoscale()
-  } # }
 }
 ```

@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Nested Regions and Spatial Hierarchies for Modeling • geoscales</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Nested Regions and Spatial Hierarchies for Modeling">
 <meta name="description" content="Discrete spatial representations for optimization and simulation models, including nested sets of regions, conversion between alternative spatial resolutions, and mapping of data onto region hierarchies for modeling and visualization. Spatial companion to timescales.">
 <meta property="og:description" content="Discrete spatial representations for optimization and simulation models, including nested sets of regions, conversion between alternative spatial resolutions, and mapping of data onto region hierarchies for modeling and visualization. Spatial companion to timescales.">
+<meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,116 +72,81 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="geoscales">geoscales<a class="anchor" aria-label="anchor" href="#geoscales"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="geoscales-">geoscales 
+<a class="anchor" aria-label="anchor" href="#geoscales-"></a>
+</h1>
+</div>
 <!-- badges: start -->
 
-<blockquote>
-<p>Nested regions and spatial hierarchies for optimization and simulation models.</p>
-</blockquote>
-<p><code>geoscales</code> is the <strong>spatial-domain</strong> package of the optimal2050 modeling stack and the spatial companion to <a href="https://github.com/optimal2050/timescales" class="external-link"><code>timescales</code></a>.</p>
-<p>This is a <strong>multi-language</strong> project. The R package is the current focus (Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.</p>
 <div class="section level2">
-<h2 id="quick-demo">Quick demo<a class="anchor" aria-label="anchor" href="#quick-demo"></a>
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>A <code>Geoscale</code> is a nested spatial partition: a flat table of weighted leaf regions (“atoms”) plus the ordered geoframes that group them. Aggregation and disaggregation are ONE verb — direction comes from the geoframe ranks, and totals are preserved either way:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/geoscales/r/">geoscales</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>    country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"S"</span>, <span class="st">"S"</span><span class="op">)</span>,</span>
-<span>    state   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span>, <span class="st">"S1"</span><span class="op">)</span>,</span>
-<span>    atom    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>,</span>
-<span>    km2     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span>, <span class="fl">600</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"state"</span>, <span class="st">"atom"</span><span class="op">)</span>,</span>
-<span>  name <span class="op">=</span> <span class="st">"demo"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span>
-<span><span class="va">cap</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, from <span class="op">=</span> <span class="st">"atom"</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   country capacity</span></span>
-<span><span class="co">#&gt; 1       N       10</span></span>
-<span><span class="co">#&gt; 2       S       11</span></span>
-<span></span>
-<span><span class="co"># ... and back down, split by area</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, from <span class="op">=</span> <span class="st">"country"</span>, to <span class="op">=</span> <span class="st">"state"</span>,</span>
-<span>                  rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   state capacity</span></span>
-<span><span class="co">#&gt; 1    N1        3</span></span>
-<span><span class="co">#&gt; 2    N2        7</span></span>
-<span><span class="co">#&gt; 3    S1       20</span></span></code></pre></div>
-<p>With geometry attached, values land on a map as one ggplot2 layer (<code><a href="reference/geom_geoscale.html">geom_geoscale()</a></code>); without any geometry, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws the hierarchy itself:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="va">sq</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st.html" class="external-link">st_polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">x</span>, <span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">y</span>, <span class="va">y</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">y</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/sfc.html" class="external-link">st_sfc</a></span><span class="op">(</span></span>
-<span>  <span class="fu">sq</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">cap</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, from <span class="op">=</span> <span class="st">"atom"</span>, to <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">gs</span>, z <span class="op">=</span> <span class="st">"capacity"</span>, geoframe <span class="op">=</span> <span class="st">"state"</span>,</span>
-<span>                colour <span class="op">=</span> <span class="st">"white"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Capacity recast to states, on the map"</span>, fill <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="reference/geom_geoscale.html">theme_geoscale</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-demo-map-1.png" alt="" width="100%"></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-demo-icicle-1.png" alt="" width="100%"></p>
-<p>See <code><a href="articles/geoscales.html">vignette("geoscales")</a></code> for the 5-minute tour, and the <a href="https://optimal2050.github.io/geoscales/r/articles/visualization.html">visualization article</a> for choropleths, recasts seen on the map, and a real-map tour of Iceland with data attached.</p>
-<p>Two things about space that the time domain does not have to deal with, and which shape the whole design:</p>
+<p>geoscales provides <strong>nested regions and spatial hierarchies</strong> for optimization and simulation models: organize the spatial dimension of your model data, convert it between region systems, and see every level at once.</p>
 <ul>
 <li>
-<strong>Geoframes need not nest.</strong> In India’s IDEEA region table, the <code>reg32</code> code <code>APY</code> merges Andhra Pradesh with <em>part of</em> Puducherry, so <code>reg35</code> does not nest inside <code>reg32</code>. Every conversion therefore routes through the atom layer, and cross-cutting geoframes work without special handling.</li>
+<a href="https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.html"><code>geoscale_from_leaftable()</code></a> builds a <code>Geoscale</code> — ordered geoframes, their members, and one leaftable row per leaf region (“atom”) with its weights (area, population, capacity); <a href="https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.html"><code>ne_geoscale()</code></a> builds one straight from Natural Earth, and <a href="https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.html"><code>attach_geometry_geoscale()</code></a> adds boundaries from any source — the package ships integration code, not maps.</li>
 <li>
-<strong>Region codes are not unique across geoframes.</strong> 46 of 62 IDEEA codes appear at more than one geoframe (<code>AN</code> at seven). So <code>geoframe</code> is a required argument everywhere — nothing is inferred from a bare code.</li>
-</ul>
-<div class="section level3">
-<h3 id="no-bundled-maps">No bundled maps<a class="anchor" aria-label="anchor" href="#no-bundled-maps"></a>
-</h3>
-<p><code>geoscales</code> ships integration code, not data: no boundaries are bundled, and no map source is selected for you. Providers (Natural Earth via <code><a href="reference/ne_geoscale.html">ne_geoscale()</a></code>, or your own via <code><a href="reference/register_geo_provider.html">register_geo_provider()</a></code>) pass a point of view through and record it in <code>@meta</code>.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
-</h2>
-<ul>
+<a href="https://optimal2050.github.io/geoscales/r/reference/join_geoscale.html"><code>join_geoscale()</code></a> decorates a table keyed by regions with the geoscale’s columns — your tables stay tables (data.frame, tibble, data.table, dtplyr/arrow in; the same class out).</li>
 <li>
-<strong><a href="https://optimal2050.github.io/geoscales/" class="external-link">Project site</a></strong> — entry point for all language flavours</li>
-<li><strong><a href="https://optimal2050.github.io/geoscales/r/">R reference and articles</a></strong></li>
+<a href="https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.html"><code>recast_geoscale()</code></a> converts values between geoframes — up, down, and across cross-cutting region systems — one rule per value column, totals conserved.</li>
+<li>
+<a href="https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.html"><code>filter_geoscale()</code></a> and <a href="https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.html"><code>prune_geoscale()</code></a> carve region samples and coarser designs for model runs, with coverage bookkeeping.</li>
+<li>
+<a href="https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.html"><code>geom_geoscale()</code></a> and <a href="https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.html"><code>geoscale_autoplot()</code></a> draw any level: choropleths, icicles, and axonometric stacks.</li>
 </ul>
-</div>
-<div class="section level2">
-<h2 id="status">Status<a class="anchor" aria-label="anchor" href="#status"></a>
-</h2>
-<p>🚧 In development — pre-1.0, APIs may still change between minor versions. Feedback and issues are welcome.</p>
+<p>geoscales is the spatial-domain package of the <a href="https://github.com/optimal2050" class="external-link">optimal2050</a> modeling stack; its time companion, <a href="https://github.com/optimal2050/timescales" class="external-link">timescales</a>, shares the same design and vocabulary.</p>
+<p>If you are new to geoscales, the best place to start is the <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started vignette</a> (<code><a href="articles/geoscales.html">vignette("geoscales")</a></code>).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># From GitHub</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"optimal2050/geoscales"</span><span class="op">)</span></span></code></pre></div>
-<p>Or via <a href="https://optimal2050.r-universe.dev/" class="external-link">r-universe</a>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"geoscales"</span>, repos <span class="op">=</span> <span class="st">"https://optimal2050.r-universe.dev"</span><span class="op">)</span></span></code></pre></div>
+<p>geoscales is not on CRAN yet; install the development version from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"optimal2050/geoscales"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="repository-layout">Repository layout<a class="anchor" aria-label="anchor" href="#repository-layout"></a>
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>geoscales<span class="sc">/</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>├── DESCRIPTION, NAMESPACE, R<span class="sc">/</span>, man<span class="sc">/</span>, tests<span class="sc">/</span>, vignettes<span class="sc">/</span>   <span class="co"># R package (root)</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>├── inst<span class="sc">/</span>include<span class="sc">/</span>geoscales<span class="sc">/</span>                                <span class="co"># C++ headers (Phase 2)</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>├── cpp<span class="sc">/</span>                                                   <span class="co"># standalone C++ core (Phase 2)</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>├── python<span class="sc">/</span>                                                <span class="co"># Python package (Phase 3)</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>├── docs<span class="sc">/</span>                                                  <span class="co"># unified Quarto site</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>├── specs<span class="sc">/</span>                                                 <span class="co"># cross-language golden tests</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>└── .github<span class="sc">/</span>workflows<span class="sc">/</span>                                     <span class="co"># CI</span></span></code></pre></div>
+<p>One <code>Geoscale</code>, three resolutions of the same country: Iceland’s onshore wind resource (Global Wind Atlas, 100 m) clustered by wind speed within each region — the whole hierarchy drawn as a single perspective stack, every plane on the Global Wind Atlas palette at its absolute scale (from <a href="https://github.com/optimal2050/energypal" class="external-link">energypal</a>). Its time twin — Reykjavik’s wind year on a calendar stack — opens the <a href="https://github.com/optimal2050/timescales" class="external-link">timescales README</a>. The <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started vignette</a> shows how the cluster layer is built from the raster.</p>
+<p><img src="reference/figures/README-hero-iceland-wind-1.png" alt="" width="100%"></p>
+<p>The same data moves between the levels by one verb — <code><a href="reference/recast_geoscale.html">recast_geoscale()</a></code>, the same machinery that converts model tables — here the cluster values as area-weighted means of each region’s resource area, on the flat map:</p>
+<p><img src="reference/figures/README-hero-iceland-regions-1.png" alt="" width="100%"></p>
+<p><em>Wind data: <a href="https://globalwindatlas.info" class="external-link">Global Wind Atlas</a> — DTU, in partnership with the World Bank Group, data by Vortex, funded by ESMAP.</em></p>
+<p>And building a <code>Geoscale</code> takes a leaftable and (optionally) a map — here Iceland’s administrative hierarchy from Natural Earth, drawn as a top-down stack:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/geoscales/r/">geoscales</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ne</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ne_source.html">ne_source</a></span><span class="op">(</span>geoframe <span class="op">=</span> <span class="st">"states"</span>, country <span class="op">=</span> <span class="st">"Iceland"</span><span class="op">)</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">ne</span><span class="op">)</span></span>
+<span><span class="va">iceland</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"ISL"</span>, landshluti <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">gn_name</span>,</span>
+<span>             unit <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">iso_3166_2</span><span class="op">)</span>,</span>
+<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"unit"</span><span class="op">)</span>,</span>
+<span>  key <span class="op">=</span> <span class="st">"unit"</span>, name <span class="op">=</span> <span class="st">"iceland"</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">ne</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"unit"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/geoscale_autoplot.html">geoscale_autoplot</a></span><span class="op">(</span><span class="va">iceland</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="st">"top-down"</span>, gap <span class="op">=</span> <span class="fl">.35</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-demo-stack-iceland-1.png" alt="" width="100%"></p>
+</div>
+<div class="section level2">
+<h2 id="learning-more">Learning more<a class="anchor" aria-label="anchor" href="#learning-more"></a>
+</h2>
+<ul>
+<li>The <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started vignette</a> — build, inspect, convert, visualize, plus the wind-cluster recipe behind the hero.</li>
+<li>
+<a href="https://optimal2050.github.io/geoscales/r/articles/concepts.html">Concepts</a> — what makes space harder than time: geoframes need not nest, region codes are not unique across geoframes, and no maps are bundled.</li>
+<li>
+<a href="https://optimal2050.github.io/geoscales/r/articles/visualization.html">Visualization</a> — choropleths, recasts seen on the map, stacks and icicles with data.</li>
+<li>The <a href="https://optimal2050.github.io/geoscales/" class="external-link">project site</a> — entry point for all language flavours — and the <a href="https://optimal2050.github.io/geoscales/r/reference/">R reference</a>.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="getting-help">Getting help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
+</h2>
+<p>geoscales is pre-1.0 and APIs may still change between minor versions. Questions, feedback, and bug reports are welcome on the <a href="https://github.com/optimal2050/geoscales/issues" class="external-link">issue tracker</a>; see <a href="CONTRIBUTING.html">CONTRIBUTING</a> for the repository layout and the multi-language roadmap.</p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>

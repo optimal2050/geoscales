@@ -7,22 +7,120 @@
 \usage{
 geoscale_autoplot(
   x,
+  type = c("icicle", "stack"),
   weight = NULL,
   fill = c("geoframe", "region"),
   label = TRUE,
+  view = NULL,
+  angle = NULL,
+  ratio = NULL,
+  shear = 0.45,
+  depth = 0.55,
+  gap = NULL,
+  rotate = 0,
+  direction = c("up", "down"),
+  precision = 0,
+  data = NULL,
+  z = NULL,
+  rule = "weighted_mean",
+  labels = NULL,
+  palette = "G",
+  colour = "grey35",
+  linewidth = 0.2,
+  frame = NULL,
+  frame_fill = NA,
+  connectors = FALSE,
   ...
 )
 
-autoplot.Geoscale(x, ...)
+\method{autoplot}{Geoscale}(x, ...)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
+
+\item{type}{\code{"icicle"} (default) or \code{"stack"} — the axonometric
+stacked-maps view: one sheared map plane per geoframe, coarsest on
+top, the same atoms dissolved at each resolution. Requires attached
+geometry (and the sf package); \code{weight}/\code{fill}/\code{label} apply to the
+icicle only.}
 
 \item{weight}{Weight column determining widths. \code{NULL} uses the default.}
 
 \item{fill}{What to colour by: \code{"geoframe"} or \code{"region"}.}
 
 \item{label}{Draw region codes on the rectangles.}
+
+\item{view}{\code{type = "stack"} only: a predefined point of view --
+\code{"oblique"} (the shear/depth default), \code{"top-down"}, \code{"cavalier"},
+\code{"cabinet"}, \code{"military"}, \code{"isometric"}, \code{"dimetric"},
+\code{"trimetric"}, or \code{"perspective"} (receding planes shrink).}
+
+\item{angle, ratio}{\code{type = "stack"} only: oblique view by angle
+(degrees of the receding axis) and foreshortening ratio --
+\verb{e2 = ratio * (cos(angle), sin(angle))}. Overridden by \code{view}.}
+
+\item{shear, depth, gap}{\code{type = "stack"} only: raw receding-axis
+components (\verb{e2 = (shear, depth)}; used when neither \code{view} nor
+\code{angle}/\code{ratio} is given) and the vertical spacing between planes.
+\code{gap = NULL} (default) spaces planes almost touching, with a slight
+overlap.}
+
+\item{rotate}{\code{type = "stack"} only: in-plane rotation of each plane
+(degrees, counter-clockwise) -- point North where you want it.}
+
+\item{direction}{\code{type = "stack"} only: \code{"up"} (default) stacks the
+coarsest geoframe on top; \code{"down"} puts it at the bottom.}
+
+\item{precision}{\code{type = "stack"} only: GEOS precision for the
+dissolve, forwarded to \code{\link[=geoscale_geometry]{geoscale_geometry()}}. Default \code{0} = off.}
+
+\item{data, z}{Colour the figure by a value instead of by structure:
+works for BOTH types -- the icicle fills each band's rectangles
+(overriding \code{fill}), the stack fills each plane. \code{data} must carry
+the atom geoframe as a key column plus the value column named by
+\code{z}; every coarser geoframe gets the value recast up with
+\code{\link[=recast_geoscale]{recast_geoscale()}} (see \code{rule}), so the whole figure shares one
+continuous fill scale (legend title via \code{labs(fill = )}).}
+
+\item{rule}{With \code{data}: aggregation rule used to recast \code{z} from
+the atoms to each coarser geoframe (\code{"weighted_mean"} default; see
+\code{\link[=recast_geoscale]{recast_geoscale()}}). The icicle \code{weight} argument doubles as
+the weight column for \code{"weighted_mean"} (\code{NULL} = the geoscale's
+default weight).}
+
+\item{labels}{\code{type = "stack"} only: character vector of geoframes
+whose regions get their display names (the \verb{@meta$labels} column,
+falling back to codes) drawn on the plane. \code{NULL} (default) = none.}
+
+\item{palette}{\code{type = "stack"} only: viridis palette option
+(\code{"A"}..\code{"H"}) for the plane fill. Default \code{"G"}. \code{NULL} adds no
+fill scale at all, so you can supply your own -- e.g.
+\code{energypal::scale_fill_energy_b()} for the Global Wind Atlas
+colours on their absolute breaks.}
+
+\item{colour, linewidth}{\code{type = "stack"} only: region border colour
+and width, recycled across the planes (so
+\code{colour = c("white", "grey40", "white")} styles one plane per
+entry). Defaults \code{"grey35"} and \code{0.2} -- ggplot2's own sf polygon
+border.}
+
+\item{frame}{\code{type = "stack"} only: draw each plane's outline (the
+footprint box run through the same projection) as a guide --
+curved shapes are much easier to read in oblique views with the
+plane edges visible. \code{TRUE} uses \code{"grey80"}, a colour string uses
+that colour, \code{NULL} (default) draws no frames.}
+
+\item{frame_fill}{\code{type = "stack"} only: fill for the plane sheets.
+Best mostly transparent, e.g.
+\code{frame_fill = ggplot2::alpha("grey60", 0.12)} -- the panes then
+read as glass sheets and slightly dim what lies beneath them.
+Setting a fill draws the frames even without \code{frame}; \code{NA}
+(default) = no fill.}
+
+\item{connectors}{\code{type = "stack"} only: draw dashed lines joining
+the corresponding frame corners of adjacent planes -- the vertical
+guides of the stack. \code{TRUE} uses the frame colour, a colour string
+picks its own; default \code{FALSE}.}
 
 \item{...}{Unused.}
 }

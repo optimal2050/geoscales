@@ -111,6 +111,7 @@ reference:
       - geoscale_ancestry
       - geoscale_nests
       - filter_geoscale
+      - geoscale_coverage
       - prune_geoscale
       - geoscale_share
 

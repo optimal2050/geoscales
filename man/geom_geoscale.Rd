@@ -12,6 +12,7 @@ geom_geoscale(
   region = NULL,
   fun = mean,
   data = NULL,
+  precision = 0,
   ...
 )
 
@@ -35,6 +36,9 @@ the \code{geoframe}-named column when present, else \code{"region"}.}
 into one value. Default \code{mean}.}
 
 \item{data}{A \code{data.frame}; \code{NULL} (default) uses the plot data.}
+
+\item{precision}{Optional GEOS precision for the dissolve, forwarded
+to \code{\link[=geoscale_geometry]{geoscale_geometry()}}. Default \code{0} = off.}
 
 \item{...}{Passed to \code{\link[ggplot2:geom_sf]{ggplot2::geom_sf()}} (e.g. \code{colour},
 \code{linewidth}), or for \code{theme_geoscale()} to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
@@ -70,14 +74,19 @@ points) stack on top.
 if (requireNamespace("ggplot2", quietly = TRUE) &&
     requireNamespace("sf", quietly = TRUE)) {
   library(ggplot2)
-  # geoscale_example() carries no geometry; see the visualization
-  # article for maps drawn on real fixtures. Boundaries-only layers
-  # need geometry too, so this example only shows the calls:
-  \dontrun{
-  ggplot(x) +
+  sq <- function(x0) sf::st_polygon(list(cbind(
+    c(x0, x0 + 1, x0 + 1, x0, x0), c(0, 0, 1, 1, 0))))
+  gs <- geoscale_from_leaftable(
+    data.frame(state = c("N", "N", "S"), atom = c("a", "b", "c"),
+               km2 = c(1, 2, 3)),
+    geoframes = c("state", "atom"), name = "toy"
+  ) |>
+    attach_geometry_geoscale(sf::st_sfc(sq(0), sq(1), sq(2)))
+
+  # data keyed at the drawn geoframe (recast finer data up first)
+  ggplot(data.frame(state = c("N", "S"), capacity = c(1, 3))) +
     geom_geoscale(gs = gs, z = "capacity", geoframe = "state") +
     scale_fill_viridis_c() +
     theme_geoscale()
-  }
 }
 }

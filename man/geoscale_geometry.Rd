@@ -4,12 +4,21 @@
 \alias{geoscale_geometry}
 \title{Geometry dissolved to a geoframe}
 \usage{
-geoscale_geometry(x, geoframe = NULL)
+geoscale_geometry(x, geoframe = NULL, precision = 0)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}} with geometry attached.}
 
 \item{geoframe}{Geoframe to dissolve to. Defaults to the atom geoframe.}
+
+\item{precision}{Optional GEOS precision for snapping near-coincident
+boundaries before the union (passed to \code{\link[sf:st_set_precision]{sf::st_set_precision()}};
+e.g. \code{1e6} snaps coordinates to a \code{1e-6} grid, followed by
+\code{\link[sf:st_make_valid]{sf::st_make_valid()}}). Default \code{0} = off — geometry is never
+silently altered. Use when a constructed lattice shows phantom
+internal borders after dissolve: that means adjacent atoms' shared
+vertices do not coincide exactly, and the honest fix is at the
+source; \verb{precision=} is the workaround.}
 }
 \value{
 An \code{sf} object with a code column named \code{geoframe} plus \code{geometry}.

@@ -4,12 +4,16 @@
 \alias{prune_geoscale}
 \title{Collapse a Geoscale to a coarser geoframe}
 \usage{
-prune_geoscale(x, geoframe)
+prune_geoscale(x, geoframe, keep_geometry = !is.null(S7::prop(x, "geometry")))
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
 \item{geoframe}{The geoframe to become the new atom layer.}
+
+\item{keep_geometry}{Dissolve and keep the attached geometry.
+Default: yes, when geometry is attached (needs the sf package;
+drops with a message otherwise).}
 }
 \value{
 A \code{\link{Geoscale}}.
@@ -17,6 +21,16 @@ A \code{\link{Geoscale}}.
 \description{
 Returns a new \code{\link{Geoscale}} whose atom layer is \code{geoframe}, dropping every
 finer geoframe. Weights are summed over the collapsed atoms.
+}
+\details{
+The result is renamed \code{"name@geoframe"} (the
+\code{timescales::prune_calendar()} convention) with the parent recorded
+in \code{meta$parent_name}; every other meta field (\code{crs}, \code{source},
+\code{labels}, inherited \code{coverage}) is preserved. Atoms with no code at
+\code{geoframe} are dropped, and that loss is reflected in
+\code{meta$coverage} (see \code{\link[=geoscale_coverage]{geoscale_coverage()}}). With geometry
+attached, the pruned atoms carry the dissolved (unioned) geometry of
+their fine atoms unless \code{keep_geometry = FALSE}.
 }
 \examples{
 prune_geoscale(geoscale_example(), "state")

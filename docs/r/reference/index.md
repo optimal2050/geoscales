@@ -94,6 +94,8 @@ geoframe.
   : Do two geoframes nest?
 - [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md)
   : Subset a Geoscale by region
+- [`geoscale_coverage()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.md)
+  : Sampled coverage of a Geoscale
 - [`prune_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.md)
   : Collapse a Geoscale to a coarser geoframe
 - [`geoscale_share()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_share.md)
@@ -121,7 +123,7 @@ needs no map.
   [`theme_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
   : Geoscale layers for ggplot2
 - [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
-  [`autoplot.Geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
+  [`autoplot(`*`<Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
   : Plot a Geoscale
 - [`plot(`*`<Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/plot.Geoscale.md)
   [`plot(`*`<geoscales::Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/plot.Geoscale.md)

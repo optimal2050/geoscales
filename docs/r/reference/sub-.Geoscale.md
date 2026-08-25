@@ -57,7 +57,7 @@ unexported.
 ``` r
 gs <- geoscale_example()
 gs["country", "N"]
-#> Geoscale: example 
+#> Geoscale: example[country:N] 
 #> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
 #> Geoframes (4, coarsest first):
 #>   - country (1)

@@ -2,6 +2,29 @@
 
 ## geoscales (development version)
 
+### Breaking changes
+
+- A filtered Geoscale is now book-kept as a SAMPLE (the spatial mirror
+  of a partial calendar’s `year_fraction`):
+  [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md)
+  writes `meta$coverage` (per-weight kept fraction of the ROOT parent,
+  so filters compose), `meta$parent_totals` (making coverage verifiable
+  by the validator), `meta$parent_name`, and mangles `meta$name` to
+  `"parent[geoframe:codes]"` – so two different samples of one parent
+  can no longer poison each other’s crosswalk-registry entries or
+  collide in
+  [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
+  column names.
+  [`prune_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.md)
+  renames to `"parent@geoframe"` (the
+  [`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.html)
+  convention), now preserves the FULL meta (`crs`, `source`, `labels`),
+  reflects dropped unassigned atoms in coverage, and keeps attached
+  geometry by dissolving it per new atom (`keep_geometry = FALSE` to opt
+  out). Read the fraction with the new `geoscale_coverage(x, weight)`.
+  Code that relied on a subset keeping its parent’s name can find the
+  parent in `meta$parent_name`.
+
 ### New features
 
 - [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
@@ -12,8 +35,8 @@
   design (column-name arguments, one standard
   [`geom_sf()`](https://ggplot2.tidyverse.org/reference/ggsf.html)
   layer, solid white background for dark-mode pages).
-  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a Geoscale
-  now dispatches to
+  [`plot()`](https://rspatial.github.io/terra/reference/plot.html) on a
+  Geoscale now dispatches to
   [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md).
 - [`get_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
   and
@@ -21,6 +44,58 @@
   complete the crosswalk registry;
   [`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)/[`clear_geo_maps()`](https://optimal2050.github.io/geoscales/r/reference/clear_geo_maps.md)
   gain examples.
+- [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md),
+  [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
+  and the stack view gain an opt-in `precision=` for snapping
+  near-coincident boundaries before the dissolve (workaround for sources
+  with floating-point-jittered shared edges; default off).
+- `geoscale_autoplot(type = "stack")` draws the layer-stack view: one
+  map plane per geoframe, the same atoms dissolved at every resolution
+  (requires attached geometry). Points of view come as presets
+  (`view = "oblique"/"top-down"/"cavalier"/"cabinet"/"military"/ "isometric"/"dimetric"/"trimetric"/"perspective"`)
+  or via `angle`/`ratio` (oblique) and raw `shear`/`depth`; `rotate=`
+  turns the plane in place (point North anywhere), `direction=` flips
+  the stack, and the default `gap` leaves planes almost touching with a
+  slight overlap.
+- The stack view takes data: `data`/`z` colour every plane by an
+  atom-keyed value, recast onto each coarser plane with
+  [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
+  (`rule`, default `"weighted_mean"`) so the whole stack shares one
+  continuous scale; `labels=` writes region names on chosen planes and
+  `palette=` picks the viridis option — or `NULL` to bring your own
+  scale, e.g. energypal’s Global Wind Atlas colours on their absolute
+  breaks. The stack canvas now hugs the content: tight x/y limits, left
+  room sized to the geoframe names, legend pulled in close.
+- The structure icicle carries data too:
+  `geoscale_autoplot(data =, z =)` fills every band with the value
+  recast to that geoframe (atoms keep their values, coarser bands
+  aggregate by `rule` – `"weighted_mean"` default), with contrast-aware
+  labels – the 2D twin of the stack’s data fill. The README gained a
+  five-point “What geoscales offers” intro mirrored with timescales.
+- Stack guides and borders: `frame=` draws each plane’s outline (its
+  “sheet”) through the same projection, `frame_fill=` fills the sheets
+  (best mostly transparent – glass panes), and `connectors=` adds dashed
+  corner-to-corner guides between planes – curved shapes become easy to
+  read in oblique views. `colour=`/`linewidth=` style the region
+  borders, recycled per plane (defaults `"grey35"`/`0.2`, ggplot2’s own
+  sf polygon border). Same additions in
+  `timescales::calendar_autoplot(type = "stack")`. The README front page
+  shows it on Iceland’s onshore wind resource, clustered from the Global
+  Wind Atlas per region (`data-raw/iceland_wind.R`; build walk-through
+  in
+  [`vignette("geoscales")`](https://optimal2050.github.io/geoscales/r/articles/geoscales.md)).
+
+### Bug fixes
+
+- [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md)
+  no longer fails with an opaque “differing number of rows” when
+  [`sf::st_union()`](https://r-spatial.github.io/sf/reference/geos_combine.html)
+  returns several parts for one code (seen with s2-invalid source
+  polygons, e.g. PyPSA-Eur’s full-resolution region shapes): the parts
+  are collapsed into the code’s single dissolved geometry. Healing the
+  source with
+  [`sf::st_make_valid()`](https://r-spatial.github.io/sf/reference/valid.html)
+  before attaching remains the better fix.
 
 ### Documentation
 

@@ -5,7 +5,7 @@
 | kind | functions | use when |
 |----|----|----|
 | composable layers | [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md), [`theme_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md) | you are building your own [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html) and want a choropleth as one layer among others |
-| assembled figures | [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md) (structure icicle; also [`plot()`](https://rdrr.io/r/graphics/plot.default.html)), [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md) (one-call choropleth) | you want a finished figure in one call |
+| assembled figures | [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md) (structure icicle; also [`plot()`](https://rspatial.github.io/terra/reference/plot.html)), [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md) (one-call choropleth) | you want a finished figure in one call |
 | layout / geometry workers | [`geoscale_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.md), [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md) | you want the plain frames behind the figures |
 
 This article needs maps, so it runs on two fixtures that stay out of the
@@ -36,15 +36,6 @@ normal ggplot2 path.
 ``` r
 
 gs <- energyRt::utopia_geoscale("honeycomb")
-#> Warning in geoscales::geoscale_from_leaves(geo, levels = c("nation", "zone", : 'geoscales::geoscale_from_leaves' is deprecated.
-#> Use 'geoscale_from_leaftable' instead.
-#> See help("Deprecated")
-#> Warning in geoscales::geo_attach_geometry(gs, utopia$map[[layout]], by = "region", : 'geo_attach_geometry' is deprecated.
-#> Use 'attach_geometry_geoscale' instead.
-#> See help("Deprecated")
-#> Warning in geoscales::geo_area(gs, name = "area"): 'geo_area' is deprecated.
-#> Use 'add_area_geoscale' instead.
-#> See help("Deprecated")
 gs
 #> Geoscale: utopia 
 #> Description: UTOPIA reference regions, nested nation -> zone -> region 
@@ -146,8 +137,8 @@ ggplot(shapes) +
 
 The assembled counterparts need no geometry at all.
 [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
-(also [`plot()`](https://rdrr.io/r/graphics/plot.default.html)) draws
-the hierarchy as an icicle; its plain-data frame is
+(also [`plot()`](https://rspatial.github.io/terra/reference/plot.html))
+draws the hierarchy as an icicle; its plain-data frame is
 [`geoscale_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.md):
 
 ``` r
@@ -166,6 +157,56 @@ head(geoscale_layout(gs), 4)
 #> 3     zone CENTRAL    2 0.2727273 0.6363636    1  1.9 22.62358 0.3636364
 #> 4     zone    EAST    2 0.6363636 1.0000000    1  1.9 22.62358 0.3636364
 ```
+
+The icicle carries data too — `data =`/`z =` fill every band with the
+value recast to that geoframe (atoms keep their own values, coarser
+bands get the weighted mean):
+
+``` r
+
+cap <- data.frame(region = geoscale_regions(gs, "region"),
+                  mw = c(40, 15, 75, 30, 60, 22, 8, 55, 34, 12, 48))
+geoscale_autoplot(gs, data = cap, z = "mw", label = TRUE) +
+  labs(fill = "MW")
+```
+
+![](visualization_files/figure-html/structure-data-1.png)
+
+With geometry attached, `type = "stack"` draws the layer-stack view —
+the same atoms dissolved at every geoframe, stacked:
+
+``` r
+
+geoscale_autoplot(gs, type = "stack")
+```
+
+![](visualization_files/figure-html/structure-stack-1.png)
+
+### Points of view
+
+The stack takes a `view` preset — from flat `"top-down"` through the
+oblique family (`"cavalier"`, `"cabinet"`) and the axonometric family
+(`"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`) to
+`"perspective"`, where receding planes shrink. Custom obliques come via
+`angle`/`ratio`, `rotate=` turns the plane (point North anywhere),
+`direction=` flips the stack, and `gap` defaults to planes almost
+touching:
+
+``` r
+
+# grouped by aspect so tall and flat views don't squeeze each other
+views <- c("top-down", "military", "isometric",
+           "dimetric", "trimetric", "cabinet",
+           "oblique", "cavalier", "perspective")
+views |>
+  lapply(function(vw)
+    geoscale_autoplot(gs, type = "stack", view = vw) +
+      labs(title = vw) +
+      theme(plot.title = element_text(size = 9, hjust = 0.5))) |>
+  patchwork::wrap_plots(ncol = 3)
+```
+
+![](visualization_files/figure-html/stack-views-1.png)
 
 And
 [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md)
@@ -250,6 +291,33 @@ tibble(country = "ISL", capacity_mw = 3000) |>
 ```
 
 ![](visualization_files/figure-html/iceland-recast-1.png)
+
+## One resource, three geoframes
+
+Model design is choosing a resolution. The wind-cluster Geoscale from
+the [get-started
+vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
+carries Iceland’s mean wind speed on its cluster atoms; recasting the
+same values up the hierarchy shows exactly what each aggregation keeps —
+the temporal twin of this figure (one wind year at three calendar
+resolutions) lives in the [timescales visualization
+vignette](https://optimal2050.github.io/timescales/r/articles/visualization.html):
+
+``` r
+
+iw <- readRDS("../../data-raw/iceland_wind.rds")
+for (gf in c("cluster", "landshluti", "country")) {
+  d <- if (gf == "cluster") iw$wind else
+    recast_geoscale(iw$wind, iw$gs, from = "cluster", to = gf,
+                    rule = "weighted_mean", weight = "km2")
+  print(geoscale_plot(iw$gs, d, geoframe = gf, fill = "wind",
+                      palette = "G") +
+          labs(title = paste("Iceland mean wind speed at:", gf),
+               fill = "m/s"))
+}
+```
+
+![](visualization_files/figure-html/wind-trio-1.png)![](visualization_files/figure-html/wind-trio-2.png)![](visualization_files/figure-html/wind-trio-3.png)
 
 ## See also
 

@@ -22,7 +22,22 @@ A \code{\link{Geoscale}}.
 Keeps only the atoms belonging to \code{region} at \code{geoframe}, and rebuilds the
 member vocabularies accordingly. Geometry, when attached, is subset in step.
 }
+\details{
+A genuine subset is a SAMPLE and is book-kept as one (the spatial
+mirror of \code{timescales::filter_calendar()}'s \code{year_fraction}):
+\code{meta$coverage} records, per weight column, the kept fraction of the
+ROOT parent's total (so filters compose against the original
+object), \code{meta$parent_totals} stores those root totals (making the
+coverage claim verifiable by the validator), \code{meta$parent_name}
+records the parent, and \code{meta$name} is mangled to
+\code{"parent[geoframe:n]"} so a sample never impersonates its parent in
+the crosswalk registry or in \code{\link[=join_geoscale]{join_geoscale()}} column names. A
+filter that keeps every atom is a true no-op. Read the fraction back
+with \code{\link[=geoscale_coverage]{geoscale_coverage()}}.
+}
 \examples{
 gs <- geoscale_example()
-filter_geoscale(gs, "country", "N")
+n <- filter_geoscale(gs, "country", "N")
+n
+geoscale_coverage(n)
 }

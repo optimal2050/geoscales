@@ -131,12 +131,10 @@ tibble(state = c("N1", "N2", "S1"), v = 1:3) |>
 ### 5. Visualize
 
 [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
-(also [`plot()`](https://rdrr.io/r/graphics/plot.default.html)) draws
-the hierarchy itself — no geometry needed. With geometry attached,
-[`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
-puts values on a map inside a normal
-[`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html)
-pipeline:
+(also [`plot()`](https://rspatial.github.io/terra/reference/plot.html))
+draws the hierarchy itself — no geometry needed (and with `data =`/`z =`
+its bands fill with a value recast to every geoframe — see the
+visualization article):
 
 ``` r
 
@@ -145,14 +143,228 @@ geoscale_autoplot(gs)
 
 ![](geoscales_files/figure-html/unnamed-chunk-6-1.png)
 
+With geometry attached (any `sfc` aligned with the atoms),
+[`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
+puts values on a map inside a normal
+[`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html)
+pipeline. The data must be keyed at the geoframe you draw, so recast
+finer data up first:
+
 ``` r
 
-# with attached geometry (see the visualization article):
-ggplot(cap) +
+sq <- function(x, y) sf::st_polygon(list(cbind(
+  c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
+gs <- attach_geometry_geoscale(gs, sf::st_sfc(
+  sq(0, 1), sq(0, 0), sq(1, 1), sq(1, 0), sq(2, 1), sq(2, 0)))
+
+cap |>
+  recast_geoscale(gs, from = "atom", to = "state", rule = "sum") |>
+  ggplot() +
   geom_geoscale(gs = gs, z = "capacity", geoframe = "state") +
   scale_fill_viridis_c() +
   theme_geoscale()
 ```
+
+![](geoscales_files/figure-html/unnamed-chunk-7-1.png)
+
+(The visualization article does the same on real maps.)
+
+## From raster data to a Geoscale: wind clusters
+
+The stack on the package’s front page is a real, data-built hierarchy:
+Iceland’s onshore wind resource from the [Global Wind
+Atlas](https://globalwindatlas.info/), clustered *within* each
+administrative region into contiguous wind-speed classes. That is the
+standard renewable-modeling move — a model wants a handful of supply
+regions per admin unit, ranked by resource quality, not two million
+raster cells.
+
+The pipeline below is complete and pasteable (packages: sf, terra,
+dplyr, [globalwindatlas](https://github.com/energyRt/globalwindatlas); a
+one-time ~64 MB download plus a few minutes of geometry work). It is the
+same code as `data-raw/iceland_wind.R` in the repository, which
+additionally caches the slow steps and pre-saves the result. Not run
+while building this page.
+
+**Raw materials** — the wind-speed raster and the admin regions:
+
+``` r
+
+library(sf)     # load sf BEFORE terra -- the reverse order can crash
+library(terra)  # an R session on Windows (GDAL DLL clash)
+library(dplyr)
+
+# 100 m mean wind speed for Iceland, one GeoTIFF. Pass `filename`
+# explicitly -- the default filename handling mangles "data-raw"
+tif <- globalwindatlas::gwa_get_wind_speed(
+  "ISL", height = 100, filename = "data-raw/gwa/ISL_wind_speed_100.tif")
+
+# onshore regions from Natural Earth; the capital region arrives split
+# in two -- merge by name, and keep an ISO code per region for the
+# cluster ids
+ne  <- ne_source(geoframe = "states", country = "Iceland")
+reg <- ne |>
+  group_by(region = gn_name) |>
+  summarise() |>
+  st_make_valid()
+iso <- ne |>
+  st_drop_geometry() |>
+  group_by(region = gn_name) |>
+  summarise(iso = max(iso_3166_2))
+
+# contiguous ">= 8" and ">= 10" m/s resource classes within each
+# region: threshold -> polygonize -> simplify -> buffer -> drop crumbs
+int <- c(0, 8, 10)
+grp <- globalwindatlas::gwa_group_locations(
+  tif, gis_sf = reg, ID = "region", int = int,
+  aggregate_tif = 2, plot_process = FALSE)
+```
+
+**Classes to clusters** — everything in a projected CRS (ISN93 Lambert),
+where the geometry ops are robust. Two boundary rules keep the later
+dissolves exact (up-aggregation on the map is a *union* of atoms, and
+unions only merge cleanly when shared edges match to the last
+coordinate): region borders are simplified *topology-aware*
+([`rmapshaper::ms_simplify()`](http://andyteucher.ca/rmapshaper/reference/ms_simplify.md)
+simplifies each shared arc once —
+[`sf::st_simplify()`](https://r-spatial.github.io/sf/reference/geos_unary.html)
+would treat each side independently and leave sliver “ghost borders”),
+and each region is carved so that every piece is differenced from the
+region itself, the last class being the region’s remainder:
+
+``` r
+
+grp_m <- st_as_sf(grp)[, c("region", "int")] |>
+  st_transform(3057) |> st_make_valid() |>
+  st_simplify(dTolerance = 300) |> st_make_valid()
+reg_m <- reg |>
+  st_transform(3057) |> st_make_valid() |>
+  rmapshaper::ms_simplify(keep = 0.2, keep_shapes = TRUE) |>
+  st_make_valid()
+
+only_poly <- function(g) {          # keep polygons, drop stray pieces
+  if (length(g) == 0) return(st_sfc(st_polygon(), crs = st_crs(g)))
+  g <- st_make_valid(g)
+  i <- st_geometry_type(g) == "GEOMETRYCOLLECTION"
+  if (any(i)) g[i] <- st_collection_extract(g[i], "POLYGON") |> st_union()
+  g
+}
+
+clusters <- lapply(seq_len(nrow(reg_m)), function(i) {
+  rg  <- st_geometry(reg_m)[i]
+  cls <- grp_m[grp_m$region == reg_m$region[i] & grp_m$int > min(int), ]
+  cls <- cls[order(-cls$int), ]
+  out <- vector("list", nrow(cls) + 1L)
+  acc <- NULL                       # union of the pieces cut so far
+  for (k in seq_len(nrow(cls))) {
+    pk <- only_poly(st_intersection(st_geometry(cls)[k], rg))
+    if (!is.null(acc)) pk <- only_poly(st_difference(pk, acc))
+    acc <- if (is.null(acc)) pk else only_poly(st_union(acc, pk))
+    out[[k]] <- st_sf(region = reg_m$region[i], int = cls$int[k],
+                      geometry = pk)
+  }
+  out[[nrow(cls) + 1L]] <- st_sf(region = reg_m$region[i], int = min(int),
+                                 geometry = only_poly(st_difference(rg, acc)))
+  do.call(rbind, out)
+})
+
+clusters <- do.call(rbind, clusters) |>
+  filter(!st_is_empty(geometry),
+         as.numeric(units::set_units(st_area(geometry), "km^2")) > 1) |>
+  group_by(region) |>
+  arrange(desc(int), .by_group = TRUE) |>
+  mutate(rank = row_number()) |>   # c1 = windiest class of its region
+  ungroup() |>
+  left_join(iso, by = "region") |>
+  mutate(cluster = paste0(iso, "_c", rank)) |>
+  st_as_sf()
+
+# per-cluster mean wind speed (from the full-resolution raster) + area
+r <- rast(tif)
+clusters$wind <- terra::extract(
+  r, vect(st_transform(clusters, st_crs(r))),
+  fun = mean, na.rm = TRUE, ID = FALSE)[[1]]
+clusters$km2 <- as.numeric(units::set_units(st_area(clusters), "km^2"))
+```
+
+**Assemble the Geoscale** — the clusters are the atoms:
+
+``` r
+
+gs <- geoscale_from_leaftable(
+  clusters |>
+    st_drop_geometry() |>
+    transmute(country = "Iceland", landshluti = region, cluster, km2),
+  geoframes = c("country", "landshluti", "cluster"),
+  key = "cluster", name = "iceland_wind"
+) |>
+  attach_geometry_geoscale(clusters, by = "cluster", geoframe = "cluster")
+
+wind <- clusters |> st_drop_geometry() |> select(cluster, wind)
+```
+
+The result is an ordinary three-geoframe Geoscale — the clusters are its
+atoms, so everything above applies. The repository ships it pre-built
+(`data-raw/iceland_wind.rds`, written by `data-raw/iceland_wind.R`),
+which is what renders here: recast the per-cluster wind speed up to the
+regions with an area-weighted mean,
+
+``` r
+
+iceland <- readRDS("../data-raw/iceland_wind.rds")
+head(iceland$gs@leaftable, 4)
+#>   country       landshluti cluster       km2  region
+#> 1 Iceland       Austurland IS-7_c1 5340.2458 IS-7_c1
+#> 2 Iceland       Austurland IS-7_c2 8533.1805 IS-7_c2
+#> 3 Iceland       Austurland IS-7_c3 7696.1286 IS-7_c3
+#> 4 Iceland Hofudborgarsvadi IS-1_c1  165.8929 IS-1_c1
+
+iceland$wind |>
+  recast_geoscale(iceland$gs, from = "cluster", to = "landshluti",
+                  rule = "weighted_mean", weight = "km2")
+#>          landshluti     wind
+#> 1        Austurland 8.694984
+#> 2  Hofudborgarsvadi 9.115198
+#> 3 Nordurland Eystra 8.406143
+#> 4 Nordurland Vestra 8.796206
+#> 5         Sudurland 9.108633
+#> 6          Sudurnes 9.524734
+#> 7        Vestfirdir 9.313962
+#> 8        Vesturland 9.527264
+```
+
+or hand the atom-level values straight to the stack view, which recasts
+them onto every plane itself (`data`/`z`) and labels a chosen geoframe
+(`labels`). `palette = NULL` leaves the fill scale to the caller — here
+the Global Wind Atlas palette from
+[energypal](https://github.com/optimal2050/energypal), whose colours sit
+on the atlas’s absolute breaks (`limits` only windows the legend);
+`frame` and `connectors` draw the plane sheets and corner guides that
+make the perspective legible around curved coastlines, a mostly
+transparent `frame_fill` turns the sheets into glass panes, and a
+per-plane `colour` vector drops the borders on the fragment-heavy
+cluster plane. This is the front-page figure:
+
+``` r
+
+geoscale_autoplot(iceland$gs, type = "stack", view = "perspective",
+                  direction = "down", data = iceland$wind, z = "wind",
+                  labels = "landshluti", palette = NULL, gap = .275,
+                  colour = c("grey35", "grey35", NA),  # no cluster borders
+                  frame = TRUE, connectors = FALSE,
+                  frame_fill = ggplot2::alpha("#6FA8DC", 0.15)) +
+  energypal::scale_fill_energy_b(limits = c(6.5, 11.5)) +
+  ggplot2::labs(fill = "m/s at 100m")
+```
+
+![](geoscales_files/figure-html/wind-stack-1.png)
+
+*Wind data: [Global Wind Atlas](https://globalwindatlas.info) — DTU, in
+partnership with the World Bank Group, data by Vortex, funded by ESMAP.*
+
+Offshore wind areas would slot in as a sibling branch of the same
+hierarchy, but they first need a regionalization of the sea area —
+deferred for now.
 
 ## Where to next?
 

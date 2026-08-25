@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://optimal2050.github.io/geoscales/r/404.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/AGENTS.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/articles/articles/plotting.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/articles/concepts.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/articles/data-manipulation.html</loc></url>
@@ -10,6 +11,7 @@
 <url><loc>https://optimal2050.github.io/geoscales/r/articles/visualization.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/authors.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/CONTRIBUTING.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/copilot-instructions.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/index.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/LICENSE-text.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/news/index.html</loc></url>
@@ -26,6 +28,7 @@
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_ancestry.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_build.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_example.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_family.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.html</loc></url>
