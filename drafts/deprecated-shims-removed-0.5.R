@@ -35,12 +35,12 @@
 #' `geo_plot()` -> [geoscale_plot()].
 #'
 #' Registries:
-#' `geo_register_rule()` -> [register_geo_rule()], `geo_get_rule()` ->
-#' [get_geo_rule()], `geo_list_rules()` -> [list_geo_rules()],
-#' `geo_clear_rules()` -> [clear_geo_rules()],
-#' `geo_register_provider()` -> [register_geo_provider()],
-#' `geo_provider()` -> [get_geo_provider()], `geo_list_providers()` ->
-#' [list_geo_providers()].
+#' `geo_register_rule()` -> [register_geoscale_rule()], `geo_get_rule()` ->
+#' [get_geoscale_rule()], `geo_list_rules()` -> [list_geoscale_rules()],
+#' `geo_clear_rules()` -> [clear_geoscale_rules()],
+#' `geo_register_provider()` -> [register_geoscale_provider()],
+#' `geo_provider()` -> [get_geoscale_provider()], `geo_list_providers()` ->
+#' [list_geoscale_providers()].
 #'
 #' @param ... Arguments forwarded to the replacement function.
 #' @return See the replacement function.
@@ -145,32 +145,32 @@ geo_plot <- .dep("geo_plot", "geoscale_plot")
 
 #' @rdname geoscales-deprecated
 #' @export
-geo_register_rule <- .dep("geo_register_rule", "register_geo_rule")
+geo_register_rule <- .dep("geo_register_rule", "register_geoscale_rule")
 
 #' @rdname geoscales-deprecated
 #' @export
-geo_get_rule <- .dep("geo_get_rule", "get_geo_rule")
+geo_get_rule <- .dep("geo_get_rule", "get_geoscale_rule")
 
 #' @rdname geoscales-deprecated
 #' @export
-geo_list_rules <- .dep("geo_list_rules", "list_geo_rules")
+geo_list_rules <- .dep("geo_list_rules", "list_geoscale_rules")
 
 #' @rdname geoscales-deprecated
 #' @export
-geo_clear_rules <- .dep("geo_clear_rules", "clear_geo_rules")
+geo_clear_rules <- .dep("geo_clear_rules", "clear_geoscale_rules")
 
 #' @rdname geoscales-deprecated
 #' @export
 geo_register_provider <- .dep("geo_register_provider",
-                              "register_geo_provider")
+                              "register_geoscale_provider")
 
 #' @rdname geoscales-deprecated
 #' @export
-geo_provider <- .dep("geo_provider", "get_geo_provider")
+geo_provider <- .dep("geo_provider", "get_geoscale_provider")
 
 #' @rdname geoscales-deprecated
 #' @export
-geo_list_providers <- .dep("geo_list_providers", "list_geo_providers")
+geo_list_providers <- .dep("geo_list_providers", "list_geoscale_providers")
 
 # 2026-08 naming lattice: the word "levels" retires from both siblings.
 # Hierarchy names are `geoframes`, the leaf enumeration is `leaftable`.

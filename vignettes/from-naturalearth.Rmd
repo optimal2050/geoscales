@@ -30,7 +30,7 @@ directory and no bundled boundaries. A provider fetches a source table; the
 package records what was fetched.
 
 ```{r, eval = TRUE}
-list_geo_providers()
+list_geoscale_providers()
 ```
 
 Natural Earth is the default provider because its country table is *already*
@@ -197,7 +197,7 @@ geoscale_plot(g, geoframe = "landshluti")
 ## Other providers
 
 The same interface accepts any source. Register one with
-`register_geo_provider()`, or pass an `sf` object straight to
+`register_geoscale_provider()`, or pass an `sf` object straight to
 `geoscale_from_provider()`. Natural candidates are `giscoR` (authoritative
 NUTS for Europe), `geodata`/GADM (admin-2 and admin-3 — note its licence
 forbids commercial use) and `tigris` (US Census).

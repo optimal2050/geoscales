@@ -37,16 +37,16 @@ test_that("same geoframe or unnamed pairs error clearly", {
 })
 
 test_that("registered maps short-circuit the derivation", {
-  on.exit(clear_geo_maps(), add = TRUE)
+  on.exit(clear_geoscale_maps(), add = TRUE)
   fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
                      n_overlap = 1L, w = 1, w_from = 1)
-  register_geo_map("state", "zone", fake, gs = gs)
+  register_geoscale_map("state", "zone", fake, gs = gs)
   expect_identical(geoscale_map("state", "zone", gs = gs), fake)
   # removal restores the derived map
-  register_geo_map("state", "zone", NULL, gs = gs)
+  register_geoscale_map("state", "zone", NULL, gs = gs)
   expect_gt(nrow(geoscale_map("state", "zone", gs = gs)), 1L)
   # malformed maps are rejected
-  expect_error(register_geo_map("state", "zone", data.frame(a = 1)),
+  expect_error(register_geoscale_map("state", "zone", data.frame(a = 1)),
                "missing column")
 })
 
@@ -74,13 +74,13 @@ test_that("cross-object map matches atoms on shared region keys", {
 })
 
 test_that("map registry accessors round-trip", {
-  on.exit(clear_geo_maps(), add = TRUE)
-  clear_geo_maps()
-  expect_equal(nrow(list_geo_maps()), 0L)
+  on.exit(clear_geoscale_maps(), add = TRUE)
+  clear_geoscale_maps()
+  expect_equal(nrow(list_geoscale_maps()), 0L)
   fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
                      n_overlap = 1L, w = 1, w_from = 1)
-  register_geo_map("state", "zone", fake, gs = gs)
-  expect_equal(nrow(list_geo_maps()), 1L)
-  expect_identical(get_geo_map("state", "zone", gs = gs), fake)
-  expect_null(get_geo_map("nope", "zone"))
+  register_geoscale_map("state", "zone", fake, gs = gs)
+  expect_equal(nrow(list_geoscale_maps()), 1L)
+  expect_identical(get_geoscale_map("state", "zone", gs = gs), fake)
+  expect_null(get_geoscale_map("nope", "zone"))
 })

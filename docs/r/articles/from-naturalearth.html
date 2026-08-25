@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,7 +94,7 @@
 no <code>data/</code> directory and no bundled boundaries. A provider
 fetches a source table; the package records what was fetched.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_geo_providers.html">list_geo_providers</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_geoscale_providers.html">list_geoscale_providers</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           name                                          desc</span></span>
 <span><span class="co">#&gt; 1 naturalearth Natural Earth admin-0/admin-1 (rnaturalearth)</span></span></code></pre></div>
 <p>Natural Earth is the default provider because its country table is
@@ -309,9 +309,9 @@ geoframe you ask for, so the nine units become eight regions:</p>
 <h2 id="other-providers">Other providers<a class="anchor" aria-label="anchor" href="#other-providers"></a>
 </h2>
 <p>The same interface accepts any source. Register one with
-<code><a href="../reference/register_geo_provider.html">register_geo_provider()</a></code>, or pass an <code>sf</code> object
-straight to <code><a href="../reference/geoscale_from_provider.html">geoscale_from_provider()</a></code>. Natural candidates
-are <code>giscoR</code> (authoritative NUTS for Europe),
+<code><a href="../reference/register_geoscale_provider.html">register_geoscale_provider()</a></code>, or pass an <code>sf</code>
+object straight to <code><a href="../reference/geoscale_from_provider.html">geoscale_from_provider()</a></code>. Natural
+candidates are <code>giscoR</code> (authoritative NUTS for Europe),
 <code>geodata</code>/GADM (admin-2 and admin-3 — note its licence
 forbids commercial use) and <code>tigris</code> (US Census).</p>
 </div>

@@ -28,9 +28,9 @@
 #'
 #' @format A character vector of length 5.
 #' @examples
-#' GEO_RULES
+#' GEOSCALE_RULES
 #' @export
-GEO_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd")
+GEOSCALE_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd")
 
 #' @noRd
 .RULE_REGISTRY <- new.env(parent = emptyenv())
@@ -42,23 +42,23 @@ GEO_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd")
 #' packages can register their own parameter maps at load time.
 #'
 #' @param param Name of the value column.
-#' @param rule One of [`GEO_RULES`].
+#' @param rule One of [`GEOSCALE_RULES`].
 #' @param weight Optional weight column name used by `sum` (down) and
 #'   `weighted_mean` (up). `NULL` means the Geoscale's default weight.
 #'
 #' @return Invisibly, the registered entry.
 #'
 #' @examples
-#' register_geo_rule("capacity", "sum")
-#' register_geo_rule("eff", "weighted_mean", weight = "pop")
-#' get_geo_rule("eff")
+#' register_geoscale_rule("capacity", "sum")
+#' register_geoscale_rule("eff", "weighted_mean", weight = "pop")
+#' get_geoscale_rule("eff")
 #' @export
-register_geo_rule <- function(param, rule, weight = NULL) {
+register_geoscale_rule <- function(param, rule, weight = NULL) {
   if (!is.character(param) || length(param) != 1L || is.na(param) ||
       !nzchar(param)) {
     .stop("`param` must be a single non-empty string")
   }
-  rule <- match.arg(rule, GEO_RULES)
+  rule <- match.arg(rule, GEOSCALE_RULES)
   if (!is.null(weight) &&
       (!is.character(weight) || length(weight) != 1L)) {
     .stop("`weight` must be a single string or NULL")
@@ -76,11 +76,11 @@ register_geo_rule <- function(param, rule, weight = NULL) {
 #'   not been registered.
 #'
 #' @examples
-#' register_geo_rule("demand", "sum")
-#' get_geo_rule("demand")
-#' get_geo_rule("not_registered")
+#' register_geoscale_rule("demand", "sum")
+#' get_geoscale_rule("demand")
+#' get_geoscale_rule("not_registered")
 #' @export
-get_geo_rule <- function(param) {
+get_geoscale_rule <- function(param) {
   if (!is.character(param) || length(param) != 1L) return(NULL)
   if (!exists(param, envir = .RULE_REGISTRY, inherits = FALSE)) return(NULL)
   get(param, envir = .RULE_REGISTRY, inherits = FALSE)
@@ -91,16 +91,16 @@ get_geo_rule <- function(param) {
 #' @return A `data.frame` with columns `param`, `rule` and `weight`.
 #'
 #' @examples
-#' register_geo_rule("invcost", "weighted_mean", weight = "km2")
-#' list_geo_rules()
+#' register_geoscale_rule("invcost", "weighted_mean", weight = "km2")
+#' list_geoscale_rules()
 #' @export
-list_geo_rules <- function() {
+list_geoscale_rules <- function() {
   nms <- sort(ls(envir = .RULE_REGISTRY, all.names = FALSE))
   if (length(nms) == 0L) {
     return(data.frame(param = character(), rule = character(),
                       weight = character(), stringsAsFactors = FALSE))
   }
-  entries <- lapply(nms, get_geo_rule)
+  entries <- lapply(nms, get_geoscale_rule)
   data.frame(
     param  = nms,
     rule   = vapply(entries, function(e) e$rule, character(1)),
@@ -121,10 +121,10 @@ list_geo_rules <- function() {
 #' @return Invisibly `NULL`.
 #'
 #' @examples
-#' register_geo_rule("tmp_param", "sum")
-#' clear_geo_rules("tmp_param")
+#' register_geoscale_rule("tmp_param", "sum")
+#' clear_geoscale_rules("tmp_param")
 #' @export
-clear_geo_rules <- function(param = NULL) {
+clear_geoscale_rules <- function(param = NULL) {
   if (is.null(param)) {
     rm(list = ls(envir = .RULE_REGISTRY, all.names = TRUE),
        envir = .RULE_REGISTRY)

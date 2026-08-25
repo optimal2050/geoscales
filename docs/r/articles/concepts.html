@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -190,17 +190,18 @@ error, in both siblings.</p>
 <li>
 <strong>The package ships no maps and selects no
 boundaries.</strong> Providers (<code><a href="../reference/ne_geoscale.html">ne_geoscale()</a></code>, your own via
-<code><a href="../reference/register_geo_provider.html">register_geo_provider()</a></code>) pass a point of view through and
-record it in <code>@meta</code>; the choice stays yours.</li>
+<code><a href="../reference/register_geoscale_provider.html">register_geoscale_provider()</a></code>) pass a point of view through
+and record it in <code>@meta</code>; the choice stays yours.</li>
 <li>
 <strong>Everything derivable is computed on demand.</strong>
 Parent/child tables, ancestry, shares, dissolved geometry — nothing is
 cached on the object.</li>
 <li>
 <strong>Explicit registries only.</strong> Constructors return
-values; behavior changes only through <code><a href="../reference/register_geo_rule.html">register_geo_rule()</a></code>,
-<code><a href="../reference/register_geo_map.html">register_geo_map()</a></code>,
-<code><a href="../reference/register_geo_provider.html">register_geo_provider()</a></code>.</li>
+values; behavior changes only through
+<code><a href="../reference/register_geoscale_rule.html">register_geoscale_rule()</a></code>,
+<code><a href="../reference/register_geoscale_map.html">register_geoscale_map()</a></code>,
+<code><a href="../reference/register_geoscale_provider.html">register_geoscale_provider()</a></code>.</li>
 <li>
 <strong>Label-stable.</strong> A Geoscale’s region codes and their
 order are fixed at construction; conversions never mutate them.</li>

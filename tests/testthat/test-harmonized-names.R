@@ -1,5 +1,4 @@
-# The harmonized naming layer: recast() generic, join_geoscale(),
-# deprecated aliases ----------------------------------------------------------
+# The harmonized naming layer: recast() generic, join_geoscale() ----------------------------------------------------------
 
 test_that("the recast() generic dispatches the Geoscale method", {
   gs <- geoscale_example()
@@ -41,39 +40,9 @@ test_that("join_geoscale attaches prefixed membership + weight/share", {
     "no rows")
 })
 
-test_that("deprecated geo_* aliases warn and delegate", {
+test_that("the constructor rejects the pre-lattice argument names", {
   gs <- geoscale_example()
-  expect_warning(lv <- geo_levels(gs), "deprecated|geoscale_geoframes")
-  expect_identical(lv, geoscale_geoframes(gs))
-  x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
-                  capacity = 1:6)
-  expect_warning(
-    old <- geo_recast(x, gs, from = "atom", to = "country", rule = "sum"),
-    "deprecated|recast_geoscale")
-  expect_identical(old, recast_geoscale(x, gs, from = "atom",
-                                        to = "country", rule = "sum"))
-  expect_warning(f <- geo_filter(gs, "country", "N"),
-                 "deprecated|filter_geoscale")
-  expect_identical(S7::prop(f, "leaftable"),
-                   S7::prop(filter_geoscale(gs, "country", "N"), "leaftable"))
-  expect_warning(r <- geo_rank(gs, "state"), "deprecated|geoscale_rank")
-  expect_identical(r, geoscale_rank(gs, "state"))
-})
-
-test_that("2026-08 lattice aliases warn and delegate", {
-  gs <- geoscale_example()
-  expect_warning(lv <- geoscale_levels(gs), "geoscale_geoframes")
-  expect_identical(lv, geoscale_geoframes(gs))
-  expect_warning(ok <- is_valid_level("COUNTRY"), "is_valid_geoframe")
-  expect_identical(ok, is_valid_geoframe("COUNTRY"))
-  expect_identical(CORE_LEVELS, CORE_GEOFRAMES)
-
   lt <- S7::prop(gs, "leaftable")
-  expect_warning(
-    g2 <- geoscale_from_leaves(lt, levels = geoscale_geoframes(gs)),
-    "geoscale_from_leaftable")
-  expect_identical(S7::prop(g2, "leaftable")$region, lt$region)
-  # the renamed constructor rejects the old argument names outright
   expect_error(geoscale_from_leaftable(lt, geoframes = geoscale_geoframes(gs),
                                        levels = "x"),
                "renamed")

@@ -8,7 +8,7 @@ column; geoframes that cross-cut work too, because the route always goes
 through the atom layer. The route is evaluated as one dplyr pipeline
 against the geoscale_map() crosswalk, so x may live in any
 supported backend (see below). A crosswalk registered with
-register_geo_map() short-circuits the derivation."><meta property="og:description" content="The central conversion verb: takes a table keyed by region code at
+register_geoscale_map() short-circuits the derivation."><meta property="og:description" content="The central conversion verb: takes a table keyed by region code at
 geoframe from and returns one keyed at to – a geoframe name of the
 same Geoscale, or ANOTHER Geoscale (whose atom layer is the target,
 matched on shared atom region keys). Handles both aggregation (fine to
@@ -17,7 +17,7 @@ column; geoframes that cross-cut work too, because the route always goes
 through the atom layer. The route is evaluated as one dplyr pipeline
 against the geoscale_map() crosswalk, so x may live in any
 supported backend (see below). A crosswalk registered with
-register_geo_map() short-circuits the derivation."><meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png"></head><body>
+register_geoscale_map() short-circuits the derivation."><meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -25,7 +25,7 @@ register_geo_map() short-circuits the derivation."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@ column; geoframes that cross-cut work too, because the route always goes
 through the atom layer. The route is evaluated as one dplyr pipeline
 against the <code><a href="geoscale_map.html">geoscale_map()</a></code> crosswalk, so <code>x</code> may live in any
 supported backend (see below). A crosswalk registered with
-<code><a href="register_geo_map.html">register_geo_map()</a></code> short-circuits the derivation.</p>
+<code><a href="register_geoscale_map.html">register_geoscale_map()</a></code> short-circuits the derivation.</p>
     </div>
 
     <div class="section level2">
@@ -132,8 +132,8 @@ Numeric identifiers (e.g. <code>year</code>) must be excluded explicitly.</p></d
 
 
 <dt id="arg-rule">rule<a class="anchor" aria-label="anchor" href="#arg-rule"></a></dt>
-<dd><p>One of <code><a href="GEO_RULES.html">GEO_RULES</a></code>, applied to every value column; or
-<code>NULL</code> (default) to look each column up with <code><a href="get_geo_rule.html">get_geo_rule()</a></code>. A
+<dd><p>One of <code><a href="GEOSCALE_RULES.html">GEOSCALE_RULES</a></code>, applied to every value column; or
+<code>NULL</code> (default) to look each column up with <code><a href="get_geoscale_rule.html">get_geoscale_rule()</a></code>. A
 column with neither an explicit <code>rule=</code> nor a registry entry is an
 ERROR – there is deliberately no fallback (a silently guessed rule is
 a silent unit error).</p></dd>
@@ -179,7 +179,7 @@ like <code>gs</code>'s geoframes are treated as region attributes and dropped.</
 <code><a href="recast_to_geoatoms.html">recast_from_geoatoms()</a></code>; <code>recast_geoscale(x, gs, from, to)</code> is
 equivalent to
 <code>recast_from_geoatoms(recast_to_geoatoms(x, gs, from), gs, to)</code>.</p>
-<p>Rules (see <code><a href="GEO_RULES.html">GEO_RULES</a></code>): <code>"sum"</code> splits each source value across its
+<p>Rules (see <code><a href="GEOSCALE_RULES.html">GEOSCALE_RULES</a></code>): <code>"sum"</code> splits each source value across its
 region's atoms proportionally to the weight before summing up, so totals
 are conserved. <code>"weighted_mean"</code> weights by the atom weights;  <code>"mean"</code>
 is the plain atom-count mean – the two differ exactly when atom weights

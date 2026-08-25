@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -147,7 +147,7 @@ shapes — is derived on demand; nothing is cached on the object.</p>
 <h2 id="the-leaftable">The leaftable<a class="anchor" aria-label="anchor" href="#the-leaftable"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gs</span><span class="op">@</span><span class="va">leaftable</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   country state zone atom  km2 pop region</span></span>
 <span><span class="co">#&gt; 1       N    N1   N1   A1  100  10     A1</span></span>
 <span><span class="co">#&gt; 2       N    N1   N1   A2  200  90     A2</span></span>
@@ -267,44 +267,44 @@ way anything global changes:</p>
 rule (there is no fallback — unregistered columns without
 <code>rule=</code> error):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">GEO_RULES</span></span>
+<code class="sourceCode R"><span><span class="va">GEOSCALE_RULES</span></span>
 <span><span class="co">#&gt; [1] "sum"           "weighted_mean" "mean"          "copy"         </span></span>
 <span><span class="co">#&gt; [5] "sd"</span></span>
-<span><span class="fu"><a href="../reference/register_geo_rule.html">register_geo_rule</a></span><span class="op">(</span><span class="st">"capacity"</span>, <span class="st">"sum"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/register_geo_rule.html">register_geo_rule</a></span><span class="op">(</span><span class="st">"eff"</span>, <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"pop"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/get_geo_rule.html">get_geo_rule</a></span><span class="op">(</span><span class="st">"eff"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/register_geoscale_rule.html">register_geoscale_rule</a></span><span class="op">(</span><span class="st">"capacity"</span>, <span class="st">"sum"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/register_geoscale_rule.html">register_geoscale_rule</a></span><span class="op">(</span><span class="st">"eff"</span>, <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"pop"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_geoscale_rule.html">get_geoscale_rule</a></span><span class="op">(</span><span class="st">"eff"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $rule</span></span>
 <span><span class="co">#&gt; [1] "weighted_mean"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $weight</span></span>
 <span><span class="co">#&gt; [1] "pop"</span></span>
-<span><span class="fu"><a href="../reference/list_geo_rules.html">list_geo_rules</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/list_geoscale_rules.html">list_geoscale_rules</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      param          rule weight</span></span>
 <span><span class="co">#&gt; 1 capacity           sum   &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 2      eff weighted_mean    pop</span></span>
-<span><span class="fu"><a href="../reference/clear_geo_rules.html">clear_geo_rules</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/clear_geoscale_rules.html">clear_geoscale_rules</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Maps</strong> hold exact crosswalks that short-circuit the
 atom-layer derivation in <code><a href="../reference/geoscale_map.html">geoscale_map()</a></code> — for hand-audited
 concordances:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fake</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"N1"</span>, zone <span class="op">=</span> <span class="st">"ZC"</span>, n_from <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>                   n_overlap <span class="op">=</span> <span class="fl">1L</span>, w <span class="op">=</span> <span class="fl">1</span>, w_from <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/register_geo_map.html">register_geo_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, <span class="va">fake</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/register_geo_map.html">list_geo_maps</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/register_geoscale_map.html">register_geoscale_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, <span class="va">fake</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/register_geoscale_map.html">list_geoscale_maps</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                   key</span></span>
 <span><span class="co">#&gt; 1 example:state-&gt;zone</span></span>
-<span><span class="fu"><a href="../reference/register_geo_map.html">get_geo_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/register_geoscale_map.html">get_geoscale_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   state zone n_from n_overlap w w_from</span></span>
 <span><span class="co">#&gt; 1    N1   ZC      1         1 1      1</span></span>
-<span><span class="fu"><a href="../reference/clear_geo_maps.html">clear_geo_maps</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/clear_geoscale_maps.html">clear_geoscale_maps</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Providers</strong> are named map sources (<code>fetch</code>
 functions returning a wide <code>sf</code>/<code>data.frame</code>); the
 package ships one:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_geo_providers.html">list_geo_providers</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_geoscale_providers.html">list_geoscale_providers</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           name                                          desc</span></span>
 <span><span class="co">#&gt; 1 naturalearth Natural Earth admin-0/admin-1 (rnaturalearth)</span></span>
-<span><span class="fu"><a href="../reference/get_geo_provider.html">get_geo_provider</a></span><span class="op">(</span><span class="st">"naturalearth"</span><span class="op">)</span><span class="op">$</span><span class="va">desc</span></span>
+<span><span class="fu"><a href="../reference/get_geoscale_provider.html">get_geoscale_provider</a></span><span class="op">(</span><span class="st">"naturalearth"</span><span class="op">)</span><span class="op">$</span><span class="va">desc</span></span>
 <span><span class="co">#&gt; [1] "Natural Earth admin-0/admin-1 (rnaturalearth)"</span></span></code></pre></div>
 </div>
 <div class="section level2">

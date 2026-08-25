@@ -1,6 +1,39 @@
 # Changelog
 
-## geoscales (development version)
+## geoscales 0.5.0
+
+Hard-break release: the sibling APIs of timescales and geoscales were
+harmonized against each other (the pairing table and naming rules live
+in the stack-wide CONVENTIONS.md, “Sibling API mirror”). NO deprecation
+aliases are kept – old names are gone, not wrapped.
+
+### Breaking changes
+
+- Registries follow `register_<class>_<thing>` everywhere: the
+  `geo_map`/`geo_rule`/`geo_provider` registry families are now
+  `register_geoscale_map`/`get_geoscale_map`/`list_geoscale_maps`/
+  `clear_geoscale_maps`, `register_geoscale_rule`/`get_geoscale_rule`/
+  `list_geoscale_rules`/`clear_geoscale_rules`, and
+  `register_geoscale_provider`/`get_geoscale_provider`/
+  `list_geoscale_providers`. `GEO_RULES` is now `GEOSCALE_RULES`.
+- The deprecated shim family is REMOVED (29 `geo_*` aliases plus
+  `geoscale_levels`, `is_valid_level`, `geoscale_from_leaves`,
+  `CORE_LEVELS`; archived under `drafts/`).
+- `geoscale_regions(x, geoframe = NULL)` – `geoframe` now defaults to
+  the finest geoframe (the atoms). The required-geoframe rule is about
+  arguments that take region CODES; this one only selects the output.
+
+### New
+
+- `coords_to_region(x, gs, geoframe = NULL)` – the spatial twin of
+  [`timescales::datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.html):
+  match point observations (sf/sfc or a data.frame with `lon`/`lat`
+  columns) to the regions whose geometry contains them; `NA` outside
+  every region.
+- `geoscale_leaftable(x)` – exported accessor for the leaf table (stop
+  reaching for `x@leaftable`).
+
+## geoscales 0.4.2
 
 ### Breaking changes
 
@@ -38,12 +71,8 @@
   [`plot()`](https://rspatial.github.io/terra/reference/plot.html) on a
   Geoscale now dispatches to
   [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md).
-- [`get_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
-  and
-  [`list_geo_maps()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
-  complete the crosswalk registry;
-  [`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)/[`clear_geo_maps()`](https://optimal2050.github.io/geoscales/r/reference/clear_geo_maps.md)
-  gain examples.
+- `get_geo_map()` and `list_geo_maps()` complete the crosswalk registry;
+  `register_geo_map()`/`clear_geo_maps()` gain examples.
 - [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md),
   [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
   and the stack view gain an opt-in `precision=` for snapping
@@ -126,9 +155,8 @@ provider – under one naming convention shared with timescales.
   (`@members` unchanged), matching timescales; `level`/`levels`
   arguments are `geoframe`/`geoframes` across the API, and derived
   tables use `parent_geoframe`/`child_geoframe` columns.
-- A value column with neither `rule=` nor a
-  [`register_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_rule.md)
-  entry is now an error; the silent `sum` fallback is gone.
+- A value column with neither `rule=` nor a `register_geo_rule()` entry
+  is now an error; the silent `sum` fallback is gone.
 - Materialised
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
   results complete to the full target vocabulary in member order (`NA`
@@ -162,24 +190,16 @@ provider – under one naming convention shared with timescales.
   between region systems that share atom keys.
 - `geoscale_map(from, to, gs =, weight =)` materialises the crosswalk
   (atom counts and weights per overlapping pair, within one Geoscale or
-  across two);
-  [`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
-  installs exact crosswalks,
-  [`clear_geo_maps()`](https://optimal2050.github.io/geoscales/r/reference/clear_geo_maps.md)
-  resets.
+  across two); `register_geo_map()` installs exact crosswalks,
+  `clear_geo_maps()` resets.
 - All converters run over `data.frame`, tibble, `data.table`, dtplyr,
   and arrow inputs; results come back in the input’s class, and lazy
   inputs return the uncollected query unless `collect = TRUE`.
 - Rules `sum`, `weighted_mean`, `mean`, `copy`, and (new) `sd`, each
   defined in both directions; per-column defaults via
-  [`register_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_rule.md)
-  /
-  [`get_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/get_geo_rule.md)
-  /
-  [`list_geo_rules()`](https://optimal2050.github.io/geoscales/r/reference/list_geo_rules.md)
-  /
-  [`clear_geo_rules()`](https://optimal2050.github.io/geoscales/r/reference/clear_geo_rules.md);
-  `na_action = c("drop", "error", "keep")` for partial coverage.
+  `register_geo_rule()` / `get_geo_rule()` / `list_geo_rules()` /
+  `clear_geo_rules()`; `na_action = c("drop", "error", "keep")` for
+  partial coverage.
 - The
   [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.html)
   generic (owned by timescales, now in Imports) chains time and space:
@@ -225,13 +245,8 @@ provider – under one naming convention shared with timescales.
   [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md)
   (choropleth),
   [`geoscale_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.md).
-- Providers:
-  [`register_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_provider.md)
-  /
-  [`get_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/get_geo_provider.md)
-  /
-  [`list_geo_providers()`](https://optimal2050.github.io/geoscales/r/reference/list_geo_providers.md);
-  Natural Earth via
+- Providers: `register_geo_provider()` / `get_geo_provider()` /
+  `list_geo_providers()`; Natural Earth via
   [`ne_source()`](https://optimal2050.github.io/geoscales/r/reference/ne_source.md)
   /
   [`ne_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.md)
@@ -243,21 +258,15 @@ provider – under one naming convention shared with timescales.
 
 Old names warn and forward; removal before 1.0: the `geo_*` family -\>
 `verb_geoscale()` / `geoscale_*()` / `register_geo_*()` (e.g.
-[`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
--\>
+`geo_recast()` -\>
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
-[`geo_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
--\>
+`geo_levels()` -\>
 [`geoscale_geoframes()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.md)),
-and the 2026-08 lattice renames
-[`geoscale_from_leaves()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
--\>
+and the 2026-08 lattice renames `geoscale_from_leaves()` -\>
 [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md),
-[`geoscale_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
--\>
+`geoscale_levels()` -\>
 [`geoscale_geoframes()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.md),
-[`is_valid_level()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
--\>
+`is_valid_level()` -\>
 [`is_valid_geoframe()`](https://optimal2050.github.io/geoscales/r/reference/is_valid_geoframe.md),
 `CORE_LEVELS` -\> `CORE_GEOFRAMES`.
 

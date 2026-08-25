@@ -8,7 +8,7 @@
 | [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md) | geoframe A → geoframe B | *convert* values between resolutions, one rule per column |
 | [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) / [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) | the route halves | project down to the atom layer / aggregate up from it |
 | [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md) | A → B crosswalk | the conversion, materialised as a small table |
-| [`register_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_rule.md) / [`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md) / [`register_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_provider.md) | registries | per-column rules, exact crosswalks, map sources |
+| [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md) / [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md) / [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md) | registries | per-column rules, exact crosswalks, map sources |
 | [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.html) | generic | one pipeline verb across time AND space |
 
 Everything below runs on the synthetic
@@ -20,7 +20,7 @@ accepts a `data.frame`, tibble, `data.table`, dtplyr, or arrow input
 ``` r
 
 gs <- geoscale_example()
-atoms <- gs@leaftable$region[!is.na(gs@leaftable$country)]
+atoms <- geoscale_leaftable(gs)$region[!is.na(geoscale_leaftable(gs)$country)]
 cap <- tibble(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
 ```
 
@@ -62,8 +62,8 @@ with neither errors — a silently guessed rule is a silent unit error.
 
 ``` r
 
-register_geo_rule("capacity", "sum")            # extensive
-register_geo_rule("eff", "weighted_mean",       # intensive
+register_geoscale_rule("capacity", "sum")            # extensive
+register_geoscale_rule("eff", "weighted_mean",       # intensive
                   weight = "pop")
 
 cap |> recast_geoscale(gs, from = "atom", to = "country")
@@ -203,13 +203,13 @@ inspect what is installed:
 ``` r
 
 exact <- geoscale_map("state", "zone", gs = gs)
-register_geo_map("state", "zone", exact, gs = gs)
-list_geo_maps()
+register_geoscale_map("state", "zone", exact, gs = gs)
+list_geoscale_maps()
 #>                   key
 #> 1 example:state->zone
-identical(get_geo_map("state", "zone", gs = gs), exact)
+identical(get_geoscale_map("state", "zone", gs = gs), exact)
 #> [1] TRUE
-clear_geo_maps()
+clear_geoscale_maps()
 ```
 
 ## One verb across time and space

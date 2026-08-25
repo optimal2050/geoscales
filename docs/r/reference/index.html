@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -173,14 +173,14 @@
 
         <dt>
 
-          <code><a href="register_geo_map.html">register_geo_map()</a></code> <code><a href="register_geo_map.html">get_geo_map()</a></code> <code><a href="register_geo_map.html">list_geo_maps()</a></code>
+          <code><a href="register_geoscale_map.html">register_geoscale_map()</a></code> <code><a href="register_geoscale_map.html">get_geoscale_map()</a></code> <code><a href="register_geoscale_map.html">list_geoscale_maps()</a></code>
 
         </dt>
         <dd>Register / look up a direct spatial crosswalk</dd>
 
         <dt>
 
-          <code><a href="clear_geo_maps.html">clear_geo_maps()</a></code>
+          <code><a href="clear_geoscale_maps.html">clear_geoscale_maps()</a></code>
 
         </dt>
         <dd>Clear the registered spatial crosswalks</dd>
@@ -194,35 +194,35 @@
 
         <dt>
 
-          <code><a href="GEO_RULES.html">GEO_RULES</a></code>
+          <code><a href="GEOSCALE_RULES.html">GEOSCALE_RULES</a></code>
 
         </dt>
         <dd>Supported aggregation rules</dd>
 
         <dt>
 
-          <code><a href="register_geo_rule.html">register_geo_rule()</a></code>
+          <code><a href="register_geoscale_rule.html">register_geoscale_rule()</a></code>
 
         </dt>
         <dd>Register how a parameter should be recast</dd>
 
         <dt>
 
-          <code><a href="get_geo_rule.html">get_geo_rule()</a></code>
+          <code><a href="get_geoscale_rule.html">get_geoscale_rule()</a></code>
 
         </dt>
         <dd>Look up a registered rule</dd>
 
         <dt>
 
-          <code><a href="list_geo_rules.html">list_geo_rules()</a></code>
+          <code><a href="list_geoscale_rules.html">list_geoscale_rules()</a></code>
 
         </dt>
         <dd>List registered rules</dd>
 
         <dt>
 
-          <code><a href="clear_geo_rules.html">clear_geo_rules()</a></code>
+          <code><a href="clear_geoscale_rules.html">clear_geoscale_rules()</a></code>
 
         </dt>
         <dd>Clear the rule registry</dd>
@@ -242,6 +242,13 @@
 
         </dt>
         <dd>Navigate a region hierarchy</dd>
+
+        <dt>
+
+          <code><a href="geoscale_leaftable.html">geoscale_leaftable()</a></code>
+
+        </dt>
+        <dd>The leaftable of a Geoscale</dd>
 
         <dt>
 
@@ -317,6 +324,13 @@
 
         <dt>
 
+          <code><a href="coords_to_region.html">coords_to_region()</a></code>
+
+        </dt>
+        <dd>Map coordinates to the regions that contain them</dd>
+
+        <dt>
+
           <code><a href="add_area_geoscale.html">add_area_geoscale()</a></code>
 
         </dt>
@@ -377,21 +391,21 @@
 
       <dl><dt>
 
-          <code><a href="get_geo_provider.html">get_geo_provider()</a></code>
+          <code><a href="get_geoscale_provider.html">get_geoscale_provider()</a></code>
 
         </dt>
         <dd>Look up a registered provider</dd>
 
         <dt>
 
-          <code><a href="register_geo_provider.html">register_geo_provider()</a></code>
+          <code><a href="register_geoscale_provider.html">register_geoscale_provider()</a></code>
 
         </dt>
         <dd>Register a Geoscale data provider</dd>
 
         <dt>
 
-          <code><a href="list_geo_providers.html">list_geo_providers()</a></code>
+          <code><a href="list_geoscale_providers.html">list_geoscale_providers()</a></code>
 
         </dt>
         <dd>List registered providers</dd>
@@ -432,22 +446,6 @@
 
         </dt>
         <dd>Validate geoframe names</dd>
-      </dl></div><div class="section level2">
-      <h2 id="deprecated">Deprecated<a class="anchor" aria-label="anchor" href="#deprecated"></a></h2>
-
-
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="geoscales-deprecated.html">geo_recast()</a></code> <code><a href="geoscales-deprecated.html">geo_filter()</a></code> <code><a href="geoscales-deprecated.html">geo_prune()</a></code> <code><a href="geoscales-deprecated.html">geo_attach_geometry()</a></code> <code><a href="geoscales-deprecated.html">geo_area()</a></code> <code><a href="geoscales-deprecated.html">geo_levels()</a></code> <code><a href="geoscales-deprecated.html">geo_rank()</a></code> <code><a href="geoscales-deprecated.html">geo_weights()</a></code> <code><a href="geoscales-deprecated.html">geo_regions()</a></code> <code><a href="geoscales-deprecated.html">geo_family()</a></code> <code><a href="geoscales-deprecated.html">geo_nests()</a></code> <code><a href="geoscales-deprecated.html">geo_ancestry()</a></code> <code><a href="geoscales-deprecated.html">geo_children()</a></code> <code><a href="geoscales-deprecated.html">geo_parents()</a></code> <code><a href="geoscales-deprecated.html">geo_descendants()</a></code> <code><a href="geoscales-deprecated.html">geo_ancestors()</a></code> <code><a href="geoscales-deprecated.html">geo_share()</a></code> <code><a href="geoscales-deprecated.html">geo_geometry()</a></code> <code><a href="geoscales-deprecated.html">geo_layout()</a></code> <code><a href="geoscales-deprecated.html">geo_autoplot()</a></code> <code><a href="geoscales-deprecated.html">geo_plot()</a></code> <code><a href="geoscales-deprecated.html">geo_register_rule()</a></code> <code><a href="geoscales-deprecated.html">geo_get_rule()</a></code> <code><a href="geoscales-deprecated.html">geo_list_rules()</a></code> <code><a href="geoscales-deprecated.html">geo_clear_rules()</a></code> <code><a href="geoscales-deprecated.html">geo_register_provider()</a></code> <code><a href="geoscales-deprecated.html">geo_provider()</a></code> <code><a href="geoscales-deprecated.html">geo_list_providers()</a></code> <code><a href="geoscales-deprecated.html">geoscale_levels()</a></code> <code><a href="geoscales-deprecated.html">is_valid_level()</a></code> <code><a href="geoscales-deprecated.html">geoscale_from_leaves()</a></code> <code><a href="geoscales-deprecated.html">CORE_LEVELS</a></code>
-
-        </dt>
-        <dd>Deprecated geoscales functions</dd>
       </dl></div><div class="section level2">
       <h2 id="package">Package<a class="anchor" aria-label="anchor" href="#package"></a></h2>
 

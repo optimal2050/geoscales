@@ -177,7 +177,7 @@ ne_geoscale <- function(scale = 110,
 
 #' @noRd
 .register_builtin_providers <- function() {
-  register_geo_provider(
+  register_geoscale_provider(
     "naturalearth",
     fetch   = function(...) ne_source(...),
     geoframes  = c("continent", "subregion", "country", "feature"),

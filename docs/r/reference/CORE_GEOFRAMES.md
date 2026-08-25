@@ -16,7 +16,7 @@ A character vector of length 6.
 ## Details
 
 These are guidance only.
-[`geoscale_from_leaves()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
+[`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md)
 accepts any syntactically valid geoframe name; see
 [`is_valid_geoframe()`](https://optimal2050.github.io/geoscales/r/reference/is_valid_geoframe.md).
 

@@ -92,14 +92,14 @@ reference:
       - recast_to_geoatoms
       - recast
       - geoscale_map
-      - register_geo_map
-      - clear_geo_maps
+      - register_geoscale_map
+      - clear_geoscale_maps
       - join_geoscale
-      - GEO_RULES
-      - register_geo_rule
-      - get_geo_rule
-      - list_geo_rules
-      - clear_geo_rules
+      - GEOSCALE_RULES
+      - register_geoscale_rule
+      - get_geoscale_rule
+      - list_geoscale_rules
+      - clear_geoscale_rules
 
   - title: Navigation and subsetting
     desc: >
@@ -107,6 +107,7 @@ reference:
       its geoframe.
     contents:
       - geoscale_navigate
+      - geoscale_leaftable
       - geoscale_family
       - geoscale_ancestry
       - geoscale_nests
@@ -121,6 +122,7 @@ reference:
     contents:
       - attach_geometry_geoscale
       - geoscale_geometry
+      - coords_to_region
       - add_area_geoscale
 
   - title: Visualization
@@ -140,9 +142,9 @@ reference:
       provider; its source and scale are recorded on the object, and no
       boundaries are bundled.
     contents:
-      - get_geo_provider
-      - register_geo_provider
-      - list_geo_providers
+      - get_geoscale_provider
+      - register_geoscale_provider
+      - list_geoscale_providers
       - ne_source
       - ne_geoscale
 
@@ -150,10 +152,6 @@ reference:
     contents:
       - CORE_GEOFRAMES
       - is_valid_geoframe
-
-  - title: Deprecated
-    contents:
-      - geoscales-deprecated
 
   - title: Package
     contents:

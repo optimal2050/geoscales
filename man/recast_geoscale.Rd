@@ -39,8 +39,8 @@ when that column exists, otherwise \code{"region"}.}
 numeric columns other than the key and \code{gs}'s geoframe columns.
 Numeric identifiers (e.g. \code{year}) must be excluded explicitly.}
 
-\item{rule}{One of \code{\link{GEO_RULES}}, applied to every value column; or
-\code{NULL} (default) to look each column up with \code{\link[=get_geo_rule]{get_geo_rule()}}. A
+\item{rule}{One of \code{\link{GEOSCALE_RULES}}, applied to every value column; or
+\code{NULL} (default) to look each column up with \code{\link[=get_geoscale_rule]{get_geoscale_rule()}}. A
 column with neither an explicit \verb{rule=} nor a registry entry is an
 ERROR -- there is deliberately no fallback (a silently guessed rule is
 a silent unit error).}
@@ -76,7 +76,7 @@ column; geoframes that cross-cut work too, because the route always goes
 through the atom layer. The route is evaluated as one dplyr pipeline
 against the \code{\link[=geoscale_map]{geoscale_map()}} crosswalk, so \code{x} may live in any
 supported backend (see below). A crosswalk registered with
-\code{\link[=register_geo_map]{register_geo_map()}} short-circuits the derivation.
+\code{\link[=register_geoscale_map]{register_geoscale_map()}} short-circuits the derivation.
 }
 \details{
 Columns of \code{x} that are neither the key nor a value column are treated
@@ -91,7 +91,7 @@ The public halves of the route are \code{\link[=recast_to_geoatoms]{recast_to_ge
 equivalent to
 \code{recast_from_geoatoms(recast_to_geoatoms(x, gs, from), gs, to)}.
 
-Rules (see \code{\link{GEO_RULES}}): \code{"sum"} splits each source value across its
+Rules (see \code{\link{GEOSCALE_RULES}}): \code{"sum"} splits each source value across its
 region's atoms proportionally to the weight before summing up, so totals
 are conserved. \code{"weighted_mean"} weights by the atom weights;  \code{"mean"}
 is the plain atom-count mean -- the two differ exactly when atom weights

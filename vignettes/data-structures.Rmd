@@ -36,7 +36,7 @@ shapes — is derived on demand; nothing is cached on the object.
 ## The leaftable
 
 ```{r}
-gs@leaftable
+geoscale_leaftable(gs)
 ```
 
 Each row is one atom. The `region` column is the **authored node ID**
@@ -113,12 +113,12 @@ way anything global changes:
 fallback — unregistered columns without `rule=` error):
 
 ```{r}
-GEO_RULES
-register_geo_rule("capacity", "sum")
-register_geo_rule("eff", "weighted_mean", weight = "pop")
-get_geo_rule("eff")
-list_geo_rules()
-clear_geo_rules()
+GEOSCALE_RULES
+register_geoscale_rule("capacity", "sum")
+register_geoscale_rule("eff", "weighted_mean", weight = "pop")
+get_geoscale_rule("eff")
+list_geoscale_rules()
+clear_geoscale_rules()
 ```
 
 **Maps** hold exact crosswalks that short-circuit the atom-layer
@@ -127,18 +127,18 @@ derivation in `geoscale_map()` — for hand-audited concordances:
 ```{r}
 fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
                    n_overlap = 1L, w = 1, w_from = 1)
-register_geo_map("state", "zone", fake, gs = gs)
-list_geo_maps()
-get_geo_map("state", "zone", gs = gs)
-clear_geo_maps()
+register_geoscale_map("state", "zone", fake, gs = gs)
+list_geoscale_maps()
+get_geoscale_map("state", "zone", gs = gs)
+clear_geoscale_maps()
 ```
 
 **Providers** are named map sources (`fetch` functions returning a wide
 `sf`/`data.frame`); the package ships one:
 
 ```{r}
-list_geo_providers()
-get_geo_provider("naturalearth")$desc
+list_geoscale_providers()
+get_geoscale_provider("naturalearth")$desc
 ```
 
 ## Where to next?

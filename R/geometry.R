@@ -196,3 +196,63 @@ add_area_geoscale <- function(x, name = "km2", crs = "ESRI:54034") {
   Geoscale(leaftable = leaves, geoframes = S7::prop(x, "geoframes"),
            members = S7::prop(x, "members"), geometry = geom, meta = meta)
 }
+
+#' Map coordinates to the regions that contain them
+#'
+#' The spatial twin of `timescales::datetime_to_timeslice()`: raw
+#' observations enter the structure here. Each point is matched to the
+#' region at `geoframe` (the atoms by default) whose geometry contains
+#' it; points outside every region return `NA`. A point exactly on a
+#' shared border is assigned to the first matching region in the
+#' object's canonical order.
+#'
+#' @param x An `sf`/`sfc` object of points, or a data.frame with
+#'   coordinate columns.
+#' @param gs A [`Geoscale`] with geometry attached (see
+#'   [`attach_geometry_geoscale()`]).
+#' @param geoframe Geoframe to resolve to; `NULL` (default) uses the
+#'   finest geoframe.
+#' @param coords Names of the coordinate columns when `x` is a plain
+#'   data.frame (x/longitude first, y/latitude second).
+#' @param crs Coordinate reference system of those columns (default
+#'   WGS84); points are transformed to the geometry's CRS before
+#'   matching.
+#'
+#' @return A character vector of region codes, one per row/point of `x`.
+#' @examples
+#' \dontrun{
+#' obs <- data.frame(lon = c(-21.9, -18.1), lat = c(64.1, 65.7), v = 1:2)
+#' obs$region <- coords_to_region(obs, gs)
+#' }
+#' @export
+coords_to_region <- function(x, gs, geoframe = NULL,
+                             coords = c("lon", "lat"), crs = 4326) {
+  .check_geoscale(gs)
+  .need_sf("coords_to_region()")
+  shp <- geoscale_geometry(gs, geoframe)     # errors when no geometry
+  geoframe <- geoframe %||% geoscale_geoframes(gs, finest = TRUE)
+
+  pts <- if (inherits(x, "sf")) {
+    sf::st_geometry(x)
+  } else if (inherits(x, "sfc")) {
+    x
+  } else if (is.data.frame(x)) {
+    miss <- setdiff(coords, names(x))
+    if (length(miss) > 0L) {
+      .stop("`x` has no coordinate column(s): %s; pass `coords=`",
+            paste(miss, collapse = ", "))
+    }
+    sf::st_geometry(sf::st_as_sf(as.data.frame(x)[, coords, drop = FALSE],
+                                 coords = coords, crs = crs))
+  } else {
+    .stop("`x` must be an sf/sfc object or a data.frame with coordinates")
+  }
+  if (!is.na(sf::st_crs(pts)) && !is.na(sf::st_crs(shp)) &&
+      sf::st_crs(pts) != sf::st_crs(shp)) {
+    pts <- sf::st_transform(pts, sf::st_crs(shp))
+  }
+  hits <- sf::st_intersects(pts, shp)
+  idx <- vapply(hits, function(h) if (length(h)) h[1L] else NA_integer_,
+                integer(1))
+  as.character(shp[[geoframe]])[idx]
+}

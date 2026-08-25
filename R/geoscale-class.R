@@ -296,6 +296,23 @@ geoscale_geoframes <- function(x, finest = FALSE) {
   if (isTRUE(finest)) lv[length(lv)] else lv
 }
 
+#' The leaftable of a Geoscale
+#'
+#' The one-row-per-atom table the geoscale is built on, as a plain
+#' `data.frame` — the exported accessor to prefer over reaching for
+#' `x@leaftable` (the twin of `timescales::calendar_leaftable()`).
+#'
+#' @param x A [`Geoscale`].
+#' @return A `data.frame`: one row per atom, with the geoframe columns
+#'   plus any weight columns.
+#' @examples
+#' head(geoscale_leaftable(geoscale_example()))
+#' @export
+geoscale_leaftable <- function(x) {
+  .check_geoscale(x)
+  S7::prop(x, "leaftable")
+}
+
 #' Weight columns of a Geoscale
 #'
 #' @param x A [`Geoscale`].

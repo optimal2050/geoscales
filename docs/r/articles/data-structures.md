@@ -26,7 +26,7 @@ shapes — is derived on demand; nothing is cached on the object.
 
 ``` r
 
-gs@leaftable
+geoscale_leaftable(gs)
 #>   country state zone atom  km2 pop region
 #> 1       N    N1   N1   A1  100  10     A1
 #> 2       N    N1   N1   A2  200  90     A2
@@ -159,22 +159,22 @@ fallback — unregistered columns without `rule=` error):
 
 ``` r
 
-GEO_RULES
+GEOSCALE_RULES
 #> [1] "sum"           "weighted_mean" "mean"          "copy"         
 #> [5] "sd"
-register_geo_rule("capacity", "sum")
-register_geo_rule("eff", "weighted_mean", weight = "pop")
-get_geo_rule("eff")
+register_geoscale_rule("capacity", "sum")
+register_geoscale_rule("eff", "weighted_mean", weight = "pop")
+get_geoscale_rule("eff")
 #> $rule
 #> [1] "weighted_mean"
 #> 
 #> $weight
 #> [1] "pop"
-list_geo_rules()
+list_geoscale_rules()
 #>      param          rule weight
 #> 1 capacity           sum   <NA>
 #> 2      eff weighted_mean    pop
-clear_geo_rules()
+clear_geoscale_rules()
 ```
 
 **Maps** hold exact crosswalks that short-circuit the atom-layer
@@ -186,14 +186,14 @@ derivation in
 
 fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
                    n_overlap = 1L, w = 1, w_from = 1)
-register_geo_map("state", "zone", fake, gs = gs)
-list_geo_maps()
+register_geoscale_map("state", "zone", fake, gs = gs)
+list_geoscale_maps()
 #>                   key
 #> 1 example:state->zone
-get_geo_map("state", "zone", gs = gs)
+get_geoscale_map("state", "zone", gs = gs)
 #>   state zone n_from n_overlap w w_from
 #> 1    N1   ZC      1         1 1      1
-clear_geo_maps()
+clear_geoscale_maps()
 ```
 
 **Providers** are named map sources (`fetch` functions returning a wide
@@ -201,10 +201,10 @@ clear_geo_maps()
 
 ``` r
 
-list_geo_providers()
+list_geoscale_providers()
 #>           name                                          desc
 #> 1 naturalearth Natural Earth admin-0/admin-1 (rnaturalearth)
-get_geo_provider("naturalearth")$desc
+get_geoscale_provider("naturalearth")$desc
 #> [1] "Natural Earth admin-0/admin-1 (rnaturalearth)"
 ```
 

@@ -259,7 +259,7 @@ object’s default weight. Drawn straight from the leaftable:
 
 ``` r
 
-lt <- isl@leaftable
+lt <- geoscale_leaftable(isl)
 
 ggplot(tibble(unit = lt$region, km2 = lt$km2)) +
   geom_geoscale(gs = isl, z = "km2", geoframe = "unit",

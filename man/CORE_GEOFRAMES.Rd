@@ -14,7 +14,7 @@ Recommended geoframe names, ordered coarsest first. Analogue of
 \code{timescales::CORE_TIMEFRAMES}.
 }
 \details{
-These are guidance only. \code{\link[=geoscale_from_leaves]{geoscale_from_leaves()}} accepts any
+These are guidance only. \code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}} accepts any
 syntactically valid geoframe name; see \code{\link[=is_valid_geoframe]{is_valid_geoframe()}}.
 }
 \examples{

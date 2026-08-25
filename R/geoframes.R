@@ -12,7 +12,7 @@
 #' Recommended geoframe names, ordered coarsest first. Analogue of
 #' `timescales::CORE_TIMEFRAMES`.
 #'
-#' These are guidance only. [`geoscale_from_leaves()`] accepts any
+#' These are guidance only. [`geoscale_from_leaftable()`] accepts any
 #' syntactically valid geoframe name; see [`is_valid_geoframe()`].
 #'
 #' @format A character vector of length 6.
@@ -21,9 +21,6 @@
 #' @export
 CORE_GEOFRAMES <- c("GLOBE", "CONTINENT", "COUNTRY", "STATE", "ZONE", "CELL")
 
-#' @rdname geoscales-deprecated
-#' @export
-CORE_LEVELS <- CORE_GEOFRAMES
 
 #' Validate geoframe names
 #'

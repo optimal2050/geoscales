@@ -108,7 +108,7 @@ entry is an error, in both siblings.
 - **The package ships no maps and selects no boundaries.** Providers
   ([`ne_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.md),
   your own via
-  [`register_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_provider.md))
+  [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md))
   pass a point of view through and record it in `@meta`; the choice
   stays yours.
 - **Everything derivable is computed on demand.** Parent/child tables,
@@ -116,9 +116,9 @@ entry is an error, in both siblings.
   object.
 - **Explicit registries only.** Constructors return values; behavior
   changes only through
-  [`register_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_rule.md),
-  [`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md),
-  [`register_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_provider.md).
+  [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md),
+  [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md),
+  [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md).
 - **Label-stable.** A Geoscale’s region codes and their order are fixed
   at construction; conversions never mutate them.
 

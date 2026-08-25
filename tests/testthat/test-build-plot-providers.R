@@ -161,22 +161,22 @@ test_that("geometry entry points error clearly without geometry", {
 })
 
 test_that("providers can be registered and listed", {
-  register_geo_provider(
+  register_geoscale_provider(
     "toy",
     fetch = function(...) {
       data.frame(top = c("T", "T"), unit = c("a", "b"), km2 = c(1, 2))
     },
     geoframes = c("top", "unit"), weights = "km2", desc = "toy"
   )
-  expect_true("toy" %in% list_geo_providers()$name)
-  expect_true("naturalearth" %in% list_geo_providers()$name)
+  expect_true("toy" %in% list_geoscale_providers()$name)
+  expect_true("naturalearth" %in% list_geoscale_providers()$name)
 
   gs <- geoscale_from_provider("toy")
   expect_equal(S7::prop(gs, "geoframes"), c("top", "unit"))
   expect_equal(geoscale_weights(gs), "km2")
   expect_equal(S7::prop(gs, "meta")$source, "toy")
 
-  expect_error(get_geo_provider("nope"), "unknown provider")
+  expect_error(get_geoscale_provider("nope"), "unknown provider")
 })
 
 test_that("the Natural Earth provider errors helpfully when absent", {

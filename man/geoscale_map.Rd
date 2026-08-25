@@ -40,7 +40,7 @@ split share \code{"sum"} disaggregation uses.
 The two label columns are named by the geoframes (within one Geoscale) or
 by the Geoscale names (across two); rows with an \code{NA} target label are
 atoms \code{to} does not cover. A crosswalk registered with
-\code{\link[=register_geo_map]{register_geo_map()}} is returned as-is instead of being derived.
+\code{\link[=register_geoscale_map]{register_geoscale_map()}} is returned as-is instead of being derived.
 }
 \examples{
 gs <- geoscale_example()

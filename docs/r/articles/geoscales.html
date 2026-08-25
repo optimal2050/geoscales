@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -145,7 +145,7 @@ source like Natural Earth — see
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span><span class="op">@</span><span class="va">geoframes</span>                 <span class="co"># the hierarchy, coarsest first</span></span>
 <span><span class="co">#&gt; [1] "country" "state"   "atom"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gs</span><span class="op">@</span><span class="va">leaftable</span>, <span class="fl">3</span><span class="op">)</span>        <span class="co"># one row per atom</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>        <span class="co"># one row per atom</span></span>
 <span><span class="co">#&gt;   country state atom km2 region</span></span>
 <span><span class="co">#&gt; 1       N    N1   A1 100     A1</span></span>
 <span><span class="co">#&gt; 2       N    N1   A2 200     A2</span></span>
@@ -183,8 +183,8 @@ same operation, and totals conserve under <code>"sum"</code>:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2           7</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1          20</span></span></code></pre></div>
 <p>The <code>rule</code> is deliberately mandatory — pass one, or
-register it per column with <code><a href="../reference/register_geo_rule.html">register_geo_rule()</a></code>; a silently
-guessed rule would be a silent unit error.</p>
+register it per column with <code><a href="../reference/register_geoscale_rule.html">register_geoscale_rule()</a></code>; a
+silently guessed rule would be a silent unit error.</p>
 </div>
 <div class="section level3">
 <h3 id="attach-a-geoscale-to-a-table">4. Attach a Geoscale to a table<a class="anchor" aria-label="anchor" href="#attach-a-geoscale-to-a-table"></a>
@@ -362,7 +362,7 @@ recast the per-cluster wind speed up to the regions with an
 area-weighted mean,</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iceland</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"../data-raw/iceland_wind.rds"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">iceland</span><span class="op">$</span><span class="va">gs</span><span class="op">@</span><span class="va">leaftable</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">iceland</span><span class="op">$</span><span class="va">gs</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   country       landshluti cluster       km2  region</span></span>
 <span><span class="co">#&gt; 1 Iceland       Austurland IS-7_c1 5340.2458 IS-7_c1</span></span>
 <span><span class="co">#&gt; 2 Iceland       Austurland IS-7_c2 8533.1805 IS-7_c2</span></span>

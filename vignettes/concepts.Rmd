@@ -96,15 +96,15 @@ entry is an error, in both siblings.
 ## Design boundaries
 
 - **The package ships no maps and selects no boundaries.** Providers
-  (`ne_geoscale()`, your own via `register_geo_provider()`) pass a
+  (`ne_geoscale()`, your own via `register_geoscale_provider()`) pass a
   point of view through and record it in `@meta`; the choice stays
   yours.
 - **Everything derivable is computed on demand.** Parent/child tables,
   ancestry, shares, dissolved geometry — nothing is cached on the
   object.
 - **Explicit registries only.** Constructors return values; behavior
-  changes only through `register_geo_rule()`, `register_geo_map()`,
-  `register_geo_provider()`.
+  changes only through `register_geoscale_rule()`, `register_geoscale_map()`,
+  `register_geoscale_provider()`.
 - **Label-stable.** A Geoscale's region codes and their order are fixed
   at construction; conversions never mutate them.
 

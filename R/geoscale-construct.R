@@ -60,8 +60,7 @@ geoscale_from_leaftable <- function(leaftable,
   extra_names <- names(list(...))
   if (any(c("leaves", "levels") %in% extra_names)) {
     .stop(paste0("arguments `leaves`/`levels` were renamed `leaftable`/",
-                 "`geoframes` (2026-08 naming lattice); update the call or ",
-                 "use the deprecated geoscale_from_leaves()"))
+                 "`geoframes` (2026-08 naming lattice); update the call"))
   }
 
   if (!is.data.frame(leaftable)) {

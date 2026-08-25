@@ -63,7 +63,7 @@ pulls a source like Natural Earth — see
 
 gs@geoframes                 # the hierarchy, coarsest first
 #> [1] "country" "state"   "atom"
-head(gs@leaftable, 3)        # one row per atom
+head(geoscale_leaftable(gs), 3)        # one row per atom
 #>   country state atom km2 region
 #> 1       N    N1   A1 100     A1
 #> 2       N    N1   A2 200     A2
@@ -106,7 +106,7 @@ tibble(country = c("N", "S"), capacity = c(10, 20)) |>
 
 The `rule` is deliberately mandatory — pass one, or register it per
 column with
-[`register_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_rule.md);
+[`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md);
 a silently guessed rule would be a silent unit error.
 
 ### 4. Attach a Geoscale to a table
@@ -312,7 +312,7 @@ regions with an area-weighted mean,
 ``` r
 
 iceland <- readRDS("../data-raw/iceland_wind.rds")
-head(iceland$gs@leaftable, 4)
+head(geoscale_leaftable(iceland$gs), 4)
 #>   country       landshluti cluster       km2  region
 #> 1 Iceland       Austurland IS-7_c1 5340.2458 IS-7_c1
 #> 2 Iceland       Austurland IS-7_c2 8533.1805 IS-7_c2

@@ -14,17 +14,26 @@
 
 #' Regions present at a geoframe (the members)
 #'
+#' The required-geoframe rule applies to arguments that take region CODES
+#' (codes repeat across geoframes, so nothing is ever inferred from a bare
+#' code); `geoframe` here only selects the output, so it may default to the
+#' finest geoframe (the atoms) — the twin of
+#' `timescales::calendar_timeslices(x, timeframe = NULL)`.
+#'
 #' @param x A [`Geoscale`].
-#' @param geoframe A single geoframe name.
+#' @param geoframe A single geoframe name, or `NULL` (default) for the
+#'   finest geoframe.
 #'
 #' @return A character vector of region codes, in the object's canonical order.
 #'
 #' @examples
 #' gs <- geoscale_example()
 #' geoscale_regions(gs, "state")
+#' geoscale_regions(gs)          # the atoms
 #' @export
-geoscale_regions <- function(x, geoframe) {
+geoscale_regions <- function(x, geoframe = NULL) {
   .check_geoscale(x)
+  if (is.null(geoframe)) geoframe <- geoscale_geoframes(x, finest = TRUE)
   .check_geoframe(x, geoframe)
   S7::prop(x, "members")[[geoframe]]
 }

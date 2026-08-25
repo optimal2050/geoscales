@@ -13,7 +13,7 @@ the package records what was fetched.
 
 ``` r
 
-list_geo_providers()
+list_geoscale_providers()
 #>           name                                          desc
 #> 1 naturalearth Natural Earth admin-0/admin-1 (rnaturalearth)
 ```
@@ -274,7 +274,7 @@ geoscale_plot(g, geoframe = "landshluti")
 ## Other providers
 
 The same interface accepts any source. Register one with
-[`register_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_provider.md),
+[`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md),
 or pass an `sf` object straight to
 [`geoscale_from_provider()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_provider.md).
 Natural candidates are `giscoR` (authoritative NUTS for Europe),

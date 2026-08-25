@@ -1,4 +1,36 @@
-# geoscales (development version)
+# geoscales 0.5.0
+
+Hard-break release: the sibling APIs of timescales and geoscales were
+harmonized against each other (the pairing table and naming rules live
+in the stack-wide CONVENTIONS.md, "Sibling API mirror"). NO deprecation
+aliases are kept -- old names are gone, not wrapped.
+
+## Breaking changes
+
+* Registries follow `register_<class>_<thing>` everywhere: the
+  `geo_map`/`geo_rule`/`geo_provider` registry families are now
+  `register_geoscale_map`/`get_geoscale_map`/`list_geoscale_maps`/
+  `clear_geoscale_maps`, `register_geoscale_rule`/`get_geoscale_rule`/
+  `list_geoscale_rules`/`clear_geoscale_rules`, and
+  `register_geoscale_provider`/`get_geoscale_provider`/
+  `list_geoscale_providers`. `GEO_RULES` is now `GEOSCALE_RULES`.
+* The deprecated shim family is REMOVED (29 `geo_*` aliases plus
+  `geoscale_levels`, `is_valid_level`, `geoscale_from_leaves`,
+  `CORE_LEVELS`; archived under `drafts/`).
+* `geoscale_regions(x, geoframe = NULL)` -- `geoframe` now defaults to
+  the finest geoframe (the atoms). The required-geoframe rule is about
+  arguments that take region CODES; this one only selects the output.
+
+## New
+
+* `coords_to_region(x, gs, geoframe = NULL)` -- the spatial twin of
+  `timescales::datetime_to_timeslice()`: match point observations
+  (sf/sfc or a data.frame with `lon`/`lat` columns) to the regions
+  whose geometry contains them; `NA` outside every region.
+* `geoscale_leaftable(x)` -- exported accessor for the leaf table
+  (stop reaching for `x@leaftable`).
+
+# geoscales 0.4.2
 
 ## Breaking changes
 

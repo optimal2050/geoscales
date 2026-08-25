@@ -50,7 +50,7 @@ A `data.frame` with columns `<from>`, `<to>` (`NA` = uncovered by `to`),
 The two label columns are named by the geoframes (within one Geoscale)
 or by the Geoscale names (across two); rows with an `NA` target label
 are atoms `to` does not cover. A crosswalk registered with
-[`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
+[`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
 is returned as-is instead of being derived.
 
 ## Examples

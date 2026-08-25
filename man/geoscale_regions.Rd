@@ -4,20 +4,26 @@
 \alias{geoscale_regions}
 \title{Regions present at a geoframe (the members)}
 \usage{
-geoscale_regions(x, geoframe)
+geoscale_regions(x, geoframe = NULL)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}
 
-\item{geoframe}{A single geoframe name.}
+\item{geoframe}{A single geoframe name, or \code{NULL} (default) for the
+finest geoframe.}
 }
 \value{
 A character vector of region codes, in the object's canonical order.
 }
 \description{
-Regions present at a geoframe (the members)
+The required-geoframe rule applies to arguments that take region CODES
+(codes repeat across geoframes, so nothing is ever inferred from a bare
+code); \code{geoframe} here only selects the output, so it may default to the
+finest geoframe (the atoms) — the twin of
+\code{timescales::calendar_timeslices(x, timeframe = NULL)}.
 }
 \examples{
 gs <- geoscale_example()
 geoscale_regions(gs, "state")
+geoscale_regions(gs)          # the atoms
 }

@@ -28,15 +28,15 @@
 #' @return Invisibly, the registered provider.
 #'
 #' @examples
-#' register_geo_provider(
+#' register_geoscale_provider(
 #'   "toy",
 #'   fetch = function(...) data.frame(top = c("T", "T"),
 #'                                    unit = c("a", "b"), km2 = c(1, 2)),
 #'   geoframes = c("top", "unit"), weights = "km2"
 #' )
-#' list_geo_providers()
+#' list_geoscale_providers()
 #' @export
-register_geo_provider <- function(name, fetch, geoframes = NULL,
+register_geoscale_provider <- function(name, fetch, geoframes = NULL,
                                   weights = NULL, desc = "") {
   if (!is.character(name) || length(name) != 1L || !nzchar(name)) {
     .stop("`name` must be a single non-empty string")
@@ -55,9 +55,9 @@ register_geo_provider <- function(name, fetch, geoframes = NULL,
 #' @return The provider entry, or an error if unknown.
 #'
 #' @examples
-#' get_geo_provider("naturalearth")$desc
+#' get_geoscale_provider("naturalearth")$desc
 #' @export
-get_geo_provider <- function(name) {
+get_geoscale_provider <- function(name) {
   if (!is.character(name) || length(name) != 1L ||
       !exists(name, envir = .PROVIDER_REGISTRY, inherits = FALSE)) {
     .stop("unknown provider \"%s\"; registered: %s",
@@ -72,13 +72,13 @@ get_geo_provider <- function(name) {
 #' @return A `data.frame` with columns `name` and `desc`.
 #'
 #' @examples
-#' list_geo_providers()
+#' list_geoscale_providers()
 #' @export
-list_geo_providers <- function() {
+list_geoscale_providers <- function() {
   nms <- sort(ls(envir = .PROVIDER_REGISTRY))
   data.frame(
     name = nms,
-    desc = vapply(nms, function(n) get_geo_provider(n)$desc %||% "",
+    desc = vapply(nms, function(n) get_geoscale_provider(n)$desc %||% "",
                   character(1)),
     stringsAsFactors = FALSE,
     row.names = NULL
@@ -120,7 +120,7 @@ geoscale_from_provider <- function(provider = "naturalearth",
                                    desc = "",
                                    ...) {
   if (is.character(provider)) {
-    p   <- get_geo_provider(provider)
+    p   <- get_geoscale_provider(provider)
     src <- p$fetch(...)
     geoframes  <- geoframes  %||% p$geoframes
     weights <- weights %||% p$weights

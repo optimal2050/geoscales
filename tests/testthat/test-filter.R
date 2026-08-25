@@ -170,14 +170,14 @@ test_that("prune_geoscale dissolves geometry when attached", {
 })
 
 test_that("two samples of one parent no longer collide in the map registry", {
-  clear_geo_maps()
+  clear_geoscale_maps()
   gs <- geoscale_example()
   n <- filter_geoscale(gs, "country", "N")
   s <- filter_geoscale(gs, "country", "S")
   expect_false(S7::prop(n, "meta")$name == S7::prop(s, "meta")$name)
   m_n <- geoscale_map("state", "country", gs = n)
-  register_geo_map("state", "country", m_n, gs = n)
+  register_geoscale_map("state", "country", m_n, gs = n)
   # the registration is scoped to n's mangled name; s does not see it
-  expect_null(get_geo_map("state", "country", gs = s))
-  clear_geo_maps()
+  expect_null(get_geoscale_map("state", "country", gs = s))
+  clear_geoscale_maps()
 })

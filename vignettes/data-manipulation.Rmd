@@ -24,7 +24,7 @@ has_dt <- requireNamespace("data.table", quietly = TRUE) &&
 | `recast_geoscale()` | geoframe A → geoframe B | *convert* values between resolutions, one rule per column |
 | `recast_to_geoatoms()` / `recast_from_geoatoms()` | the route halves | project down to the atom layer / aggregate up from it |
 | `geoscale_map()` | A → B crosswalk | the conversion, materialised as a small table |
-| `register_geo_rule()` / `register_geo_map()` / `register_geo_provider()` | registries | per-column rules, exact crosswalks, map sources |
+| `register_geoscale_rule()` / `register_geoscale_map()` / `register_geoscale_provider()` | registries | per-column rules, exact crosswalks, map sources |
 | `recast()` | generic | one pipeline verb across time AND space |
 
 Everything below runs on the synthetic `geoscale_example()` fixture in
@@ -34,7 +34,7 @@ tidyverse style — data flows through `|>`, and every verb accepts a
 
 ```{r}
 gs <- geoscale_example()
-atoms <- gs@leaftable$region[!is.na(gs@leaftable$country)]
+atoms <- geoscale_leaftable(gs)$region[!is.na(geoscale_leaftable(gs)$country)]
 cap <- tibble(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
 ```
 
@@ -66,8 +66,8 @@ geoframes need no special handling. Three things to know:
 with neither errors — a silently guessed rule is a silent unit error.
 
 ```{r}
-register_geo_rule("capacity", "sum")            # extensive
-register_geo_rule("eff", "weighted_mean",       # intensive
+register_geoscale_rule("capacity", "sum")            # extensive
+register_geoscale_rule("eff", "weighted_mean",       # intensive
                   weight = "pop")
 
 cap |> recast_geoscale(gs, from = "atom", to = "country")
@@ -116,7 +116,7 @@ region column as a wildcard meaning *all* regions — don't pass `"keep"`
 output there unfiltered.
 
 ```{r, include = FALSE}
-clear_geo_rules()
+clear_geoscale_rules()
 ```
 
 ## The route halves and cross-Geoscale conversion
@@ -165,10 +165,10 @@ inspect what is installed:
 
 ```{r}
 exact <- geoscale_map("state", "zone", gs = gs)
-register_geo_map("state", "zone", exact, gs = gs)
-list_geo_maps()
-identical(get_geo_map("state", "zone", gs = gs), exact)
-clear_geo_maps()
+register_geoscale_map("state", "zone", exact, gs = gs)
+list_geoscale_maps()
+identical(get_geoscale_map("state", "zone", gs = gs), exact)
+clear_geoscale_maps()
 ```
 
 ## One verb across time and space

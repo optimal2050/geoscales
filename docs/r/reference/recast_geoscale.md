@@ -12,7 +12,7 @@ the atom layer. The route is evaluated as one dplyr pipeline against the
 [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
 crosswalk, so `x` may live in any supported backend (see below). A
 crosswalk registered with
-[`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
+[`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
 short-circuits the derivation.
 
 ## Usage
@@ -73,10 +73,10 @@ recast_geoscale(
 - rule:
 
   One of
-  [`GEO_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEO_RULES.md),
+  [`GEOSCALE_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEOSCALE_RULES.md),
   applied to every value column; or `NULL` (default) to look each column
   up with
-  [`get_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/get_geo_rule.md).
+  [`get_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/get_geoscale_rule.md).
   A column with neither an explicit `rule=` nor a registry entry is an
   ERROR – there is deliberately no fallback (a silently guessed rule is
   a silent unit error).
@@ -126,7 +126,7 @@ and
 `recast_from_geoatoms(recast_to_geoatoms(x, gs, from), gs, to)`.
 
 Rules (see
-[`GEO_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEO_RULES.md)):
+[`GEOSCALE_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEOSCALE_RULES.md)):
 `"sum"` splits each source value across its region's atoms
 proportionally to the weight before summing up, so totals are conserved.
 `"weighted_mean"` weights by the atom weights; `"mean"` is the plain

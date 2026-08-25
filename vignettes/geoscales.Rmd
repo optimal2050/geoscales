@@ -72,7 +72,7 @@ Earth — see `vignette("from-naturalearth")`.)
 
 ```{r}
 gs@geoframes                 # the hierarchy, coarsest first
-head(gs@leaftable, 3)        # one row per atom
+head(geoscale_leaftable(gs), 3)        # one row per atom
 geoscale_regions(gs, "state")
 geoscale_share(gs, "state", weight = "km2", within = "country")
 ```
@@ -93,7 +93,7 @@ tibble(country = c("N", "S"), capacity = c(10, 20)) |>
 ```
 
 The `rule` is deliberately mandatory — pass one, or register it per
-column with `register_geo_rule()`; a silently guessed rule would be a
+column with `register_geoscale_rule()`; a silently guessed rule would be a
 silent unit error.
 
 ### 4. Attach a Geoscale to a table
@@ -276,7 +276,7 @@ per-cluster wind speed up to the regions with an area-weighted mean,
 
 ```{r, eval = has_wind}
 iceland <- readRDS("../data-raw/iceland_wind.rds")
-head(iceland$gs@leaftable, 4)
+head(geoscale_leaftable(iceland$gs), 4)
 
 iceland$wind |>
   recast_geoscale(iceland$gs, from = "cluster", to = "landshluti",

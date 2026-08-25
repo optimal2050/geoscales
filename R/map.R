@@ -15,7 +15,7 @@
 #     shared atom `region` keys (reg32 <-> NUTS style conversions).
 #
 # No memoisation cache: the leaf tables are in memory and the aggregation is
-# cheap. A registry (register_geo_map) holds exact / hand-audited crosswalks.
+# cheap. A registry (register_geoscale_map) holds exact / hand-audited crosswalks.
 # =============================================================================
 
 #' @noRd
@@ -37,7 +37,7 @@
 #' The two label columns are named by the geoframes (within one Geoscale) or
 #' by the Geoscale names (across two); rows with an `NA` target label are
 #' atoms `to` does not cover. A crosswalk registered with
-#' [`register_geo_map()`] is returned as-is instead of being derived.
+#' [`register_geoscale_map()`] is returned as-is instead of being derived.
 #'
 #' @param from,to Either two geoframe names of `gs` (within-object map), or
 #'   two named [`Geoscale`] objects (cross-object map on shared atom
@@ -75,7 +75,7 @@ geoscale_map <- function(from, to, gs = NULL, weight = NULL) {
                  "map's label columns are named by the geoframes"), from)
   }
 
-  reg <- .get_geo_map(from, to, .geoscale_name(gs, require = FALSE))
+  reg <- .get_geoscale_map(from, to, .geoscale_name(gs, require = FALSE))
   if (!is.null(reg)) {
     return(reg)
   }
@@ -101,7 +101,7 @@ geoscale_map <- function(from, to, gs = NULL, weight = NULL) {
                  "label columns are named by the Geoscales -- rename one"),
           from_nm)
   }
-  reg <- .get_geo_map(from_nm, to_nm)
+  reg <- .get_geoscale_map(from_nm, to_nm)
   if (!is.null(reg)) {
     return(reg)
   }
@@ -112,7 +112,7 @@ geoscale_map <- function(from, to, gs = NULL, weight = NULL) {
   if (length(shared) == 0L) {
     .stop(paste0("the atom layers of \"%s\" and \"%s\" share no `region` ",
                  "keys; register an explicit crosswalk with ",
-                 "register_geo_map()"), from_nm, to_nm)
+                 "register_geoscale_map()"), from_nm, to_nm)
   }
   n_miss <- sum(!lf$region %in% shared)
   if (n_miss > 0L) {
@@ -182,21 +182,21 @@ geoscale_map <- function(from, to, gs = NULL, weight = NULL) {
 #'   map, so `"state" -> "zone"` maps of two different objects do not
 #'   collide. Cross-object maps need no scope.
 #'
-#' @return Invisibly, the registry key. `get_geo_map()` returns the
-#'   registered map (or `NULL`); `list_geo_maps()` a `data.frame` of
+#' @return Invisibly, the registry key. `get_geoscale_map()` returns the
+#'   registered map (or `NULL`); `list_geoscale_maps()` a `data.frame` of
 #'   registry keys.
 #'
 #' @examples
 #' gs <- geoscale_example()
 #' fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
 #'                    n_overlap = 1L, w = 1, w_from = 1)
-#' register_geo_map("state", "zone", fake, gs = gs)
-#' list_geo_maps()
-#' get_geo_map("state", "zone", gs = gs)
-#' register_geo_map("state", "zone", NULL, gs = gs)  # remove
-#' clear_geo_maps()
+#' register_geoscale_map("state", "zone", fake, gs = gs)
+#' list_geoscale_maps()
+#' get_geoscale_map("state", "zone", gs = gs)
+#' register_geoscale_map("state", "zone", NULL, gs = gs)  # remove
+#' clear_geoscale_maps()
 #' @export
-register_geo_map <- function(from, to, map, gs = NULL) {
+register_geoscale_map <- function(from, to, map, gs = NULL) {
   nm_of <- function(z, arg) {
     if (is.character(z) && length(z) == 1L && nzchar(z)) return(z)
     .check_geoscale(z, arg)
@@ -225,7 +225,7 @@ register_geo_map <- function(from, to, map, gs = NULL) {
 }
 
 #' @noRd
-.get_geo_map <- function(from_nm, to_nm, scope = "") {
+.get_geoscale_map <- function(from_nm, to_nm, scope = "") {
   for (key in unique(c(
     paste0(scope, if (nzchar(scope)) ":", from_nm, "->", to_nm),
     paste0(from_nm, "->", to_nm)
@@ -237,21 +237,21 @@ register_geo_map <- function(from, to, map, gs = NULL) {
   NULL
 }
 
-#' @rdname register_geo_map
+#' @rdname register_geoscale_map
 #' @export
-get_geo_map <- function(from, to, gs = NULL) {
+get_geoscale_map <- function(from, to, gs = NULL) {
   nm_of <- function(z, arg) {
     if (is.character(z) && length(z) == 1L && nzchar(z)) return(z)
     .check_geoscale(z, arg)
     .geoscale_name(z, arg = arg)
   }
-  .get_geo_map(nm_of(from, "from"), nm_of(to, "to"),
+  .get_geoscale_map(nm_of(from, "from"), nm_of(to, "to"),
                scope = if (is.null(gs)) "" else nm_of(gs, "gs"))
 }
 
-#' @rdname register_geo_map
+#' @rdname register_geoscale_map
 #' @export
-list_geo_maps <- function() {
+list_geoscale_maps <- function() {
   keys <- sort(ls(envir = .GEO_MAP_REGISTRY, all.names = TRUE))
   data.frame(key = keys, stringsAsFactors = FALSE)
 }
@@ -261,10 +261,10 @@ list_geo_maps <- function() {
 #' Mainly useful in tests.
 #'
 #' @examples
-#' clear_geo_maps()
+#' clear_geoscale_maps()
 #' @return Invisibly `NULL`.
 #' @export
-clear_geo_maps <- function() {
+clear_geoscale_maps <- function() {
   rm(list = ls(envir = .GEO_MAP_REGISTRY, all.names = TRUE),
      envir = .GEO_MAP_REGISTRY)
   invisible(NULL)

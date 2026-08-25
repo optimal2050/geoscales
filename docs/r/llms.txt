@@ -187,23 +187,23 @@ geoframe ranks and cross-cutting geoframes need no special handling.
   : Objects exported from other packages
 - [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
   : Crosswalk between two spatial resolutions through the atom layer
-- [`register_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
-  [`get_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
-  [`list_geo_maps()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.md)
+- [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
+  [`get_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
+  [`list_geoscale_maps()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
   : Register / look up a direct spatial crosswalk
-- [`clear_geo_maps()`](https://optimal2050.github.io/geoscales/r/reference/clear_geo_maps.md)
+- [`clear_geoscale_maps()`](https://optimal2050.github.io/geoscales/r/reference/clear_geoscale_maps.md)
   : Clear the registered spatial crosswalks
 - [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
   : Attach a Geoscale to region-keyed data
-- [`GEO_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEO_RULES.md)
+- [`GEOSCALE_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEOSCALE_RULES.md)
   : Supported aggregation rules
-- [`register_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_rule.md)
+- [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md)
   : Register how a parameter should be recast
-- [`get_geo_rule()`](https://optimal2050.github.io/geoscales/r/reference/get_geo_rule.md)
+- [`get_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/get_geoscale_rule.md)
   : Look up a registered rule
-- [`list_geo_rules()`](https://optimal2050.github.io/geoscales/r/reference/list_geo_rules.md)
+- [`list_geoscale_rules()`](https://optimal2050.github.io/geoscales/r/reference/list_geoscale_rules.md)
   : List registered rules
-- [`clear_geo_rules()`](https://optimal2050.github.io/geoscales/r/reference/clear_geo_rules.md)
+- [`clear_geoscale_rules()`](https://optimal2050.github.io/geoscales/r/reference/clear_geoscale_rules.md)
   : Clear the rule registry
 
 ## Navigation and subsetting
@@ -216,6 +216,8 @@ geoframe.
   [`geoscale_descendants()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_navigate.md)
   [`geoscale_ancestors()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_navigate.md)
   : Navigate a region hierarchy
+- [`geoscale_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_leaftable.md)
+  : The leaftable of a Geoscale
 - [`geoscale_family()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_family.md)
   : Immediate parent-child table between two geoframes
 - [`geoscale_ancestry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_ancestry.md)
@@ -239,6 +241,8 @@ Optional, and backed by ‘sf’. The core is geometry-free.
   : Attach geometry to a Geoscale
 - [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md)
   : Geometry dissolved to a geoframe
+- [`coords_to_region()`](https://optimal2050.github.io/geoscales/r/reference/coords_to_region.md)
+  : Map coordinates to the regions that contain them
 - [`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md)
   : Compute area weights from attached geometry
 
@@ -269,11 +273,11 @@ geoscales ships integration code, not data. Natural Earth is the default
 provider; its source and scale are recorded on the object, and no
 boundaries are bundled.
 
-- [`get_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/get_geo_provider.md)
+- [`get_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/get_geoscale_provider.md)
   : Look up a registered provider
-- [`register_geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_provider.md)
+- [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md)
   : Register a Geoscale data provider
-- [`list_geo_providers()`](https://optimal2050.github.io/geoscales/r/reference/list_geo_providers.md)
+- [`list_geoscale_providers()`](https://optimal2050.github.io/geoscales/r/reference/list_geoscale_providers.md)
   : List registered providers
 - [`ne_source()`](https://optimal2050.github.io/geoscales/r/reference/ne_source.md)
   : Fetch a Natural Earth source table
@@ -286,42 +290,6 @@ boundaries are bundled.
   : Core spatial geoframes
 - [`is_valid_geoframe()`](https://optimal2050.github.io/geoscales/r/reference/is_valid_geoframe.md)
   : Validate geoframe names
-
-## Deprecated
-
-- [`geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_filter()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_prune()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_attach_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_area()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_rank()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_weights()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_regions()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_family()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_nests()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_ancestry()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_children()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_parents()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_descendants()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_ancestors()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_share()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_register_rule()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_get_rule()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_list_rules()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_clear_rules()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_register_provider()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_provider()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geo_list_providers()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geoscale_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`is_valid_level()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`geoscale_from_leaves()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  [`CORE_LEVELS`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.md)
-  : Deprecated geoscales functions
 
 ## Package
 

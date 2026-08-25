@@ -85,20 +85,20 @@ test_that("the sd rule aggregates dispersion", {
 })
 
 test_that("conflicting per-column weights are rejected in to_geoatoms", {
-  clear_geo_rules()
-  on.exit(clear_geo_rules(), add = TRUE)
-  register_geo_rule("a", "sum", weight = "km2")
-  register_geo_rule("b", "sum", weight = "pop")
+  clear_geoscale_rules()
+  on.exit(clear_geoscale_rules(), add = TRUE)
+  register_geoscale_rule("a", "sum", weight = "km2")
+  register_geoscale_rule("b", "sum", weight = "pop")
   y <- data.frame(country = c("N", "S"), a = c(1, 2), b = c(3, 4))
   expect_error(recast_to_geoatoms(y, gs, from = "country"),
                "different weights")
 })
 
 test_that("recast_geoscale handles per-column weights in one call", {
-  clear_geo_rules()
-  on.exit(clear_geo_rules(), add = TRUE)
-  register_geo_rule("cap_km2", "sum", weight = "km2")
-  register_geo_rule("cap_pop", "sum", weight = "pop")
+  clear_geoscale_rules()
+  on.exit(clear_geoscale_rules(), add = TRUE)
+  register_geoscale_rule("cap_km2", "sum", weight = "km2")
+  register_geoscale_rule("cap_pop", "sum", weight = "pop")
   y <- data.frame(country = c("N", "S"),
                   cap_km2 = c(10, 20), cap_pop = c(10, 20))
   out <- recast_geoscale(y, gs, "country", "state")

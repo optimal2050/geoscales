@@ -38,12 +38,12 @@
 .geo_rules_for <- function(values, rule, weight) {
   out <- lapply(values, function(v) {
     if (!is.null(rule)) {
-      return(list(rule = match.arg(rule, GEO_RULES), weight = weight))
+      return(list(rule = match.arg(rule, GEOSCALE_RULES), weight = weight))
     }
-    reg <- get_geo_rule(v)
+    reg <- get_geoscale_rule(v)
     if (is.null(reg)) {
       .stop(paste0("no aggregation rule for value column `%s`; pass `rule=` ",
-                   "or register one with register_geo_rule(\"%s\", ...)"),
+                   "or register one with register_geoscale_rule(\"%s\", ...)"),
             v, v)
     }
     list(rule = reg$rule, weight = weight %||% reg$weight)
@@ -179,7 +179,7 @@
 #' through the atom layer. The route is evaluated as one dplyr pipeline
 #' against the [`geoscale_map()`] crosswalk, so `x` may live in any
 #' supported backend (see below). A crosswalk registered with
-#' [`register_geo_map()`] short-circuits the derivation.
+#' [`register_geoscale_map()`] short-circuits the derivation.
 #'
 #' Columns of `x` that are neither the key nor a value column are treated
 #' as identifiers (panel columns -- a year, a technology) and preserved as
@@ -216,8 +216,8 @@
 #' @param values Character vector of value columns to convert. Default: all
 #'   numeric columns other than the key and `gs`'s geoframe columns.
 #'   Numeric identifiers (e.g. `year`) must be excluded explicitly.
-#' @param rule One of [`GEO_RULES`], applied to every value column; or
-#'   `NULL` (default) to look each column up with [`get_geo_rule()`]. A
+#' @param rule One of [`GEOSCALE_RULES`], applied to every value column; or
+#'   `NULL` (default) to look each column up with [`get_geoscale_rule()`]. A
 #'   column with neither an explicit `rule=` nor a registry entry is an
 #'   ERROR -- there is deliberately no fallback (a silently guessed rule is
 #'   a silent unit error).
@@ -240,7 +240,7 @@
 #'   types are preserved.
 #'
 #' @details
-#' Rules (see [`GEO_RULES`]): `"sum"` splits each source value across its
+#' Rules (see [`GEOSCALE_RULES`]): `"sum"` splits each source value across its
 #' region's atoms proportionally to the weight before summing up, so totals
 #' are conserved. `"weighted_mean"` weights by the atom weights;  `"mean"`
 #' is the plain atom-count mean -- the two differ exactly when atom weights
