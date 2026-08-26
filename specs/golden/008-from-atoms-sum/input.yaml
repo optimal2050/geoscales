@@ -1,0 +1,20 @@
+structure: example
+op: from_atoms
+params:
+  to: state
+  rule: sum
+  values:
+  - cap
+input:
+- region: A1
+  cap: 1.0
+- region: A2
+  cap: 2.0
+- region: A3
+  cap: 3.0
+- region: A4
+  cap: 4.0
+- region: A5
+  cap: 5.0
+- region: A6
+  cap: 6.0

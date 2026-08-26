@@ -1,0 +1,23 @@
+structure: example
+op: recast
+params:
+  from: atom
+  to: country
+  rule: sum
+  weight: km2
+  na_action: keep
+input:
+- atom: A1
+  cap: 1.0
+- atom: A2
+  cap: 1.0
+- atom: A3
+  cap: 1.0
+- atom: A4
+  cap: 1.0
+- atom: A5
+  cap: 1.0
+- atom: A6
+  cap: 1.0
+- atom: ROW
+  cap: 1.0

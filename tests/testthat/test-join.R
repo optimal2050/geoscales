@@ -37,11 +37,7 @@ test_that("membership columns respect as_factor and cross-cuts get NA", {
 })
 
 test_that("two Geoscales coexist on one dataset", {
-  lf <- data.frame(band = rep(c("X", "Y"), 3),
-                   atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
-                   km2 = c(100, 200, 300, 400, 500, 600))
-  gs_b <- geoscale_from_leaftable(lf, geoframes = c("band", "atom"),
-                                  name = "bands")
+  gs_b <- .bands_gs()
   x <- data.frame(atom = c("A1", "A2", "A5"), v = 1:3)
   j <- join_geoscale(x, gs, geoframes = "country")
   j <- join_geoscale(j, gs_b, geoframes = "band", geoframe = "atom",

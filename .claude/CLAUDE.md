@@ -15,7 +15,7 @@ the hard way.
 | Path | What it is |
 |---|---|
 | `R/` | package source (~4k lines). `geoscale-class.R` defines the S7 class; `map.R` the crosswalk + registry, `backend.R` the df/dt/dtplyr/arrow contract, `ggplot-layers.R` the composable `geom_geoscale()`/`theme_geoscale()` |
-| `tests/testthat/` | eleven test files, mirroring the R sources |
+| `tests/testthat/` | the test files (see tests/README.md), mirroring the R sources |
 | `pkgdown/` | `extra.scss` (dark-mode figure-inversion opt-out) + favicons -- do not delete |
 | `vignettes/` | shipped vignettes (`geoscales`, `from-naturalearth`) |
 | `vignettes/articles/` | pkgdown-only articles — **not shipped**, see below |

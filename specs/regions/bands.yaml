@@ -1,0 +1,24 @@
+name: spec_bands
+geoframes:
+- band
+- atom
+weights: km2
+leaftable:
+- band: X
+  atom: A1
+  km2: 100.0
+- band: 'Y'
+  atom: A2
+  km2: 200.0
+- band: X
+  atom: A3
+  km2: 300.0
+- band: 'Y'
+  atom: A4
+  km2: 400.0
+- band: X
+  atom: A5
+  km2: 500.0
+- band: 'Y'
+  atom: A6
+  km2: 600.0

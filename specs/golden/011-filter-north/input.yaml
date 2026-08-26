@@ -1,0 +1,7 @@
+structure: example
+op: filter
+params:
+  geoframe: country
+  regions:
+  - 'N'
+input: []

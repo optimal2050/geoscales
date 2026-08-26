@@ -1,0 +1,52 @@
+name: spec_example
+geoframes:
+- country
+- state
+- zone
+- atom
+weights:
+- km2
+- pop
+leaftable:
+- country: 'N'
+  state: N1
+  zone: N1
+  atom: A1
+  km2: 100.0
+  pop: 10.0
+- country: 'N'
+  state: N1
+  zone: N1
+  atom: A2
+  km2: 200.0
+  pop: 90.0
+- country: 'N'
+  state: N2
+  zone: ZB
+  atom: A3
+  km2: 300.0
+  pop: 30.0
+- country: 'N'
+  state: N2
+  zone: ZB
+  atom: A4
+  km2: 400.0
+  pop: 70.0
+- country: S
+  state: S1
+  zone: ZB
+  atom: A5
+  km2: 500.0
+  pop: 50.0
+- country: S
+  state: S1
+  zone: ZC
+  atom: A6
+  km2: 600.0
+  pop: 50.0
+- country: .na.character
+  state: .na.character
+  zone: .na.character
+  atom: ROW
+  km2: 1000.0
+  pop: 0.0

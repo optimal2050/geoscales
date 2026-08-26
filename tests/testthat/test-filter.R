@@ -181,3 +181,14 @@ test_that("two samples of one parent no longer collide in the map registry", {
   expect_null(get_geoscale_map("state", "country", gs = s))
   clear_geoscale_maps()
 })
+
+test_that("drop_empty_geoframes drops all-NA frames from a filtered sample", {
+  gs <- geoscale_example()
+  f_keep <- filter_geoscale(gs, "country", "N")
+  f_drop <- filter_geoscale(gs, "country", "N",
+                            drop_empty_geoframes = TRUE)
+  expect_true(length(geoscale_geoframes(f_drop)) <=
+                length(geoscale_geoframes(f_keep)))
+  expect_identical(geoscale_leaftable(f_drop)$region,
+                   geoscale_leaftable(f_keep)$region)
+})

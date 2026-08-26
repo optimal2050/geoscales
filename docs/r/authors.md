@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/optimal2050/geoscales/blob/HEAD/DESCRIPTION)
 
 Lugovoy O (2026). *geoscales: Nested Regions and Spatial Hierarchies for
-Modeling*. R package version 0.5.0,
+Modeling*. R package version 0.5.1,
 <https://optimal2050.github.io/geoscales/r/>.
 
     @Manual{,
       title = {geoscales: Nested Regions and Spatial Hierarchies for Modeling},
       author = {Oleg Lugovoy},
       year = {2026},
-      note = {R package version 0.5.0},
+      note = {R package version 0.5.1},
       url = {https://optimal2050.github.io/geoscales/r/},
     }

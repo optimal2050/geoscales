@@ -1,0 +1,12 @@
+structure: example
+op: recast
+params:
+  from: country
+  to: state
+  rule: sum
+  weight: km2
+input:
+- country: 'N'
+  cap: 120.0
+- country: S
+  cap: 60.0

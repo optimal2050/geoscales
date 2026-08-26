@@ -1,0 +1,43 @@
+structure: example
+op: recast
+params:
+  from: atom
+  to: country
+  rule: sum
+input:
+- atom: A1
+  cap: 1.0
+  id: A
+- atom: A2
+  cap: 2.0
+  id: A
+- atom: A3
+  cap: 3.0
+  id: A
+- atom: A4
+  cap: 4.0
+  id: A
+- atom: A5
+  cap: 5.0
+  id: A
+- atom: A6
+  cap: 6.0
+  id: A
+- atom: A1
+  cap: 1.0
+  id: B
+- atom: A2
+  cap: 2.0
+  id: B
+- atom: A3
+  cap: 3.0
+  id: B
+- atom: A4
+  cap: 4.0
+  id: B
+- atom: A5
+  cap: 5.0
+  id: B
+- atom: A6
+  cap: 6.0
+  id: B

@@ -67,3 +67,15 @@ test_that("unregistered columns error: no rule fallback", {
   out <- suppressWarnings(recast_geoscale(x, gs, "atom", "state"))
   expect_equal(out$whatever[out$state == "N1"], 4, tolerance = 1e-9)
 })
+
+test_that("the rule and geoframe constants are pinned", {
+  expect_identical(GEOSCALE_RULES,
+                   c("sum", "weighted_mean", "mean", "copy", "sd"))
+  # same rule SET as the sibling (element order is presentation only)
+  if (requireNamespace("timescales", quietly = TRUE)) {
+    expect_setequal(GEOSCALE_RULES, timescales::CALENDAR_RULES)
+  }
+  expect_identical(CORE_GEOFRAMES,
+                   c("GLOBE", "CONTINENT", "COUNTRY", "STATE", "ZONE",
+                     "CELL"))
+})

@@ -1,0 +1,19 @@
+structure: example
+op: recast
+params:
+  from: atom
+  to: country
+  rule: copy
+input:
+- atom: A1
+  flag: 7.0
+- atom: A2
+  flag: 7.0
+- atom: A3
+  flag: 7.0
+- atom: A4
+  flag: 7.0
+- atom: A5
+  flag: 7.0
+- atom: A6
+  flag: 7.0

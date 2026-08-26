@@ -1,0 +1,14 @@
+structure: example
+op: recast
+params:
+  from: state
+  to: zone
+  rule: sum
+  weight: km2
+input:
+- state: N1
+  cap: 30.0
+- state: N2
+  cap: 70.0
+- state: S1
+  cap: 110.0

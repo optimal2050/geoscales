@@ -1,0 +1,5 @@
+structure: example
+op: prune
+params:
+  geoframe: state
+input: []

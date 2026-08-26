@@ -5,22 +5,8 @@
 
 skip_if_not_installed("sf")
 
-# unit squares: A1..A6 on a 3 x 2 grid (same fixture as the README demo)
-.sq_gs <- function() {
-  sq <- function(x, y) sf::st_polygon(list(cbind(
-    c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
-  gs <- geoscale_from_leaftable(
-    data.frame(
-      country = c("N", "N", "N", "N", "S", "S"),
-      state   = c("N1", "N1", "N2", "N2", "S1", "S1"),
-      atom    = paste0("A", 1:6),
-      km2     = 1
-    ),
-    geoframes = c("country", "state", "atom"), name = "sq")
-  attach_geometry_geoscale(gs, sf::st_sfc(
-    sq(0, 1), sq(0, 0), sq(1, 1), sq(1, 0), sq(2, 1), sq(2, 0),
-    crs = 4326))
-}
+# the unit-squares fixture lives in helper-fixtures.R (.squares_gs)
+.sq_gs <- .squares_gs
 
 test_that("points resolve to atoms by default; outside points are NA", {
   gs <- .sq_gs()

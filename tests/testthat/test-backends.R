@@ -1,87 +1,92 @@
-# Backend matrix: the same pipeline over df / tibble / dt / dtplyr / arrow ----
-#
-# Numeric results must be identical across backends; eager classes come back
-# as themselves, lazy inputs (dtplyr, arrow) return uncollected queries
-# unless collect = TRUE (and lazy results carry observed groups only).
+# =========================================================================== #
+# Backend contract, all entry points x all backends, via
+# expect_backend_contract() (helper-backends.R). The dtplyr/arrow columns of
+# the sweep run at tier `full`; two explicit lazy smoke tests keep one cell
+# of each engine alive at `fast`. (No POSIXct columns in space, so no arrow
+# ingestion skips here.)
+# =========================================================================== #
 
-gs <- geoscale_example()
-atoms <- c("A1", "A2", "A3", "A4", "A5", "A6")
-cap <- data.frame(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
-ref <- recast_geoscale(cap, gs, "atom", "country", rule = "sum")
-
-test_that("tibble in, tibble out, same numbers", {
-  skip_if_not_installed("tibble")
-  out <- recast_geoscale(tibble::as_tibble(cap), gs, "atom", "country",
-                         rule = "sum")
-  expect_s3_class(out, "tbl_df")
-  expect_equal(as.data.frame(out), ref)
+# @covers recast_geoscale depth=B backends=data.frame,tibble,data.table,dtplyr,arrow
+test_that("recast_geoscale honours the backend contract", {
+  gs <- geoscale_example()
+  x <- fx_tbl(gs, ids = c("A", "B"))
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) recast_geoscale(
+      d, gs, "atom", "country", rule = "sum", collect = collect),
+    key_cols = c("id", "country"), value_cols = "cap")
+  expect_backend_rejects(function(d, collect = NULL) recast_geoscale(
+    d, gs, "atom", "country", rule = "sum"))
 })
 
-test_that("data.table in, data.table out, same numbers", {
-  skip_if_not_installed("data.table")
-  out <- recast_geoscale(data.table::as.data.table(cap), gs, "atom",
-                         "country", rule = "sum")
-  expect_s3_class(out, "data.table")
-  expect_equal(as.data.frame(out), ref)
+# @covers recast_to_geoatoms depth=B backends=data.frame,tibble,data.table,dtplyr,arrow
+test_that("recast_to_geoatoms honours the backend contract", {
+  gs <- geoscale_example()
+  x <- data.frame(country = c("N", "S"), cap = c(120, 60))
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) recast_to_geoatoms(
+      d, gs, from = "country", rule = "sum", weight = "km2",
+      collect = collect),
+    key_cols = c("atom", "region"), value_cols = "cap")
+  expect_backend_rejects(function(d, collect = NULL) recast_to_geoatoms(
+    d, gs, from = "country", rule = "sum"))
 })
 
-test_that("dtplyr lazy in: uncollected query out, collect = TRUE computes", {
-  skip_if_not_installed("data.table")
-  skip_if_not_installed("dtplyr")
-  lz <- dtplyr::lazy_dt(cap)
-  q <- recast_geoscale(lz, gs, "atom", "country", rule = "sum")
-  expect_s3_class(q, "dtplyr_step")
-  got <- as.data.frame(dplyr::collect(q))
-  # lazy = observed groups; compare against the observed rows of ref
-  got <- got[order(got$country), c("country", "capacity")]
-  ref_obs <- ref[!is.na(ref$capacity), c("country", "capacity")]
-  expect_equal(got, ref_obs, ignore_attr = TRUE)
-
-  out <- recast_geoscale(lz, gs, "atom", "country", rule = "sum",
-                         collect = TRUE)
-  expect_s3_class(out, "data.table")
-  expect_equal(as.data.frame(out), ref)
+# @covers recast_from_geoatoms depth=B backends=data.frame,tibble,data.table,dtplyr,arrow
+test_that("recast_from_geoatoms honours the backend contract", {
+  gs <- geoscale_example()
+  base <- recast_to_geoatoms(
+    data.frame(country = c("N", "S"), cap = c(120, 60)),
+    gs, from = "country", rule = "sum", weight = "km2")
+  expect_backend_contract(
+    base,
+    function(d, collect = NULL) recast_from_geoatoms(
+      d, gs, to = "state", rule = "sum", values = "cap",
+      collect = collect),
+    key_cols = "state", value_cols = "cap")
+  expect_backend_rejects(function(d, collect = NULL) recast_from_geoatoms(
+    d, gs, to = "state", rule = "sum", values = "cap"))
 })
 
-test_that("arrow in: uncollected query out, collect = TRUE materialises", {
+# @covers join_geoscale depth=B backends=data.frame,tibble,data.table,dtplyr,arrow
+test_that("join_geoscale honours the backend contract", {
+  gs <- geoscale_example()
+  x <- fx_tbl(gs)
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) join_geoscale(
+      d, gs, geoframe = "atom", geoframes = "country", meta = TRUE,
+      as_factor = FALSE, collect = collect),
+    key_cols = "atom")
+  expect_backend_rejects(function(d, collect = NULL) join_geoscale(
+    d, gs, geoframe = "atom"))
+})
+
+# ---- fast-tier lazy smokes (one live cell per engine below `full`) -------- #
+
+test_that("arrow smoke: recast_geoscale stays lazy, collects right", {
   skip_if_not_installed("arrow")
-  tbl <- arrow::arrow_table(cap)
-  q <- recast_geoscale(tbl, gs, "atom", "country", rule = "sum")
-  expect_true(inherits(q, c("arrow_dplyr_query", "ArrowTabular")))
-  got <- as.data.frame(dplyr::collect(q))
-  got <- got[order(got$country), c("country", "capacity")]
-  ref_obs <- ref[!is.na(ref$capacity), c("country", "capacity")]
-  expect_equal(got, ref_obs, ignore_attr = TRUE)
-
-  out <- recast_geoscale(tbl, gs, "atom", "country", rule = "sum",
-                         collect = TRUE)
-  expect_equal(as.data.frame(out), ref)
+  gs <- geoscale_example()
+  x <- fx_tbl(gs, ids = c("A", "B"))
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) recast_geoscale(
+      d, gs, "atom", "country", rule = "sum", collect = collect),
+    key_cols = c("id", "country"), value_cols = "cap",
+    backends = "arrow")
 })
 
-test_that("weighted_mean and the halves agree across backends", {
+test_that("dtplyr smoke: join_geoscale stays lazy, collects right", {
+  skip_if_not_installed("dtplyr")
   skip_if_not_installed("data.table")
-  eff <- data.frame(atom = atoms, eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-  ref_wm <- recast_geoscale(eff, gs, "atom", "state",
-                            rule = "weighted_mean", weight = "pop")
-  out <- recast_geoscale(data.table::as.data.table(eff), gs, "atom",
-                         "state", rule = "weighted_mean", weight = "pop")
-  expect_equal(as.data.frame(out), ref_wm)
-
-  a_ref <- recast_to_geoatoms(eff, gs, from = "atom", rule = "weighted_mean",
-                              weight = "pop")
-  a_dt <- recast_to_geoatoms(data.table::as.data.table(eff), gs,
-                             from = "atom", rule = "weighted_mean",
-                             weight = "pop")
-  expect_s3_class(a_dt, "data.table")
-  expect_equal(as.data.frame(a_dt), a_ref)
-})
-
-test_that("join_geoscale is backend-aware", {
-  skip_if_not_installed("data.table")
-  x <- data.frame(state = c("N1", "N2", "S1"), v = 1:3)
-  ref_j <- join_geoscale(x, gs, geoframes = TRUE, meta = TRUE)
-  out <- join_geoscale(data.table::as.data.table(x), gs,
-                       geoframes = TRUE, meta = TRUE)
-  expect_s3_class(out, "data.table")
-  expect_equal(as.data.frame(out), ref_j, ignore_attr = TRUE)
+  gs <- geoscale_example()
+  x <- fx_tbl(gs)
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) join_geoscale(
+      d, gs, geoframe = "atom", meta = TRUE, as_factor = FALSE,
+      collect = collect),
+    key_cols = "atom",
+    backends = "dtplyr")
 })

@@ -1,0 +1,20 @@
+structure: example
+op: join
+params:
+  geoframe: atom
+  geoframes:
+  - country
+  - state
+input:
+- atom: A1
+  cap: 1.0
+- atom: A2
+  cap: 2.0
+- atom: A3
+  cap: 3.0
+- atom: A4
+  cap: 4.0
+- atom: A5
+  cap: 5.0
+- atom: A6
+  cap: 6.0
