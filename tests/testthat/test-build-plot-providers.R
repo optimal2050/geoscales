@@ -142,15 +142,17 @@ test_that("labels are used only where they are unambiguous", {
   expect_equal(txt(geoscale_plot(gsl, geoframe = "unit", label = TRUE)),
                c("Alpha", "Beta", "Gamma", "Delta"))
   expect_equal(txt(geoscale_plot(gsl, geoframe = "zone", label = TRUE)), c("Z1", "Z2"))
-  expect_equal(txt(geoscale_autoplot(gsl)),
-               c("T", "Z1", "Z2", "Alpha", "Beta", "Gamma", "Delta"))
+  # icicle labels are drawn widest-rectangle-first (check_overlap keeps the
+  # first drawn), so compare as sets, not in layout order
+  expect_setequal(txt(geoscale_autoplot(gsl)),
+                  c("T", "Z1", "Z2", "Alpha", "Beta", "Gamma", "Delta"))
 
   # no `labels` declared -> codes everywhere, exactly as before
   gs <- .plot_fixture()
   expect_equal(txt(geoscale_plot(gs, geoframe = "unit", label = TRUE)),
                c("u1", "u2", "u3", "u4"))
-  expect_equal(txt(geoscale_autoplot(gs)),
-               c("T", "Z1", "Z2", "u1", "u2", "u3", "u4"))
+  expect_setequal(txt(geoscale_autoplot(gs)),
+                  c("T", "Z1", "Z2", "u1", "u2", "u3", "u4"))
 })
 
 test_that("geometry entry points error clearly without geometry", {

@@ -11,6 +11,13 @@
   # the default and dumps the raw properties.
   S7::methods_register()
 
+  # `S7::method(print, ...) <-` leaves a local `print` binding in this
+  # namespace, so the NAMESPACE `S3method(print, summary_Geoscale)` entry
+  # registers against that shim instead of base's print — invisible to
+  # dispatch from user code. Register the plain-S3 class explicitly.
+  registerS3method("print", "summary_Geoscale", print.summary_Geoscale,
+                   envir = baseenv())
+
   .register_builtin_providers()
 
   # ggplot2 is in Suggests, so its `autoplot` generic cannot be imported at

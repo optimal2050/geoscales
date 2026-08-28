@@ -292,17 +292,21 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
       ggplot2::labs(fill = z)
   }
   if (isTRUE(label)) {
+    # check_overlap keeps the first label drawn, so order widest-first --
+    # narrow rectangles lose their label rather than smear the band
+    td <- d[order(d$xmax - d$xmin, decreasing = TRUE), ]
     lab_col <- "grey10"
     if (!is.null(vals)) {
-      rng <- range(d$.fill, finite = TRUE)
-      f01 <- if (diff(rng) > 0) (d$.fill - rng[1]) / diff(rng) else 0.5
+      rng <- range(td$.fill, finite = TRUE)
+      f01 <- if (diff(rng) > 0) (td$.fill - rng[1]) / diff(rng) else 0.5
       f01[!is.finite(f01)] <- 0
       lab_col <- ifelse(f01 < 0.5, "white", "grey15")
     }
     p <- p + ggplot2::geom_text(
+      data = td,
       ggplot2::aes(x = (xmin + xmax) / 2, y = (ymin + ymax) / 2,
                    label = .label),
-      size = 2.8, colour = lab_col
+      size = 2.8, colour = lab_col, check_overlap = TRUE
     )
   }
   if (is.null(vals) && fill == "geoframe") {
