@@ -2,9 +2,12 @@
 % Please edit documentation in R/geoscale-class.R
 \name{geoscale_geoframes}
 \alias{geoscale_geoframes}
+\alias{names.Geoscale}
 \title{Geoframes of a Geoscale}
 \usage{
 geoscale_geoframes(x, finest = FALSE)
+
+\method{names}{Geoscale}(x)
 }
 \arguments{
 \item{x}{A \code{\link{Geoscale}}.}

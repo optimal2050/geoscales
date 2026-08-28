@@ -1,5 +1,30 @@
 # Changelog
 
+## geoscales 0.5.0.9000
+
+- `Remotes:` added to DESCRIPTION so CI and `pak` users can resolve the
+  GitHub-only timescales Import and energypal Suggests from GitHub (the
+  packages are not on CRAN/r-universe yet). Drop the field at CRAN
+  submission time.
+
+### Base-generic methods on Geoscale
+
+- [`summary()`](https://rspatial.github.io/terra/reference/summary.html)
+  — the quantitative complement of
+  [`print()`](https://rdrr.io/r/base/print.html): member and
+  unassigned-atom counts, per-weight totals, sampled coverage (with the
+  parent’s name), the adjacent-geoframe NESTING table (cross-cutting
+  pairs flagged with offender counts), geometry status (sf-free).
+  Returns a `"summary_Geoscale"` with its own print.
+- [`names()`](https://rspatial.github.io/terra/reference/names.html) —
+  the geoframe names (identical to
+  [`geoscale_geoframes()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.md)).
+- [`as.data.frame()`](https://rspatial.github.io/terra/reference/as.data.frame.html)
+  and
+  [`ggplot2::fortify()`](https://ggplot2.tidyverse.org/reference/fortify.html)
+  — the leaftable, so `ggplot(gs) + geom_*()` works directly. All
+  mirrored by the timescales twins.
+
 ## geoscales 0.5.0
 
 Hard-break release: the sibling APIs of timescales and geoscales were

@@ -22,6 +22,11 @@
                          envir = asNamespace("ggplot2")),
         silent = TRUE
       )
+      try(
+        registerS3method("fortify", cls, fortify.Geoscale,
+                         envir = asNamespace("ggplot2")),
+        silent = TRUE
+      )
     }
   }
   invisible()

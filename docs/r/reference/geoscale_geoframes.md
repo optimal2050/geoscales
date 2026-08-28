@@ -7,6 +7,9 @@ geoframe — the finest regions, which every other geoframe groups.
 
 ``` r
 geoscale_geoframes(x, finest = FALSE)
+
+# S3 method for class 'Geoscale'
+names(x)
 ```
 
 ## Arguments

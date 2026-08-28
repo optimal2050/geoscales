@@ -59,7 +59,12 @@ skip_if_not_installed("timescales")
   "geoscale_weights",
   # misc space-only surface
   "geoscale_example", "is_valid_geoframe", "recast_to_geoatoms",
-  "recast_from_geoatoms", "CORE_LEVELS"
+  "recast_from_geoatoms", "CORE_LEVELS",
+  # telescoping zoom. A time twin (hourly for a few days, daily for the
+  # rest of the month, monthly beyond) is conceptually valid and is
+  # DEFERRED, not ruled out -- listed here so the parity test stays
+  # honest about which one-siders are principled and which are pending.
+  "zoom_geoscale"
 )
 # NOTE: recast_to/from_geoatoms are NOT one-siders (they pair with the
 # timebase route); they are in the list above only if translation fails --

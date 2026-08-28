@@ -344,6 +344,12 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
 #' @exportS3Method ggplot2::autoplot
 autoplot.Geoscale <- function(x, ...) geoscale_autoplot(x, ...)
 
+#' @rdname geoscale_leaftable
+#' @exportS3Method ggplot2::fortify
+fortify.Geoscale <- function(model, data, ...) {
+  geoscale_leaftable(model)
+}
+
 #' Map data onto a Geoscale
 #'
 #' Draws a choropleth of `data` at `geoframe`. Requires `sf`, `ggplot2`, and

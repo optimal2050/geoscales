@@ -1,3 +1,21 @@
+# geoscales 0.5.0.9000
+
+* `Remotes:` added to DESCRIPTION so CI and `pak` users can resolve
+  the GitHub-only timescales Import and energypal Suggests from GitHub (the packages are not on CRAN/r-universe yet).
+  Drop the field at CRAN submission time.
+
+## Base-generic methods on Geoscale
+
+* `summary()` — the quantitative complement of `print()`: member and
+  unassigned-atom counts, per-weight totals, sampled coverage (with the
+  parent's name), the adjacent-geoframe NESTING table (cross-cutting
+  pairs flagged with offender counts), geometry status (sf-free).
+  Returns a `"summary_Geoscale"` with its own print.
+* `names()` — the geoframe names (identical to `geoscale_geoframes()`).
+* `as.data.frame()` and `ggplot2::fortify()` — the leaftable, so
+  `ggplot(gs) + geom_*()` works directly.
+  All mirrored by the timescales twins.
+
 # geoscales 0.5.0
 
 Hard-break release: the sibling APIs of timescales and geoscales were

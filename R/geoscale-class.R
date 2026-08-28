@@ -301,17 +301,38 @@ geoscale_geoframes <- function(x, finest = FALSE) {
 #' The one-row-per-atom table the geoscale is built on, as a plain
 #' `data.frame` — the exported accessor to prefer over reaching for
 #' `x@leaftable` (the twin of `timescales::calendar_leaftable()`).
+#' `as.data.frame()` and `ggplot2::fortify()` on a Geoscale are
+#' equivalent, so `ggplot(gs) + geom_*()` pipelines work directly.
 #'
 #' @param x A [`Geoscale`].
+#' @param row.names,optional Ignored (S3 signature compatibility).
+#' @param model A [`Geoscale`] (the `fortify()` generic's argument name).
+#' @param data Ignored (S3 signature compatibility).
+#' @param ... Ignored.
 #' @return A `data.frame`: one row per atom, with the geoframe columns
 #'   plus any weight columns.
 #' @examples
 #' head(geoscale_leaftable(geoscale_example()))
+#' head(as.data.frame(geoscale_example()))
 #' @export
 geoscale_leaftable <- function(x) {
   .check_geoscale(x)
   S7::prop(x, "leaftable")
 }
+
+#' @rdname geoscale_leaftable
+#' @export
+#' @method as.data.frame Geoscale
+as.data.frame.Geoscale <- function(x, row.names = NULL, optional = FALSE,
+                                   ...) {
+  geoscale_leaftable(x)
+}
+
+S7::method(as.data.frame, Geoscale) <- as.data.frame.Geoscale
+
+#' @rdname geoscale_leaftable
+#' @export
+`as.data.frame.geoscales::Geoscale` <- as.data.frame.Geoscale
 
 #' Weight columns of a Geoscale
 #'
@@ -449,3 +470,147 @@ S7::method(print, Geoscale) <- print.Geoscale
 # base-R `print()` finds it before falling through to `print.S7_object`.
 #' @export
 `print.geoscales::Geoscale` <- print.Geoscale
+
+# Summary ----------------------------------------------------------------------
+
+#' Summarize a Geoscale
+#'
+#' Complements [print()] with the quantitative view: per-weight totals
+#' and coverage, the adjacent-geoframe nesting table, and the geometry
+#' status. Returns a `"summary_Geoscale"` object (a list) with its own
+#' print method — the mirror of `summary.Calendar()` in timescales.
+#' sf-free: geometry is reported from the object itself, never touched.
+#'
+#' @param object A [`Geoscale`].
+#' @param x A `"summary_Geoscale"` object (the print method's argument).
+#' @param ... Ignored.
+#' @return `summary()` returns a list of class `"summary_Geoscale"`:
+#'   `name`, `desc`, `geoframes` (named member counts), `unassigned`
+#'   (named NA-atom counts), `n_atoms`, `weights`, `weight_totals`,
+#'   `default_weight`, `coverage` (see [geoscale_coverage()]),
+#'   `sampled`, `parent_name`, `nesting` (adjacent-pair table with
+#'   offender counts, see [geoscale_nests()]), `geometry` (attached /
+#'   n_features / crs), `source`.
+#' @examples
+#' summary(geoscale_example())
+#' summary(filter_geoscale(geoscale_example(), "country", "N"))
+#' @export
+#' @method summary Geoscale
+summary.Geoscale <- function(object, ...) {
+  meta <- S7::prop(object, "meta")
+  lt <- S7::prop(object, "leaftable")
+  gf <- S7::prop(object, "geoframes")
+  wts <- geoscale_weights(object)
+  cov <- geoscale_coverage(object)
+  geom <- S7::prop(object, "geometry")
+
+  nesting <- NULL
+  if (length(gf) > 1L) {
+    nesting <- do.call(rbind, lapply(seq_len(length(gf) - 1L), function(i) {
+      ok <- geoscale_nests(object, gf[i], gf[i + 1L])
+      data.frame(parent = gf[i], child = gf[i + 1L],
+                 nests = isTRUE(ok),
+                 n_offenders = length(attr(ok, "offenders")),
+                 stringsAsFactors = FALSE)
+    }))
+  }
+
+  out <- list(
+    name = meta[["name"]] %||% "",
+    desc = meta[["desc"]] %||% "",
+    geoframes = vapply(S7::prop(object, "members"), length, integer(1)),
+    unassigned = vapply(gf, function(l) sum(is.na(lt[[l]])), integer(1)),
+    n_atoms = nrow(lt),
+    weights = wts,
+    weight_totals = if (length(wts)) {
+      colSums(as.data.frame(lt)[, wts, drop = FALSE], na.rm = TRUE)
+    } else numeric(0),
+    default_weight = meta[["default_weight"]],
+    coverage = cov,
+    sampled = any(cov < 1),
+    parent_name = meta[["parent_name"]],
+    nesting = nesting,
+    geometry = list(attached = !is.null(geom),
+                    n_features = if (is.null(geom)) 0L else length(geom),
+                    crs = meta[["crs"]]),
+    source = meta[["source"]]
+  )
+  class(out) <- "summary_Geoscale"
+  out
+}
+
+S7::method(summary, Geoscale) <- summary.Geoscale
+
+#' @rdname summary.Geoscale
+#' @export
+`summary.geoscales::Geoscale` <- summary.Geoscale
+
+#' @rdname summary.Geoscale
+#' @export
+#' @method print summary_Geoscale
+print.summary_Geoscale <- function(x, ...) {
+  cat("<summary of Geoscale",
+      if (nzchar(x$name)) paste0("'", x$name, "'"), ">\n")
+  if (nzchar(x$desc)) cat("  desc:          ", x$desc, "\n", sep = "")
+  cat("  geoframes:      ",
+      paste(sprintf("%s (%d)", names(x$geoframes), x$geoframes),
+            collapse = " / "), "\n", sep = "")
+  cat("  atoms:          ", x$n_atoms, "\n", sep = "")
+  if (any(x$unassigned > 0)) {
+    ua <- x$unassigned[x$unassigned > 0]
+    cat("  unassigned:     ",
+        paste(sprintf("%s (%d)", names(ua), ua), collapse = ", "),
+        "\n", sep = "")
+  }
+  if (length(x$weights)) {
+    cat("  weight totals:  ",
+        paste(sprintf("%s = %s", names(x$weight_totals),
+                      format(x$weight_totals, big.mark = ",",
+                             digits = 6)),
+              collapse = ", "),
+        if (!is.null(x$default_weight)) {
+          paste0("  (default: ", x$default_weight, ")")
+        },
+        "\n", sep = "")
+  }
+  if (isTRUE(x$sampled)) {
+    cat("  SAMPLED:        ",
+        paste(sprintf("%s %.1f%%", names(x$coverage), 100 * x$coverage),
+              collapse = ", "),
+        if (!is.null(x$parent_name) && nzchar(x$parent_name)) {
+          paste0(" of '", x$parent_name, "'")
+        },
+        "\n", sep = "")
+  }
+  if (!is.null(x$nesting)) {
+    for (i in seq_len(nrow(x$nesting))) {
+      r <- x$nesting[i, ]
+      cat("  nesting:        ", r$parent, " > ", r$child, ": ",
+          if (r$nests) "nested" else
+            paste0("CROSS-CUTTING (", r$n_offenders, " offender(s))"),
+          "\n", sep = "")
+    }
+  }
+  cat("  geometry:       ",
+      if (x$geometry$attached) {
+        paste0("attached (", x$geometry$n_features, " features",
+               if (!is.null(x$geometry$crs)) paste0(", ", x$geometry$crs),
+               ")")
+      } else "none",
+      "\n", sep = "")
+  if (!is.null(x$source)) cat("  source:         ", x$source, "\n",
+                              sep = "")
+  invisible(x)
+}
+
+# Other base generics ----------------------------------------------------------
+
+#' @rdname geoscale_geoframes
+#' @export
+#' @method names Geoscale
+names.Geoscale <- function(x) geoscale_geoframes(x)
+
+S7::method(names, Geoscale) <- names.Geoscale
+
+#' @export
+`names.geoscales::Geoscale` <- names.Geoscale

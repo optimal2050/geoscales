@@ -71,6 +71,7 @@ reference:
       - geoscale_regions
       - geoscale_rank
       - geoscale_weights
+      - summary.Geoscale
       - "[.Geoscale"
 
   - title: Construction
@@ -114,6 +115,7 @@ reference:
       - filter_geoscale
       - geoscale_coverage
       - prune_geoscale
+      - zoom_geoscale
       - geoscale_share
 
   - title: Geometry

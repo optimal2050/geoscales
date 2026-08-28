@@ -142,6 +142,7 @@ A nested spatial partition: a flat table of weighted leaf regions
   : A small example Geoscale
 
 - [`geoscale_geoframes()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.md)
+  [`names(`*`<Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.md)
   : Geoframes of a Geoscale
 
 - [`geoscale_regions()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_regions.md)
@@ -152,6 +153,11 @@ A nested spatial partition: a flat table of weighted leaf regions
 
 - [`geoscale_weights()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_weights.md)
   : Weight columns of a Geoscale
+
+- [`summary(`*`<Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/summary.Geoscale.md)
+  [`summary(`*`<geoscales::Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/summary.Geoscale.md)
+  [`print(`*`<summary_Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/summary.Geoscale.md)
+  : Summarize a Geoscale
 
 - [`` `[`( ``*`<Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/sub-.Geoscale.md)
   [`` `[`( ``*`<geoscales::Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/sub-.Geoscale.md)
@@ -217,6 +223,9 @@ geoframe.
   [`geoscale_ancestors()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_navigate.md)
   : Navigate a region hierarchy
 - [`geoscale_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_leaftable.md)
+  [`as.data.frame(`*`<Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/geoscale_leaftable.md)
+  [`as.data.frame(`*`<geoscales::Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/geoscale_leaftable.md)
+  [`fortify(`*`<Geoscale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/geoscale_leaftable.md)
   : The leaftable of a Geoscale
 - [`geoscale_family()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_family.md)
   : Immediate parent-child table between two geoframes
@@ -230,6 +239,8 @@ geoframe.
   : Sampled coverage of a Geoscale
 - [`prune_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.md)
   : Collapse a Geoscale to a coarser geoframe
+- [`zoom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/zoom_geoscale.md)
+  : Telescoping zoom: fine detail in a focus area, coarse elsewhere
 - [`geoscale_share()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_share.md)
   : Weight shares within a geoframe
 

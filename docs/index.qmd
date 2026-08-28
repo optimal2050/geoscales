@@ -1,5 +1,5 @@
 ---
-title: "geoscales"
+title: "![](logo.png){width=110px style='float: right; margin-left: 1rem;'} geoscales"
 subtitle: "Nested regions and spatial hierarchies for optimization and simulation models"
 format:
   html:
@@ -11,67 +11,26 @@ format:
 ---
 
 ::: {.lead}
-`geoscales` is the **spatial-domain** package of the
-[optimal2050](https://github.com/optimal2050) modeling stack, and the spatial
-companion to [`timescales`](https://optimal2050.github.io/timescales/).
+`geoscales` organizes the spatial dimension of model data: build nested
+region hierarchies over weighted atoms — including geoframes that
+cross-cut one another, since every conversion routes through the atom
+layer — keep your tables as tables while they gain spatial structure,
+convert values between region systems with conserved totals, sample
+sub-territories, and see every level of a hierarchy at once. The R
+implementation is active; a C++ core and Python bindings are in
+development.
 :::
 
-A **Geoscale** is a nested spatial partition: a flat table of weighted leaf
-regions — *atoms* — plus the ordered levels that group them. It is what a
-calendar is to time, for space.
-
-Two things about geography shape the whole design:
-
-- **Levels need not nest.** Real hierarchies cross-cut: a grid zone can
-  straddle two states. Every conversion therefore routes through the atom
-  layer, and cross-cutting levels work without special handling.
-- **Region codes are not unique across levels.** The same code often names a
-  district *and* the state containing it, so every lookup states its level.
-
-Aggregation and disaggregation are a single operation, `geo_recast()`: values
-are projected down to atoms and aggregated up to the target, so the direction
-follows the level ranks.
-
-## Documentation by language
-
-This is a multi-language project. The R implementation is complete; the C++
-core and Python bindings are planned.
+## Documentation
 
 | Language | Status | Documentation |
 |----------|--------|---------------|
 | **R** | Available | [R reference and articles](r/) |
-| **C++** | Phase 2 — planned | — |
-| **Python** | Phase 3 — planned | — |
+| **C++** | In development | — |
+| **Python** | In development | — |
 
-A single implementation defines the behaviour, and language-agnostic golden
-fixtures under `specs/` will keep the ports honest.
-
-## Getting started
-
-```r
-# install.packages("remotes")
-remotes::install_github("optimal2050/geoscales")
-```
-
-```r
-library(geoscales)
-
-gs <- geoscale_example()
-
-# fine -> coarse: totals are preserved
-cap <- data.frame(atom = c("A1", "A2", "A3"), capacity = c(1, 2, 3))
-geo_recast(cap, gs, from = "atom", to = "country", rule = "sum")
-```
-
-See [Getting started](r/articles/geoscales.html) for the full tour, and
-[Building a Geoscale from Natural Earth](r/articles/from-naturalearth.html)
-for real-world geography — including the four Natural Earth pitfalls the
-provider handles for you.
-
-## Project
-
-- [R documentation](r/)
 - [Source on GitHub](https://github.com/optimal2050/geoscales)
-- [Companion package: timescales](https://optimal2050.github.io/timescales/)
+- Companion package for the time dimension:
+  [timescales](https://optimal2050.github.io/timescales/)
 
 Released under the Apache License 2.0.
