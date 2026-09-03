@@ -1,4 +1,29 @@
-# geoscales 0.5.0.9000
+# geoscales 0.5.4
+
+* `recast_pairs()` aggregates data keyed by a *pair* of regions -- transmission
+  corridors, trade flows, commuting matrices. Both endpoints are mapped, pairs
+  that land inside a single target region are dropped as internal, and the rest
+  are aggregated by rule. `directed = FALSE` merges `A->B` with `B->A`.
+* `recast_from_geoatoms(weight =)` now names a column of `x`, so the weight can
+  vary by identifier -- a capacity-weighted efficiency differs by year and
+  vintage. Previously only a column literally named `weight` was honoured.
+* `na_rm = TRUE` in `recast_from_geoatoms()` and `recast_pairs()` reads an `NA`
+  as "this member says nothing" instead of letting it make the whole group
+  `NA`. Only an all-`NA` group stays `NA`, and a weighted mean drops the weight
+  of each `NA` member so the divisor still matches.
+* `rule` and `weight` accept a named vector, one entry per value column. One
+  slot of a model can hold an extensive and an intensive quantity side by side,
+  which previously took two calls.
+
+* `summary()` output now prints with its formatted view from user code:
+  the local `print` binding S7 leaves in the namespace had captured the
+  `S3method()` registration of `print.summary_Geoscale`, so the method
+  was invisible outside the package. Registered against base's `print`
+  in `.onLoad` (same fix in timescales).
+* Icicle labels no longer overprint: `geoscale_autoplot()` now draws
+  labels widest-rectangle-first with `check_overlap = TRUE` (matching
+  the timescales icicle), so narrow regions lose their label instead
+  of smearing the band.
 
 * `Remotes:` added to DESCRIPTION so CI and `pak` users can resolve
   the GitHub-only timescales Import and energypal Suggests from GitHub (the packages are not on CRAN/r-universe yet).

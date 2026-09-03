@@ -36,9 +36,25 @@
 #' silently guessed rule is a silent unit error waiting to happen.
 #' @noRd
 .geo_rules_for <- function(values, rule, weight) {
+  # `rule` and `weight` are either one value for every column or a named
+  # vector selecting per column -- one slot of a model can hold an extensive
+  # and an intensive quantity side by side.
+  pick <- function(spec, v, arg) {
+    if (is.null(spec)) return(NULL)
+    if (is.null(names(spec))) {
+      if (length(spec) != 1L) {
+        .stop("`%s` must be one value or a NAMED vector, one per column", arg)
+      }
+      return(spec[[1L]])
+    }
+    if (!v %in% names(spec)) return(NULL)
+    spec[[v]]
+  }
   out <- lapply(values, function(v) {
-    if (!is.null(rule)) {
-      return(list(rule = match.arg(rule, GEOSCALE_RULES), weight = weight))
+    r <- pick(rule, v, "rule")
+    w <- pick(weight, v, "weight")
+    if (!is.null(r)) {
+      return(list(rule = match.arg(r, GEOSCALE_RULES), weight = w))
     }
     reg <- get_geoscale_rule(v)
     if (is.null(reg)) {
@@ -46,7 +62,7 @@
                    "or register one with register_geoscale_rule(\"%s\", ...)"),
             v, v)
     }
-    list(rule = reg$rule, weight = weight %||% reg$weight)
+    list(rule = reg$rule, weight = w %||% reg$weight)
   })
   names(out) <- values
   out
@@ -139,6 +155,64 @@
 #' contract order: identifier groups in first-appearance order, target
 #' codes in member order, the NA row (if any) last.
 #' @noRd
+#' Aggregation expressions for one group of rows
+#'
+#' `weighted_mean` falls back to a plain mean when the weights sum to zero,
+#' which keeps a group of zero-weight members at their common value instead
+#' of `NaN`.
+#'
+#' With `na_rm = TRUE` an `NA` is read as "this member says nothing" rather
+#' than as an unknown that poisons the group: the other members decide the
+#' result, and only an all-`NA` group stays `NA`. A weighted mean also drops
+#' the weight of each `NA` member, so the remaining weights still sum to the
+#' divisor.
+#' @noRd
+.geo_group_exprs <- function(values, rules, wt_col, na_rm = FALSE) {
+  exprs <- list()
+  ww <- rlang::sym(wt_col)
+  for (v in values) {
+    sym <- rlang::sym(v)
+    if (!na_rm) {
+      exprs[[v]] <- switch(
+        rules[[v]]$rule,
+        sum = rlang::expr(sum(!!sym)),
+        mean = rlang::expr(mean(!!sym)),
+        weighted_mean = rlang::expr(dplyr::if_else(
+          sum(!!ww) > 0,
+          sum(!!sym * !!ww) / sum(!!ww),
+          mean(!!sym))),
+        copy = rlang::expr(mean(!!sym)),
+        sd = rlang::expr(stats::sd(!!sym)),
+        .stop("Unknown rule: %s", rules[[v]]$rule)
+      )
+      next
+    }
+    # n_ok counts the members that said something; 0 means the whole group
+    # was silent and the result stays NA.
+    n_ok <- rlang::expr(sum(as.integer(!is.na(!!sym))))
+    w_ok <- rlang::expr(sum(dplyr::if_else(is.na(!!sym), 0, !!ww)))
+    exprs[[v]] <- switch(
+      rules[[v]]$rule,
+      sum = rlang::expr(dplyr::if_else(
+        !!n_ok > 0, sum(!!sym, na.rm = TRUE), NA_real_)),
+      mean = rlang::expr(dplyr::if_else(
+        !!n_ok > 0, mean(!!sym, na.rm = TRUE), NA_real_)),
+      weighted_mean = rlang::expr(dplyr::if_else(
+        !!n_ok == 0, NA_real_,
+        dplyr::if_else(
+          !!w_ok > 0,
+          sum(dplyr::if_else(is.na(!!sym), 0, !!sym * !!ww),
+              na.rm = TRUE) / !!w_ok,
+          mean(!!sym, na.rm = TRUE)))),
+      copy = rlang::expr(dplyr::if_else(
+        !!n_ok > 0, mean(!!sym, na.rm = TRUE), NA_real_)),
+      sd = rlang::expr(stats::sd(!!sym, na.rm = TRUE)),
+      .stop("Unknown rule: %s", rules[[v]]$rule)
+    )
+  }
+  exprs
+}
+
 .geo_recast_complete <- function(res, idc, out_keys, key, id_cols, values) {
   full <- data.frame(x = out_keys, stringsAsFactors = FALSE)
   names(full) <- key
@@ -515,9 +589,18 @@ recast_geoscale <- function(x, gs, from = NULL, to,
 #' @param key The key column. `to_geoatoms`: defaults to `from` when that
 #'   column exists, otherwise `"region"`. `from_geoatoms`: default
 #'   `"region"`.
-#' @param values,rule,weight As in [`recast_geoscale()`].
+#' @param values,rule As in [`recast_geoscale()`].
+#' @param weight `to_geoatoms`: a declared weight column of `gs`, as in
+#'   [`recast_geoscale()`]. `from_geoatoms`: the name of a column of `x` to
+#'   weight by, so the weight may vary by identifier -- a capacity-weighted
+#'   efficiency differs by year and vintage. `NULL` (default) uses a `weight`
+#'   column of `x` if present, else the Geoscale's declared weight.
 #' @param attach_weight `to_geoatoms` only: attach the `weight` column
 #'   (default `TRUE`).
+#' @param na_rm `from_geoatoms` only: read an `NA` value as "this member says
+#'   nothing" rather than as an unknown that makes the whole group `NA`
+#'   (default `FALSE`). Only an all-`NA` group stays `NA`; a weighted mean
+#'   drops the weight of each `NA` member so the divisor still matches.
 #' @param na_action `from_geoatoms` only: what to do with atoms that have
 #'   no code at `to` -- `"drop"` (default, warning), `"error"`, or
 #'   `"keep"` (an `NA` region row).
@@ -627,6 +710,7 @@ recast_to_geoatoms <- function(x, gs, from = NULL,
 #' @export
 recast_from_geoatoms <- function(x, gs, to,
                                  key = NULL, values = NULL, rule = NULL,
+                                 weight = NULL, na_rm = FALSE,
                                  na_action = c("drop", "error", "keep"),
                                  collect = NULL) {
   na_action <- match.arg(na_action)
@@ -645,11 +729,25 @@ recast_from_geoatoms <- function(x, gs, to,
   }
 
   geoframes_all <- S7::prop(gs, "geoframes")
-  values <- .geo_values_for(schema, key, c(geoframes_all, "weight"), values)
+
+  # `weight` names a column of `x`, so the weight may vary by any id column --
+  # a capacity-weighted efficiency differs by year and vintage. Without it the
+  # conventional `weight` column is used, else the Geoscale's declared weight.
+  wt_col <- "weight"
+  if (!is.null(weight)) {
+    if (!is.character(weight) || length(weight) != 1L) {
+      .stop("`weight` must be a single column name of `x`")
+    }
+    if (!weight %in% names(schema)) {
+      .stop("`x` has no column named `%s` to weight by", weight)
+    }
+    wt_col <- weight
+  }
+  values <- .geo_values_for(schema, key, c(geoframes_all, wt_col), values)
   id_cols <- setdiff(names(schema),
-                     c(key, values, "weight", geoframes_all))
+                     c(key, values, wt_col, geoframes_all))
   rules <- .geo_rules_for(values, rule, NULL)
-  has_weight <- "weight" %in% names(schema)
+  has_weight <- wt_col %in% names(schema)
 
   leaves <- S7::prop(gs, "leaftable")
   atoms <- data.frame(
@@ -659,8 +757,8 @@ recast_from_geoatoms <- function(x, gs, to,
   )
   if (!has_weight) {
     wcol <- .map_weight(gs, NULL)
-    atoms$weight <- if (is.null(wcol)) 1 else as.numeric(leaves[[wcol]])
-    atoms$weight[is.na(atoms$weight)] <- 0
+    atoms[[wt_col]] <- if (is.null(wcol)) 1 else as.numeric(leaves[[wcol]])
+    atoms[[wt_col]][is.na(atoms[[wt_col]])] <- 0
   }
   names(atoms)[names(atoms) == "k"] <- key
 
@@ -704,23 +802,7 @@ recast_from_geoatoms <- function(x, gs, to,
 
   # Rule expressions on atom rows: n_overlap == 1 per row; weighted_mean
   # uses the carried (or attached) `weight`
-  exprs <- list()
-  ww <- rlang::sym("weight")
-  for (v in values) {
-    sym <- rlang::sym(v)
-    exprs[[v]] <- switch(
-      rules[[v]]$rule,
-      sum = rlang::expr(sum(!!sym)),
-      mean = rlang::expr(mean(!!sym)),
-      weighted_mean = rlang::expr(dplyr::if_else(
-        sum(!!ww) > 0,
-        sum(!!sym * !!ww) / sum(!!ww),
-        mean(!!sym))),
-      copy = rlang::expr(mean(!!sym)),
-      sd = rlang::expr(stats::sd(!!sym)),
-      .stop("Unknown rule: %s", rules[[v]]$rule)
-    )
-  }
+  exprs <- .geo_group_exprs(values, rules, wt_col, na_rm)
   copy_cols <- values[vapply(rules, function(r) r$rule == "copy",
                              logical(1))]
   .geo_check_copy_rule(joined, grp_cols, copy_cols)

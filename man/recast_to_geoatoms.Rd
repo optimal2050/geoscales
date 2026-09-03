@@ -24,6 +24,8 @@ recast_from_geoatoms(
   key = NULL,
   values = NULL,
   rule = NULL,
+  weight = NULL,
+  na_rm = FALSE,
   na_action = c("drop", "error", "keep"),
   collect = NULL
 )
@@ -43,7 +45,13 @@ aggregated into (\code{from_geoatoms}).}
 column exists, otherwise \code{"region"}. \code{from_geoatoms}: default
 \code{"region"}.}
 
-\item{values, rule, weight}{As in \code{\link[=recast_geoscale]{recast_geoscale()}}.}
+\item{values, rule}{As in \code{\link[=recast_geoscale]{recast_geoscale()}}.}
+
+\item{weight}{\code{to_geoatoms}: a declared weight column of \code{gs}, as in
+\code{\link[=recast_geoscale]{recast_geoscale()}}. \code{from_geoatoms}: the name of a column of \code{x} to
+weight by, so the weight may vary by identifier -- a capacity-weighted
+efficiency differs by year and vintage. \code{NULL} (default) uses a \code{weight}
+column of \code{x} if present, else the Geoscale's declared weight.}
 
 \item{attach_weight}{\code{to_geoatoms} only: attach the \code{weight} column
 (default \code{TRUE}).}
@@ -52,6 +60,11 @@ column exists, otherwise \code{"region"}. \code{from_geoatoms}: default
 query (default).}
 
 \item{to}{\code{from_geoatoms} only: target geoframe name.}
+
+\item{na_rm}{\code{from_geoatoms} only: read an \code{NA} value as "this member says
+nothing" rather than as an unknown that makes the whole group \code{NA}
+(default \code{FALSE}). Only an all-\code{NA} group stays \code{NA}; a weighted mean
+drops the weight of each \code{NA} member so the divisor still matches.}
 
 \item{na_action}{\code{from_geoatoms} only: what to do with atoms that have
 no code at \code{to} -- \code{"drop"} (default, warning), \code{"error"}, or

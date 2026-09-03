@@ -64,7 +64,10 @@ skip_if_not_installed("timescales")
   # rest of the month, monthly beyond) is conceptually valid and is
   # DEFERRED, not ruled out -- listed here so the parity test stays
   # honest about which one-siders are principled and which are pending.
-  "zoom_geoscale"
+  "zoom_geoscale",
+  # data keyed by a pair of regions -- a corridor, a flow, a commute. Two
+  # slices of time do not form an edge, so there is no time twin.
+  "recast_pairs"
 )
 # NOTE: recast_to/from_geoatoms are NOT one-siders (they pair with the
 # timebase route); they are in the list above only if translation fails --
