@@ -100,6 +100,7 @@ recast_pairs <- function(x, gs, to, from = NULL,
   values <- setdiff(values, dst)
   id_cols <- setdiff(names(schema), c(src, dst, values, wt_col, geoframes_all))
   rules <- .geo_rules_for(values, rule, NULL)
+  .geo_no_share(rules, "recast_pairs")
   has_weight <- wt_col %in% names(schema)
 
   # One lookup, applied to each endpoint. Codes nest, so this is a plain

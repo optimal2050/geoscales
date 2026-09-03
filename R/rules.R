@@ -24,13 +24,26 @@
 #'     Down: copy unchanged. For region-invariant scalars.}
 #'   \item{`sd`}{Up: standard deviation over the atoms (aggregation only;
 #'     going down it degenerates to `NA` for single-atom groups).}
+#'   \item{`share`}{Share within parent: each source region's value divided
+#'     by the total over its parent group. Unlike every other rule the
+#'     result stays keyed at the **source** geoframe -- the recast target
+#'     (or `parent=`) names the parent -- so it cannot be mixed with other
+#'     rules in one call (the two share rules mix freely, being one
+#'     computation). For building distribution keys and normalised
+#'     profiles; requires `from` to nest within the parent.}
+#'   \item{`logshare`}{The same computation as `share` -- the values ARE
+#'     shares -- but figures draw it on a fixed log10 percent scale
+#'     (0.01%..100%), where `share` gets a fixed linear 0..1 scale. Use it
+#'     when sibling counts differ by orders of magnitude and the linear
+#'     scale flattens the crowded groups.}
 #' }
 #'
-#' @format A character vector of length 5.
+#' @format A character vector of length 7.
 #' @examples
 #' GEOSCALE_RULES
 #' @export
-GEOSCALE_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd")
+GEOSCALE_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd", "share",
+                    "logshare")
 
 #' @noRd
 .RULE_REGISTRY <- new.env(parent = emptyenv())

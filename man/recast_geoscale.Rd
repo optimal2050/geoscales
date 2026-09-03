@@ -14,6 +14,7 @@ recast_geoscale(
   rule = NULL,
   weight = NULL,
   na_action = c("drop", "error", "keep"),
+  parent = NULL,
   collect = NULL
 )
 }
@@ -55,6 +56,10 @@ that choice is material, i.e. when disaggregating).}
 \code{to}: \code{"drop"} (default, with a warning -- the affected source share
 is genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA}
 region row so totals conserve).}
+
+\item{parent}{\code{rule = "share"} only: the geoframe defining the groups
+the shares are taken within. \code{NULL} (default) uses \code{to} when it
+differs from \code{from}, else the geoframe immediately above \code{from}.}
 
 \item{collect}{For lazy inputs (arrow, dtplyr): materialise the result
 (\code{TRUE}) or return the uncollected query (default).}
@@ -102,6 +107,17 @@ aggregation-only.
 downstream, \code{energyRt} reads \code{NA} in a region column as a \emph{wildcard
 meaning all regions}, so \code{"keep"} output should not be passed there
 unfiltered.
+
+\code{"share"} inverts the output contract: the result stays keyed at \code{from},
+and each value becomes that region's share of the total over its parent
+group (so the shares sum to 1 per parent, per identifier combination).
+The parent is \verb{parent=}, defaulting to \code{to} (the reading of
+\code{recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")}:
+each nuts3's share within its nuts0); \code{from} must nest within it. A
+parent group whose total is zero yields \code{NA} shares, and an \code{NA} value
+poisons its group like everywhere else in the package. \code{"share"} cannot
+be combined with other rules in one call, and \verb{weight=} is ignored --
+the observed values themselves are the weights.
 }
 \section{Backends}{
 
@@ -131,4 +147,7 @@ z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
 recast_geoscale(z, gs, from = "atom", to = "state",
                 rule = "weighted_mean")
+
+# Share within parent: result stays at the atoms, sums to 1 per country
+recast_geoscale(x, gs, from = "atom", to = "country", rule = "share")
 }

@@ -1,5 +1,22 @@
 # geoscales 0.5.4
 
+* New rule `"share"`: share within parent. Each source region's value over
+  its parent-group total, keyed at the *source* geoframe --
+  `recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")`
+  gives each nuts3's share of its country, summing to 1 per parent. The
+  parent is `to`, or the new `parent=` argument (default: the geoframe
+  above `from`); `from` must nest within it. `"logshare"` is the same
+  computation with a log-scale display intent. Mirrored in timescales.
+* The stack and icicle data fills accept `rule = "share"`: each plane is
+  coloured by its regions' share within the nearest coarser plane it
+  nests in (the coarsest by the grand total), legend "Share".
+  `"share"` draws on a fixed linear 0..1 scale, `"logshare"` (the same
+  computation) on a fixed log10 percent scale (0.01%..100%) for when
+  sibling counts differ by orders of magnitude; fixed limits either way,
+  so any two share figures are colour-comparable. `palette = NULL` plus
+  your own scale overrides it.
+* The default viridis palette option is `"H"` (was `"G"`), and the
+  icicle's data fill now honours `palette=` instead of hard-coding one.
 * `recast_pairs()` aggregates data keyed by a *pair* of regions -- transmission
   corridors, trade flows, commuting matrices. Both endpoints are mapped, pairs
   that land inside a single target region are dropped as internal, and the rest

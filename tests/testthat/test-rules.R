@@ -70,7 +70,8 @@ test_that("unregistered columns error: no rule fallback", {
 
 test_that("the rule and geoframe constants are pinned", {
   expect_identical(GEOSCALE_RULES,
-                   c("sum", "weighted_mean", "mean", "copy", "sd"))
+                   c("sum", "weighted_mean", "mean", "copy", "sd",
+                     "share", "logshare"))
   # same rule SET as the sibling (element order is presentation only)
   if (requireNamespace("timescales", quietly = TRUE)) {
     expect_setequal(GEOSCALE_RULES, timescales::CALENDAR_RULES)

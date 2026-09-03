@@ -178,7 +178,10 @@ geoscale_layout <- function(x, weight = NULL) {
 #'   the atoms to each coarser geoframe (`"weighted_mean"` default; see
 #'   [`recast_geoscale()`]). The icicle `weight` argument doubles as
 #'   the weight column for `"weighted_mean"` (`NULL` = the geoscale's
-#'   default weight).
+#'   default weight). `"share"` colours every plane by each region's
+#'   share within the plane above it (the coarsest plane by its share of
+#'   the grand total), so the whole figure reads on one 0..1 scale;
+#'   `weight` plays no part.
 #' @param labels `type = "stack"` only: character vector of geoframes
 #'   whose regions get their display names (the `@meta$labels` column,
 #'   falling back to codes) drawn on the plane. `NULL` (default) = none.
@@ -202,11 +205,14 @@ geoscale_layout <- function(x, weight = NULL) {
 #'   the corresponding frame corners of adjacent planes -- the vertical
 #'   guides of the stack. `TRUE` uses the frame colour, a colour string
 #'   picks its own; default `FALSE`.
-#' @param palette `type = "stack"` only: viridis palette option
-#'   (`"A"`..`"H"`) for the plane fill. Default `"G"`. `NULL` adds no
+#' @param palette Viridis palette option (`"A"`..`"H"`) for the plane
+#'   fill and for both types' `data` fills. Default `"H"`. `NULL` adds no
 #'   fill scale at all, so you can supply your own -- e.g.
 #'   `energypal::scale_fill_energy_b()` for the Global Wind Atlas
-#'   colours on their absolute breaks.
+#'   colours on their absolute breaks. With `rule = "share"` the fill is
+#'   a fixed linear 0..1 scale, with `"logshare"` a fixed log10 percent
+#'   scale (0.01%..100%) -- either way any two share figures are
+#'   colour-comparable.
 #' @param ... Unused.
 #'
 #' @return A `ggplot` object.
@@ -226,7 +232,7 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
                               precision = 0,
                               data = NULL, z = NULL,
                               rule = "weighted_mean",
-                              labels = NULL, palette = "G",
+                              labels = NULL, palette = "H",
                               colour = "grey35", linewidth = 0.2,
                               frame = NULL, frame_fill = NA,
                               connectors = FALSE,
@@ -288,8 +294,15 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
   if (!is.null(vals)) {
     # continuous value fill: viridis + a retitle-able legend, and label
     # colours that keep contrast on dark cells
-    p <- p + ggplot2::scale_fill_viridis_c(option = "G") +
-      ggplot2::labs(fill = z)
+    is_share <- any(rule %in% c("share", "logshare"))
+    if (!is.null(palette)) {                 # NULL = caller adds a scale
+      p <- p + if (is_share) {
+        .share_fill_scale(palette, log = any(rule %in% "logshare"))
+      } else {
+        ggplot2::scale_fill_viridis_c(option = palette)
+      }
+    }
+    p <- p + ggplot2::labs(fill = if (is_share) "Share" else z)
   }
   if (isTRUE(label)) {
     # check_overlap keeps the first label drawn, so order widest-first --
@@ -334,11 +347,82 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
                  "(column `%s`); recast coarser data down first"),
           atom_gf)
   }
+  if (any(rule %in% c("share", "logshare"))) {
+    return(.geoscale_frame_shares(x, gfs, data, z))
+  }
   vals <- lapply(gfs, function(gf) {
     if (gf == atom_gf) return(data[, c(atom_gf, z)])
     recast_geoscale(data[, c(atom_gf, z)], x,
                     from = atom_gf, to = gf,
                     values = z, rule = rule, weight = weight)
+  })
+  stats::setNames(vals, gfs)
+}
+
+#' Fill scale for a share fill. A share's magnitude scales with how many
+#' siblings divide the parent, which varies by orders of magnitude across
+#' the planes, so a linear 0..1 scale flattens the crowded ones to black;
+#' log10 spreads the decades. A zero share falls outside the transform
+#' and takes the na colour -- visually "nothing here", which it is.
+#' Callers override with `palette = NULL` plus their own scale.
+#' @noRd
+.share_fill_scale <- function(palette, log = FALSE) {
+  # FIXED limits either way: any two share figures map colour
+  # identically, so they compare across variables and renders. "share"
+  # is the plain 0..1 scale; "logshare" spreads the decades (below-limit
+  # values squish to the darkest colour rather than vanishing; only true
+  # zeros, outside the log transform entirely, take the na colour).
+  if (!log) {
+    return(ggplot2::scale_fill_viridis_c(
+      option = palette, limits = c(0, 1),
+      breaks = c(0, 0.25, 0.5, 0.75, 1),
+      na.value = "grey85"))
+  }
+  ggplot2::scale_fill_viridis_c(
+    option = palette, transform = "log10",
+    limits = c(1e-4, 1),
+    oob = scales::oob_squish,
+    breaks = c(1e-4, 1e-3, 1e-2, 1e-1, 1),
+    labels = c("0.01%", "0.1%", "1%", "10%", "100%"),
+    na.value = "grey85")
+}
+
+#' Does every region of `from` fall inside exactly one region of `to`?
+#' Cross-cutting geoframes (IDEEA's reg35/reg32) fail this.
+#' @noRd
+.geo_nests <- function(gs, from, to) {
+  map <- geoscale_map(from, to, gs = gs)
+  mem <- unique(map[, c(from, to)])
+  n_par <- table(mem[[from]][!is.na(mem[[to]])])
+  all(n_par <= 1L)
+}
+
+#' The share fill: every plane shows each region's share within the
+#' nearest coarser plane it NESTS in -- normally the plane directly above
+#' it; a cross-cutting plane climbs further, and the coarsest plane (or
+#' one nesting in nothing above it) is normalised by the grand total. So
+#' the whole figure reads on one 0..1 scale. Values sum-aggregate from
+#' the atoms to each plane first; `weight` plays no part, as in the rule.
+#' @noRd
+.geoscale_frame_shares <- function(x, gfs, data, z) {
+  atom_gf <- gfs[length(gfs)]
+  vals <- lapply(seq_along(gfs), function(i) {
+    gf <- gfs[[i]]
+    s <- if (gf == atom_gf) {
+      data[, c(atom_gf, z)]
+    } else {
+      recast_geoscale(data[, c(atom_gf, z)], x, from = atom_gf, to = gf,
+                      values = z, rule = "sum")
+    }
+    for (j in rev(seq_len(i - 1L))) {
+      if (.geo_nests(x, gf, gfs[[j]])) {
+        return(recast_geoscale(s, x, from = gf, to = gfs[[j]],
+                               values = z, rule = "share"))
+      }
+    }
+    tot <- sum(s[[z]], na.rm = TRUE)
+    s[[z]] <- if (tot != 0) s[[z]] / tot else NA_real_
+    s
   })
   stats::setNames(vals, gfs)
 }
@@ -502,7 +586,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
                                  data = NULL, z = NULL,
                                  rule = "weighted_mean",
                                  weight = NULL,
-                                 labels = NULL, palette = "G",
+                                 labels = NULL, palette = "H",
                                  colour = "grey35", linewidth = 0.2,
                                  frame = NULL, frame_fill = NA,
                                  connectors = FALSE) {
@@ -661,10 +745,15 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
                                 size = 2.4, colour = "grey10")
   }
   # legend title via labs() so callers can retitle with `+ labs(fill = )`
-  if (!is.null(vals)) p <- p + ggplot2::labs(fill = z)
+  if (!is.null(vals)) {
+    p <- p + ggplot2::labs(
+      fill = if (any(rule %in% c("share", "logshare"))) "Share" else z)
+  }
   if (!is.null(palette)) {                   # NULL = caller adds a scale
     p <- p + if (is.null(vals)) {
       ggplot2::scale_fill_viridis_d(option = palette)
+    } else if (any(rule %in% c("share", "logshare"))) {
+      .share_fill_scale(palette, log = any(rule %in% "logshare"))
     } else {
       ggplot2::scale_fill_viridis_c(option = palette)
     }

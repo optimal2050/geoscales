@@ -24,7 +24,8 @@
 # =============================================================================
 
 # Internal working columns; user columns may not collide with these
-.GS_COLS <- c(".gs_to", ".gs_f", ".gs_n_from", ".gs_n_overlap", ".gs_w",
+.GS_COLS <- c(".gs_parent", ".gs_tot",
+              ".gs_to", ".gs_f", ".gs_n_from", ".gs_n_overlap", ".gs_w",
               ".gs_w_from")
 
 # -----------------------------------------------------------------------------
@@ -304,6 +305,9 @@
 #'   `to`: `"drop"` (default, with a warning -- the affected source share
 #'   is genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA`
 #'   region row so totals conserve).
+#' @param parent `rule = "share"` only: the geoframe defining the groups
+#'   the shares are taken within. `NULL` (default) uses `to` when it
+#'   differs from `from`, else the geoframe immediately above `from`.
 #' @param collect For lazy inputs (arrow, dtplyr): materialise the result
 #'   (`TRUE`) or return the uncollected query (default).
 #'
@@ -326,6 +330,17 @@
 #' meaning all regions*, so `"keep"` output should not be passed there
 #' unfiltered.
 #'
+#' `"share"` inverts the output contract: the result stays keyed at `from`,
+#' and each value becomes that region's share of the total over its parent
+#' group (so the shares sum to 1 per parent, per identifier combination).
+#' The parent is `parent=`, defaulting to `to` (the reading of
+#' `recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")`:
+#' each nuts3's share within its nuts0); `from` must nest within it. A
+#' parent group whose total is zero yields `NA` shares, and an `NA` value
+#' poisons its group like everywhere else in the package. `"share"` cannot
+#' be combined with other rules in one call, and `weight=` is ignored --
+#' the observed values themselves are the weights.
+#'
 #' @examples
 #' gs <- geoscale_example()
 #'
@@ -344,6 +359,9 @@
 #'                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
 #' recast_geoscale(z, gs, from = "atom", to = "state",
 #'                 rule = "weighted_mean")
+#'
+#' # Share within parent: result stays at the atoms, sums to 1 per country
+#' recast_geoscale(x, gs, from = "atom", to = "country", rule = "share")
 #' @export
 recast_geoscale <- function(x, gs, from = NULL, to,
                             key = NULL,
@@ -351,6 +369,7 @@ recast_geoscale <- function(x, gs, from = NULL, to,
                             rule = NULL,
                             weight = NULL,
                             na_action = c("drop", "error", "keep"),
+                            parent = NULL,
                             collect = NULL) {
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
@@ -372,6 +391,10 @@ recast_geoscale <- function(x, gs, from = NULL, to,
 
   # -- cross-object route: `to` is another Geoscale ---------------------------
   if (S7::S7_inherits(to, Geoscale)) {
+    if (any(rule %in% c("share", "logshare"))) {
+      .stop(paste0("rule \"share\" needs a parent geoframe of the same ",
+                   "Geoscale; it cannot recast across objects"))
+    }
     g <- recast_to_geoatoms(x, gs, from = from, key = key, values = values,
                             rule = rule, weight = weight, collect = collect)
     return(recast_from_geoatoms(g, to,
@@ -402,6 +425,25 @@ recast_geoscale <- function(x, gs, from = NULL, to,
   if (length(intersect(src_keys, known)) == 0L) {
     .stop(paste0("no rows of `x` matched geoframe `%s`; check `from=` and ",
                  "the `%s` column"), from, key)
+  }
+
+  # -- share within parent: result keyed at `from`, one rule for all ----------
+  is_share <- vapply(rules, function(r)
+    r$rule %in% c("share", "logshare"), logical(1))
+  if (any(is_share)) {
+    if (!all(is_share)) {
+      .stop(paste0("rule \"share\" changes the output key to `from` and ",
+                   "cannot be mixed with other rules in one call; recast ",
+                   "the columns separately"))
+    }
+    if (!is.null(weight)) {
+      .warn("`weight` is ignored by rule \"share\": the values are the weights")
+    }
+    return(.geo_recast_share(x, backend, gs, from, to, key, values,
+                             id_cols, parent, na_action, collect))
+  }
+  if (!is.null(parent)) {
+    .stop("`parent` applies to rule \"share\" only")
   }
 
   if (na_action == "error") {
@@ -503,6 +545,128 @@ recast_geoscale <- function(x, gs, from = NULL, to,
   out_keys <- c(target_keys, if (keep_na_row) NA_character_)
   out <- .geo_recast_complete(res, idc, out_keys, to, id_cols, values)
   .gs_restore(out, backend, collect = collect)
+}
+
+#' Resolve the parent geoframe for rule "share": explicit `parent=` wins,
+#' then `to` when it differs from `from`, then the geoframe immediately
+#' above `from` (geoframes are ordered coarsest first).
+#' @noRd
+.geo_share_parent <- function(gs, from, to, parent) {
+  if (!is.null(parent)) {
+    .check_geoframe(gs, parent, "parent")
+    if (!identical(to, from) && !identical(to, parent)) {
+      .stop(paste0("conflicting parents: `to = \"%s\"` vs `parent = \"%s\"`; ",
+                   "for rule \"share\" pass the parent once"), to, parent)
+    }
+  } else if (!identical(to, from)) {
+    parent <- to
+  } else {
+    gf <- S7::prop(gs, "geoframes")
+    i <- match(from, gf)
+    if (is.na(i) || i <= 1L) {
+      .stop("`%s` has no coarser geoframe; pass `parent=`", from)
+    }
+    parent <- gf[[i - 1L]]
+  }
+  if (geoscale_rank(gs, parent) >= geoscale_rank(gs, from)) {
+    .stop(paste0("rule \"share\": parent `%s` must be coarser than ",
+                 "`from = \"%s\"`"), parent, from)
+  }
+  parent
+}
+
+#' rule = "share": each source region's value over its parent-group total.
+#' Output is keyed at `from` -- the one rule that does not change the key.
+#' @noRd
+.geo_recast_share <- function(x, backend, gs, from, to, key, values,
+                              id_cols, parent, na_action, collect) {
+  parent <- .geo_share_parent(gs, from, to, parent)
+
+  map <- geoscale_map(from, parent, gs = gs)
+  mem <- unique(map[, c(from, parent)])
+
+  # shares within a parent are only well-defined when `from` nests in it
+  n_par <- table(mem[[from]][!is.na(mem[[parent]])])
+  split_codes <- names(n_par)[n_par > 1L]
+  if (length(split_codes) > 0L) {
+    .stop(paste0("rule \"share\": %d region(s) of `%s` straddle more than ",
+                 "one `%s` (%s); `from` must nest within the parent"),
+          length(split_codes), from, parent, .preview(split_codes))
+  }
+
+  orphan <- is.na(mem[[parent]])
+  if (any(orphan)) {
+    if (na_action == "error") {
+      .stop(paste0("%d region(s) of `%s` have no code at parent `%s`; ",
+                   "use na_action = \"drop\" or \"keep\""),
+            sum(orphan), from, parent)
+    }
+    if (na_action == "drop") {
+      .warn(paste0("%d region(s) of `%s` have no code at parent `%s` and ",
+                   "get NA shares (%s). Use na_action = \"keep\" to treat ",
+                   "them as one group."),
+            sum(orphan), from, parent, .preview(mem[[from]][orphan]))
+      mem <- mem[!orphan, , drop = FALSE]
+    }
+    # "keep": the NA parent stays as an explicit group
+  }
+
+  jmem <- mem
+  names(jmem) <- c(key, ".gs_parent")
+
+  xq <- dplyr::select(.gs_lazy(x, backend),
+                      dplyr::all_of(c(id_cols, key, values)))
+  joined <- dplyr::inner_join(xq, jmem, by = key)
+
+  tot_nms <- paste0(".gs_tot_", seq_along(values))
+  tot_exprs <- lapply(values, function(v)
+    rlang::expr(sum(!!rlang::sym(v))))
+  names(tot_exprs) <- tot_nms
+  tot <- joined |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(id_cols, ".gs_parent")))) |>
+    dplyr::summarise(!!!tot_exprs, .groups = "drop")
+
+  share_exprs <- lapply(seq_along(values), function(i) {
+    v <- rlang::sym(values[[i]])
+    t <- rlang::sym(tot_nms[[i]])
+    rlang::expr(dplyr::if_else(!!t != 0, !!v / !!t, NA_real_))
+  })
+  names(share_exprs) <- values
+
+  res <- joined |>
+    dplyr::left_join(tot, by = c(id_cols, ".gs_parent"),
+                     na_matches = "na") |>
+    dplyr::mutate(!!!share_exprs) |>
+    dplyr::select(dplyr::all_of(c(key, id_cols, values)))
+  if (!identical(key, from)) {
+    res <- dplyr::rename(res, !!rlang::sym(from) := !!rlang::sym(key))
+  }
+
+  if (.gs_is_lazy(backend) && !isTRUE(collect)) {
+    return(dplyr::select(res, dplyr::all_of(c(from, id_cols, values))))
+  }
+
+  idc <- if (length(id_cols) > 0L) {
+    .gs_pull(dplyr::distinct(dplyr::select(.gs_lazy(x, backend),
+                                           dplyr::all_of(id_cols))))
+  } else {
+    data.frame()
+  }
+  res <- as.data.frame(dplyr::collect(res))
+  out_keys <- S7::prop(gs, "members")[[from]]
+  out <- .geo_recast_complete(res, idc, out_keys, from, id_cols, values)
+  .gs_restore(out, backend, collect = collect)
+}
+
+#' rule "share" is only meaningful in recast_geoscale(), whose output key
+#' it changes; the halves and pairwise converters keep the standard contract
+#' @noRd
+.geo_no_share <- function(rules, where) {
+  if (any(vapply(rules, function(r)
+    r$rule %in% c("share", "logshare"), logical(1)))) {
+    .stop(paste0("rule \"share\" is not supported by %s(); use ",
+                 "recast_geoscale() with a parent geoframe"), where)
+  }
 }
 
 #' The crosswalk-join pipeline for one weight's value columns
@@ -653,6 +817,7 @@ recast_to_geoatoms <- function(x, gs, from = NULL,
   values <- .geo_values_for(schema, key, geoframes_all, values)
   id_cols <- setdiff(names(schema), c(key, values, geoframes_all))
   rules <- .geo_rules_for(values, rule, weight)
+  .geo_no_share(rules, "recast_to_geoatoms")
 
   leaves <- S7::prop(gs, "leaftable")
   wt <- unique(vapply(rules, function(r) r$weight %||% "", character(1)))
@@ -747,6 +912,7 @@ recast_from_geoatoms <- function(x, gs, to,
   id_cols <- setdiff(names(schema),
                      c(key, values, wt_col, geoframes_all))
   rules <- .geo_rules_for(values, rule, NULL)
+  .geo_no_share(rules, "recast_from_geoatoms")
   has_weight <- wt_col %in% names(schema)
 
   leaves <- S7::prop(gs, "leaftable")

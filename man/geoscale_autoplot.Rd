@@ -24,7 +24,7 @@ geoscale_autoplot(
   z = NULL,
   rule = "weighted_mean",
   labels = NULL,
-  palette = "G",
+  palette = "H",
   colour = "grey35",
   linewidth = 0.2,
   frame = NULL,
@@ -86,17 +86,23 @@ continuous fill scale (legend title via \code{labs(fill = )}).}
 the atoms to each coarser geoframe (\code{"weighted_mean"} default; see
 \code{\link[=recast_geoscale]{recast_geoscale()}}). The icicle \code{weight} argument doubles as
 the weight column for \code{"weighted_mean"} (\code{NULL} = the geoscale's
-default weight).}
+default weight). \code{"share"} colours every plane by each region's
+share within the plane above it (the coarsest plane by its share of
+the grand total), so the whole figure reads on one 0..1 scale;
+\code{weight} plays no part.}
 
 \item{labels}{\code{type = "stack"} only: character vector of geoframes
 whose regions get their display names (the \verb{@meta$labels} column,
 falling back to codes) drawn on the plane. \code{NULL} (default) = none.}
 
-\item{palette}{\code{type = "stack"} only: viridis palette option
-(\code{"A"}..\code{"H"}) for the plane fill. Default \code{"G"}. \code{NULL} adds no
+\item{palette}{Viridis palette option (\code{"A"}..\code{"H"}) for the plane
+fill and for both types' \code{data} fills. Default \code{"H"}. \code{NULL} adds no
 fill scale at all, so you can supply your own -- e.g.
 \code{energypal::scale_fill_energy_b()} for the Global Wind Atlas
-colours on their absolute breaks.}
+colours on their absolute breaks. With \code{rule = "share"} the fill is
+a fixed linear 0..1 scale, with \code{"logshare"} a fixed log10 percent
+scale (0.01\%..100\%) -- either way any two share figures are
+colour-comparable.}
 
 \item{colour, linewidth}{\code{type = "stack"} only: region border colour
 and width, recycled across the planes (so
