@@ -65,21 +65,8 @@ join_geoscale <- function(x, gs, key = NULL, geoframe = NULL,
                           geoframes = NULL, meta = FALSE, weight = NULL,
                           as_factor = TRUE, collect = NULL) {
   .check_geoscale(gs, "gs")
-  backend <- .gs_backend(x)
-  if (is.na(backend)) {
-    .stop(paste0("`x` must be a data.frame, tibble, data.table, or an ",
-                 "arrow table/dataset/query"))
-  }
-  gs_nm  <- .geoscale_name(gs)
-  schema <- .gs_schema(x)
-
-  leaves  <- S7::prop(gs, "leaftable")
-  gf_all  <- S7::prop(gs, "geoframes")
-  members <- S7::prop(gs, "members")
-
-  # -- resolve the keyed geoframe and the key ---------------------------------
   if (is.null(geoframe)) {
-    hit <- intersect(gf_all, names(schema))
+    hit <- intersect(geoscale_geoframes(gs), names(.gs_schema(x)))
     if (length(hit) != 1L) {
       .stop(paste0("cannot infer the code geoframe from `x`'s columns ",
                    "(found: %s); pass `geoframe=`"),
@@ -88,105 +75,7 @@ join_geoscale <- function(x, gs, key = NULL, geoframe = NULL,
     geoframe <- hit
   }
   .check_geoframe(gs, geoframe, "geoframe")
-  if (is.null(key)) {
-    key <- if (gs_nm %in% names(schema)) gs_nm
-           else if (geoframe %in% names(schema)) geoframe
-           else if ("region" %in% names(schema)) "region"
-           else .stop(paste0("`x` has no `%s`, `%s`, or `region` column; ",
-                             "pass `key=`"), gs_nm, geoframe)
-  }
-  if (!key %in% names(schema)) {
-    .stop("`x` has no column named `%s`; pass `key=`", key)
-  }
-
-  # -- what gets attached -----------------------------------------------------
-  coarser <- gf_all[seq_len(match(geoframe, gf_all) - 1L)]
-  if (isTRUE(geoframes)) geoframes <- coarser
-  if (!is.null(geoframes) && !isFALSE(geoframes)) {
-    bad <- setdiff(geoframes, coarser)
-    if (length(bad) > 0L) {
-      .stop("`geoframes` must be coarser than '%s'; not: %s", geoframe,
-            .preview(bad))
-    }
-  } else {
-    geoframes <- character(0)
-  }
-  new_cols <- c(if (key != gs_nm) gs_nm,
-                paste0(gs_nm, ".", geoframes),
-                if (isTRUE(meta)) paste0(gs_nm, c(".share", ".weight")))
-  clash <- intersect(new_cols, names(schema))
-  if (length(clash) > 0L) {
-    .stop(paste0("attaching Geoscale \"%s\" would overwrite existing ",
-                 "column(s): %s"), gs_nm, .preview(clash))
-  }
-  if (length(new_cols) == 0L) {
-    return(x)   # label column already there, nothing else requested
-  }
-
-  # -- validate the keys (eager, small) ---------------------------------------
-  known <- unique(stats::na.omit(as.character(leaves[[geoframe]])))
-  keys <- .gs_pull(
-    dplyr::distinct(dplyr::select(.gs_lazy(x, backend),
-                                  dplyr::all_of(key))))[[key]]
-  keys <- unique(stats::na.omit(as.character(keys)))
-  if (length(intersect(keys, known)) == 0L) {
-    .stop("no rows of `x$%s` match regions at geoframe '%s'", key, geoframe)
-  }
-  unknown <- setdiff(keys, known)
-  if (length(unknown) > 0L) {
-    .warn("%d code(s) in `x$%s` are not regions at geoframe '%s': %s",
-          length(unknown), key, geoframe, .preview(unknown))
-  }
-
-  # -- the in-memory attach frame ---------------------------------------------
-  attach_df <- data.frame(.gs_label = known, stringsAsFactors = FALSE)
-
-  # membership columns: unique (geoframe, coarser) pairs; codes under more
-  # than one parent are ambiguous -> NA + warning
-  for (cl in geoframes) {
-    pairs <- unique(leaves[!is.na(leaves[[geoframe]]),
-                           c(geoframe, cl), drop = FALSE])
-    n_par <- table(pairs[[geoframe]])
-    multi <- names(n_par)[n_par > 1L]
-    if (length(multi) > 0L) {
-      .warn(paste0("geoframe '%s' does not nest in '%s'; %d code(s) have ",
-                   "multiple parents and get NA (e.g. %s)"),
-            geoframe, cl, length(multi), .preview(multi))
-      pairs <- pairs[!pairs[[geoframe]] %in% multi, , drop = FALSE]
-    }
-    val <- as.character(pairs[[cl]])[match(known, pairs[[geoframe]])]
-    attach_df[[paste0(gs_nm, ".", cl)]] <-
-      if (isTRUE(as_factor)) factor(val, levels = members[[cl]]) else val
-  }
-
-  # share / weight at the keyed geoframe (skipped when no weight exists)
-  if (isTRUE(meta)) {
-    wcol <- tryCatch(.resolve_weight(gs, weight), error = function(e) NULL)
-    if (is.null(wcol)) {
-      .warn(paste0("Geoscale \"%s\" declares no weight columns; ",
-                   "`meta = TRUE` share/weight skipped"), gs_nm)
-    } else {
-      w <- stats::aggregate(as.numeric(leaves[[wcol]]),
-                            by = list(code = as.character(
-                              leaves[[geoframe]])),
-                            FUN = sum, na.rm = TRUE)
-      ww <- w$x[match(known, w$code)]
-      attach_df[[paste0(gs_nm, ".weight")]] <- ww
-      attach_df[[paste0(gs_nm, ".share")]]  <- ww / sum(w$x)
-    }
-  }
-
-  # -- the join ---------------------------------------------------------------
-  lab_map <- attach_df
-  names(lab_map)[names(lab_map) == ".gs_label"] <- key
-  lab_map$.gs_label <- lab_map[[key]]
-
-  out <- dplyr::left_join(.gs_lazy(x, backend), lab_map, by = key,
-                          na_matches = "na")
-  if (key != gs_nm) {
-    out <- dplyr::rename(out, !!rlang::sym(gs_nm) := !!rlang::sym(".gs_label"))
-  } else {
-    out <- dplyr::select(out, -dplyr::all_of(".gs_label"))
-  }
-  .gs_restore(out, backend, collect = collect)
+  multiscales::join_scale(x, gs, key = key, frame = geoframe,
+                          attach = geoframes, meta = meta, weight = weight,
+                          as_factor = as_factor, collect = collect)
 }

@@ -14,12 +14,9 @@
 #   * across TWO Geoscales -- `from`/`to` are Geoscale objects, matched on
 #     shared atom `region` keys (reg32 <-> NUTS style conversions).
 #
-# No memoisation cache: the leaf tables are in memory and the aggregation is
-# cheap. A registry (register_geoscale_map) holds exact / hand-audited crosswalks.
+# The derivation and the registry of exact / hand-audited crosswalks live in
+# multiscales; these functions keep the geoscales argument names and errors.
 # =============================================================================
-
-#' @noRd
-.GEO_MAP_REGISTRY <- new.env(parent = emptyenv())
 
 #' Crosswalk between two spatial resolutions through the atom layer
 #'
@@ -57,11 +54,10 @@
 #' geoscale_map("country", "state", gs = gs, weight = "km2")
 #' @export
 geoscale_map <- function(from, to, gs = NULL, weight = NULL) {
-  cross <- S7::S7_inherits(from, Geoscale) || S7::S7_inherits(to, Geoscale)
-  if (cross) {
+  if (S7::S7_inherits(from, Geoscale) || S7::S7_inherits(to, Geoscale)) {
     .check_geoscale(from, "from")
     .check_geoscale(to, "to")
-    return(.geoscale_map_cross(from, to, weight))
+    return(multiscales::scale_map(from, to, weight = weight))
   }
   if (is.null(gs)) {
     .stop(paste0("`gs` is required when `from`/`to` are geoframe names; ",
@@ -70,64 +66,7 @@ geoscale_map <- function(from, to, gs = NULL, weight = NULL) {
   .check_geoscale(gs, "gs")
   .check_geoframe(gs, from, "from")
   .check_geoframe(gs, to, "to")
-  if (identical(from, to)) {
-    .stop(paste0("`from` and `to` are the same geoframe (\"%s\"); the ",
-                 "map's label columns are named by the geoframes"), from)
-  }
-
-  reg <- .get_geoscale_map(from, to, .geoscale_name(gs, require = FALSE))
-  if (!is.null(reg)) {
-    return(reg)
-  }
-
-  leaves <- S7::prop(gs, "leaftable")
-  wcol <- .map_weight(gs, weight)
-  d <- data.frame(
-    from = as.character(leaves[[from]]),
-    to   = as.character(leaves[[to]]),
-    w    = if (is.null(wcol)) 1 else as.numeric(leaves[[wcol]]),
-    stringsAsFactors = FALSE
-  )
-  .finish_geo_map(d, from, to)
-}
-
-#' Cross-object map: atoms matched on shared `region` keys
-#' @noRd
-.geoscale_map_cross <- function(from, to, weight) {
-  from_nm <- .geoscale_name(from, arg = "from")
-  to_nm   <- .geoscale_name(to, arg = "to")
-  if (identical(from_nm, to_nm)) {
-    .stop(paste0("`from` and `to` have the same name (\"%s\"); the map's ",
-                 "label columns are named by the Geoscales -- rename one"),
-          from_nm)
-  }
-  reg <- .get_geoscale_map(from_nm, to_nm)
-  if (!is.null(reg)) {
-    return(reg)
-  }
-
-  lf <- S7::prop(from, "leaftable")
-  lt <- S7::prop(to, "leaftable")
-  shared <- intersect(lf$region, lt$region)
-  if (length(shared) == 0L) {
-    .stop(paste0("the atom layers of \"%s\" and \"%s\" share no `region` ",
-                 "keys; register an explicit crosswalk with ",
-                 "register_geoscale_map()"), from_nm, to_nm)
-  }
-  n_miss <- sum(!lf$region %in% shared)
-  if (n_miss > 0L) {
-    .warn(paste0("%d atom(s) of \"%s\" have no counterpart in \"%s\"; ",
-                 "their share is uncovered (NA target)"),
-          n_miss, from_nm, to_nm)
-  }
-  wcol <- .map_weight(from, weight)
-  d <- data.frame(
-    from = lf$region,
-    to   = ifelse(lf$region %in% shared, lf$region, NA_character_),
-    w    = if (is.null(wcol)) 1 else as.numeric(lf[[wcol]]),
-    stringsAsFactors = FALSE
-  )
-  .finish_geo_map(d, from_nm, to_nm)
+  multiscales::scale_map(from, to, x = gs, weight = weight)
 }
 
 #' Chosen weight column, or NULL for the unweighted (equal) fallback
@@ -137,31 +76,6 @@ geoscale_map <- function(from, to, gs = NULL, weight = NULL) {
     return(NULL)
   }
   .resolve_weight(gs, weight)
-}
-
-#' Aggregate a (from, to, w) atom frame into the map schema
-#' @noRd
-.finish_geo_map <- function(d, from_lab, to_lab) {
-  d <- d[!is.na(d$from), , drop = FALSE]
-  if (nrow(d) == 0L) {
-    .stop("no atoms carry a code at `from`; the map would be empty")
-  }
-  d$w[is.na(d$w)] <- 0
-  map <- d |>
-    dplyr::group_by(.data$from, .data$to) |>
-    dplyr::summarise(n_overlap = dplyr::n(), w = sum(.data$w),
-                     .groups = "drop_last") |>
-    dplyr::mutate(n_from = sum(.data$n_overlap),
-                  w_from = sum(.data$w)) |>
-    dplyr::ungroup() |>
-    as.data.frame()
-  map <- map[order(map$from, map$to, na.last = TRUE),
-             c("from", "to", "n_from", "n_overlap", "w", "w_from"),
-             drop = FALSE]
-  rownames(map) <- NULL
-  names(map)[names(map) == "from"] <- from_lab
-  names(map)[names(map) == "to"]   <- to_lab
-  map
 }
 
 #' Register / look up a direct spatial crosswalk
@@ -197,63 +111,27 @@ geoscale_map <- function(from, to, gs = NULL, weight = NULL) {
 #' clear_geoscale_maps()
 #' @export
 register_geoscale_map <- function(from, to, map, gs = NULL) {
-  nm_of <- function(z, arg) {
-    if (is.character(z) && length(z) == 1L && nzchar(z)) return(z)
-    .check_geoscale(z, arg)
-    .geoscale_name(z, arg = arg)
+  for (a in c("from", "to", "gs")) {
+    z <- get(a)
+    if (!is.null(z) && !is.character(z)) .check_geoscale(z, a)
   }
-  from_nm <- nm_of(from, "from")
-  to_nm   <- nm_of(to, "to")
-  scope   <- if (is.null(gs)) "" else nm_of(gs, "gs")
-  key <- paste0(scope, if (nzchar(scope)) ":", from_nm, "->", to_nm)
-  if (is.null(map)) {
-    if (exists(key, envir = .GEO_MAP_REGISTRY, inherits = FALSE)) {
-      rm(list = key, envir = .GEO_MAP_REGISTRY)
-    }
-    return(invisible(key))
-  }
-  if (!is.data.frame(map)) {
-    .stop("`map` must be a data.frame (see `geoscale_map()`) or NULL")
-  }
-  need <- c(from_nm, to_nm, "n_from", "n_overlap", "w", "w_from")
-  miss <- setdiff(need, names(map))
-  if (length(miss) > 0L) {
-    .stop("`map` is missing column(s): %s", .preview(miss))
-  }
-  assign(key, as.data.frame(map), envir = .GEO_MAP_REGISTRY)
-  invisible(key)
-}
-
-#' @noRd
-.get_geoscale_map <- function(from_nm, to_nm, scope = "") {
-  for (key in unique(c(
-    paste0(scope, if (nzchar(scope)) ":", from_nm, "->", to_nm),
-    paste0(from_nm, "->", to_nm)
-  ))) {
-    if (exists(key, envir = .GEO_MAP_REGISTRY, inherits = FALSE)) {
-      return(get(key, envir = .GEO_MAP_REGISTRY, inherits = FALSE))
-    }
-  }
-  NULL
+  multiscales::register_scale_map(from, to, map, x = gs)
 }
 
 #' @rdname register_geoscale_map
 #' @export
 get_geoscale_map <- function(from, to, gs = NULL) {
-  nm_of <- function(z, arg) {
-    if (is.character(z) && length(z) == 1L && nzchar(z)) return(z)
-    .check_geoscale(z, arg)
-    .geoscale_name(z, arg = arg)
+  for (a in c("from", "to", "gs")) {
+    z <- get(a)
+    if (!is.null(z) && !is.character(z)) .check_geoscale(z, a)
   }
-  .get_geoscale_map(nm_of(from, "from"), nm_of(to, "to"),
-               scope = if (is.null(gs)) "" else nm_of(gs, "gs"))
+  multiscales::get_scale_map(from, to, x = gs)
 }
 
 #' @rdname register_geoscale_map
 #' @export
 list_geoscale_maps <- function() {
-  keys <- sort(ls(envir = .GEO_MAP_REGISTRY, all.names = TRUE))
-  data.frame(key = keys, stringsAsFactors = FALSE)
+  multiscales::list_scale_maps()
 }
 
 #' Clear the registered spatial crosswalks
@@ -265,7 +143,5 @@ list_geoscale_maps <- function() {
 #' @return Invisibly `NULL`.
 #' @export
 clear_geoscale_maps <- function() {
-  rm(list = ls(envir = .GEO_MAP_REGISTRY, all.names = TRUE),
-     envir = .GEO_MAP_REGISTRY)
-  invisible(NULL)
+  multiscales::clear_scale_maps()
 }

@@ -45,9 +45,6 @@
 GEOSCALE_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd", "share",
                     "logshare")
 
-#' @noRd
-.RULE_REGISTRY <- new.env(parent = emptyenv())
-
 #' Register how a parameter should be recast
 #'
 #' Records the rule (and optionally the weight) to use for a named value
@@ -76,9 +73,11 @@ register_geoscale_rule <- function(param, rule, weight = NULL) {
       (!is.character(weight) || length(weight) != 1L)) {
     .stop("`weight` must be a single string or NULL")
   }
-  entry <- list(rule = rule, weight = weight)
-  assign(param, entry, envir = .RULE_REGISTRY)
-  invisible(entry)
+  # Stored in multiscales' registry under this dimension's scope, which is
+  # where recast_scale() looks for a Geoscale's rules.
+  entry <- multiscales::register_scale_rule(param, rule, weight,
+                                            scope = "geoscale")
+  invisible(entry[c("rule", "weight")])
 }
 
 #' Look up a registered rule
@@ -94,9 +93,8 @@ register_geoscale_rule <- function(param, rule, weight = NULL) {
 #' get_geoscale_rule("not_registered")
 #' @export
 get_geoscale_rule <- function(param) {
-  if (!is.character(param) || length(param) != 1L) return(NULL)
-  if (!exists(param, envir = .RULE_REGISTRY, inherits = FALSE)) return(NULL)
-  get(param, envir = .RULE_REGISTRY, inherits = FALSE)
+  e <- multiscales::get_scale_rule(param, scope = "geoscale")
+  if (is.null(e)) NULL else e[c("rule", "weight")]
 }
 
 #' List registered rules
@@ -108,20 +106,8 @@ get_geoscale_rule <- function(param) {
 #' list_geoscale_rules()
 #' @export
 list_geoscale_rules <- function() {
-  nms <- sort(ls(envir = .RULE_REGISTRY, all.names = FALSE))
-  if (length(nms) == 0L) {
-    return(data.frame(param = character(), rule = character(),
-                      weight = character(), stringsAsFactors = FALSE))
-  }
-  entries <- lapply(nms, get_geoscale_rule)
-  data.frame(
-    param  = nms,
-    rule   = vapply(entries, function(e) e$rule, character(1)),
-    weight = vapply(entries,
-                    function(e) e$weight %||% NA_character_, character(1)),
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
+  multiscales::list_scale_rules(scope = "geoscale")[c("param", "rule",
+                                                       "weight")]
 }
 
 #' Clear the rule registry
@@ -138,12 +124,5 @@ list_geoscale_rules <- function() {
 #' clear_geoscale_rules("tmp_param")
 #' @export
 clear_geoscale_rules <- function(param = NULL) {
-  if (is.null(param)) {
-    rm(list = ls(envir = .RULE_REGISTRY, all.names = TRUE),
-       envir = .RULE_REGISTRY)
-  } else {
-    present <- intersect(param, ls(envir = .RULE_REGISTRY, all.names = TRUE))
-    if (length(present) > 0L) rm(list = present, envir = .RULE_REGISTRY)
-  }
-  invisible(NULL)
+  multiscales::clear_scale_rules(param, scope = "geoscale")
 }

@@ -1,5 +1,6 @@
 # =========================================================================== #
-# The sibling API mirror, enforced. geoscales Imports timescales, so this
+# The sibling API mirror, enforced. timescales is a Suggests (the `recast`
+# generic now comes from multiscales), so this
 # suite can see both packages and assert the 0.5.0 harmonization ruling
 # (CONVENTIONS.md, "Sibling API mirror"): every export is either PAIRED
 # with its twin through the vocabulary translation, or a DECLARED
@@ -43,7 +44,13 @@ skip_if_not_installed("timescales")
   # per-frame qualified-tile geom exists only in time
   "geom_calendar_tile",
   # instant helper unique to the time grid
-  "instant_to_datetime"
+  "instant_to_datetime",
+  # timeslice <-> timeframe / datetime label conversions, moved in from
+  # energyRt 2026-09-26. Time-only by nature: a region code names a place and
+  # has no components to read off, so there is no spatial analogue of "which
+  # hour is this timeslice".
+  "tsl2hour", "tsl2yday", "tsl2month", "tsl2dtm", "dtm2tsl",
+  "hour2HOUR", "yday2YDAY"
 )
 # Space-only:
 .GS_ONE_SIDERS <- c(
@@ -82,7 +89,8 @@ skip_if_not_installed("timescales")
 }
 .gs_exports <- function() {
   e <- getNamespaceExports("geoscales")
-  # `recast` is re-exported FROM timescales; S3/`[` methods mirror by class
+  # `recast` is re-exported from multiscales, which owns it; S3/`[` methods
+  # mirror by class
   e[!grepl("^\\[|\\.Geoscale$|^recast$", e)]
 }
 

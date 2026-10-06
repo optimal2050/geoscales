@@ -96,40 +96,6 @@
   }
 }
 
-#' Build the per-value-column summarise expressions for one rule set.
-#' Bare symbols (never `.data[[...]]`) so the expressions translate on
-#' every backend -- dtplyr and arrow both mistranslate pronoun subsetting
-#' in places where plain symbols work.
-#' @noRd
-.geo_rule_exprs <- function(values, rules) {
-  out <- list()
-  f  <- rlang::sym(".gs_f")
-  nn <- rlang::sym(".gs_n_overlap")
-  ww <- rlang::sym(".gs_w")
-  for (v in values) {
-    sym <- rlang::sym(v)
-    out[[v]] <- switch(
-      rules[[v]]$rule,
-      sum = rlang::expr(sum(!!sym * !!f)),
-      mean = rlang::expr(sum(!!sym * !!nn) / sum(!!nn)),
-      weighted_mean = rlang::expr(
-        dplyr::if_else(sum(!!ww) > 0,
-                       sum(!!sym * !!ww) / sum(!!ww),
-                       sum(!!sym * !!nn) / sum(!!nn))),
-      copy = rlang::expr(mean(!!sym)),   # constancy pre-checked eagerly
-      sd = rlang::expr(
-        dplyr::if_else(
-          sum(!!nn) > 1,
-          sqrt((sum(!!nn * (!!sym)^2) -
-                  (sum(!!nn * (!!sym)))^2 / sum(!!nn)) /
-                 (sum(!!nn) - 1)),
-          NA_real_)),
-      .stop("Unknown rule: %s", rules[[v]]$rule)
-    )
-  }
-  out
-}
-
 #' Eager constancy guard for `copy`-rule columns
 #' @noRd
 .geo_check_copy_rule <- function(joined, grp_cols, copy_cols) {
@@ -212,17 +178,6 @@
     )
   }
   exprs
-}
-
-.geo_recast_complete <- function(res, idc, out_keys, key, id_cols, values) {
-  full <- data.frame(x = out_keys, stringsAsFactors = FALSE)
-  names(full) <- key
-  if (nrow(idc) > 0L && length(id_cols) > 0L) {
-    full <- dplyr::cross_join(idc, full)
-  }
-  out <- dplyr::left_join(full, res, by = c(id_cols, key),
-                          na_matches = "na")
-  as.data.frame(out)[, c(key, id_cols, values), drop = FALSE]
 }
 
 #' Infer the source geoframe from `x`'s columns
@@ -373,23 +328,8 @@ recast_geoscale <- function(x, gs, from = NULL, to,
                             collect = NULL) {
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
-
-  backend <- .gs_backend(x)
-  if (is.na(backend)) {
-    .stop(paste0("`x` must be a data.frame, tibble, data.table, or an ",
-                 "arrow table/dataset/query"))
-  }
-  schema <- .gs_schema(x)
-  .check_gs_cols(schema)
-
-  if (is.null(from)) from <- .geo_infer_from(gs, schema, key)
-  .check_geoframe(gs, from, "from")
-  if (is.null(key)) key <- if (from %in% names(schema)) from else "region"
-  if (!key %in% names(schema)) {
-    .stop("`x` has no column named `%s`; pass `key=`", key)
-  }
-
-  # -- cross-object route: `to` is another Geoscale ---------------------------
+  # Across two Geoscales the route runs through this package's own halves,
+  # whose result holds the observed target regions only.
   if (S7::S7_inherits(to, Geoscale)) {
     if (any(rule %in% c("share", "logshare"))) {
       .stop(paste0("rule \"share\" needs a parent geoframe of the same ",
@@ -402,260 +342,10 @@ recast_geoscale <- function(x, gs, from = NULL, to,
                                 values = values, rule = rule,
                                 na_action = na_action, collect = collect))
   }
-  .check_geoframe(gs, to, "to")
-
-  geoframes_all <- S7::prop(gs, "geoframes")
-  values <- .geo_values_for(schema, key, geoframes_all, values)
-  id_cols <- setdiff(names(schema), c(key, values, geoframes_all))
-  rules <- .geo_rules_for(values, rule, weight)
-
-  # Warn about source codes the Geoscale does not know (eager, small)
-  leaves <- S7::prop(gs, "leaftable")
-  src_keys <- .gs_pull(
-    dplyr::distinct(dplyr::select(.gs_lazy(x, backend),
-                                  dplyr::all_of(key))))[[key]]
-  src_keys <- unique(stats::na.omit(as.character(src_keys)))
-  known <- unique(stats::na.omit(as.character(leaves[[from]])))
-  unknown <- setdiff(src_keys, known)
-  if (length(unknown) > 0L) {
-    .warn(paste0("%d code(s) in `x$%s` are not present at geoframe `%s` ",
-                 "and were dropped: %s"),
-          length(unknown), key, from, .preview(unknown))
-  }
-  if (length(intersect(src_keys, known)) == 0L) {
-    .stop(paste0("no rows of `x` matched geoframe `%s`; check `from=` and ",
-                 "the `%s` column"), from, key)
-  }
-
-  # -- share within parent: result keyed at `from`, one rule for all ----------
-  is_share <- vapply(rules, function(r)
-    r$rule %in% c("share", "logshare"), logical(1))
-  if (any(is_share)) {
-    if (!all(is_share)) {
-      .stop(paste0("rule \"share\" changes the output key to `from` and ",
-                   "cannot be mixed with other rules in one call; recast ",
-                   "the columns separately"))
-    }
-    if (!is.null(weight)) {
-      .warn("`weight` is ignored by rule \"share\": the values are the weights")
-    }
-    return(.geo_recast_share(x, backend, gs, from, to, key, values,
-                             id_cols, parent, na_action, collect))
-  }
-  if (!is.null(parent)) {
-    .stop("`parent` applies to rule \"share\" only")
-  }
-
-  if (na_action == "error") {
-    n_bad <- sum(is.na(leaves[[from]]) | is.na(leaves[[to]]))
-    if (n_bad > 0L) {
-      .stop(paste0("%d atom(s) have no code at geoframe `%s` or `%s`; ",
-                   "use na_action = \"drop\" or \"keep\""), n_bad, from, to)
-    }
-  }
-
-  # One crosswalk per distinct weight (per-column weights may differ --
-  # never the silent equal-split fallback of old versions)
-  wt_of <- vapply(rules, function(r) r$weight %||% "", character(1))
-  no_declared <- length(geoscale_weights(gs)) == 0L
-  need_split <- vapply(rules, function(r)
-    r$rule %in% c("sum", "weighted_mean"), logical(1))
-  if (no_declared && is.null(weight) && any(need_split) &&
-      geoscale_rank(gs, to) > geoscale_rank(gs, from)) {
-    .warn(paste0("no weight column declared; splitting `%s` equally across ",
-                 "the atoms of each `%s`. Declare a weight for an ",
-                 "area- or population-proportional split."), to, from)
-  }
-
-  res_parts <- list()
-  uncovered_any <- FALSE
-  retained_from <- character(0)
-  for (wt in unique(wt_of)) {
-    vv <- values[wt_of == wt]
-    map <- geoscale_map(from, to, gs = gs,
-                        weight = if (nzchar(wt)) wt else NULL)
-
-    uncovered <- is.na(map[[to]])
-    uncovered_any <- uncovered_any || any(uncovered)
-    if (any(uncovered) && na_action == "drop") {
-      affected <- intersect(unique(map[[from]][uncovered]), src_keys)
-      if (length(affected) > 0L) {
-        .warn(paste0("%d atom(s) have no code at geoframe `%s`; the share ",
-                     "of %d source region(s) falling in them is dropped ",
-                     "(%s). Use na_action = \"keep\" to conserve totals."),
-              sum(map$n_overlap[uncovered]), to, length(affected),
-              .preview(affected))
-      }
-      map <- map[!uncovered, , drop = FALSE]
-    }
-    # na_action == "keep": the NA target stays as an explicit group
-    retained_from <- union(retained_from, unique(map[[from]]))
-
-    res_parts[[length(res_parts) + 1L]] <-
-      .geo_recast_pipeline(x, backend, map, from, to, key, vv, rules[vv],
-                           id_cols)
-  }
-
-  # Missing-source warning: crosswalk regions absent from an identifier group
-  idc <- if (length(id_cols) > 0L) {
-    .gs_pull(dplyr::distinct(dplyr::select(.gs_lazy(x, backend),
-                                           dplyr::all_of(id_cols))))
-  } else {
-    data.frame()
-  }
-  if (length(id_cols) > 0L) {
-    keysets <- .gs_pull(dplyr::distinct(
-      dplyr::select(.gs_lazy(x, backend), dplyr::all_of(c(id_cols, key)))))
-    gk <- do.call(paste, c(lapply(keysets[id_cols], as.character),
-                           sep = "\r"))
-    all_missing <- unique(unlist(lapply(split(keysets[[key]], gk),
-                                        function(kk)
-      setdiff(retained_from, as.character(kk)))))
-  } else {
-    all_missing <- setdiff(retained_from, src_keys)
-  }
-  if (length(all_missing) > 0L) {
-    .warn(paste0("%d source region(s) present in the Geoscale but missing ",
-                 "from `x` (e.g. %s); produced NAs"),
-          length(all_missing), .preview(all_missing))
-  }
-
-  # Combine the per-weight parts (each carries its own value columns)
-  res <- res_parts[[1L]]
-  if (length(res_parts) > 1L) {
-    for (p in res_parts[-1L]) {
-      res <- dplyr::full_join(res, p, by = c(id_cols, key),
-                              na_matches = "na")
-    }
-  }
-  if (!identical(key, to)) {
-    res <- dplyr::rename(res, !!rlang::sym(to) := !!rlang::sym(key))
-  }
-
-  # Lazy return: observed groups, uncollected
-  if (.gs_is_lazy(backend) && !isTRUE(collect)) {
-    return(dplyr::select(res, dplyr::all_of(c(to, id_cols, values))))
-  }
-
-  # Materialised return: complete to the full target vocabulary, in the
-  # contract order
-  res <- as.data.frame(dplyr::collect(res))
-  target_keys <- S7::prop(gs, "members")[[to]]
-  keep_na_row <- na_action == "keep" && uncovered_any
-  out_keys <- c(target_keys, if (keep_na_row) NA_character_)
-  out <- .geo_recast_complete(res, idc, out_keys, to, id_cols, values)
-  .gs_restore(out, backend, collect = collect)
-}
-
-#' Resolve the parent geoframe for rule "share": explicit `parent=` wins,
-#' then `to` when it differs from `from`, then the geoframe immediately
-#' above `from` (geoframes are ordered coarsest first).
-#' @noRd
-.geo_share_parent <- function(gs, from, to, parent) {
-  if (!is.null(parent)) {
-    .check_geoframe(gs, parent, "parent")
-    if (!identical(to, from) && !identical(to, parent)) {
-      .stop(paste0("conflicting parents: `to = \"%s\"` vs `parent = \"%s\"`; ",
-                   "for rule \"share\" pass the parent once"), to, parent)
-    }
-  } else if (!identical(to, from)) {
-    parent <- to
-  } else {
-    gf <- S7::prop(gs, "geoframes")
-    i <- match(from, gf)
-    if (is.na(i) || i <= 1L) {
-      .stop("`%s` has no coarser geoframe; pass `parent=`", from)
-    }
-    parent <- gf[[i - 1L]]
-  }
-  if (geoscale_rank(gs, parent) >= geoscale_rank(gs, from)) {
-    .stop(paste0("rule \"share\": parent `%s` must be coarser than ",
-                 "`from = \"%s\"`"), parent, from)
-  }
-  parent
-}
-
-#' rule = "share": each source region's value over its parent-group total.
-#' Output is keyed at `from` -- the one rule that does not change the key.
-#' @noRd
-.geo_recast_share <- function(x, backend, gs, from, to, key, values,
-                              id_cols, parent, na_action, collect) {
-  parent <- .geo_share_parent(gs, from, to, parent)
-
-  map <- geoscale_map(from, parent, gs = gs)
-  mem <- unique(map[, c(from, parent)])
-
-  # shares within a parent are only well-defined when `from` nests in it
-  n_par <- table(mem[[from]][!is.na(mem[[parent]])])
-  split_codes <- names(n_par)[n_par > 1L]
-  if (length(split_codes) > 0L) {
-    .stop(paste0("rule \"share\": %d region(s) of `%s` straddle more than ",
-                 "one `%s` (%s); `from` must nest within the parent"),
-          length(split_codes), from, parent, .preview(split_codes))
-  }
-
-  orphan <- is.na(mem[[parent]])
-  if (any(orphan)) {
-    if (na_action == "error") {
-      .stop(paste0("%d region(s) of `%s` have no code at parent `%s`; ",
-                   "use na_action = \"drop\" or \"keep\""),
-            sum(orphan), from, parent)
-    }
-    if (na_action == "drop") {
-      .warn(paste0("%d region(s) of `%s` have no code at parent `%s` and ",
-                   "get NA shares (%s). Use na_action = \"keep\" to treat ",
-                   "them as one group."),
-            sum(orphan), from, parent, .preview(mem[[from]][orphan]))
-      mem <- mem[!orphan, , drop = FALSE]
-    }
-    # "keep": the NA parent stays as an explicit group
-  }
-
-  jmem <- mem
-  names(jmem) <- c(key, ".gs_parent")
-
-  xq <- dplyr::select(.gs_lazy(x, backend),
-                      dplyr::all_of(c(id_cols, key, values)))
-  joined <- dplyr::inner_join(xq, jmem, by = key)
-
-  tot_nms <- paste0(".gs_tot_", seq_along(values))
-  tot_exprs <- lapply(values, function(v)
-    rlang::expr(sum(!!rlang::sym(v))))
-  names(tot_exprs) <- tot_nms
-  tot <- joined |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(id_cols, ".gs_parent")))) |>
-    dplyr::summarise(!!!tot_exprs, .groups = "drop")
-
-  share_exprs <- lapply(seq_along(values), function(i) {
-    v <- rlang::sym(values[[i]])
-    t <- rlang::sym(tot_nms[[i]])
-    rlang::expr(dplyr::if_else(!!t != 0, !!v / !!t, NA_real_))
-  })
-  names(share_exprs) <- values
-
-  res <- joined |>
-    dplyr::left_join(tot, by = c(id_cols, ".gs_parent"),
-                     na_matches = "na") |>
-    dplyr::mutate(!!!share_exprs) |>
-    dplyr::select(dplyr::all_of(c(key, id_cols, values)))
-  if (!identical(key, from)) {
-    res <- dplyr::rename(res, !!rlang::sym(from) := !!rlang::sym(key))
-  }
-
-  if (.gs_is_lazy(backend) && !isTRUE(collect)) {
-    return(dplyr::select(res, dplyr::all_of(c(from, id_cols, values))))
-  }
-
-  idc <- if (length(id_cols) > 0L) {
-    .gs_pull(dplyr::distinct(dplyr::select(.gs_lazy(x, backend),
-                                           dplyr::all_of(id_cols))))
-  } else {
-    data.frame()
-  }
-  res <- as.data.frame(dplyr::collect(res))
-  out_keys <- S7::prop(gs, "members")[[from]]
-  out <- .geo_recast_complete(res, idc, out_keys, from, id_cols, values)
-  .gs_restore(out, backend, collect = collect)
+  multiscales::recast_scale(x, gs, from = from, to = to, key = key,
+                            values = values, rule = rule, weight = weight,
+                            na_action = na_action, parent = parent,
+                            collect = collect)
 }
 
 #' rule "share" is only meaningful in recast_geoscale(), whose output key
@@ -667,50 +357,6 @@ recast_geoscale <- function(x, gs, from = NULL, to,
     .stop(paste0("rule \"share\" is not supported by %s(); use ",
                  "recast_geoscale() with a parent geoframe"), where)
   }
-}
-
-#' The crosswalk-join pipeline for one weight's value columns
-#' @noRd
-.geo_recast_pipeline <- function(x, backend, map, from, to, key, values,
-                                 rules, id_cols) {
-  jmap <- map
-  names(jmap)[names(jmap) == from] <- key
-  names(jmap)[names(jmap) == to]   <- ".gs_to"
-  names(jmap)[names(jmap) == "n_from"]    <- ".gs_n_from"
-  names(jmap)[names(jmap) == "n_overlap"] <- ".gs_n_overlap"
-  names(jmap)[names(jmap) == "w"]         <- ".gs_w"
-  names(jmap)[names(jmap) == "w_from"]    <- ".gs_w_from"
-  jmap$.gs_f <- ifelse(jmap$.gs_w_from > 0,
-                       jmap$.gs_w / jmap$.gs_w_from,
-                       jmap$.gs_n_overlap / jmap$.gs_n_from)
-  jmap$.gs_w_from <- NULL
-
-  idc <- if (length(id_cols) > 0L) {
-    .gs_pull(dplyr::distinct(dplyr::select(.gs_lazy(x, backend),
-                                           dplyr::all_of(id_cols))))
-  } else {
-    data.frame()
-  }
-  base_grid <- if (length(id_cols) > 0L && nrow(idc) > 0L) {
-    dplyr::cross_join(idc, jmap)
-  } else {
-    jmap
-  }
-
-  xq <- dplyr::select(.gs_lazy(x, backend),
-                      dplyr::all_of(c(id_cols, key, values)))
-  joined <- dplyr::right_join(xq, base_grid,
-                              by = c(id_cols, key), na_matches = "na")
-
-  grp_cols <- c(id_cols, ".gs_to")
-  copy_cols <- values[vapply(rules, function(r) r$rule == "copy",
-                             logical(1))]
-  .geo_check_copy_rule(joined, grp_cols, copy_cols)
-
-  joined |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(grp_cols))) |>
-    dplyr::summarise(!!!.geo_rule_exprs(values, rules), .groups = "drop") |>
-    dplyr::rename(!!rlang::sym(key) := !!rlang::sym(".gs_to"))
 }
 
 # -----------------------------------------------------------------------------
@@ -998,7 +644,7 @@ recast_from_geoatoms <- function(x, gs, to,
 # object's geoframes appears as a column of `x`. Everything else forwards
 # to recast_geoscale(). Registered against the external generic (S7's
 # cross-package mechanism; activated by S7::methods_register() in .onLoad).
-.recast_generic <- S7::new_external_generic("timescales", "recast",
+.recast_generic <- S7::new_external_generic("multiscales", "recast",
                                             c("x", "from"))
 S7::method(.recast_generic, list(S7::class_any, Geoscale)) <-
   function(x, from, to, from_geoframe = NULL, key = NULL, values = NULL,
@@ -1010,7 +656,8 @@ S7::method(.recast_generic, list(S7::class_any, Geoscale)) <-
   }
 
 # Re-export the generic: `library(geoscales)` alone provides the verb
-# (and satisfies R CMD check that the Imports dependency is used).
-#' @importFrom timescales recast
+# (and satisfies R CMD check that the Imports dependency is used). The generic
+# is owned by `multiscales`, the dimension-agnostic core.
+#' @importFrom multiscales recast
 #' @export
-timescales::recast
+multiscales::recast

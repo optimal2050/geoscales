@@ -11,6 +11,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{timescales}{\code{\link[timescales:recast]{recast()}}}
+  \item{multiscales}{\code{\link[multiscales:recast]{recast()}}}
 }}
 

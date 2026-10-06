@@ -1,20 +1,11 @@
 # =============================================================================
-# Backend handling for the conversion verbs
+# Backend dispatch -- delegated to multiscales
 # =============================================================================
-# The converters (recast_geoscale, recast_to_geoatoms, recast_from_geoatoms,
-# join_geoscale) are written on dplyr verbs only, so the SAME pipeline runs
-# on an in-memory data.frame/tibble, a data.table (through dtplyr), and an
-# arrow Dataset/query. Contract (mirrors timescales/R/backend.R):
-#
-#   data.frame  -> data.frame          (computed)
-#   tibble      -> tibble              (computed)
-#   data.table  -> data.table          (computed)
-#   dtplyr/arrow (lazy) -> the UNCOLLECTED query, unless collect = TRUE
-#
-# The geoscale side of every join (crosswalks, leaf attributes) is a small
-# in-memory frame, so lazy inputs never have to be materialised for the
-# geoscale arithmetic; only cheap aggregates (distinct keys, `copy`-rule
-# guards) are collected eagerly.
+# data.frame / tibble / data.table / dtplyr / arrow in, the same class out,
+# lazy inputs staying lazy unless collected. The implementation lives in
+# `multiscales`, which exports these for exactly this. They are direct
+# bindings rather than wrapper calls: they sit in the per-row path of every
+# conversion, so an extra frame is not free.
 # =============================================================================
 
 # dtplyr generates data.table syntax that is evaluated with THIS package as
@@ -28,72 +19,9 @@
 utils::globalVariables(c(".gs_to", ".gs_f", ".gs_n_from", ".gs_n_overlap",
                          ".gs_w", ".gs_w_from", ".gs_label", "weight"))
 
-#' Which backend does `x` belong to?
-#' @noRd
-.gs_backend <- function(x) {
-  if (inherits(x, c("arrow_dplyr_query", "ArrowObject", "Dataset",
-                    "ArrowTabular", "RecordBatchReader"))) {
-    return("arrow")
-  }
-  if (inherits(x, "dtplyr_step")) return("dtplyr")
-  if (inherits(x, "data.table")) return("data.table")
-  if (inherits(x, "tbl_df")) return("tibble")
-  if (is.data.frame(x)) return("data.frame")
-  NA_character_
-}
-
-#' Is this backend lazy (query-producing)?
-#' @noRd
-.gs_is_lazy <- function(backend) backend %in% c("arrow", "dtplyr")
-
-#' Lift `x` into a dplyr-compatible carrier for the pipeline
-#' @noRd
-.gs_lazy <- function(x, backend) {
-  if (backend == "data.table") {
-    if (!requireNamespace("dtplyr", quietly = TRUE)) {
-      # dplyr verbs work on a bare data.table too (it is a data.frame);
-      # dtplyr just makes them translate to data.table code
-      return(x)
-    }
-    return(dtplyr::lazy_dt(x))
-  }
-  x
-}
-
-#' A zero-row, correctly typed frame describing `x`'s columns
-#' @noRd
-.gs_schema <- function(x) {
-  as.data.frame(dplyr::collect(utils::head(x, 0L)))
-}
-
-#' Cheap eager evaluation of a small aggregate over any backend
-#' @noRd
-.gs_pull <- function(q) {
-  as.data.frame(dplyr::collect(q))
-}
-
-#' Return `out` (a pipeline result over `x`) in `x`'s own format
-#'
-#' Lazy inputs stay lazy unless `collect = TRUE`; eager inputs are always
-#' computed back to their class.
-#' @noRd
-.gs_restore <- function(out, backend, collect = NULL) {
-  lazy <- .gs_is_lazy(backend)
-  if (lazy && !isTRUE(collect)) {
-    return(out)
-  }
-  res <- dplyr::collect(out)
-  switch(backend,
-    "data.table" = if (requireNamespace("data.table", quietly = TRUE)) {
-      data.table::as.data.table(res)
-    } else as.data.frame(res),
-    "tibble" = if (requireNamespace("tibble", quietly = TRUE)) {
-      tibble::as_tibble(res)
-    } else as.data.frame(res),
-    "arrow" = res,
-    "dtplyr" = if (requireNamespace("data.table", quietly = TRUE)) {
-      data.table::as.data.table(res)
-    } else as.data.frame(res),
-    as.data.frame(res)
-  )
-}
+.gs_backend <- multiscales::.ms_backend
+.gs_is_lazy <- multiscales::.ms_is_lazy
+.gs_lazy    <- multiscales::.ms_lazy
+.gs_schema  <- multiscales::.ms_schema
+.gs_pull    <- multiscales::.ms_pull
+.gs_restore <- multiscales::.ms_restore

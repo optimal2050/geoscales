@@ -53,44 +53,18 @@ geoscale_regions <- function(x, geoframe = NULL) {
 #' @export
 geoscale_family <- function(x, parent = NULL, child = NULL) {
   .check_geoscale(x)
-  lv <- S7::prop(x, "geoframes")
-
-  if (is.null(parent) && is.null(child)) {
-    if (length(lv) < 2L) return(.empty_family())
-    parts <- lapply(seq_len(length(lv) - 1L), function(i) {
-      geoscale_family(x, lv[i], lv[i + 1L])
-    })
-    out <- do.call(rbind, parts)
-    rownames(out) <- NULL
-    return(out)
+  if (!is.null(parent) || !is.null(child)) {
+    .check_geoframe(x, parent, "parent")
+    .check_geoframe(x, child, "child")
   }
-  .check_geoframe(x, parent, "parent")
-  .check_geoframe(x, child, "child")
-
-  leaves <- S7::prop(x, "leaftable")
-  d <- data.frame(
-    parent = as.character(leaves[[parent]]),
-    child  = as.character(leaves[[child]]),
-    stringsAsFactors = FALSE
-  )
-  d <- unique(d[!is.na(d$parent) & !is.na(d$child), , drop = FALSE])
-  out <- data.frame(
-    parent_geoframe = parent,
-    parent       = d$parent,
-    child_geoframe  = child,
-    child        = d$child,
-    stringsAsFactors = FALSE
-  )
-  out <- out[order(out$parent, out$child), , drop = FALSE]
-  rownames(out) <- NULL
-  out
+  .geoframe_cols(multiscales::scale_family(x, parent, child))
 }
 
+# multiscales names the frame columns `parent_frame`/`child_frame`.
 #' @noRd
-.empty_family <- function() {
-  data.frame(parent_geoframe = character(), parent = character(),
-             child_geoframe = character(), child = character(),
-             stringsAsFactors = FALSE)
+.geoframe_cols <- function(d) {
+  names(d) <- sub("_frame$", "_geoframe", names(d))
+  d
 }
 
 #' Do two geoframes nest?
@@ -115,11 +89,10 @@ geoscale_family <- function(x, parent = NULL, child = NULL) {
 #' geoscale_nests(gs, "state", "zone")     # FALSE - they cross-cut
 #' @export
 geoscale_nests <- function(x, parent, child) {
-  fam <- geoscale_family(x, parent, child)
-  multi <- unique(fam$child[duplicated(fam$child)])
-  ok <- length(multi) == 0L
-  if (!ok) attr(ok, "offenders") <- multi
-  ok
+  .check_geoscale(x)
+  .check_geoframe(x, parent, "parent")
+  .check_geoframe(x, child, "child")
+  multiscales::scale_nests(x, parent, child)
 }
 
 #' Ancestry between all geoframe pairs
@@ -152,16 +125,7 @@ geoscale_nests <- function(x, parent, child) {
 #' @export
 geoscale_ancestry <- function(x) {
   .check_geoscale(x)
-  lv <- S7::prop(x, "geoframes")
-  if (length(lv) < 2L) return(.empty_family())
-
-  parts <- list()
-  for (i in seq_len(length(lv) - 1L)) {
-    for (j in seq(i + 1L, length(lv))) {
-      parts[[length(parts) + 1L]] <- geoscale_family(x, lv[i], lv[j])
-    }
-  }
-  out <- do.call(rbind, parts)
+  out <- .geoframe_cols(multiscales::scale_ancestry(x))
   out <- out[order(out$parent_geoframe, out$parent,
                    out$child_geoframe, out$child), , drop = FALSE]
   rownames(out) <- NULL
@@ -203,16 +167,8 @@ NULL
 geoscale_children <- function(x, geoframe, region, to = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  lv <- S7::prop(x, "geoframes")
-  i <- match(geoframe, lv)
-  if (is.null(to)) {
-    if (i == length(lv)) {
-      .stop("`%s` is the finest geoframe; it has no children", geoframe)
-    }
-    to <- lv[i + 1L]
-  }
-  .check_geoframe(x, to, "to")
-  .related(x, geoframe, region, to)
+  if (!is.null(to)) .check_geoframe(x, to, "to")
+  multiscales::scale_children(x, geoframe, region, to)
 }
 
 #' @rdname geoscale_navigate
@@ -220,16 +176,8 @@ geoscale_children <- function(x, geoframe, region, to = NULL) {
 geoscale_parents <- function(x, geoframe, region, to = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  lv <- S7::prop(x, "geoframes")
-  i <- match(geoframe, lv)
-  if (is.null(to)) {
-    if (i == 1L) {
-      .stop("`%s` is the coarsest geoframe; it has no parents", geoframe)
-    }
-    to <- lv[i - 1L]
-  }
-  .check_geoframe(x, to, "to")
-  .related(x, geoframe, region, to)
+  if (!is.null(to)) .check_geoframe(x, to, "to")
+  multiscales::scale_parents(x, geoframe, region, to)
 }
 
 #' @rdname geoscale_navigate
@@ -237,15 +185,8 @@ geoscale_parents <- function(x, geoframe, region, to = NULL) {
 geoscale_descendants <- function(x, geoframe, region, to = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  lv <- S7::prop(x, "geoframes")
-  i <- match(geoframe, lv)
-  targets <- if (is.null(to)) {
-    utils::tail(lv, length(lv) - i)
-  } else {
-    .check_geoframe(x, to, "to")
-    to
-  }
-  .related_df(x, geoframe, region, targets)
+  if (!is.null(to)) .check_geoframe(x, to, "to")
+  .geoframe_region_cols(multiscales::scale_descendants(x, geoframe, region, to))
 }
 
 #' @rdname geoscale_navigate
@@ -253,46 +194,15 @@ geoscale_descendants <- function(x, geoframe, region, to = NULL) {
 geoscale_ancestors <- function(x, geoframe, region, to = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  lv <- S7::prop(x, "geoframes")
-  i <- match(geoframe, lv)
-  targets <- if (is.null(to)) {
-    utils::head(lv, i - 1L)
-  } else {
-    .check_geoframe(x, to, "to")
-    to
-  }
-  .related_df(x, geoframe, region, targets)
+  if (!is.null(to)) .check_geoframe(x, to, "to")
+  .geoframe_region_cols(multiscales::scale_ancestors(x, geoframe, region, to))
 }
 
-#' Related codes across several geoframes, as a geoframe-tagged table
+# multiscales tags related codes as `frame`/`unit`.
 #' @noRd
-.related_df <- function(x, geoframe, region, targets) {
-  if (length(targets) == 0L) {
-    return(data.frame(geoframe = character(), region = character(),
-                      stringsAsFactors = FALSE))
-  }
-  parts <- lapply(targets, function(t) {
-    codes <- .related(x, geoframe, region, t)
-    data.frame(geoframe = rep(t, length(codes)), region = codes,
-               stringsAsFactors = FALSE)
-  })
-  out <- do.call(rbind, parts)
-  rownames(out) <- NULL
-  out
-}
-
-#' Codes at `to` that share at least one atom with `region` at `geoframe`
-#' @noRd
-.related <- function(x, geoframe, region, to) {
-  leaves <- S7::prop(x, "leaftable")
-  unknown <- setdiff(region, S7::prop(x, "members")[[geoframe]])
-  if (length(unknown) > 0L) {
-    .stop("code(s) not found at geoframe `%s`: %s", geoframe, .preview(unknown))
-  }
-  hit <- leaves[[geoframe]] %in% region
-  out <- unique(stats::na.omit(as.character(leaves[[to]][hit])))
-  ord <- S7::prop(x, "members")[[to]]
-  out[order(match(out, ord))]
+.geoframe_region_cols <- function(d) {
+  names(d) <- c("geoframe", "region")
+  d
 }
 
 #' Subset a Geoscale by region
@@ -328,33 +238,8 @@ geoscale_ancestors <- function(x, geoframe, region, to = NULL) {
 filter_geoscale <- function(x, geoframe, region, drop_empty_geoframes = FALSE) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  leaves <- S7::prop(x, "leaftable")
-  lv     <- S7::prop(x, "geoframes")
-
-  unknown <- setdiff(region, S7::prop(x, "members")[[geoframe]])
-  if (length(unknown) > 0L) {
-    .stop("code(s) not found at geoframe `%s`: %s", geoframe, .preview(unknown))
-  }
-
-  keep <- which(leaves[[geoframe]] %in% region)
-  if (length(keep) == 0L) {
-    .stop("no atoms remain after filtering")
-  }
-
-  meta <- S7::prop(x, "meta")
-  if (length(keep) < nrow(leaves)) {          # a real sample, not a no-op
-    codes <- unique(as.character(leaves[[geoframe]][keep]))
-    # the tag must IDENTIFY the sample, not just count it -- two
-    # different single-region samples may not share a name
-    id <- if (sum(nchar(codes)) + length(codes) <= 24L) {
-      paste(codes, collapse = "+")
-    } else {
-      paste0(length(codes), "~", substr(rlang::hash(sort(codes)), 1, 8))
-    }
-    meta <- .sample_meta(x, meta, kept = leaves[keep, , drop = FALSE],
-                         tag = sprintf("[%s:%s]", geoframe, id))
-  }
-  .rebuild(x, keep, lv, drop_empty_geoframes, meta = meta)
+  multiscales::filter_scale(x, geoframe, region,
+                            drop_empty_frames = drop_empty_geoframes)
 }
 
 #' Sample bookkeeping: coverage / parent_totals / parent_name / name
@@ -492,50 +377,7 @@ prune_geoscale <- function(x, geoframe,
 #' @export
 geoscale_coverage <- function(x, weight = NULL) {
   .check_geoscale(x)
-  wts <- geoscale_weights(x)
-  full <- stats::setNames(rep(1, length(wts)), wts)
-  cov <- S7::prop(x, "meta")$coverage
-  if (!is.null(cov)) full[names(cov)] <- unname(cov)
-  if (is.null(weight)) return(full)
-  if (!weight %in% wts) {
-    .stop("unknown weight `%s`; declared: %s", weight, .preview(wts))
-  }
-  unname(full[[weight]])
-}
-
-#' Rebuild a Geoscale from a row subset
-#' @noRd
-.rebuild <- function(x, keep, lv, drop_empty_geoframes = FALSE,
-                     meta = S7::prop(x, "meta")) {
-  leaves <- S7::prop(x, "leaftable")[keep, , drop = FALSE]
-  rownames(leaves) <- NULL
-
-  members <- lapply(lv, function(l) {
-    old <- S7::prop(x, "members")[[l]]
-    seen <- unique(stats::na.omit(as.character(leaves[[l]])))
-    old[old %in% seen]
-  })
-  names(members) <- lv
-
-  if (drop_empty_geoframes) {
-    nonempty <- lv[vapply(members[lv], length, integer(1)) > 0L]
-    if (length(nonempty) == 0L) .stop("every geoframe is empty after filtering")
-    lv <- nonempty
-    members <- members[lv]
-    leaves <- leaves[, c(lv, setdiff(names(leaves), lv)), drop = FALSE]
-  } else {
-    empty <- lv[vapply(members[lv], length, integer(1)) == 0L]
-    if (length(empty) > 0L) {
-      .stop(paste0("geoframe(s) %s have no codes left; pass ",
-                   "drop_empty_geoframes = TRUE"), .preview(empty))
-    }
-  }
-
-  geom <- S7::prop(x, "geometry")
-  if (!is.null(geom)) geom <- geom[keep]
-
-  Geoscale(leaftable = leaves, geoframes = lv, members = members,
-           geometry = geom, meta = meta)
+  multiscales::scale_coverage(x, weight)
 }
 
 #' Subset a Geoscale with `[`
@@ -601,32 +443,6 @@ geoscale_coverage <- function(x, weight = NULL) {
 geoscale_share <- function(x, geoframe, weight = NULL, within = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  weight <- .resolve_weight(x, weight)
-  leaves <- S7::prop(x, "leaftable")
-
-  d <- data.frame(region = as.character(leaves[[geoframe]]),
-                  w = as.numeric(leaves[[weight]]),
-                  stringsAsFactors = FALSE)
-  if (is.null(within)) {
-    d$grp <- ""
-  } else {
-    .check_geoframe(x, within, "within")
-    d$grp <- as.character(leaves[[within]])
-  }
-  d <- d[!is.na(d$region), , drop = FALSE]
-  d$w[is.na(d$w)] <- 0
-
-  agg <- stats::aggregate(w ~ region + grp, data = d, FUN = sum)
-  agg$share <- agg$w / stats::ave(agg$w, agg$grp, FUN = sum)
-
-  ord <- S7::prop(x, "members")[[geoframe]]
-  agg <- agg[order(match(agg$region, ord)), , drop = FALSE]
-
-  out <- data.frame(code = agg$region, stringsAsFactors = FALSE)
-  names(out) <- geoframe
-  if (!is.null(within)) out[[within]] <- agg$grp
-  out[[weight]] <- agg$w
-  out$share <- agg$share
-  rownames(out) <- NULL
-  out
+  if (!is.null(within)) .check_geoframe(x, within, "within")
+  multiscales::scale_share(x, geoframe, weight = weight, within = within)
 }

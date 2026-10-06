@@ -6,14 +6,14 @@ test_that("the recast() generic dispatches the Geoscale method", {
                   capacity = c(1, 2, 3, 4, 5, 6))
   wrk <- recast_geoscale(x, gs, from = "atom", to = "country",
                          rule = "sum")
-  gen <- timescales::recast(x, gs, to = "country", rule = "sum")
+  gen <- recast(x, gs, to = "country", rule = "sum")
   expect_identical(gen, wrk)
   # pipe + explicit from_geoframe
-  gen2 <- x |> timescales::recast(gs, to = "country",
-                                  from_geoframe = "atom", rule = "sum")
+  gen2 <- x |> recast(gs, to = "country",
+                     from_geoframe = "atom", rule = "sum")
   expect_identical(gen2, wrk)
   # ambiguous / absent source geoframe errors clearly
-  expect_error(timescales::recast(data.frame(v = 1), gs, to = "country"),
+  expect_error(recast(data.frame(v = 1), gs, to = "country"),
                "cannot infer the source geoframe")
 })
 
