@@ -9,7 +9,7 @@ the geoframe ranks, so aggregation and disaggregation are one operation:"><meta 
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +61,7 @@ the geoframe ranks, so aggregation and disaggregation are one operation:</p>
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>A character vector of length 5.</p>
+    <p>A character vector of length 7.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -85,6 +85,22 @@ Down: copy unchanged. For region-invariant scalars.</p></dd>
 <dd><p>Up: standard deviation over the atoms (aggregation only;
 going down it degenerates to <code>NA</code> for single-atom groups).</p></dd>
 
+<dt><code>share</code></dt>
+<dd><p>Share within parent: each source region's value divided
+by the total over its parent group. Unlike every other rule the
+result stays keyed at the <strong>source</strong> geoframe – the recast target
+(or <code>parent=</code>) names the parent – so it cannot be mixed with other
+rules in one call (the two share rules mix freely, being one
+computation). For building distribution keys and normalised
+profiles; requires <code>from</code> to nest within the parent.</p></dd>
+
+<dt><code>logshare</code></dt>
+<dd><p>The same computation as <code>share</code> – the values ARE
+shares – but figures draw it on a fixed log10 percent scale
+(0.01%..100%), where <code>share</code> gets a fixed linear 0..1 scale. Use it
+when sibling counts differ by orders of magnitude and the linear
+scale flattens the crowded groups.</p></dd>
+
 
 </dl></div>
 
@@ -92,7 +108,7 @@ going down it degenerates to <code>NA</code> for single-atom groups).</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">GEOSCALE_RULES</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sum"           "weighted_mean" "mean"          "copy"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "sd"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "sd"            "share"         "logshare"     </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -28,6 +28,7 @@ recast_geoscale(
   rule = NULL,
   weight = NULL,
   na_action = c("drop", "error", "keep"),
+  parent = NULL,
   collect = NULL
 )
 ```
@@ -96,6 +97,12 @@ recast_geoscale(
   lost), `"error"`, or `"keep"` (retain an explicit `NA` region row so
   totals conserve).
 
+- parent:
+
+  `rule = "share"` only: the geoframe defining the groups the shares are
+  taken within. `NULL` (default) uses `to` when it differs from `from`,
+  else the geoframe immediately above `from`.
+
 - collect:
 
   For lazy inputs (arrow, dtplyr): materialise the result (`TRUE`) or
@@ -139,6 +146,17 @@ downstream, `energyRt` reads `NA` in a region column as a *wildcard
 meaning all regions*, so `"keep"` output should not be passed there
 unfiltered.
 
+`"share"` inverts the output contract: the result stays keyed at `from`,
+and each value becomes that region's share of the total over its parent
+group (so the shares sum to 1 per parent, per identifier combination).
+The parent is `parent=`, defaulting to `to` (the reading of
+`recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")`:
+each nuts3's share within its nuts0); `from` must nest within it. A
+parent group whose total is zero yields `NA` shares, and an `NA` value
+poisons its group like everywhere else in the package. `"share"` cannot
+be combined with other rules in one call, and `weight=` is ignored – the
+observed values themselves are the weights.
+
 ## Backends
 
 `x` may be a `data.frame`, tibble, `data.table`, `dtplyr` lazy table, or
@@ -179,4 +197,16 @@ recast_geoscale(z, gs, from = "atom", to = "state",
 #> 1    N1 0.3666667
 #> 2    N2 0.5000000
 #> 3    S1 0.6000000
+
+# Share within parent: result stays at the atoms, sums to 1 per country
+recast_geoscale(x, gs, from = "atom", to = "country", rule = "share")
+#> Warning: 1 unit(s) of `atom` have no code at parent `country` and get NA shares (ROW). Use na_action = "keep" to treat them as one group.
+#>   atom  capacity
+#> 1   A1 0.1000000
+#> 2   A2 0.2000000
+#> 3   A3 0.3000000
+#> 4   A4 0.4000000
+#> 5   A5 0.4545455
+#> 6   A6 0.5454545
+#> 7  ROW        NA
 ```

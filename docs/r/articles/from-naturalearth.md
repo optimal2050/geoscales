@@ -82,7 +82,7 @@ ne <- agg[agg$subregion == "Northern Europe", ]
 
 back <- recast_geoscale(ne, gs, from = "subregion", to = "country",
                    rule = "sum", weight = "pop_est")
-#> Warning: 21 source region(s) present in the Geoscale but missing from `x` (e.g.
+#> Warning: 21 source unit(s) present in the scale but missing from the data (e.g.
 #> Antarctica, Australia and New Zealand, Caribbean, ... (21 total)); produced NAs
 head(back[order(-back$pop), ], 4)
 #>     country      pop

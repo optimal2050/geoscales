@@ -91,6 +91,7 @@ reference:
     contents:
       - recast_geoscale
       - recast_to_geoatoms
+      - recast_pairs
       - recast
       - geoscale_map
       - register_geoscale_map

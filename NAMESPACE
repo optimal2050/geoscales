@@ -70,5 +70,7 @@ export(register_geoscale_rule)
 export(theme_geoscale)
 export(zoom_geoscale)
 importFrom(multiscales,recast)
-importFrom(rlang,":=")
-importFrom(rlang,.data)
+importFrom(rlang,
+  ":=",
+  .data
+)

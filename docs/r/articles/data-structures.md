@@ -8,7 +8,8 @@ A `Geoscale` is an S7 object with five properties:
 
 gs <- geoscale_example()
 S7::prop_names(gs)
-#> [1] "leaftable" "geoframes" "members"   "geometry"  "meta"
+#> [1] "leaftable" "frames"    "members"   "key"       "meta"      "geoframes"
+#> [7] "geometry"
 ```
 
 | property | type | holds |
@@ -161,7 +162,7 @@ fallback — unregistered columns without `rule=` error):
 
 GEOSCALE_RULES
 #> [1] "sum"           "weighted_mean" "mean"          "copy"         
-#> [5] "sd"
+#> [5] "sd"            "share"         "logshare"
 register_geoscale_rule("capacity", "sum")
 register_geoscale_rule("eff", "weighted_mean", weight = "pop")
 get_geoscale_rule("eff")

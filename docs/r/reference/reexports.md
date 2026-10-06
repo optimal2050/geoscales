@@ -3,6 +3,6 @@
 These objects are imported from other packages. Follow the links below
 to see their documentation.
 
-- timescales:
+- multiscales:
 
-  [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.html)
+  [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)

@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,7 +137,7 @@ column</td>
 <td>per-column rules, exact crosswalks, map sources</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://optimal2050.github.io/timescales/r/reference/recast.html" class="external-link">recast()</a></code></td>
+<td><code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code></td>
 <td>generic</td>
 <td>one pipeline verb across time AND space</td>
 </tr>
@@ -348,9 +348,10 @@ accessors to inspect what is installed:</p>
 <div class="section level2">
 <h2 id="one-verb-across-time-and-space">One verb across time and space<a class="anchor" aria-label="anchor" href="#one-verb-across-time-and-space"></a>
 </h2>
-<p>The bare <code><a href="https://optimal2050.github.io/timescales/r/reference/recast.html" class="external-link">recast()</a></code> generic (owned by timescales,
-re-exported here) dispatches on the scale object, so one pipeline chains
-both dimensions — this runs, since geoscales imports timescales:</p>
+<p>The bare <code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code> generic is owned by multiscales and
+re-exported by both geoscales and timescales. It dispatches on the scale
+object, so with timescales installed one pipeline chains both
+dimensions:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/timescales/r/" class="external-link">timescales</a></span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"m%02d"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>,</span>
@@ -360,9 +361,9 @@ both dimensions — this runs, since geoscales imports timescales:</p>
 <span>  <span class="fu">mutate</span><span class="op">(</span>demand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">timeslice</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
 <span>         rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 3</span></span></span>
 <span><span class="co">#&gt;   country timeslice demand</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>

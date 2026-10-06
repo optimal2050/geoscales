@@ -15,7 +15,7 @@ sf-free: geometry is reported from the object itself, never touched.'><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,125 +105,27 @@ n_features / crs), <code>source</code>.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "example"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $desc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geoframes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> country   state    zone    atom </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       2       3       3       7 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $unassigned</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> country   state    zone    atom </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       1       1       1       0 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $n_atoms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $weights</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "km2" "pop"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $weight_totals</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  km2  pop </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3100  300 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $default_weight</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "km2"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coverage</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> km2 pop </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1   1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $sampled</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $parent_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $nesting</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    parent child nests n_offenders</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 country state  TRUE           0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   state  zone FALSE           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    zone  atom  TRUE           0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geometry</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geometry$attached</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geometry$n_features</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geometry$crs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $source</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "summary_Geoscale"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;summary of Geoscale 'example' &gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   desc:          Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   geoframes:      country (2) / state (3) / zone (3) / atom (7)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   atoms:          7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   unassigned:     country (1), state (1), zone (1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   weight totals:  km2 = 3,100, pop =   300  (default: km2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nesting:        country &gt; state: nested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nesting:        state &gt; zone: CROSS-CUTTING (1 offender(s))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nesting:        zone &gt; atom: nested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   geometry:       none</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="filter_geoscale.html">filter_geoscale</a></span><span class="op">(</span><span class="fu"><a href="geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"country"</span>, <span class="st">"N"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "example[country:N]"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $desc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geoframes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> country   state    zone    atom </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       1       2       2       4 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $unassigned</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> country   state    zone    atom </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       0       0       0       0 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $n_atoms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $weights</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "km2" "pop"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $weight_totals</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  km2  pop </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1000  200 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $default_weight</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "km2"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coverage</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       km2       pop </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3225806 0.6666667 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $sampled</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $parent_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "example"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $nesting</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    parent child nests n_offenders</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 country state  TRUE           0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   state  zone  TRUE           0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    zone  atom  TRUE           0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geometry</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geometry$attached</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geometry$n_features</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $geometry$crs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $source</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "summary_Geoscale"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;summary of Geoscale 'example[country:N]' &gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   desc:          Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   geoframes:      country (1) / state (2) / zone (2) / atom (4)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   atoms:          4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   weight totals:  km2 = 1,000, pop =   200  (default: km2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SAMPLED:        km2 32.3%, pop 66.7% of 'example'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nesting:        country &gt; state: nested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nesting:        state &gt; zone: nested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nesting:        zone &gt; atom: nested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   geometry:       none</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

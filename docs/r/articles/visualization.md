@@ -10,10 +10,8 @@
 
 This article needs maps, so it runs on two fixtures that stay out of the
 package by design (geoscales ships integration code, not data): the
-offline
-[`energyRt::utopia_geoscale()`](https://energyRt.org/reference/utopia_geoscale.html)
-reference layout, and — for the real-world tour — Iceland from Natural
-Earth’s admin-1 layer.
+offline reference layouts in `energyRt::topia$geoscales`, and — for the
+real-world tour — Iceland from Natural Earth’s admin-1 layer.
 
 ## The integration contract
 
@@ -35,10 +33,10 @@ normal ggplot2 path.
 
 ``` r
 
-gs <- energyRt::utopia_geoscale("honeycomb")
+gs <- energyRt::topia$geoscales$honeycomb
 gs
-#> Geoscale: utopia 
-#> Description: UTOPIA reference regions, nested nation -> zone -> region 
+#> Geoscale: topia_honeycomb 
+#> Description: TOPIA reference regions (honeycomb layout), nested nation -> zone -> region 
 #> Geoframes (3, coarsest first):
 #>   - nation (1)
 #>     - zone (3)
@@ -58,7 +56,7 @@ ggplot(x) +
   theme_geoscale()
 ```
 
-![](visualization_files/figure-html/utopia-1.png)
+![](visualization_files/figure-html/topia-1.png)
 
 With `z = NULL` the layer draws plain boundaries — useful under other
 layers:
@@ -152,10 +150,10 @@ plot(gs)
 
 head(geoscale_layout(gs), 4)
 #>   geoframe  region rank      xmin      xmax ymin ymax   weight     share
-#> 1   nation  UTOPIA    1 0.0000000 1.0000000    2  2.9 62.21484 1.0000000
-#> 2     zone    WEST    2 0.0000000 0.2727273    1  1.9 16.96768 0.2727273
-#> 3     zone CENTRAL    2 0.2727273 0.6363636    1  1.9 22.62358 0.3636364
-#> 4     zone    EAST    2 0.6363636 1.0000000    1  1.9 22.62358 0.3636364
+#> 1   nation   TOPIA    1 0.0000000 1.0000000    2  2.9 62.21484 1.0000000
+#> 2     zone    WEST    2 0.0000000 0.1818182    1  1.9 11.31179 0.1818182
+#> 3     zone CENTRAL    2 0.1818182 0.7272727    1  1.9 33.93537 0.5454545
+#> 4     zone    EAST    2 0.7272727 1.0000000    1  1.9 16.96768 0.2727273
 ```
 
 The icicle carries data too — `data =`/`z =` fill every band with the

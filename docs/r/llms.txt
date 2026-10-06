@@ -188,6 +188,8 @@ geoframe ranks and cross-cutting geoframes need no special handling.
 - [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
   [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
   : Recast region data down to the atom layer, and back
+- [`recast_pairs()`](https://optimal2050.github.io/geoscales/r/reference/recast_pairs.md)
+  : Recast data keyed by a pair of regions
 - [`reexports`](https://optimal2050.github.io/geoscales/r/reference/reexports.md)
   [`recast`](https://optimal2050.github.io/geoscales/r/reference/reexports.md)
   : Objects exported from other packages

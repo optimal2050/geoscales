@@ -25,7 +25,7 @@ register_geoscale_map() short-circuits the derivation."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,6 +90,7 @@ supported backend (see below). A crosswalk registered with
 <span>  rule <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  weight <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  na_action <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"error"</span>, <span class="st">"keep"</span><span class="op">)</span>,</span>
+<span>  parent <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  collect <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -154,6 +155,12 @@ is genuinely lost), <code>"error"</code>, or <code>"keep"</code> (retain an expl
 region row so totals conserve).</p></dd>
 
 
+<dt id="arg-parent">parent<a class="anchor" aria-label="anchor" href="#arg-parent"></a></dt>
+<dd><p><code>rule = "share"</code> only: the geoframe defining the groups
+the shares are taken within. <code>NULL</code> (default) uses <code>to</code> when it
+differs from <code>from</code>, else the geoframe immediately above <code>from</code>.</p></dd>
+
+
 <dt id="arg-collect">collect<a class="anchor" aria-label="anchor" href="#arg-collect"></a></dt>
 <dd><p>For lazy inputs (arrow, dtplyr): materialise the result
 (<code>TRUE</code>) or return the uncollected query (default).</p></dd>
@@ -189,6 +196,16 @@ aggregation-only.</p>
 downstream, <code>energyRt</code> reads <code>NA</code> in a region column as a <em>wildcard
 meaning all regions</em>, so <code>"keep"</code> output should not be passed there
 unfiltered.</p>
+<p><code>"share"</code> inverts the output contract: the result stays keyed at <code>from</code>,
+and each value becomes that region's share of the total over its parent
+group (so the shares sum to 1 per parent, per identifier combination).
+The parent is <code>parent=</code>, defaulting to <code>to</code> (the reading of
+<code>recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")</code>:
+each nuts3's share within its nuts0); <code>from</code> must nest within it. A
+parent group whose total is zero yields <code>NA</code> shares, and an <code>NA</code> value
+poisons its group like everywhere else in the package. <code>"share"</code> cannot
+be combined with other rules in one call, and <code>weight=</code> is ignored –
+the observed values themselves are the weights.</p>
     </div>
     <div class="section level2">
     <h2 id="backends">Backends<a class="anchor" aria-label="anchor" href="#backends"></a></h2>
@@ -232,6 +249,18 @@ the result is materialised.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    N1 0.3666667</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    N2 0.5000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    S1 0.6000000</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Share within parent: result stays at the atoms, sums to 1 per country</span></span></span>
+<span class="r-in"><span><span class="fu">recast_geoscale</span><span class="op">(</span><span class="va">x</span>, <span class="va">gs</span>, from <span class="op">=</span> <span class="st">"atom"</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"share"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1 unit(s) of `atom` have no code at parent `country` and get NA shares (ROW). Use na_action = "keep" to treat them as one group.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   atom  capacity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   A1 0.1000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   A2 0.2000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   A3 0.3000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   A4 0.4000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   A5 0.4545455</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   A6 0.5454545</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  ROW        NA</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

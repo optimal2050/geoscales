@@ -25,7 +25,7 @@ geoscale_autoplot(
   z = NULL,
   rule = "weighted_mean",
   labels = NULL,
-  palette = "G",
+  palette = "H",
   colour = "grey35",
   linewidth = 0.2,
   frame = NULL,
@@ -117,7 +117,10 @@ autoplot(x, ...)
   each coarser geoframe (`"weighted_mean"` default; see
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)).
   The icicle `weight` argument doubles as the weight column for
-  `"weighted_mean"` (`NULL` = the geoscale's default weight).
+  `"weighted_mean"` (`NULL` = the geoscale's default weight). `"share"`
+  colours every plane by each region's share within the plane above it
+  (the coarsest plane by its share of the grand total), so the whole
+  figure reads on one 0..1 scale; `weight` plays no part.
 
 - labels:
 
@@ -127,11 +130,14 @@ autoplot(x, ...)
 
 - palette:
 
-  `type = "stack"` only: viridis palette option (`"A"`..`"H"`) for the
-  plane fill. Default `"G"`. `NULL` adds no fill scale at all, so you
-  can supply your own – e.g.
+  Viridis palette option (`"A"`..`"H"`) for the plane fill and for both
+  types' `data` fills. Default `"H"`. `NULL` adds no fill scale at all,
+  so you can supply your own – e.g.
   [`energypal::scale_fill_energy_b()`](https://optimal2050.github.io/energypal/reference/scale_energy.html)
-  for the Global Wind Atlas colours on their absolute breaks.
+  for the Global Wind Atlas colours on their absolute breaks. With
+  `rule = "share"` the fill is a fixed linear 0..1 scale, with
+  `"logshare"` a fixed log10 percent scale (0.01%..100%) – either way
+  any two share figures are colour-comparable.
 
 - colour, linewidth:
 

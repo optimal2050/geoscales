@@ -9,7 +9,7 @@
 | [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) / [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) | the route halves | project down to the atom layer / aggregate up from it |
 | [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md) | A → B crosswalk | the conversion, materialised as a small table |
 | [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md) / [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md) / [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md) | registries | per-column rules, exact crosswalks, map sources |
-| [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.html) | generic | one pipeline verb across time AND space |
+| [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) | generic | one pipeline verb across time AND space |
 
 Everything below runs on the synthetic
 [`geoscale_example()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_example.md)
@@ -214,11 +214,10 @@ clear_geoscale_maps()
 
 ## One verb across time and space
 
-The bare
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.html)
-generic (owned by timescales, re-exported here) dispatches on the scale
-object, so one pipeline chains both dimensions — this runs, since
-geoscales imports timescales:
+The bare [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
+generic is owned by multiscales and re-exported by both geoscales and
+timescales. It dispatches on the scale object, so with timescales
+installed one pipeline chains both dimensions:
 
 ``` r
 

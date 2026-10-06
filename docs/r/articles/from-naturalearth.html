@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -152,7 +152,7 @@ the total is conserved:</p>
 <span></span>
 <span><span class="va">back</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">ne</span>, <span class="va">gs</span>, from <span class="op">=</span> <span class="st">"subregion"</span>, to <span class="op">=</span> <span class="st">"country"</span>,</span>
 <span>                   rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"pop_est"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: 21 source region(s) present in the Geoscale but missing from `x` (e.g.</span></span>
+<span><span class="co">#&gt; Warning: 21 source unit(s) present in the scale but missing from the data (e.g.</span></span>
 <span><span class="co">#&gt; Antarctica, Australia and New Zealand, Caribbean, ... (21 total)); produced NAs</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">back</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">back</span><span class="op">$</span><span class="va">pop</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     country      pop</span></span>

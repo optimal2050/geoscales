@@ -8,17 +8,17 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
                       fig.width = 7, fig.height = 4.5)
 library(geoscales)
 library(dplyr, warn.conflicts = FALSE)
-has_utopia <- requireNamespace("energyRt", quietly = TRUE) &&
+has_topia <- requireNamespace("energyRt", quietly = TRUE) &&
   requireNamespace("sf", quietly = TRUE) &&
   requireNamespace("ggplot2", quietly = TRUE)
-has_ne <- has_utopia &&
+has_ne <- has_topia &&
   requireNamespace("rnaturalearth", quietly = TRUE) &&
   requireNamespace("rnaturalearthhires", quietly = TRUE)
 # the Iceland wind trio uses the pre-built bundle (see the get-started
 # vignette for how it is made); absent outside the dev checkout
 has_wind <- file.exists("../../data-raw/iceland_wind.rds") &&
   requireNamespace("ggplot2", quietly = TRUE)
-if (has_utopia) library(ggplot2)
+if (has_topia) library(ggplot2)
 ```
 
 ## The viz surface at a glance
@@ -31,7 +31,7 @@ if (has_utopia) library(ggplot2)
 
 This article needs maps, so it runs on two fixtures that stay out of the
 package by design (geoscales ships integration code, not data): the
-offline `energyRt::utopia_geoscale()` reference layout, and — for the
+offline reference layouts in `energyRt::topia$geoscales`, and — for the
 real-world tour — Iceland from Natural Earth's admin-1 layer.
 
 ## The integration contract
@@ -47,8 +47,8 @@ ggplot2 path.
 
 ## Choropleths, composably
 
-```{r utopia, eval = has_utopia}
-gs <- energyRt::utopia_geoscale("honeycomb")
+```{r topia, eval = has_topia}
+gs <- energyRt::topia$geoscales$honeycomb
 gs
 
 x <- tibble(region = geoscale_regions(gs, "region"),
@@ -64,7 +64,7 @@ ggplot(x) +
 With `z = NULL` the layer draws plain boundaries — useful under other
 layers:
 
-```{r boundaries, eval = has_utopia}
+```{r boundaries, eval = has_topia}
 ggplot() +
   geom_geoscale(gs = gs, colour = "grey40", fill = "grey93") +
   theme_geoscale()
@@ -76,7 +76,7 @@ The same data drawn at another geoframe is one `geoframe=` away — the
 layer dissolves and aggregates for you (here with `fun = sum` for an
 extensive quantity):
 
-```{r recast-map, eval = has_utopia}
+```{r recast-map, eval = has_topia}
 ggplot(x) +
   geom_geoscale(gs = gs, z = "capacity", geoframe = "zone", fun = sum) +
   scale_fill_viridis_c(option = "G") +
@@ -88,7 +88,7 @@ For full control, `recast_geoscale()` first and draw the result — the
 explicit route makes the rule visible (and lets intensive quantities
 use `weighted_mean`):
 
-```{r recast-explicit, eval = has_utopia}
+```{r recast-explicit, eval = has_topia}
 x |>
   recast_geoscale(gs, from = "region", to = "zone", rule = "sum") |>
   ggplot() +
@@ -102,7 +102,7 @@ x |>
 Dissolved shapes are plain sf objects, so faceting a hierarchy is a
 small `|>` chain over `geoscale_geometry()`:
 
-```{r facets, eval = has_utopia, fig.height = 2.6}
+```{r facets, eval = has_topia, fig.height = 2.6}
 shapes <- geoscale_geoframes(gs) |>
   lapply(function(gf) {
     geoscale_geometry(gs, gf) |>
@@ -126,7 +126,7 @@ The assembled counterparts need no geometry at all.
 `geoscale_autoplot()` (also `plot()`) draws the hierarchy as an icicle;
 its plain-data frame is `geoscale_layout()`:
 
-```{r structure, eval = has_utopia, fig.height = 2.6}
+```{r structure, eval = has_topia, fig.height = 2.6}
 plot(gs)
 head(geoscale_layout(gs), 4)
 ```
@@ -135,7 +135,7 @@ The icicle carries data too — `data =`/`z =` fill every band with the
 value recast to that geoframe (atoms keep their own values, coarser
 bands get the weighted mean):
 
-```{r structure-data, eval = has_utopia, fig.height = 2.6}
+```{r structure-data, eval = has_topia, fig.height = 2.6}
 cap <- data.frame(region = geoscale_regions(gs, "region"),
                   mw = c(40, 15, 75, 30, 60, 22, 8, 55, 34, 12, 48))
 geoscale_autoplot(gs, data = cap, z = "mw", label = TRUE) +
@@ -145,7 +145,7 @@ geoscale_autoplot(gs, data = cap, z = "mw", label = TRUE) +
 With geometry attached, `type = "stack"` draws the layer-stack view —
 the same atoms dissolved at every geoframe, stacked:
 
-```{r structure-stack, eval = has_utopia, fig.height = 5}
+```{r structure-stack, eval = has_topia, fig.height = 5}
 geoscale_autoplot(gs, type = "stack")
 ```
 
@@ -159,7 +159,7 @@ oblique family (`"cavalier"`, `"cabinet"`) and the axonometric family
 `direction=` flips the stack, and `gap` defaults to planes almost
 touching:
 
-```{r stack-views, eval = has_utopia && requireNamespace("patchwork", quietly = TRUE), fig.width = 10, fig.height = 12}
+```{r stack-views, eval = has_topia && requireNamespace("patchwork", quietly = TRUE), fig.width = 10, fig.height = 12}
 # grouped by aspect so tall and flat views don't squeeze each other
 views <- c("top-down", "military", "isometric",
            "dimetric", "trimetric", "cabinet",
@@ -175,7 +175,7 @@ views |>
 And `geoscale_plot()` is the one-call choropleth over the same
 machinery:
 
-```{r one-call, eval = has_utopia}
+```{r one-call, eval = has_topia}
 geoscale_plot(gs, x, geoframe = "region", fill = "capacity",
               palette = "G")
 ```

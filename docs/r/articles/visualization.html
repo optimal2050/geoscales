@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,8 +128,8 @@ choropleth)</td>
 </table>
 <p>This article needs maps, so it runs on two fixtures that stay out of
 the package by design (geoscales ships integration code, not data): the
-offline <code><a href="https://energyRt.org/reference/utopia_geoscale.html" class="external-link">energyRt::utopia_geoscale()</a></code> reference layout, and —
-for the real-world tour — Iceland from Natural Earth’s admin-1
+offline reference layouts in <code>energyRt::topia$geoscales</code>, and
+— for the real-world tour — Iceland from Natural Earth’s admin-1
 layer.</p>
 </div>
 <div class="section level2">
@@ -150,10 +150,10 @@ normal ggplot2 path.</p>
 <h2 id="choropleths-composably">Choropleths, composably<a class="anchor" aria-label="anchor" href="#choropleths-composably"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu">energyRt</span><span class="fu">::</span><span class="fu"><a href="https://energyRt.org/reference/utopia_geoscale.html" class="external-link">utopia_geoscale</a></span><span class="op">(</span><span class="st">"honeycomb"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu">energyRt</span><span class="fu">::</span><span class="va"><a href="https://energyRt.org/reference/topia.html" class="external-link">topia</a></span><span class="op">$</span><span class="va">geoscales</span><span class="op">$</span><span class="va">honeycomb</span></span>
 <span><span class="va">gs</span></span>
-<span><span class="co">#&gt; Geoscale: utopia </span></span>
-<span><span class="co">#&gt; Description: UTOPIA reference regions, nested nation -&gt; zone -&gt; region </span></span>
+<span><span class="co">#&gt; Geoscale: topia_honeycomb </span></span>
+<span><span class="co">#&gt; Description: TOPIA reference regions (honeycomb layout), nested nation -&gt; zone -&gt; region </span></span>
 <span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
 <span><span class="co">#&gt;   - nation (1)</span></span>
 <span><span class="co">#&gt;     - zone (3)</span></span>
@@ -171,7 +171,7 @@ normal ggplot2 path.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Capacity by region"</span>, fill <span class="op">=</span> <span class="st">"GW"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/geom_geoscale.html">theme_geoscale</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="visualization_files/figure-html/utopia-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="visualization_files/figure-html/topia-1.png" class="r-plt" alt="" width="672"></p>
 <p>With <code>z = NULL</code> the layer draws plain boundaries — useful
 under other layers:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -242,10 +242,10 @@ hierarchy as an icicle; its plain-data frame is
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_layout.html">geoscale_layout</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   geoframe  region rank      xmin      xmax ymin ymax   weight     share</span></span>
-<span><span class="co">#&gt; 1   nation  UTOPIA    1 0.0000000 1.0000000    2  2.9 62.21484 1.0000000</span></span>
-<span><span class="co">#&gt; 2     zone    WEST    2 0.0000000 0.2727273    1  1.9 16.96768 0.2727273</span></span>
-<span><span class="co">#&gt; 3     zone CENTRAL    2 0.2727273 0.6363636    1  1.9 22.62358 0.3636364</span></span>
-<span><span class="co">#&gt; 4     zone    EAST    2 0.6363636 1.0000000    1  1.9 22.62358 0.3636364</span></span></code></pre></div>
+<span><span class="co">#&gt; 1   nation   TOPIA    1 0.0000000 1.0000000    2  2.9 62.21484 1.0000000</span></span>
+<span><span class="co">#&gt; 2     zone    WEST    2 0.0000000 0.1818182    1  1.9 11.31179 0.1818182</span></span>
+<span><span class="co">#&gt; 3     zone CENTRAL    2 0.1818182 0.7272727    1  1.9 33.93537 0.5454545</span></span>
+<span><span class="co">#&gt; 4     zone    EAST    2 0.7272727 1.0000000    1  1.9 16.96768 0.2727273</span></span></code></pre></div>
 <p>The icicle carries data too — <code>data =</code>/<code>z =</code>
 fill every band with the value recast to that geoframe (atoms keep their
 own values, coarser bands get the weighted mean):</p>

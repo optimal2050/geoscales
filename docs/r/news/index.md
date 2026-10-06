@@ -1,6 +1,119 @@
 # Changelog
 
-## geoscales 0.5.0.9000
+## geoscales 0.5.4
+
+### The shared core
+
+- **`Geoscale` is now a subclass of the `multiscales` `Scale`.** Every
+  multiscales verb accepts a Geoscale directly, and geometry follows any
+  subset. `@geoframes` and the constructor are unchanged.
+
+- **Breaking: Geoscale objects saved with an earlier version must be
+  rebuilt.** An S7 object stores its class with it, so an old Geoscale
+  is not a `Scale`: simple accessors still answer, but
+  [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
+  [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md),
+  [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
+  and the other verbs fail with “`x` must be a Scale object”. Rebuild it
+  from its own stored parts:
+
+  ``` r
+
+  m <- attr(old, "meta")
+  gs <- geoscale_from_leaftable(attr(old, "leaftable"),
+                                geoframes = attr(old, "geoframes"),
+                                weights = m$weights, name = m$name)
+  if (!is.null(attr(old, "geometry"))) {
+    gs <- attach_geometry_geoscale(gs, attr(old, "geometry"))
+  }
+  ```
+
+- [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
+  [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md),
+  [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md),
+  the navigation verbs,
+  [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md),
+  [`geoscale_share()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_share.md),
+  [`geoscale_coverage()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.md)
+  and the rule and map registries now run on `multiscales`. Results are
+  unchanged. On lazy inputs (arrow, dtplyr)
+  [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
+  no longer scans the data for its warnings, and it accepts the `region`
+  key as `from`.
+
+- **`timescales` moves from `Imports` to `Suggests`.** It was a hard
+  dependency for exactly one symbol – the
+  [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) generic
+  – which is now owned by `multiscales`. Installing geoscales no longer
+  pulls in a calendar package and `lubridate`. timescales stays in
+  `Suggests` because the mirror-parity test compares the two packages’
+  export surfaces.
+
+- `multiscales` is added to `Imports` and the
+  [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) generic
+  is re-exported from there.
+  [`geoscales::recast`](https://rdrr.io/pkg/multiscales/man/recast.html)
+  resolves and dispatches on `Geoscale` exactly as before; the source
+  frame is still `from_geoframe`, since `from` is the dispatch argument
+  and names the scale.
+
+- New rule `"share"`: share within parent. Each source region’s value
+  over its parent-group total, keyed at the *source* geoframe –
+  `recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")`
+  gives each nuts3’s share of its country, summing to 1 per parent. The
+  parent is `to`, or the new `parent=` argument (default: the geoframe
+  above `from`); `from` must nest within it. `"logshare"` is the same
+  computation with a log-scale display intent. Mirrored in timescales.
+
+- The stack and icicle data fills accept `rule = "share"`: each plane is
+  coloured by its regions’ share within the nearest coarser plane it
+  nests in (the coarsest by the grand total), legend “Share”. `"share"`
+  draws on a fixed linear 0..1 scale, `"logshare"` (the same
+  computation) on a fixed log10 percent scale (0.01%..100%) for when
+  sibling counts differ by orders of magnitude; fixed limits either way,
+  so any two share figures are colour-comparable. `palette = NULL` plus
+  your own scale overrides it.
+
+- The default viridis palette option is `"H"` (was `"G"`), and the
+  icicle’s data fill now honours `palette=` instead of hard-coding one.
+
+- [`recast_pairs()`](https://optimal2050.github.io/geoscales/r/reference/recast_pairs.md)
+  aggregates data keyed by a *pair* of regions – transmission corridors,
+  trade flows, commuting matrices. Both endpoints are mapped, pairs that
+  land inside a single target region are dropped as internal, and the
+  rest are aggregated by rule. `directed = FALSE` merges `A->B` with
+  `B->A`.
+
+- `recast_from_geoatoms(weight =)` now names a column of `x`, so the
+  weight can vary by identifier – a capacity-weighted efficiency differs
+  by year and vintage. Previously only a column literally named `weight`
+  was honoured.
+
+- `na_rm = TRUE` in
+  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
+  and
+  [`recast_pairs()`](https://optimal2050.github.io/geoscales/r/reference/recast_pairs.md)
+  reads an `NA` as “this member says nothing” instead of letting it make
+  the whole group `NA`. Only an all-`NA` group stays `NA`, and a
+  weighted mean drops the weight of each `NA` member so the divisor
+  still matches.
+
+- `rule` and `weight` accept a named vector, one entry per value column.
+  One slot of a model can hold an extensive and an intensive quantity
+  side by side, which previously took two calls.
+
+- [`summary()`](https://rspatial.github.io/terra/reference/summary.html)
+  output now prints with its formatted view from user code: the local
+  `print` binding S7 leaves in the namespace had captured the
+  `S3method()` registration of `print.summary_Geoscale`, so the method
+  was invisible outside the package. Registered against base’s `print`
+  in `.onLoad` (same fix in timescales).
+
+- Icicle labels no longer overprint:
+  [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
+  now draws labels widest-rectangle-first with `check_overlap = TRUE`
+  (matching the timescales icicle), so narrow regions lose their label
+  instead of smearing the band.
 
 - `Remotes:` added to DESCRIPTION so CI and `pak` users can resolve the
   GitHub-only timescales Import and energypal Suggests from GitHub (the
@@ -145,9 +258,8 @@ aliases are kept – old names are gone, not wrapped.
   no longer fails with an opaque “differing number of rows” when
   [`sf::st_union()`](https://r-spatial.github.io/sf/reference/geos_combine.html)
   returns several parts for one code (seen with s2-invalid source
-  polygons, e.g. PyPSA-Eur’s full-resolution region shapes): the parts
-  are collapsed into the code’s single dissolved geometry. Healing the
-  source with
+  polygons): the parts are collapsed into the code’s single dissolved
+  geometry. Healing the source with
   [`sf::st_make_valid()`](https://r-spatial.github.io/sf/reference/valid.html)
   before attaching remains the better fix.
 
@@ -161,8 +273,8 @@ aliases are kept – old names are gone, not wrapped.
   and
   [`vignette("data-manipulation")`](https://optimal2050.github.io/geoscales/r/articles/data-manipulation.md)
   (including a runnable time-and-space
-  [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.html)
-  chain and backend examples); the plotting article is rewritten on the
+  [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) chain
+  and backend examples); the plotting article is rewritten on the
   current API as “Visualization with ggplot2” with a real-map tour of
   Iceland built from Natural Earth, with area data attached (old URL
   redirects). Vignette code follows the stack-wide tidyverse + `|>`
@@ -195,8 +307,7 @@ provider – under one naming convention shared with timescales.
   derives a default). Existing columns are never overwritten (error).
 - Conflicting registered per-column weights build one crosswalk per
   weight instead of silently splitting equally.
-- The
-  [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.html)
+- The [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
   method argument `from_level` is now `from_geoframe`.
 
 ### New features
@@ -225,8 +336,7 @@ provider – under one naming convention shared with timescales.
   `register_geo_rule()` / `get_geo_rule()` / `list_geo_rules()` /
   `clear_geo_rules()`; `na_action = c("drop", "error", "keep")` for
   partial coverage.
-- The
-  [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.html)
+- The [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
   generic (owned by timescales, now in Imports) chains time and space:
   `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`; the source
   geoframe is inferred from `x`’s columns or passed as `from_geoframe=`.

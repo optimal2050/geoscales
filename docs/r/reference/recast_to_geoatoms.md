@@ -31,6 +31,8 @@ recast_from_geoatoms(
   key = NULL,
   values = NULL,
   rule = NULL,
+  weight = NULL,
+  na_rm = FALSE,
   na_action = c("drop", "error", "keep"),
   collect = NULL
 )
@@ -61,10 +63,19 @@ recast_from_geoatoms(
   The key column. `to_geoatoms`: defaults to `from` when that column
   exists, otherwise `"region"`. `from_geoatoms`: default `"region"`.
 
-- values, rule, weight:
+- values, rule:
 
   As in
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md).
+
+- weight:
+
+  `to_geoatoms`: a declared weight column of `gs`, as in
+  [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md).
+  `from_geoatoms`: the name of a column of `x` to weight by, so the
+  weight may vary by identifier – a capacity-weighted efficiency differs
+  by year and vintage. `NULL` (default) uses a `weight` column of `x` if
+  present, else the Geoscale's declared weight.
 
 - attach_weight:
 
@@ -77,6 +88,13 @@ recast_from_geoatoms(
 - to:
 
   `from_geoatoms` only: target geoframe name.
+
+- na_rm:
+
+  `from_geoatoms` only: read an `NA` value as "this member says nothing"
+  rather than as an unknown that makes the whole group `NA` (default
+  `FALSE`). Only an all-`NA` group stays `NA`; a weighted mean drops the
+  weight of each `NA` member so the divisor still matches.
 
 - na_action:
 

@@ -9,7 +9,7 @@ each region's width proportional to its share of the weight."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@ each region's width proportional to its share of the weight.</p>
 <span>  z <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  rule <span class="op">=</span> <span class="st">"weighted_mean"</span>,</span>
 <span>  labels <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  palette <span class="op">=</span> <span class="st">"G"</span>,</span>
+<span>  palette <span class="op">=</span> <span class="st">"H"</span>,</span>
 <span>  colour <span class="op">=</span> <span class="st">"grey35"</span>,</span>
 <span>  linewidth <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  frame <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -167,7 +167,10 @@ continuous fill scale (legend title via <code>labs(fill = )</code>).</p></dd>
 the atoms to each coarser geoframe (<code>"weighted_mean"</code> default; see
 <code><a href="recast_geoscale.html">recast_geoscale()</a></code>). The icicle <code>weight</code> argument doubles as
 the weight column for <code>"weighted_mean"</code> (<code>NULL</code> = the geoscale's
-default weight).</p></dd>
+default weight). <code>"share"</code> colours every plane by each region's
+share within the plane above it (the coarsest plane by its share of
+the grand total), so the whole figure reads on one 0..1 scale;
+<code>weight</code> plays no part.</p></dd>
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
@@ -177,11 +180,14 @@ falling back to codes) drawn on the plane. <code>NULL</code> (default) = none.</
 
 
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
-<dd><p><code>type = "stack"</code> only: viridis palette option
-(<code>"A"</code>..<code>"H"</code>) for the plane fill. Default <code>"G"</code>. <code>NULL</code> adds no
+<dd><p>Viridis palette option (<code>"A"</code>..<code>"H"</code>) for the plane
+fill and for both types' <code>data</code> fills. Default <code>"H"</code>. <code>NULL</code> adds no
 fill scale at all, so you can supply your own – e.g.
 <code><a href="https://optimal2050.github.io/energypal/reference/scale_energy.html" class="external-link">energypal::scale_fill_energy_b()</a></code> for the Global Wind Atlas
-colours on their absolute breaks.</p></dd>
+colours on their absolute breaks. With <code>rule = "share"</code> the fill is
+a fixed linear 0..1 scale, with <code>"logshare"</code> a fixed log10 percent
+scale (0.01%..100%) – either way any two share figures are
+colour-comparable.</p></dd>
 
 
 <dt id="arg-colour-linewidth">colour, linewidth<a class="anchor" aria-label="anchor" href="#arg-colour-linewidth"></a></dt>

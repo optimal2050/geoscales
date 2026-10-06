@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,8 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop_names.html" class="external-link">prop_names</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "leaftable" "geoframes" "members"   "geometry"  "meta"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "leaftable" "frames"    "members"   "key"       "meta"      "geoframes"</span></span>
+<span><span class="co">#&gt; [7] "geometry"</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -269,7 +270,7 @@ rule (there is no fallback — unregistered columns without
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">GEOSCALE_RULES</span></span>
 <span><span class="co">#&gt; [1] "sum"           "weighted_mean" "mean"          "copy"         </span></span>
-<span><span class="co">#&gt; [5] "sd"</span></span>
+<span><span class="co">#&gt; [5] "sd"            "share"         "logshare"</span></span>
 <span><span class="fu"><a href="../reference/register_geoscale_rule.html">register_geoscale_rule</a></span><span class="op">(</span><span class="st">"capacity"</span>, <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/register_geoscale_rule.html">register_geoscale_rule</a></span><span class="op">(</span><span class="st">"eff"</span>, <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"pop"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/get_geoscale_rule.html">get_geoscale_rule</a></span><span class="op">(</span><span class="st">"eff"</span><span class="op">)</span></span>
