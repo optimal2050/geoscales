@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -290,11 +290,11 @@ concordances:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fake</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"N1"</span>, zone <span class="op">=</span> <span class="st">"ZC"</span>, n_from <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>                   n_overlap <span class="op">=</span> <span class="fl">1L</span>, w <span class="op">=</span> <span class="fl">1</span>, w_from <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/register_geoscale_map.html">register_geoscale_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, <span class="va">fake</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/register_geoscale_map.html">register_geoscale_map</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span>, <span class="va">fake</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/register_geoscale_map.html">list_geoscale_maps</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                   key</span></span>
 <span><span class="co">#&gt; 1 example:state-&gt;zone</span></span>
-<span><span class="fu"><a href="../reference/register_geoscale_map.html">get_geoscale_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/register_geoscale_map.html">get_geoscale_map</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   state zone n_from n_overlap w w_from</span></span>
 <span><span class="co">#&gt; 1    N1   ZC      1         1 1      1</span></span>
 <span><span class="fu"><a href="../reference/clear_geoscale_maps.html">clear_geoscale_maps</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>

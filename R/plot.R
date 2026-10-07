@@ -391,7 +391,7 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
 #' Cross-cutting geoframes (IDEEA's reg35/reg32) fail this.
 #' @noRd
 .geo_nests <- function(gs, from, to) {
-  map <- geoscale_map(from, to, gs = gs)
+  map <- geoscale_map(gs, from, to)
   mem <- unique(map[, c(from, to)])
   n_par <- table(mem[[from]][!is.na(mem[[to]])])
   all(n_par <= 1L)

@@ -73,9 +73,9 @@ register_geoscale_rule <- function(param, rule, weight = NULL) {
       (!is.character(weight) || length(weight) != 1L)) {
     .stop("`weight` must be a single string or NULL")
   }
-  # Stored in multiscales' registry under this dimension's scope, which is
+  # Stored in discretescales' registry under this dimension's scope, which is
   # where recast_scale() looks for a Geoscale's rules.
-  entry <- multiscales::register_scale_rule(param, rule, weight,
+  entry <- discretescales::register_scale_rule(param, rule, weight,
                                             scope = "geoscale")
   invisible(entry[c("rule", "weight")])
 }
@@ -93,7 +93,7 @@ register_geoscale_rule <- function(param, rule, weight = NULL) {
 #' get_geoscale_rule("not_registered")
 #' @export
 get_geoscale_rule <- function(param) {
-  e <- multiscales::get_scale_rule(param, scope = "geoscale")
+  e <- discretescales::get_scale_rule(param, scope = "geoscale")
   if (is.null(e)) NULL else e[c("rule", "weight")]
 }
 
@@ -106,7 +106,7 @@ get_geoscale_rule <- function(param) {
 #' list_geoscale_rules()
 #' @export
 list_geoscale_rules <- function() {
-  multiscales::list_scale_rules(scope = "geoscale")[c("param", "rule",
+  discretescales::list_scale_rules(scope = "geoscale")[c("param", "rule",
                                                        "weight")]
 }
 
@@ -124,5 +124,5 @@ list_geoscale_rules <- function() {
 #' clear_geoscale_rules("tmp_param")
 #' @export
 clear_geoscale_rules <- function(param = NULL) {
-  multiscales::clear_scale_rules(param, scope = "geoscale")
+  discretescales::clear_scale_rules(param, scope = "geoscale")
 }

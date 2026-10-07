@@ -2,17 +2,14 @@
 % Please edit documentation in R/map.R
 \name{geoscale_map}
 \alias{geoscale_map}
-\title{Crosswalk between two spatial resolutions through the atom layer}
+\title{Crosswalk between two geoframes of a Geoscale}
 \usage{
-geoscale_map(from, to, gs = NULL, weight = NULL)
+geoscale_map(gs, from, to, weight = NULL)
 }
 \arguments{
-\item{from, to}{Either two geoframe names of \code{gs} (within-object map), or
-two named \code{\link{Geoscale}} objects (cross-object map on shared atom
-\code{region} keys).}
+\item{gs}{The \code{\link{Geoscale}} the geoframes belong to.}
 
-\item{gs}{The \code{\link{Geoscale}} the geoframe names belong to; required for the
-within-object shape, ignored otherwise.}
+\item{from, to}{Geoframe names of \code{gs}.}
 
 \item{weight}{Weight column for \code{w}. \code{NULL} uses the default weight; when
 the object declares no weights at all, every atom gets weight 1
@@ -37,13 +34,15 @@ column), the quantity \code{"weighted_mean"} aggregation uses,
 split share \code{"sum"} disaggregation uses.
 }
 
-The two label columns are named by the geoframes (within one Geoscale) or
-by the Geoscale names (across two); rows with an \code{NA} target label are
-atoms \code{to} does not cover. A crosswalk registered with
+The two label columns are named by the geoframes; rows with an \code{NA} target
+label are atoms \code{to} does not cover. A crosswalk registered with
 \code{\link[=register_geoscale_map]{register_geoscale_map()}} is returned as-is instead of being derived.
 }
 \examples{
 gs <- geoscale_example()
-geoscale_map("state", "zone", gs = gs)
-geoscale_map("country", "state", gs = gs, weight = "km2")
+geoscale_map(gs, "state", "zone")
+geoscale_map(gs, "country", "state", weight = "km2")
+}
+\seealso{
+\code{\link[=geoscale_map_between]{geoscale_map_between()}} for the map between two Geoscales.
 }

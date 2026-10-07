@@ -342,7 +342,7 @@ recast_geoscale <- function(x, gs, from = NULL, to,
                                 values = values, rule = rule,
                                 na_action = na_action, collect = collect))
   }
-  multiscales::recast_scale(x, gs, from = from, to = to, key = key,
+  discretescales::recast_scale(x, gs, from = from, to = to, key = key,
                             values = values, rule = rule, weight = weight,
                             na_action = na_action, parent = parent,
                             collect = collect)
@@ -644,7 +644,7 @@ recast_from_geoatoms <- function(x, gs, to,
 # object's geoframes appears as a column of `x`. Everything else forwards
 # to recast_geoscale(). Registered against the external generic (S7's
 # cross-package mechanism; activated by S7::methods_register() in .onLoad).
-.recast_generic <- S7::new_external_generic("multiscales", "recast",
+.recast_generic <- S7::new_external_generic("discretescales", "recast",
                                             c("x", "from"))
 S7::method(.recast_generic, list(S7::class_any, Geoscale)) <-
   function(x, from, to, from_geoframe = NULL, key = NULL, values = NULL,
@@ -657,7 +657,7 @@ S7::method(.recast_generic, list(S7::class_any, Geoscale)) <-
 
 # Re-export the generic: `library(geoscales)` alone provides the verb
 # (and satisfies R CMD check that the Imports dependency is used). The generic
-# is owned by `multiscales`, the dimension-agnostic core.
-#' @importFrom multiscales recast
+# is owned by `discretescales`, the dimension-agnostic core.
+#' @importFrom discretescales recast
 #' @export
-multiscales::recast
+discretescales::recast

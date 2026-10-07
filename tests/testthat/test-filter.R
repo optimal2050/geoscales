@@ -175,10 +175,10 @@ test_that("two samples of one parent no longer collide in the map registry", {
   n <- filter_geoscale(gs, "country", "N")
   s <- filter_geoscale(gs, "country", "S")
   expect_false(S7::prop(n, "meta")$name == S7::prop(s, "meta")$name)
-  m_n <- geoscale_map("state", "country", gs = n)
-  register_geoscale_map("state", "country", m_n, gs = n)
+  m_n <- geoscale_map(n, "state", "country")
+  register_geoscale_map(n, "state", "country", m_n)
   # the registration is scoped to n's mangled name; s does not see it
-  expect_null(get_geoscale_map("state", "country", gs = s))
+  expect_null(get_geoscale_map(s, "state", "country"))
   clear_geoscale_maps()
 })
 

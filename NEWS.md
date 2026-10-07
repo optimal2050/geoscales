@@ -1,15 +1,30 @@
+# geoscales 0.6.0
+
+## Breaking: crosswalk functions split by task
+
+* `geoscale_map(gs, from, to)` now takes the Geoscale first and maps between
+  two of its geoframes only; the map between two Geoscales is
+  `geoscale_map_between(from, to)`. The registry follows the same split:
+  `register_geoscale_map(gs, from, to, map)` / `get_geoscale_map(gs, from, to)`
+  for geoframes of one object, `register_geoscale_map_between(from, to, map)` /
+  `get_geoscale_map_between(from, to)` for two objects. `list_geoscale_maps()`
+  and `clear_geoscale_maps()` are unchanged. No deprecation aliases.
+* The shared core package is now called discretescales (formerly multiscales).
+  `data-raw/iceland_wind.rds` (used by the README and the "Get started"
+  vignette) was re-stamped with `data-raw/restamp_iceland_wind.R`.
+
 # geoscales 0.5.4
 
 ## The shared core
 
-* **`Geoscale` is now a subclass of the `multiscales` `Scale`.** Every
-  multiscales verb accepts a Geoscale directly, and geometry follows any
+* **`Geoscale` is now a subclass of the `discretescales` `DiscreteScale`.** Every
+  discretescales verb accepts a Geoscale directly, and geometry follows any
   subset. `@geoframes` and the constructor are unchanged.
 * **Breaking: Geoscale objects saved with an earlier version must be
   rebuilt.** An S7 object stores its class with it, so an old Geoscale is not
-  a `Scale`: simple accessors still answer, but `recast_geoscale()`,
+  a `DiscreteScale`: simple accessors still answer, but `recast_geoscale()`,
   `filter_geoscale()`, `join_geoscale()` and the other verbs fail with
-  "`x` must be a Scale object". Rebuild it from its own stored parts:
+  "`x` must be a DiscreteScale object". Rebuild it from its own stored parts:
 
   ```r
   m <- attr(old, "meta")
@@ -22,15 +37,15 @@
   ```
 * `recast_geoscale()`, `join_geoscale()`, `geoscale_map()`, the navigation
   verbs, `filter_geoscale()`, `geoscale_share()`, `geoscale_coverage()` and
-  the rule and map registries now run on `multiscales`. Results are
+  the rule and map registries now run on `discretescales`. Results are
   unchanged. On lazy inputs (arrow, dtplyr) `recast_geoscale()` no longer
   scans the data for its warnings, and it accepts the `region` key as `from`.
 * **`timescales` moves from `Imports` to `Suggests`.** It was a hard dependency
   for exactly one symbol -- the `recast()` generic -- which is now owned by
-  `multiscales`. Installing geoscales no longer pulls in a calendar package and
+  `discretescales`. Installing geoscales no longer pulls in a calendar package and
   `lubridate`. timescales stays in `Suggests` because the mirror-parity test
   compares the two packages' export surfaces.
-* `multiscales` is added to `Imports` and the `recast()` generic is re-exported
+* `discretescales` is added to `Imports` and the `recast()` generic is re-exported
   from there. `geoscales::recast` resolves and dispatches on `Geoscale` exactly
   as before; the source frame is still `from_geoframe`, since `from` is the
   dispatch argument and names the scale.

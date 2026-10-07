@@ -127,9 +127,9 @@ derivation in `geoscale_map()` — for hand-audited concordances:
 ```{r}
 fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
                    n_overlap = 1L, w = 1, w_from = 1)
-register_geoscale_map("state", "zone", fake, gs = gs)
+register_geoscale_map(gs, "state", "zone", fake)
 list_geoscale_maps()
-get_geoscale_map("state", "zone", gs = gs)
+get_geoscale_map(gs, "state", "zone")
 clear_geoscale_maps()
 ```
 

@@ -156,7 +156,7 @@ weights (`w`, the absolute overlap weight; `w_from`, the full source
 weight — `w / w_from` is the split share):
 
 ```{r}
-geoscale_map("country", "state", gs = gs, weight = "km2")
+geoscale_map(gs, "country", "state", weight = "km2")
 ```
 
 When an exact correspondence is known (an official concordance table),
@@ -164,16 +164,16 @@ register it and it short-circuits the derivation — with accessors to
 inspect what is installed:
 
 ```{r}
-exact <- geoscale_map("state", "zone", gs = gs)
-register_geoscale_map("state", "zone", exact, gs = gs)
+exact <- geoscale_map(gs, "state", "zone")
+register_geoscale_map(gs, "state", "zone", exact)
 list_geoscale_maps()
-identical(get_geoscale_map("state", "zone", gs = gs), exact)
+identical(get_geoscale_map(gs, "state", "zone"), exact)
 clear_geoscale_maps()
 ```
 
 ## One verb across time and space
 
-The bare `recast()` generic is owned by multiscales and re-exported by both
+The bare `recast()` generic is owned by discretescales and re-exported by both
 geoscales and timescales. It dispatches on the scale object, so with
 timescales installed one pipeline chains both dimensions:
 

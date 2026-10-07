@@ -2,48 +2,59 @@
 % Please edit documentation in R/map.R
 \name{register_geoscale_map}
 \alias{register_geoscale_map}
+\alias{register_geoscale_map_between}
 \alias{get_geoscale_map}
+\alias{get_geoscale_map_between}
 \alias{list_geoscale_maps}
 \title{Register / look up a direct spatial crosswalk}
 \usage{
-register_geoscale_map(from, to, map, gs = NULL)
+register_geoscale_map(gs, from, to, map)
 
-get_geoscale_map(from, to, gs = NULL)
+register_geoscale_map_between(from, to, map)
+
+get_geoscale_map(gs, from, to)
+
+get_geoscale_map_between(from, to)
 
 list_geoscale_maps()
 }
 \arguments{
-\item{from, to}{The pair the map applies to: geoframe names (with \code{gs}
-naming the object), Geoscale names, or \code{\link{Geoscale}} objects (their
-names are used).}
+\item{gs}{The \code{\link{Geoscale}} the geoframes belong to, or its name.}
+
+\item{from, to}{For the within-object functions, geoframe names of \code{gs}.
+For the \verb{_between} functions, two \code{\link{Geoscale}} objects or their names.}
 
 \item{map}{A \code{data.frame} shaped like a \code{\link[=geoscale_map]{geoscale_map()}} result: the
-two label columns named after \code{from} and \code{to}, plus \code{n_from},
-\code{n_overlap}, \code{w} and \code{w_from}. \code{NULL} removes a previously registered
-map.}
-
-\item{gs}{Optional \code{\link{Geoscale}} (or its name) scoping a within-object
-map, so \code{"state" -> "zone"} maps of two different objects do not
-collide. Cross-object maps need no scope.}
+two label columns named after the geoframes (or Geoscales), plus
+\code{n_from}, \code{n_overlap}, \code{w} and \code{w_from}. \code{NULL} removes a previously
+registered map.}
 }
 \value{
-Invisibly, the registry key. \code{get_geoscale_map()} returns the
+Invisibly, the registry key. The \code{get_} functions return the
 registered map (or \code{NULL}); \code{list_geoscale_maps()} a \code{data.frame} of
 registry keys.
 }
 \description{
 A registered map short-circuits the atom-layer derivation in
-\code{\link[=geoscale_map]{geoscale_map()}} (and thereby \code{\link[=recast_geoscale]{recast_geoscale()}}) for one pair of
-resolutions -- for cases where the exact correspondence is known
-(hand-audited crosswalks, official concordance tables).
+\code{\link[=geoscale_map]{geoscale_map()}} or \code{\link[=geoscale_map_between]{geoscale_map_between()}} (and thereby
+\code{\link[=recast_geoscale]{recast_geoscale()}}) for one pair of resolutions -- for cases where the
+exact correspondence is known (hand-audited crosswalks, official
+concordance tables).
+}
+\details{
+\code{register_geoscale_map()} and \code{get_geoscale_map()} handle a pair of
+geoframes of one Geoscale; the map is scoped to that object, so
+\code{"state" -> "zone"} maps of two different objects do not collide.
+\code{register_geoscale_map_between()} and \code{get_geoscale_map_between()} handle a
+pair of Geoscales.
 }
 \examples{
 gs <- geoscale_example()
 fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
                    n_overlap = 1L, w = 1, w_from = 1)
-register_geoscale_map("state", "zone", fake, gs = gs)
+register_geoscale_map(gs, "state", "zone", fake)
 list_geoscale_maps()
-get_geoscale_map("state", "zone", gs = gs)
-register_geoscale_map("state", "zone", NULL, gs = gs)  # remove
+get_geoscale_map(gs, "state", "zone")
+register_geoscale_map(gs, "state", "zone", NULL)  # remove
 clear_geoscale_maps()
 }

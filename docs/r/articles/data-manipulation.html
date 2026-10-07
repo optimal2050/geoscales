@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.4</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,7 +137,7 @@ column</td>
 <td>per-column rules, exact crosswalks, map sources</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code></td>
+<td><code><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast()</a></code></td>
 <td>generic</td>
 <td>one pipeline verb across time AND space</td>
 </tr>
@@ -327,7 +327,7 @@ overlapping region pair with atom counts (<code>n_from</code>,
 overlap weight; <code>w_from</code>, the full source weight —
 <code>w / w_from</code> is the split share):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_map.html">geoscale_map</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"state"</span>, gs <span class="op">=</span> <span class="va">gs</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_map.html">geoscale_map</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"country"</span>, <span class="st">"state"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   country state n_from n_overlap    w w_from</span></span>
 <span><span class="co">#&gt; 1       N    N1      4         2  300   1000</span></span>
 <span><span class="co">#&gt; 2       N    N2      4         2  700   1000</span></span>
@@ -336,19 +336,19 @@ overlap weight; <code>w_from</code>, the full source weight —
 table), register it and it short-circuits the derivation — with
 accessors to inspect what is installed:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_map.html">geoscale_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/register_geoscale_map.html">register_geoscale_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, <span class="va">exact</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">exact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_map.html">geoscale_map</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/register_geoscale_map.html">register_geoscale_map</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span>, <span class="va">exact</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/register_geoscale_map.html">list_geoscale_maps</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                   key</span></span>
 <span><span class="co">#&gt; 1 example:state-&gt;zone</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/register_geoscale_map.html">get_geoscale_map</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"zone"</span>, gs <span class="op">=</span> <span class="va">gs</span><span class="op">)</span>, <span class="va">exact</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/register_geoscale_map.html">get_geoscale_map</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span><span class="op">)</span>, <span class="va">exact</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/clear_geoscale_maps.html">clear_geoscale_maps</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="one-verb-across-time-and-space">One verb across time and space<a class="anchor" aria-label="anchor" href="#one-verb-across-time-and-space"></a>
 </h2>
-<p>The bare <code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code> generic is owned by multiscales and
+<p>The bare <code><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast()</a></code> generic is owned by discretescales and
 re-exported by both geoscales and timescales. It dispatches on the scale
 object, so with timescales installed one pipeline chains both
 dimensions:</p>
@@ -361,9 +361,9 @@ dimensions:</p>
 <span>  <span class="fu">mutate</span><span class="op">(</span>demand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">timeslice</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
 <span>         rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 3</span></span></span>
 <span><span class="co">#&gt;   country timeslice demand</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>

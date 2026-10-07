@@ -9,7 +9,7 @@
 | [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) / [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) | the route halves | project down to the atom layer / aggregate up from it |
 | [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md) | A → B crosswalk | the conversion, materialised as a small table |
 | [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md) / [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md) / [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md) | registries | per-column rules, exact crosswalks, map sources |
-| [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) | generic | one pipeline verb across time AND space |
+| [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html) | generic | one pipeline verb across time AND space |
 
 Everything below runs on the synthetic
 [`geoscale_example()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_example.md)
@@ -189,7 +189,7 @@ weight — `w / w_from` is the split share):
 
 ``` r
 
-geoscale_map("country", "state", gs = gs, weight = "km2")
+geoscale_map(gs, "country", "state", weight = "km2")
 #>   country state n_from n_overlap    w w_from
 #> 1       N    N1      4         2  300   1000
 #> 2       N    N2      4         2  700   1000
@@ -202,20 +202,21 @@ inspect what is installed:
 
 ``` r
 
-exact <- geoscale_map("state", "zone", gs = gs)
-register_geoscale_map("state", "zone", exact, gs = gs)
+exact <- geoscale_map(gs, "state", "zone")
+register_geoscale_map(gs, "state", "zone", exact)
 list_geoscale_maps()
 #>                   key
 #> 1 example:state->zone
-identical(get_geoscale_map("state", "zone", gs = gs), exact)
+identical(get_geoscale_map(gs, "state", "zone"), exact)
 #> [1] TRUE
 clear_geoscale_maps()
 ```
 
 ## One verb across time and space
 
-The bare [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
-generic is owned by multiscales and re-exported by both geoscales and
+The bare
+[`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html) generic
+is owned by discretescales and re-exported by both geoscales and
 timescales. It dispatches on the scale object, so with timescales
 installed one pipeline chains both dimensions:
 

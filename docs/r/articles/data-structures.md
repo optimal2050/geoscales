@@ -187,11 +187,11 @@ derivation in
 
 fake <- data.frame(state = "N1", zone = "ZC", n_from = 1L,
                    n_overlap = 1L, w = 1, w_from = 1)
-register_geoscale_map("state", "zone", fake, gs = gs)
+register_geoscale_map(gs, "state", "zone", fake)
 list_geoscale_maps()
 #>                   key
 #> 1 example:state->zone
-get_geoscale_map("state", "zone", gs = gs)
+get_geoscale_map(gs, "state", "zone")
 #>   state zone n_from n_overlap w w_from
 #> 1    N1   ZC      1         1 1      1
 clear_geoscale_maps()

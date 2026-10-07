@@ -1,7 +1,6 @@
 Package: geoscales
 Title: Nested Regions and Spatial Hierarchies for Modeling
-Version: 0.5.5
-Date: 2026-09-05
+Version: 0.6.0
 URL: https://optimal2050.github.io/geoscales/r/,
     https://optimal2050.github.io/geoscales/,
     https://github.com/optimal2050/geoscales
@@ -15,7 +14,7 @@ Authors@R:
 Description: Discrete spatial representations for optimization and simulation
     models, including nested sets of regions, conversion between alternative
     spatial resolutions, and mapping of data onto region hierarchies for
-    modeling and visualization. Built on 'multiscales'; the spatial
+    modeling and visualization. Built on 'discretescales'; the spatial
     companion to 'timescales'.
 License: Apache License (>= 2)
 Encoding: UTF-8
@@ -27,7 +26,7 @@ Imports:
     rlang,
     S7,
     stats,
-    multiscales,
+    discretescales,
     utils
 Suggests:
     timescales,
@@ -50,7 +49,7 @@ Suggests:
     yaml
 Additional_repositories: https://ropensci.r-universe.dev,
     https://optimal2050.r-universe.dev
-Remotes: optimal2050/multiscales, optimal2050/timescales,
+Remotes: optimal2050/discretescales, optimal2050/timescales,
     optimal2050/energypal,
     ropensci/rnaturalearthhires
 Config/testthat/edition: 3

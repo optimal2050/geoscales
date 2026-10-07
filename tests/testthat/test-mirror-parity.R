@@ -1,6 +1,6 @@
 # =========================================================================== #
 # The sibling API mirror, enforced. timescales is a Suggests (the `recast`
-# generic now comes from multiscales), so this
+# generic now comes from discretescales), so this
 # suite can see both packages and assert the 0.5.0 harmonization ruling
 # (CONVENTIONS.md, "Sibling API mirror"): every export is either PAIRED
 # with its twin through the vocabulary translation, or a DECLARED
@@ -89,7 +89,7 @@ skip_if_not_installed("timescales")
 }
 .gs_exports <- function() {
   e <- getNamespaceExports("geoscales")
-  # `recast` is re-exported from multiscales, which owns it; S3/`[` methods
+  # `recast` is re-exported from discretescales, which owns it; S3/`[` methods
   # mirror by class
   e[!grepl("^\\[|\\.Geoscale$|^recast$", e)]
 }

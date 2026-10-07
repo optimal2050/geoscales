@@ -64,9 +64,13 @@ geoframe ranks and cross-cutting geoframes need no special handling.
   [`recast`](https://optimal2050.github.io/geoscales/r/reference/reexports.md)
   : Objects exported from other packages
 - [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
-  : Crosswalk between two spatial resolutions through the atom layer
+  : Crosswalk between two geoframes of a Geoscale
+- [`geoscale_map_between()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map_between.md)
+  : Crosswalk between two Geoscales through their shared atoms
 - [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
+  [`register_geoscale_map_between()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
   [`get_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
+  [`get_geoscale_map_between()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
   [`list_geoscale_maps()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
   : Register / look up a direct spatial crosswalk
 - [`clear_geoscale_maps()`](https://optimal2050.github.io/geoscales/r/reference/clear_geoscale_maps.md)

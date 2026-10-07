@@ -1,21 +1,42 @@
 # Changelog
 
+## geoscales 0.6.0
+
+### Breaking: crosswalk functions split by task
+
+- `geoscale_map(gs, from, to)` now takes the Geoscale first and maps
+  between two of its geoframes only; the map between two Geoscales is
+  `geoscale_map_between(from, to)`. The registry follows the same split:
+  `register_geoscale_map(gs, from, to, map)` /
+  `get_geoscale_map(gs, from, to)` for geoframes of one object,
+  `register_geoscale_map_between(from, to, map)` /
+  `get_geoscale_map_between(from, to)` for two objects.
+  [`list_geoscale_maps()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
+  and
+  [`clear_geoscale_maps()`](https://optimal2050.github.io/geoscales/r/reference/clear_geoscale_maps.md)
+  are unchanged. No deprecation aliases.
+- The shared core package is now called discretescales (formerly
+  multiscales). `data-raw/iceland_wind.rds` (used by the README and the
+  “Get started” vignette) was re-stamped with
+  `data-raw/restamp_iceland_wind.R`.
+
 ## geoscales 0.5.4
 
 ### The shared core
 
-- **`Geoscale` is now a subclass of the `multiscales` `Scale`.** Every
-  multiscales verb accepts a Geoscale directly, and geometry follows any
-  subset. `@geoframes` and the constructor are unchanged.
+- **`Geoscale` is now a subclass of the `discretescales`
+  `DiscreteScale`.** Every discretescales verb accepts a Geoscale
+  directly, and geometry follows any subset. `@geoframes` and the
+  constructor are unchanged.
 
 - **Breaking: Geoscale objects saved with an earlier version must be
   rebuilt.** An S7 object stores its class with it, so an old Geoscale
-  is not a `Scale`: simple accessors still answer, but
+  is not a `DiscreteScale`: simple accessors still answer, but
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
   [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md),
   [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
-  and the other verbs fail with “`x` must be a Scale object”. Rebuild it
-  from its own stored parts:
+  and the other verbs fail with “`x` must be a DiscreteScale object”.
+  Rebuild it from its own stored parts:
 
   ``` r
 
@@ -35,24 +56,24 @@
   [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md),
   [`geoscale_share()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_share.md),
   [`geoscale_coverage()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.md)
-  and the rule and map registries now run on `multiscales`. Results are
-  unchanged. On lazy inputs (arrow, dtplyr)
+  and the rule and map registries now run on `discretescales`. Results
+  are unchanged. On lazy inputs (arrow, dtplyr)
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
   no longer scans the data for its warnings, and it accepts the `region`
   key as `from`.
 
 - **`timescales` moves from `Imports` to `Suggests`.** It was a hard
   dependency for exactly one symbol – the
-  [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) generic
-  – which is now owned by `multiscales`. Installing geoscales no longer
-  pulls in a calendar package and `lubridate`. timescales stays in
-  `Suggests` because the mirror-parity test compares the two packages’
-  export surfaces.
+  [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html)
+  generic – which is now owned by `discretescales`. Installing geoscales
+  no longer pulls in a calendar package and `lubridate`. timescales
+  stays in `Suggests` because the mirror-parity test compares the two
+  packages’ export surfaces.
 
-- `multiscales` is added to `Imports` and the
-  [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) generic
-  is re-exported from there.
-  [`geoscales::recast`](https://rdrr.io/pkg/multiscales/man/recast.html)
+- `discretescales` is added to `Imports` and the
+  [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html)
+  generic is re-exported from there.
+  [`geoscales::recast`](https://rdrr.io/pkg/discretescales/man/recast.html)
   resolves and dispatches on `Geoscale` exactly as before; the source
   frame is still `from_geoframe`, since `from` is the dispatch argument
   and names the scale.
@@ -273,7 +294,7 @@ aliases are kept – old names are gone, not wrapped.
   and
   [`vignette("data-manipulation")`](https://optimal2050.github.io/geoscales/r/articles/data-manipulation.md)
   (including a runnable time-and-space
-  [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) chain
+  [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html) chain
   and backend examples); the plotting article is rewritten on the
   current API as “Visualization with ggplot2” with a real-map tour of
   Iceland built from Natural Earth, with area data attached (old URL
@@ -307,7 +328,7 @@ provider – under one naming convention shared with timescales.
   derives a default). Existing columns are never overwritten (error).
 - Conflicting registered per-column weights build one crosswalk per
   weight instead of silently splitting equally.
-- The [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
+- The [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html)
   method argument `from_level` is now `from_geoframe`.
 
 ### New features
@@ -336,7 +357,7 @@ provider – under one naming convention shared with timescales.
   `register_geo_rule()` / `get_geo_rule()` / `list_geo_rules()` /
   `clear_geo_rules()`; `na_action = c("drop", "error", "keep")` for
   partial coverage.
-- The [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
+- The [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html)
   generic (owned by timescales, now in Imports) chains time and space:
   `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`; the source
   geoframe is inferred from `x`’s columns or passed as `from_geoframe=`.

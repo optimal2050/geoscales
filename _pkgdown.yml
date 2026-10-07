@@ -94,6 +94,7 @@ reference:
       - recast_pairs
       - recast
       - geoscale_map
+      - geoscale_map_between
       - register_geoscale_map
       - clear_geoscale_maps
       - join_geoscale

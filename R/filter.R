@@ -57,10 +57,10 @@ geoscale_family <- function(x, parent = NULL, child = NULL) {
     .check_geoframe(x, parent, "parent")
     .check_geoframe(x, child, "child")
   }
-  .geoframe_cols(multiscales::scale_family(x, parent, child))
+  .geoframe_cols(discretescales::scale_family(x, parent, child))
 }
 
-# multiscales names the frame columns `parent_frame`/`child_frame`.
+# discretescales names the frame columns `parent_frame`/`child_frame`.
 #' @noRd
 .geoframe_cols <- function(d) {
   names(d) <- sub("_frame$", "_geoframe", names(d))
@@ -92,7 +92,7 @@ geoscale_nests <- function(x, parent, child) {
   .check_geoscale(x)
   .check_geoframe(x, parent, "parent")
   .check_geoframe(x, child, "child")
-  multiscales::scale_nests(x, parent, child)
+  discretescales::scale_nests(x, parent, child)
 }
 
 #' Ancestry between all geoframe pairs
@@ -125,7 +125,7 @@ geoscale_nests <- function(x, parent, child) {
 #' @export
 geoscale_ancestry <- function(x) {
   .check_geoscale(x)
-  out <- .geoframe_cols(multiscales::scale_ancestry(x))
+  out <- .geoframe_cols(discretescales::scale_ancestry(x))
   out <- out[order(out$parent_geoframe, out$parent,
                    out$child_geoframe, out$child), , drop = FALSE]
   rownames(out) <- NULL
@@ -168,7 +168,7 @@ geoscale_children <- function(x, geoframe, region, to = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
   if (!is.null(to)) .check_geoframe(x, to, "to")
-  multiscales::scale_children(x, geoframe, region, to)
+  discretescales::scale_children(x, geoframe, region, to)
 }
 
 #' @rdname geoscale_navigate
@@ -177,7 +177,7 @@ geoscale_parents <- function(x, geoframe, region, to = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
   if (!is.null(to)) .check_geoframe(x, to, "to")
-  multiscales::scale_parents(x, geoframe, region, to)
+  discretescales::scale_parents(x, geoframe, region, to)
 }
 
 #' @rdname geoscale_navigate
@@ -186,7 +186,7 @@ geoscale_descendants <- function(x, geoframe, region, to = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
   if (!is.null(to)) .check_geoframe(x, to, "to")
-  .geoframe_region_cols(multiscales::scale_descendants(x, geoframe, region, to))
+  .geoframe_region_cols(discretescales::scale_descendants(x, geoframe, region, to))
 }
 
 #' @rdname geoscale_navigate
@@ -195,10 +195,10 @@ geoscale_ancestors <- function(x, geoframe, region, to = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
   if (!is.null(to)) .check_geoframe(x, to, "to")
-  .geoframe_region_cols(multiscales::scale_ancestors(x, geoframe, region, to))
+  .geoframe_region_cols(discretescales::scale_ancestors(x, geoframe, region, to))
 }
 
-# multiscales tags related codes as `frame`/`unit`.
+# discretescales tags related codes as `frame`/`unit`.
 #' @noRd
 .geoframe_region_cols <- function(d) {
   names(d) <- c("geoframe", "region")
@@ -238,7 +238,7 @@ geoscale_ancestors <- function(x, geoframe, region, to = NULL) {
 filter_geoscale <- function(x, geoframe, region, drop_empty_geoframes = FALSE) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  multiscales::filter_scale(x, geoframe, region,
+  discretescales::filter_scale(x, geoframe, region,
                             drop_empty_frames = drop_empty_geoframes)
 }
 
@@ -377,7 +377,7 @@ prune_geoscale <- function(x, geoframe,
 #' @export
 geoscale_coverage <- function(x, weight = NULL) {
   .check_geoscale(x)
-  multiscales::scale_coverage(x, weight)
+  discretescales::scale_coverage(x, weight)
 }
 
 #' Subset a Geoscale with `[`
@@ -444,5 +444,5 @@ geoscale_share <- function(x, geoframe, weight = NULL, within = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
   if (!is.null(within)) .check_geoframe(x, within, "within")
-  multiscales::scale_share(x, geoframe, weight = weight, within = within)
+  discretescales::scale_share(x, geoframe, weight = weight, within = within)
 }
