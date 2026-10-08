@@ -15,7 +15,7 @@
 #     shared atom `region` keys (reg32 <-> NUTS style conversions).
 #
 # The derivation and the registry of exact / hand-audited crosswalks live in
-# discretescales; these functions keep the geoscales argument names and errors.
+# nestedscales; these functions keep the geoscales argument names and errors.
 # =============================================================================
 
 #' Crosswalk between two geoframes of a Geoscale
@@ -58,7 +58,7 @@ geoscale_map <- function(gs, from, to, weight = NULL) {
   .check_geoscale(gs, "gs")
   .check_geoframe(gs, from, "from")
   .check_geoframe(gs, to, "to")
-  discretescales::scale_map(gs, from, to, weight = weight)
+  nestedscales::scale_map(gs, from, to, weight = weight)
 }
 
 #' Crosswalk between two Geoscales through their shared atoms
@@ -94,7 +94,7 @@ geoscale_map <- function(gs, from, to, weight = NULL) {
 geoscale_map_between <- function(from, to, weight = NULL) {
   .check_geoscale(from, "from")
   .check_geoscale(to, "to")
-  discretescales::scale_map_between(from, to, weight = weight)
+  nestedscales::scale_map_between(from, to, weight = weight)
 }
 
 #' Chosen weight column, or NULL for the unweighted (equal) fallback
@@ -144,7 +144,7 @@ geoscale_map_between <- function(from, to, weight = NULL) {
 #' @export
 register_geoscale_map <- function(gs, from, to, map) {
   if (!is.character(gs)) .check_geoscale(gs, "gs")
-  discretescales::register_scale_map(gs, from, to, map)
+  nestedscales::register_scale_map(gs, from, to, map)
 }
 
 #' @rdname register_geoscale_map
@@ -154,14 +154,14 @@ register_geoscale_map_between <- function(from, to, map) {
     z <- get(a)
     if (!is.character(z)) .check_geoscale(z, a)
   }
-  discretescales::register_scale_map_between(from, to, map)
+  nestedscales::register_scale_map_between(from, to, map)
 }
 
 #' @rdname register_geoscale_map
 #' @export
 get_geoscale_map <- function(gs, from, to) {
   if (!is.character(gs)) .check_geoscale(gs, "gs")
-  discretescales::get_scale_map(gs, from, to)
+  nestedscales::get_scale_map(gs, from, to)
 }
 
 #' @rdname register_geoscale_map
@@ -171,13 +171,13 @@ get_geoscale_map_between <- function(from, to) {
     z <- get(a)
     if (!is.character(z)) .check_geoscale(z, a)
   }
-  discretescales::get_scale_map_between(from, to)
+  nestedscales::get_scale_map_between(from, to)
 }
 
 #' @rdname register_geoscale_map
 #' @export
 list_geoscale_maps <- function() {
-  discretescales::list_scale_maps()
+  nestedscales::list_scale_maps()
 }
 
 #' Clear the registered spatial crosswalks
@@ -189,5 +189,5 @@ list_geoscale_maps <- function() {
 #' @return Invisibly `NULL`.
 #' @export
 clear_geoscale_maps <- function() {
-  discretescales::clear_scale_maps()
+  nestedscales::clear_scale_maps()
 }

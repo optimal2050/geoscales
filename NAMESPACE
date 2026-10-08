@@ -72,7 +72,7 @@ export(register_geoscale_provider)
 export(register_geoscale_rule)
 export(theme_geoscale)
 export(zoom_geoscale)
-importFrom(discretescales,recast)
+importFrom(nestedscales,recast)
 importFrom(rlang,
   ":=",
   .data

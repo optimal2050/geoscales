@@ -14,7 +14,7 @@ Authors@R:
 Description: Discrete spatial representations for optimization and simulation
     models, including nested sets of regions, conversion between alternative
     spatial resolutions, and mapping of data onto region hierarchies for
-    modeling and visualization. Built on 'discretescales'; the spatial
+    modeling and visualization. Built on 'nestedscales'; the spatial
     companion to 'timescales'.
 License: Apache License (>= 2)
 Encoding: UTF-8
@@ -26,7 +26,7 @@ Imports:
     rlang,
     S7,
     stats,
-    discretescales,
+    nestedscales,
     utils
 Suggests:
     timescales,
@@ -49,7 +49,7 @@ Suggests:
     yaml
 Additional_repositories: https://ropensci.r-universe.dev,
     https://optimal2050.r-universe.dev
-Remotes: optimal2050/discretescales, optimal2050/timescales,
+Remotes: optimal2050/nestedscales, optimal2050/timescales,
     optimal2050/energypal,
     ropensci/rnaturalearthhires
 Config/testthat/edition: 3

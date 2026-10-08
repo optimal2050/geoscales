@@ -28,7 +28,7 @@ new <- geoscale_from_leaftable(
 S7::prop(new, "meta") <- m # every other meta field (crs, ...) as stored
 
 stopifnot(
-  discretescales::scale_is(new),
+  nestedscales::scale_is(new),
   identical(attr(new, "leaftable"), attr(old, "leaftable")),
   identical(attr(new, "frames"), attr(old, "frames")),
   identical(attr(new, "members"), attr(old, "members")),

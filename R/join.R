@@ -75,7 +75,7 @@ join_geoscale <- function(x, gs, key = NULL, geoframe = NULL,
     geoframe <- hit
   }
   .check_geoframe(gs, geoframe, "geoframe")
-  discretescales::join_scale(x, gs, key = key, frame = geoframe,
+  nestedscales::join_scale(x, gs, key = key, frame = geoframe,
                           attach = geoframes, meta = meta, weight = weight,
                           as_factor = as_factor, collect = collect)
 }

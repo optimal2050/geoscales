@@ -57,18 +57,18 @@
 #' @export
 Geoscale <- S7::new_class(
   "Geoscale",
-  parent = discretescales::scale_class(),
+  parent = nestedscales::scale_class(),
   properties = list(
     # `geoframes` is this dimension's name for the inherited `frames`, so
     # every existing `@geoframes` access keeps working. The alias setter
     # no-ops on NULL: S7 writes each dynamic property once at construction.
-    geoframes  = discretescales::scale_alias_property("frames"),
+    geoframes  = nestedscales::scale_alias_property("frames"),
     geometry   = S7::new_property(S7::class_any, default = NULL)
   ),
   constructor = function(leaftable, geoframes, members, geometry = NULL,
                          meta = list()) {
     S7::new_object(
-      discretescales::scale_class()(
+      nestedscales::scale_class()(
         leaftable = leaftable,
         frames    = geoframes,
         members   = members,
@@ -259,7 +259,7 @@ Geoscale <- S7::new_class(
 # The words this dimension uses, interpolated into the shared engine's error
 # messages. Registered against the external generics (activated by
 # S7::methods_register() in .onLoad).
-.scale_vocab_generic <- S7::new_external_generic("discretescales",
+.scale_vocab_generic <- S7::new_external_generic("nestedscales",
                                                  "scale_vocab", "x")
 S7::method(.scale_vocab_generic, Geoscale) <- function(x, ...) {
   list(object = "Geoscale", frame = "geoframe", frames = "geoframes",
@@ -270,7 +270,7 @@ S7::method(.scale_vocab_generic, Geoscale) <- function(x, ...) {
 
 # The geometry is per atom, in leaftable row order: when the shared engine
 # keeps a subset of rows, it keeps the same subset of shapes.
-.payload_slice_generic <- S7::new_external_generic("discretescales",
+.payload_slice_generic <- S7::new_external_generic("nestedscales",
                                                    "scale_payload_slice", "x")
 S7::method(.payload_slice_generic, Geoscale) <- function(x, i, ...) {
   geom <- S7::prop(x, "geometry")
