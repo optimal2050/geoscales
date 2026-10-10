@@ -8,7 +8,7 @@
 # `geoscale_from_leaftable()` expects.
 # =============================================================================
 
-#' Build a Geoscale from parent-child crosswalks
+#' Build a GeoScale from parent-child crosswalks
 #'
 #' Assembles a wide leaftable table from a set of two-column crosswalks. Each
 #' crosswalk is a `data.frame` whose column names are two geoframe names; the
@@ -28,7 +28,7 @@
 #' @param name,desc Short name and description.
 #' @param ... Additional arguments passed to [`geoscale_from_leaftable()`].
 #'
-#' @return A [`Geoscale`].
+#' @return A [`GeoScale`].
 #'
 #' @examples
 #' geoscale_build(

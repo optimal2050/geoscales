@@ -11,14 +11,14 @@
 #
 # Two functions, one per shape:
 #   * geoscale_map(gs, from, to)      -- `from`/`to` are geoframe names of `gs`;
-#   * geoscale_map_between(from, to)  -- two Geoscale objects, matched on
+#   * geoscale_map_between(from, to)  -- two GeoScale objects, matched on
 #     shared atom `region` keys (reg32 <-> NUTS style conversions).
 #
 # The derivation and the registry of exact / hand-audited crosswalks live in
 # nestedscales; these functions keep the geoscales argument names and errors.
 # =============================================================================
 
-#' Crosswalk between two geoframes of a Geoscale
+#' Crosswalk between two geoframes of a GeoScale
 #'
 #' Materialises the `from -> atoms -> to` route as a table: one row per pair
 #' of overlapping regions with
@@ -35,7 +35,7 @@
 #' label are atoms `to` does not cover. A crosswalk registered with
 #' [`register_geoscale_map()`] is returned as-is instead of being derived.
 #'
-#' @param gs The [`Geoscale`] the geoframes belong to.
+#' @param gs The [`GeoScale`] the geoframes belong to.
 #' @param from,to Geoframe names of `gs`.
 #' @param weight Weight column for `w`. `NULL` uses the default weight; when
 #'   the object declares no weights at all, every atom gets weight 1
@@ -44,16 +44,16 @@
 #' @return A `data.frame` with columns `<from>`, `<to>` (`NA` = uncovered by
 #'   `to`), `n_from`, `n_overlap`, `w`, `w_from`.
 #'
-#' @seealso [`geoscale_map_between()`] for the map between two Geoscales.
+#' @seealso [`geoscale_map_between()`] for the map between two GeoScales.
 #' @examples
 #' gs <- geoscale_example()
 #' geoscale_map(gs, "state", "zone")
 #' geoscale_map(gs, "country", "state", weight = "km2")
 #' @export
 geoscale_map <- function(gs, from, to, weight = NULL) {
-  if (S7::S7_inherits(from, Geoscale) || S7::S7_inherits(to, Geoscale)) {
+  if (S7::S7_inherits(from, GeoScale) || S7::S7_inherits(to, GeoScale)) {
     .stop(paste0("`from` and `to` are geoframe names of `gs`; for the map ",
-                 "between two Geoscales use `geoscale_map_between()`"))
+                 "between two GeoScales use `geoscale_map_between()`"))
   }
   .check_geoscale(gs, "gs")
   .check_geoframe(gs, from, "from")
@@ -61,17 +61,17 @@ geoscale_map <- function(gs, from, to, weight = NULL) {
   nestedscales::scale_map(gs, from, to, weight = weight)
 }
 
-#' Crosswalk between two Geoscales through their shared atoms
+#' Crosswalk between two GeoScales through their shared atoms
 #'
-#' The counterpart of [`geoscale_map()`] for two Geoscales: atoms are matched
+#' The counterpart of [`geoscale_map()`] for two GeoScales: atoms are matched
 #' on their `region` keys, so a region of `from` overlaps a region of `to`
 #' where they contain the same atoms. Same columns as [`geoscale_map()`], with
-#' the two label columns named after the Geoscales. Atoms of `from` absent
+#' the two label columns named after the GeoScales. Atoms of `from` absent
 #' from `to` get an `NA` target (with a warning). A crosswalk registered with
 #' [`register_geoscale_map_between()`] is returned as-is instead of being
 #' derived.
 #'
-#' @param from,to Two named [`Geoscale`] objects whose atom keys overlap.
+#' @param from,to Two named [`GeoScale`] objects whose atom keys overlap.
 #' @param weight Weight column of `from` for `w`; `NULL` uses its default
 #'   weight, or weight 1 per atom when it declares none.
 #'
@@ -115,16 +115,16 @@ geoscale_map_between <- function(from, to, weight = NULL) {
 #' concordance tables).
 #'
 #' `register_geoscale_map()` and `get_geoscale_map()` handle a pair of
-#' geoframes of one Geoscale; the map is scoped to that object, so
+#' geoframes of one GeoScale; the map is scoped to that object, so
 #' `"state" -> "zone"` maps of two different objects do not collide.
 #' `register_geoscale_map_between()` and `get_geoscale_map_between()` handle a
-#' pair of Geoscales.
+#' pair of GeoScales.
 #'
-#' @param gs The [`Geoscale`] the geoframes belong to, or its name.
+#' @param gs The [`GeoScale`] the geoframes belong to, or its name.
 #' @param from,to For the within-object functions, geoframe names of `gs`.
-#'   For the `_between` functions, two [`Geoscale`] objects or their names.
+#'   For the `_between` functions, two [`GeoScale`] objects or their names.
 #' @param map A `data.frame` shaped like a [`geoscale_map()`] result: the
-#'   two label columns named after the geoframes (or Geoscales), plus
+#'   two label columns named after the geoframes (or GeoScales), plus
 #'   `n_from`, `n_overlap`, `w` and `w_from`. `NULL` removes a previously
 #'   registered map.
 #'

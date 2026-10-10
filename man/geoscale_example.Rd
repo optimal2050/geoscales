@@ -2,12 +2,12 @@
 % Please edit documentation in R/geoscale-construct.R
 \name{geoscale_example}
 \alias{geoscale_example}
-\title{A small example Geoscale}
+\title{A small example GeoScale}
 \usage{
 geoscale_example()
 }
 \value{
-A \code{\link{Geoscale}} with 7 atoms and geoframes
+A \code{\link{GeoScale}} with 7 atoms and geoframes
 \code{country}/\code{state}/\code{zone}/\code{atom}.
 }
 \description{

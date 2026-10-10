@@ -10,10 +10,10 @@
 # Layers 1 and 2 delegate to layer 3.
 # =============================================================================
 
-#' Build a Geoscale from a flat table of leaf regions
+#' Build a GeoScale from a flat table of leaf regions
 #'
 #' The general constructor. Takes a wide `data.frame` with one row per atom
-#' (the finest region) and one column per geoframe, and returns a [`Geoscale`].
+#' (the finest region) and one column per geoframe, and returns a [`GeoScale`].
 #'
 #' Blank strings (`""`) in geoframe columns are normalised to `NA`, meaning "this
 #' atom has no code at this geoframe" — partial coverage is normal in real region
@@ -36,7 +36,7 @@
 #' @param name,desc Short name and description.
 #' @param ... Further named entries merged into `meta` (e.g. `crs`, `source`).
 #'
-#' @return A [`Geoscale`].
+#' @return A [`GeoScale`].
 #'
 #' @examples
 #' df <- data.frame(
@@ -145,7 +145,7 @@ geoscale_from_leaftable <- function(leaftable,
     list(...)
   )
 
-  Geoscale(
+  GeoScale(
     leaftable = leaftable,
     geoframes = geoframes,
     members   = members,
@@ -154,7 +154,7 @@ geoscale_from_leaftable <- function(leaftable,
   )
 }
 
-#' A small example Geoscale
+#' A small example GeoScale
 #'
 #' A synthetic 3-geoframe hierarchy used in examples and tests. It deliberately
 #' reproduces three awkward features of real region tables:
@@ -166,7 +166,7 @@ geoscale_from_leaftable <- function(leaftable,
 #'   tree;
 #' * an atom (`"ROW"`) with no code at any coarser geoframe (partial coverage).
 #'
-#' @return A [`Geoscale`] with 7 atoms and geoframes
+#' @return A [`GeoScale`] with 7 atoms and geoframes
 #'   `country`/`state`/`zone`/`atom`.
 #'
 #' @examples

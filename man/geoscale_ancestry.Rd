@@ -7,7 +7,7 @@
 geoscale_ancestry(x)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 }
 \value{
 A \code{data.frame} with columns \code{parent_geoframe}, \code{parent},
@@ -21,7 +21,7 @@ geoframe pairs.
 Computed \strong{atom-mediated}, directly from \verb{@leaftable} — deliberately not as a
 transitive closure of \code{\link[=geoscale_family]{geoscale_family()}}. \code{timeslices} can use a closure
 because time geoframes genuinely nest; spatial geoframes cross-cut, and a closure
-then manufactures false relationships. In the example Geoscale, zone \code{ZB}
+then manufactures false relationships. In the example GeoScale, zone \code{ZB}
 straddles both countries, so closing \code{country -> state -> zone -> atom}
 would wrongly report country \code{N} as an ancestor of atom \code{A5}, which lies in
 country \code{S}.

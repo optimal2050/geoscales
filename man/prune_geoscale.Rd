@@ -2,12 +2,12 @@
 % Please edit documentation in R/filter.R
 \name{prune_geoscale}
 \alias{prune_geoscale}
-\title{Collapse a Geoscale to a coarser geoframe}
+\title{Collapse a GeoScale to a coarser geoframe}
 \usage{
 prune_geoscale(x, geoframe, keep_geometry = !is.null(S7::prop(x, "geometry")))
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{geoframe}{The geoframe to become the new atom layer.}
 
@@ -16,10 +16,10 @@ Default: yes, when geometry is attached (needs the sf package;
 drops with a message otherwise).}
 }
 \value{
-A \code{\link{Geoscale}}.
+A \code{\link{GeoScale}}.
 }
 \description{
-Returns a new \code{\link{Geoscale}} whose atom layer is \code{geoframe}, dropping every
+Returns a new \code{\link{GeoScale}} whose atom layer is \code{geoframe}, dropping every
 finer geoframe. Weights are summed over the collapsed atoms.
 }
 \details{

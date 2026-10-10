@@ -17,7 +17,7 @@
 # ggplot2 and sf stay in Suggests; nothing here builds ggproto objects.
 # =============================================================================
 
-#' Geoscale layers for ggplot2
+#' GeoScale layers for ggplot2
 #'
 #' Composable choropleth layers that put region-keyed data on a map inside
 #' a normal `ggplot()` pipeline (the assembled-figure counterparts are
@@ -38,7 +38,7 @@
 #' work through the normal ggplot2 path, and further layers (labels,
 #' points) stack on top.
 #'
-#' @param gs A [`Geoscale`] with attached geometry (see
+#' @param gs A [`GeoScale`] with attached geometry (see
 #'   [`attach_geometry_geoscale()`]).
 #' @param z Name of the numeric column of the data to aggregate and fill
 #'   by; `NULL` draws plain boundaries.

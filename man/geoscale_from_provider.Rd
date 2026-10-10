@@ -2,7 +2,7 @@
 % Please edit documentation in R/providers.R
 \name{geoscale_from_provider}
 \alias{geoscale_from_provider}
-\title{Build a Geoscale from a provider}
+\title{Build a GeoScale from a provider}
 \usage{
 geoscale_from_provider(
   provider = "naturalearth",
@@ -29,11 +29,11 @@ directly.}
 \item{...}{Passed to the provider's \code{fetch()}.}
 }
 \value{
-A \code{\link{Geoscale}}.
+A \code{\link{GeoScale}}.
 }
 \description{
 Fetches a source table from a registered provider and turns it into a
-\code{\link{Geoscale}}. Geoframe and weight defaults come from the provider when not
+\code{\link{GeoScale}}. Geoframe and weight defaults come from the provider when not
 given.
 }
 \examples{

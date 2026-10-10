@@ -2,12 +2,12 @@
 % Please edit documentation in R/filter.R
 \name{filter_geoscale}
 \alias{filter_geoscale}
-\title{Subset a Geoscale by region}
+\title{Subset a GeoScale by region}
 \usage{
 filter_geoscale(x, geoframe, region, drop_empty_geoframes = FALSE)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{geoframe}{Geoframe that \code{region} belongs to.}
 
@@ -16,7 +16,7 @@ filter_geoscale(x, geoframe, region, drop_empty_geoframes = FALSE)
 \item{drop_empty_geoframes}{Drop geoframes left with no codes at all.}
 }
 \value{
-A \code{\link{Geoscale}}.
+A \code{\link{GeoScale}}.
 }
 \description{
 Keeps only the atoms belonging to \code{region} at \code{geoframe}, and rebuilds the

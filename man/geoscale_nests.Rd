@@ -7,7 +7,7 @@
 geoscale_nests(x, parent, child)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{parent, child}{Geoframe names.}
 }
@@ -22,7 +22,7 @@ code at the coarser geoframe. Real hierarchies often fail this: IDEEA's
 \code{reg35} does not nest inside \code{reg32}.
 }
 \details{
-Nesting is \emph{not} required by \code{\link{Geoscale}} — \code{\link[=recast_geoscale]{recast_geoscale()}} routes through
+Nesting is \emph{not} required by \code{\link{GeoScale}} — \code{\link[=recast_geoscale]{recast_geoscale()}} routes through
 the atom layer and works either way. This function is a diagnostic.
 }
 \examples{

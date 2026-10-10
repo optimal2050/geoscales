@@ -1,12 +1,12 @@
 # =============================================================================
-# join_geoscale() -- attach a Geoscale to region-keyed data
+# join_geoscale() -- attach a GeoScale to region-keyed data
 # =============================================================================
 # The spatial mirror of timescales::join_calendar(): adds a region-label
-# column NAMED AFTER THE GEOSCALE (meta$name), so several Geoscales can live
+# column NAMED AFTER THE GEOSCALE (meta$name), so several GeoScales can live
 # side by side on one dataset -- and the pair of label columns is itself a
 # direct conversion route between those objects. Optional coarser-geoframe
 # membership columns plus share/weight come prefixed "<name>." so a second
-# Geoscale never collides with the first. Existing columns are never
+# GeoScale never collides with the first. Existing columns are never
 # overwritten; the join errors instead. Runs as a dplyr join against a small
 # in-memory frame, so any supported backend works (see R/backend.R).
 #
@@ -15,24 +15,24 @@
 # well-defined where the geoframes nest.
 # =============================================================================
 
-#' Attach a Geoscale to region-keyed data
+#' Attach a GeoScale to region-keyed data
 #'
-#' Adds a region-label column named after the Geoscale (its `meta$name`),
+#' Adds a region-label column named after the GeoScale (its `meta$name`),
 #' plus optionally coarser-geoframe membership columns (each code's
 #' country, continent, ...) and share/weight, all prefixed `"<name>."`.
-#' Because every Geoscale attaches under its own name, several can be
+#' Because every GeoScale attaches under its own name, several can be
 #' joined to the same dataset -- and a dataset carrying two label columns
 #' is a direct crosswalk between those objects. The spatial mirror of
 #' `timescales::join_calendar()`.
 #'
-#' The key is auto-detected: an existing column named like the Geoscale is
+#' The key is auto-detected: an existing column named like the GeoScale is
 #' used as-is; else a column named like the keyed geoframe; else `region`.
 #' Codes are validated against the geoframe (unknown codes warn).
 #' Existing columns are never overwritten; the join errors instead.
 #'
 #' @param x The dataset, in any supported backend (see
 #'   [`recast_geoscale()`]'s Backends section).
-#' @param gs A named [`Geoscale`].
+#' @param gs A named [`GeoScale`].
 #' @param key Name of the code column in `x`. `NULL` (default)
 #'   auto-detects as described above.
 #' @param geoframe Geoframe the codes belong to. Inferred when exactly one

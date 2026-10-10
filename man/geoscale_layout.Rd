@@ -2,12 +2,12 @@
 % Please edit documentation in R/plot.R
 \name{geoscale_layout}
 \alias{geoscale_layout}
-\title{Icicle layout for a Geoscale}
+\title{Icicle layout for a GeoScale}
 \usage{
 geoscale_layout(x, weight = NULL)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{weight}{Weight column. \code{NULL} uses the default.}
 }

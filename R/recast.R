@@ -1,8 +1,8 @@
 # =============================================================================
 # recast_geoscale() -- the central conversion verb
 # =============================================================================
-# The bare pipeline verb `recast()` is an S7 generic OWNED BY timescales;
-# this package registers the Geoscale method on it (end of this file), so
+# The bare pipeline verb `recast()` is an S7 generic owned by nestedscales;
+# this package registers the GeoScale method on it (end of this file), so
 # `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")` chains across
 # both dimensions. `recast_geoscale()` is the explicit worker.
 #
@@ -14,7 +14,7 @@
 # tibble / data.table / arrow inputs (see R/backend.R for the format
 # contract). The public halves of the route are recast_to_geoatoms() /
 # recast_from_geoatoms(); their composition equals recast_geoscale(), and
-# recasting to ANOTHER Geoscale's atoms (matched on shared `region` keys) is
+# recasting to ANOTHER GeoScale's atoms (matched on shared `region` keys) is
 # `recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to)`.
 #
 # Direction falls out of the crosswalk automatically: coarse -> fine is the
@@ -198,7 +198,7 @@
 #'
 #' The central conversion verb: takes a table keyed by region code at
 #' geoframe `from` and returns one keyed at `to` -- a geoframe name of the
-#' same [`Geoscale`], or ANOTHER Geoscale (whose atom layer is the target,
+#' same [`GeoScale`], or ANOTHER GeoScale (whose atom layer is the target,
 #' matched on shared atom `region` keys). Handles both aggregation (fine to
 #' coarse) and disaggregation (coarse to fine) with a single rule per value
 #' column; geoframes that cross-cut work too, because the route always goes
@@ -230,11 +230,11 @@
 #' @param x The data to recast, in any supported backend, with a column
 #'   named by `key` plus one or more numeric value columns; other columns
 #'   are preserved as identifiers.
-#' @param gs The [`Geoscale`] the codes in `x` belong to.
+#' @param gs The [`GeoScale`] the codes in `x` belong to.
 #' @param from Geoframe name the codes belong to. `NULL` (default) is
 #'   inferred: `key` when it is a geoframe name, else the single geoframe
 #'   name appearing among `x`'s columns.
-#' @param to Target geoframe name of `gs`, or another (named) [`Geoscale`]
+#' @param to Target geoframe name of `gs`, or another (named) [`GeoScale`]
 #'   -- then the target is that object's atom layer, matched on the atom
 #'   `region` keys the two objects share.
 #' @param key Name of the region-code column in `x`. Defaults to `from`
@@ -324,12 +324,12 @@ recast_geoscale <- function(x, gs, from = NULL, to,
                             collect = NULL) {
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
-  # Across two Geoscales the route runs through this package's own halves,
+  # Across two GeoScales the route runs through this package's own halves,
   # whose result holds the observed target regions only.
-  if (S7::S7_inherits(to, Geoscale)) {
+  if (S7::S7_inherits(to, GeoScale)) {
     if (any(rule %in% c("share", "logshare"))) {
       .stop(paste0("rule \"share\" needs a parent geoframe of the same ",
-                   "Geoscale; it cannot recast across objects"))
+                   "GeoScale; it cannot recast across objects"))
     }
     g <- recast_to_geoatoms(x, gs, from = from, key = key, values = values,
                             rule = rule, weight = weight, collect = collect)
@@ -367,7 +367,7 @@ recast_geoscale <- function(x, gs, from = NULL, to,
 #' data UP into a geoframe's regions. Their composition is
 #' [`recast_geoscale()`], and because the atom rows are keyed by the atom
 #' `region` IDs, `recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b,
-#' to)` recasts across two different Geoscales that share atom keys.
+#' to)` recasts across two different GeoScales that share atom keys.
 #'
 #' Going down, extensive columns (rule `"sum"`) are split across a region's
 #' atoms proportionally to the chosen weight so totals conserve; intensive
@@ -387,7 +387,7 @@ recast_geoscale <- function(x, gs, from = NULL, to,
 #' @param x The data: for `recast_to_geoatoms()` keyed by region code at
 #'   geoframe `from`; for `recast_from_geoatoms()` keyed by atom `region`
 #'   IDs.
-#' @param gs The [`Geoscale`] the data is keyed in (`to_geoatoms`) or
+#' @param gs The [`GeoScale`] the data is keyed in (`to_geoatoms`) or
 #'   aggregated into (`from_geoatoms`).
 #' @param from `to_geoatoms` only: geoframe name the codes belong to.
 #'   `NULL` (default) is inferred as in [`recast_geoscale()`].
@@ -400,7 +400,7 @@ recast_geoscale <- function(x, gs, from = NULL, to,
 #'   [`recast_geoscale()`]. `from_geoatoms`: the name of a column of `x` to
 #'   weight by, so the weight may vary by identifier -- a capacity-weighted
 #'   efficiency differs by year and vintage. `NULL` (default) uses a `weight`
-#'   column of `x` if present, else the Geoscale's declared weight.
+#'   column of `x` if present, else the GeoScale's declared weight.
 #' @param attach_weight `to_geoatoms` only: attach the `weight` column
 #'   (default `TRUE`).
 #' @param na_rm `from_geoatoms` only: read an `NA` value as "this member says
@@ -499,7 +499,12 @@ recast_to_geoatoms <- function(x, gs, from = NULL,
   names(atoms)[names(atoms) == "k"] <- key
 
   xq <- .gs_lazy(x, backend)
-  out <- dplyr::inner_join(xq, atoms, by = key, na_matches = "na")
+  out <- dplyr::inner_join(
+    xq, atoms,
+    by = key,
+    na_matches = "na",
+    relationship = "many-to-many"
+  )
 
   # Extensive columns split across the region's atoms
   sum_cols <- values[vapply(rules, function(r) r$rule == "sum", logical(1))]
@@ -539,7 +544,7 @@ recast_from_geoatoms <- function(x, gs, to,
 
   # `weight` names a column of `x`, so the weight may vary by any id column --
   # a capacity-weighted efficiency differs by year and vintage. Without it the
-  # conventional `weight` column is used, else the Geoscale's declared weight.
+  # conventional `weight` column is used, else the GeoScale's declared weight.
   wt_col <- "weight"
   if (!is.null(weight)) {
     if (!is.character(weight) || length(weight) != 1L) {
@@ -577,11 +582,11 @@ recast_from_geoatoms <- function(x, gs, to,
   src_keys <- unique(stats::na.omit(as.character(src_keys)))
   unknown <- setdiff(src_keys, leaves$region)
   if (length(unknown) > 0L) {
-    .warn("%d code(s) in `x$%s` are not atoms of the Geoscale: %s",
+    .warn("%d code(s) in `x$%s` are not atoms of the GeoScale: %s",
           length(unknown), key, .preview(unknown))
   }
   if (length(intersect(src_keys, leaves$region)) == 0L) {
-    .stop("no rows of `x` matched the Geoscale's atoms; check `key=`")
+    .stop("no rows of `x` matched the GeoScale's atoms; check `key=`")
   }
 
   xq <- .gs_lazy(x, backend)
@@ -634,15 +639,15 @@ recast_from_geoatoms <- function(x, gs, to,
 
 # -- the shared recast() generic ----------------------------------------------
 
-# Geoscale method on timescales' `recast()` generic: `from` is the
-# Geoscale, `to` the target geoframe (or another Geoscale); the SOURCE
+# GeoScale method on nestedscales' `recast()` generic: `from` is the
+# GeoScale, `to` the target geoframe (or another GeoScale); the SOURCE
 # geoframe is `from_geoframe`, or is inferred when exactly one of the
 # object's geoframes appears as a column of `x`. Everything else forwards
 # to recast_geoscale(). Registered against the external generic (S7's
 # cross-package mechanism; activated by S7::methods_register() in .onLoad).
 .recast_generic <- S7::new_external_generic("nestedscales", "recast",
                                             c("x", "from"))
-S7::method(.recast_generic, list(S7::class_any, Geoscale)) <-
+S7::method(.recast_generic, list(S7::class_any, GeoScale)) <-
   function(x, from, to, from_geoframe = NULL, key = NULL, values = NULL,
            rule = NULL, weight = NULL,
            na_action = c("drop", "error", "keep"), collect = NULL, ...) {

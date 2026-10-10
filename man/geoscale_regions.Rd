@@ -7,7 +7,7 @@
 geoscale_regions(x, geoframe = NULL)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{geoframe}{A single geoframe name, or \code{NULL} (default) for the
 finest geoframe.}

@@ -68,13 +68,13 @@
   invisible(TRUE)
 }
 
-#' Icicle layout for a Geoscale
+#' Icicle layout for a GeoScale
 #'
 #' Rectangle coordinates for a geoframe-by-geoframe structure plot: one row per
 #' geoframe, each region a rectangle whose width is its share of the weight.
 #' Exposed so the layout can be drawn with something other than ggplot2.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param weight Weight column. `NULL` uses the default.
 #'
 #' @return A `data.frame` with columns `geoframe`, `region`, `rank`, `xmin`,
@@ -129,18 +129,18 @@ geoscale_layout <- function(x, weight = NULL) {
   out
 }
 
-#' Plot a Geoscale
+#' Plot a GeoScale
 #'
 #' Draws the hierarchy as an icicle: one row per geoframe, coarsest at the top,
 #' each region's width proportional to its share of the weight.
 #'
-#' This is the *structure* plot — it shows the Geoscale itself and needs no
+#' This is the *structure* plot — it shows the GeoScale itself and needs no
 #' geometry. For a map of values over regions, see [`geoscale_plot()`].
 #'
 #' Also registered as an `autoplot()` method, so `ggplot2::autoplot(gs)` works
 #' when ggplot2 is installed.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param type `"icicle"` (default) or `"stack"` — the axonometric
 #'   stacked-maps view: one sheared map plane per geoframe, coarsest on
 #'   top, the same atoms dissolved at each resolution. Requires attached
@@ -428,17 +428,17 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
 }
 
 #' @rdname geoscale_autoplot
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @exportS3Method ggplot2::autoplot
-autoplot.Geoscale <- function(x, ...) geoscale_autoplot(x, ...)
+autoplot.GeoScale <- function(x, ...) geoscale_autoplot(x, ...)
 
 #' @rdname geoscale_leaftable
 #' @exportS3Method ggplot2::fortify
-fortify.Geoscale <- function(model, data, ...) {
+fortify.GeoScale <- function(model, data, ...) {
   geoscale_leaftable(model)
 }
 
-#' Map data onto a Geoscale
+#' Map data onto a GeoScale
 #'
 #' Draws a choropleth of `data` at `geoframe`. Requires `sf`, `ggplot2`, and
 #' geometry attached with [`attach_geometry_geoscale()`].
@@ -448,7 +448,7 @@ fortify.Geoscale <- function(model, data, ...) {
 #' should prepare a `data.frame` and hand it here rather than draw their own
 #' `geom_sf()`. `energyRt::geo_map()` works exactly that way.
 #'
-#' @param x A [`Geoscale`] with geometry attached.
+#' @param x A [`GeoScale`] with geometry attached.
 #' @param data Optional `data.frame` with a code column named `geoframe` and the
 #'   column named by `fill`. When `NULL`, region outlines are drawn.
 #' @param geoframe Geoframe to draw. Defaults to the atom geoframe.

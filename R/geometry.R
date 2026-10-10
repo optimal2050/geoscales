@@ -17,11 +17,11 @@
   invisible(TRUE)
 }
 
-#' Attach geometry to a Geoscale
+#' Attach geometry to a GeoScale
 #'
 #' Stores an `sfc` on the object, aligned to `@leaftable` row order.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param geom An `sf` object or `sfc`. When `sf` with a code column, it is
 #'   matched on `by`; when `sfc`, it must already be in `@leaftable` row order.
 #' @param by Name of the code column in `geom` to match on. Defaults to the
@@ -29,7 +29,7 @@
 #' @param geoframe Geoframe that `geom`'s codes refer to. Defaults to the atom
 #'   geoframe. When coarser, each atom inherits its parent's geometry.
 #'
-#' @return A [`Geoscale`] with `@geometry` populated.
+#' @return A [`GeoScale`] with `@geometry` populated.
 #'
 #' @examples
 #' \dontrun{
@@ -73,7 +73,7 @@ attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL) {
 
   meta <- S7::prop(x, "meta")
   meta$crs <- sf::st_crs(out)$input
-  Geoscale(leaftable = leaves, geoframes = lv, members = S7::prop(x, "members"),
+  GeoScale(leaftable = leaves, geoframes = lv, members = S7::prop(x, "members"),
            geometry = out, meta = meta)
 }
 
@@ -81,7 +81,7 @@ attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL) {
 #'
 #' Unions the atom geometries within each code at `geoframe`.
 #'
-#' @param x A [`Geoscale`] with geometry attached.
+#' @param x A [`GeoScale`] with geometry attached.
 #' @param geoframe Geoframe to dissolve to. Defaults to the atom geoframe.
 #' @param precision Optional GEOS precision for snapping near-coincident
 #'   boundaries before the union (passed to [`sf::st_set_precision()`];
@@ -142,13 +142,13 @@ geoscale_geometry <- function(x, geoframe = NULL, precision = 0) {
 #'
 #' Adds an area column to `@leaftable`, measured on an equal-area projection.
 #'
-#' @param x A [`Geoscale`] with geometry attached.
+#' @param x A [`GeoScale`] with geometry attached.
 #' @param name Name of the weight column to add.
 #' @param crs Equal-area CRS used for the measurement. The default, World
 #'   Cylindrical Equal Area, is global; a local equal-area projection is more
 #'   accurate for a single region.
 #'
-#' @return A [`Geoscale`] with the area column added to `@leaftable` and
+#' @return A [`GeoScale`] with the area column added to `@leaftable` and
 #'   registered in `meta$weights`.
 #'
 #' @details
@@ -193,7 +193,7 @@ add_area_geoscale <- function(x, name = "km2", crs = "ESRI:54034") {
   meta$weights <- union(meta$weights %||% character(), name)
   meta$default_weight <- meta$default_weight %||% name
 
-  Geoscale(leaftable = leaves, geoframes = S7::prop(x, "geoframes"),
+  GeoScale(leaftable = leaves, geoframes = S7::prop(x, "geoframes"),
            members = S7::prop(x, "members"), geometry = geom, meta = meta)
 }
 
@@ -208,7 +208,7 @@ add_area_geoscale <- function(x, name = "km2", crs = "ESRI:54034") {
 #'
 #' @param x An `sf`/`sfc` object of points, or a data.frame with
 #'   coordinate columns.
-#' @param gs A [`Geoscale`] with geometry attached (see
+#' @param gs A [`GeoScale`] with geometry attached (see
 #'   [`attach_geometry_geoscale()`]).
 #' @param geoframe Geoframe to resolve to; `NULL` (default) uses the
 #'   finest geoframe.

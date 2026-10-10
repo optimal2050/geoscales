@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{geoscale_plot}
 \alias{geoscale_plot}
-\title{Map data onto a Geoscale}
+\title{Map data onto a GeoScale}
 \usage{
 geoscale_plot(
   x,
@@ -18,7 +18,7 @@ geoscale_plot(
 )
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}} with geometry attached.}
+\item{x}{A \code{\link{GeoScale}} with geometry attached.}
 
 \item{data}{Optional \code{data.frame} with a code column named \code{geoframe} and the
 column named by \code{fill}. When \code{NULL}, region outlines are drawn.}

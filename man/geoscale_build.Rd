@@ -2,7 +2,7 @@
 % Please edit documentation in R/geoscale-build.R
 \name{geoscale_build}
 \alias{geoscale_build}
-\title{Build a Geoscale from parent-child crosswalks}
+\title{Build a GeoScale from parent-child crosswalks}
 \usage{
 geoscale_build(..., geoframes, weights = NULL, name = "", desc = "")
 }
@@ -18,7 +18,7 @@ or more numeric weight columns.}
 \item{name, desc}{Short name and description.}
 }
 \value{
-A \code{\link{Geoscale}}.
+A \code{\link{GeoScale}}.
 }
 \description{
 Assembles a wide leaftable table from a set of two-column crosswalks. Each

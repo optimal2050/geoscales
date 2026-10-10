@@ -1,6 +1,6 @@
 # The harmonized naming layer: recast() generic, join_geoscale() ----------------------------------------------------------
 
-test_that("the recast() generic dispatches the Geoscale method", {
+test_that("the recast() generic dispatches the GeoScale method", {
   gs <- geoscale_example()
   x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                   capacity = c(1, 2, 3, 4, 5, 6))
@@ -22,7 +22,7 @@ test_that("join_geoscale attaches prefixed membership + weight/share", {
   states <- geoscale_regions(gs, "state")
   x <- data.frame(state = states, v = seq_along(states))
   j <- join_geoscale(x, gs, geoframes = TRUE, meta = TRUE)
-  # label column named after the Geoscale; everything else "<name>."-prefixed
+  # label column named after the GeoScale; everything else "<name>."-prefixed
   expect_true(all(c("example", "example.country", "example.weight",
                     "example.share", "v") %in% names(j)))
   expect_true(is.factor(j$example.country))

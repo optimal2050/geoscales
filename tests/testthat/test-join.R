@@ -1,8 +1,8 @@
-# join_geoscale() -- attach a Geoscale to region-keyed data -------------------
+# join_geoscale() -- attach a GeoScale to region-keyed data -------------------
 
 gs <- geoscale_example()
 
-test_that("the label column is named after the Geoscale", {
+test_that("the label column is named after the GeoScale", {
   x <- data.frame(state = c("N1", "N2", "S1"), v = 1:3)
   j <- join_geoscale(x, gs)
   expect_true("example" %in% names(j))
@@ -36,7 +36,7 @@ test_that("membership columns respect as_factor and cross-cuts get NA", {
   expect_type(j2$example.state, "character")
 })
 
-test_that("two Geoscales coexist on one dataset", {
+test_that("two GeoScales coexist on one dataset", {
   gs_b <- .bands_gs()
   x <- data.frame(atom = c("A1", "A2", "A5"), v = 1:3)
   j <- join_geoscale(x, gs, geoframes = "country")
@@ -53,7 +53,7 @@ test_that("existing columns are never overwritten", {
                "overwrite")
 })
 
-test_that("an unnamed Geoscale refuses to attach", {
+test_that("an unnamed GeoScale refuses to attach", {
   lf <- data.frame(top = "T", atom = c("a", "b"))
   anon <- geoscale_from_leaftable(lf, geoframes = c("top", "atom"))
   expect_error(join_geoscale(data.frame(atom = "a", v = 1), anon),

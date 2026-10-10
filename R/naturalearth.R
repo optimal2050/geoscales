@@ -101,7 +101,7 @@ ne_source <- function(scale = 110, geoframe = c("country", "states"),
 #' Natural Earth uses -99 as "unknown" in numeric attributes too
 #'
 #' At 1:10m the Vatican has `gdp_md = -99`. Left alone this trips the
-#' Geoscale validator, which requires weights to be non-negative.
+#' GeoScale validator, which requires weights to be non-negative.
 #' @noRd
 .ne_na99_num <- function(x) {
   x <- as.numeric(x)
@@ -109,10 +109,10 @@ ne_source <- function(scale = 110, geoframe = c("country", "states"),
   x
 }
 
-#' Build a Geoscale from Natural Earth
+#' Build a GeoScale from Natural Earth
 #'
 #' Convenience wrapper: fetches Natural Earth via [`ne_source()`] and builds a
-#' [`Geoscale`] nested `continent -> subregion -> country -> feature`,
+#' [`GeoScale`] nested `continent -> subregion -> country -> feature`,
 #' weighted by population and GDP.
 #'
 #' `feature` is the atom: the Natural Earth unit. `country` sits above it as a
@@ -123,7 +123,7 @@ ne_source <- function(scale = 110, geoframe = c("country", "states"),
 #' @param weights Weight columns.
 #' @param geometry Attach geometry.
 #'
-#' @return A [`Geoscale`], with `scale` and `source` recorded in `@meta` so the
+#' @return A [`GeoScale`], with `scale` and `source` recorded in `@meta` so the
 #'   object is self-documenting and reproducible.
 #'
 #' @details
@@ -168,7 +168,7 @@ ne_geoscale <- function(scale = 110,
   meta <- S7::prop(gs, "meta")
   meta$source <- "naturalearth"
   meta$scale  <- scale
-  Geoscale(leaftable = S7::prop(gs, "leaftable"), geoframes = S7::prop(gs, "geoframes"),
+  GeoScale(leaftable = S7::prop(gs, "leaftable"), geoframes = S7::prop(gs, "geoframes"),
            members = S7::prop(gs, "members"),
            geometry = S7::prop(gs, "geometry"), meta = meta)
 }

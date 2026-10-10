@@ -1,6 +1,6 @@
 ---
 title: "Data structures"
-description: "Anatomy of a Geoscale: the leaftable, geoframes, members, geometry and meta properties, what the validator guarantees, and the rule/map/provider registries."
+description: "Anatomy of a GeoScale: the leaftable, geoframes, members, geometry and meta properties, what the validator guarantees, and the rule/map/provider registries."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Data structures}
@@ -13,9 +13,9 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(geoscales)
 ```
 
-## The Geoscale object
+## The GeoScale object
 
-A `Geoscale` is an S7 object with five properties:
+A `GeoScale` is an S7 object with five properties:
 
 ```{r}
 gs <- geoscale_example()
@@ -83,7 +83,7 @@ gs@meta[c("name", "weights", "default_weight")]
 `meta$name` is load-bearing: conversion and attach name their working
 columns after the object (`geoscale_map()` label columns,
 `join_geoscale()`'s `"<name>."` prefixes), so both require a named
-Geoscale. `geoscale_build()` derives a default name from the geoframes;
+GeoScale. `geoscale_build()` derives a default name from the geoframes;
 `geoscale_from_leaftable()` takes `name=`.
 
 ## What the validator guarantees

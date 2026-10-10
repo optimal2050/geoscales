@@ -1,18 +1,19 @@
 # =========================================================================== #
-# The sibling API mirror, enforced. timescales is a Suggests (the `recast`
-# generic now comes from nestedscales), so this
-# suite can see both packages and assert the 0.5.0 harmonization ruling
+# The sibling API mirror, enforced outside the CRAN package tests. This
+# integration suite sees both packages and asserts the 0.5.0 harmonization ruling
 # (CONVENTIONS.md, "Sibling API mirror"): every export is either PAIRED
 # with its twin through the vocabulary translation, or a DECLARED
 # one-sider. A new export on either side that is neither fails here --
 # which is the point.
 # =========================================================================== #
 
-skip_if_not_installed("timescales")
+library(testthat)
+library(geoscales)
+library(timescales)
 
 .mirror_translate <- function(nm) {
   nm <- gsub("calendar", "geoscale", nm, fixed = TRUE)
-  nm <- gsub("Calendar", "Geoscale", nm, fixed = TRUE)
+  nm <- gsub("Calendar", "GeoScale", nm, fixed = TRUE)
   nm <- gsub("CALENDAR", "GEOSCALE", nm, fixed = TRUE)
   nm <- gsub("timeslices", "regions", nm, fixed = TRUE)
   nm <- gsub("timeframes", "geoframes", nm, fixed = TRUE)
@@ -91,7 +92,7 @@ skip_if_not_installed("timescales")
   e <- getNamespaceExports("geoscales")
   # `recast` is re-exported from nestedscales, which owns it; S3/`[` methods
   # mirror by class
-  e[!grepl("^\\[|\\.Geoscale$|^recast$", e)]
+  e[!grepl("^\\[|\\.GeoScale$|^recast$", e)]
 }
 
 test_that("every export is paired or a declared one-sider", {
@@ -165,4 +166,8 @@ test_that("na_action choices are identical everywhere they appear", {
     expect_identical(eval(formals(f)$na_action),
                      c("drop", "error", "keep"))
   }
+})
+
+test_that("rule sets agree", {
+  expect_setequal(geoscales::GEOSCALE_RULES, timescales::CALENDAR_RULES)
 })

@@ -2,12 +2,12 @@
 % Please edit documentation in R/map.R
 \name{geoscale_map_between}
 \alias{geoscale_map_between}
-\title{Crosswalk between two Geoscales through their shared atoms}
+\title{Crosswalk between two GeoScales through their shared atoms}
 \usage{
 geoscale_map_between(from, to, weight = NULL)
 }
 \arguments{
-\item{from, to}{Two named \code{\link{Geoscale}} objects whose atom keys overlap.}
+\item{from, to}{Two named \code{\link{GeoScale}} objects whose atom keys overlap.}
 
 \item{weight}{Weight column of \code{from} for \code{w}; \code{NULL} uses its default
 weight, or weight 1 per atom when it declares none.}
@@ -17,10 +17,10 @@ A \code{data.frame} with columns \verb{<from name>}, \verb{<to name>}, \code{n_f
 \code{n_overlap}, \code{w}, \code{w_from}.
 }
 \description{
-The counterpart of \code{\link[=geoscale_map]{geoscale_map()}} for two Geoscales: atoms are matched
+The counterpart of \code{\link[=geoscale_map]{geoscale_map()}} for two GeoScales: atoms are matched
 on their \code{region} keys, so a region of \code{from} overlaps a region of \code{to}
 where they contain the same atoms. Same columns as \code{\link[=geoscale_map]{geoscale_map()}}, with
-the two label columns named after the Geoscales. Atoms of \code{from} absent
+the two label columns named after the GeoScales. Atoms of \code{from} absent
 from \code{to} get an \code{NA} target (with a warning). A crosswalk registered with
 \code{\link[=register_geoscale_map_between]{register_geoscale_map_between()}} is returned as-is instead of being
 derived.

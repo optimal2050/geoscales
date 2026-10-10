@@ -7,7 +7,7 @@
 geoscale_share(x, geoframe, weight = NULL, within = NULL)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{geoframe}{Geoframe to report shares for.}
 

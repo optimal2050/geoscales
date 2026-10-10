@@ -54,7 +54,7 @@ GEOSCALE_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd", "share",
 #' @param param Name of the value column.
 #' @param rule One of [`GEOSCALE_RULES`].
 #' @param weight Optional weight column name used by `sum` (down) and
-#'   `weighted_mean` (up). `NULL` means the Geoscale's default weight.
+#'   `weighted_mean` (up). `NULL` means the GeoScale's default weight.
 #'
 #' @return Invisibly, the registered entry.
 #'
@@ -74,7 +74,7 @@ register_geoscale_rule <- function(param, rule, weight = NULL) {
     .stop("`weight` must be a single string or NULL")
   }
   # Stored in nestedscales' registry under this dimension's scope, which is
-  # where recast_scale() looks for a Geoscale's rules.
+  # where recast_scale() looks for a GeoScale's rules.
   entry <- nestedscales::register_scale_rule(param, rule, weight,
                                             scope = "geoscale")
   invisible(entry[c("rule", "weight")])

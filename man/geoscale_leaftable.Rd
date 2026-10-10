@@ -2,27 +2,27 @@
 % Please edit documentation in R/geoscale-class.R, R/plot.R
 \name{geoscale_leaftable}
 \alias{geoscale_leaftable}
-\alias{as.data.frame.Geoscale}
-\alias{as.data.frame.geoscales::Geoscale}
-\alias{fortify.Geoscale}
-\title{The leaftable of a Geoscale}
+\alias{as.data.frame.GeoScale}
+\alias{as.data.frame.geoscales::GeoScale}
+\alias{fortify.GeoScale}
+\title{The leaftable of a GeoScale}
 \usage{
 geoscale_leaftable(x)
 
-\method{as.data.frame}{Geoscale}(x, row.names = NULL, optional = FALSE, ...)
+\method{as.data.frame}{GeoScale}(x, row.names = NULL, optional = FALSE, ...)
 
-\method{as.data.frame}{`geoscales::Geoscale`}(x, row.names = NULL, optional = FALSE, ...)
+\method{as.data.frame}{`geoscales::GeoScale`}(x, row.names = NULL, optional = FALSE, ...)
 
-\method{fortify}{Geoscale}(model, data, ...)
+\method{fortify}{GeoScale}(model, data, ...)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{row.names, optional}{Ignored (S3 signature compatibility).}
 
 \item{...}{Ignored.}
 
-\item{model}{A \code{\link{Geoscale}} (the \code{fortify()} generic's argument name).}
+\item{model}{A \code{\link{GeoScale}} (the \code{fortify()} generic's argument name).}
 
 \item{data}{Ignored (S3 signature compatibility).}
 }
@@ -34,7 +34,7 @@ plus any weight columns.
 The one-row-per-atom table the geoscale is built on, as a plain
 \code{data.frame} — the exported accessor to prefer over reaching for
 \code{x@leaftable} (the twin of \code{timescales::calendar_leaftable()}).
-\code{as.data.frame()} and \code{ggplot2::fortify()} on a Geoscale are
+\code{as.data.frame()} and \code{ggplot2::fortify()} on a GeoScale are
 equivalent, so \verb{ggplot(gs) + geom_*()} pipelines work directly.
 }
 \examples{

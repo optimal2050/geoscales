@@ -24,7 +24,7 @@ recast_pairs(
 \item{x}{The data: a data.frame, tibble, data.table, or arrow
 table/dataset/query with two endpoint columns.}
 
-\item{gs}{The \code{\link{Geoscale}} the endpoints are keyed in.}
+\item{gs}{The \code{\link{GeoScale}} the endpoints are keyed in.}
 
 \item{to}{Target geoframe name, coarser than \code{from}.}
 
@@ -58,7 +58,7 @@ region (default \code{TRUE}). \code{FALSE} keeps them as self-pairs.}
 }
 \value{
 One row per (endpoint pair x identifier combination), the endpoint
-columns keeping their input names and holding \code{to}-level codes. In the
+columns keeping their input names and holding target-geoframe codes. In the
 input's class; lazy in, lazy out.
 }
 \description{

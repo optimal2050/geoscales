@@ -2,18 +2,18 @@
 % Please edit documentation in R/geoscale-class.R
 \name{geoscale_weights}
 \alias{geoscale_weights}
-\title{Weight columns of a Geoscale}
+\title{Weight columns of a GeoScale}
 \usage{
 geoscale_weights(x)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 }
 \value{
 A character vector of weight column names (possibly empty).
 }
 \description{
-Weight columns of a Geoscale
+Weight columns of a GeoScale
 }
 \examples{
 geoscale_weights(geoscale_example())

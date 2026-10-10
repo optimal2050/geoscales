@@ -2,7 +2,7 @@
 % Please edit documentation in R/providers.R
 \name{register_geoscale_provider}
 \alias{register_geoscale_provider}
-\title{Register a Geoscale data provider}
+\title{Register a GeoScale data provider}
 \usage{
 register_geoscale_provider(
   name,

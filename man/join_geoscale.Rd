@@ -2,7 +2,7 @@
 % Please edit documentation in R/join.R
 \name{join_geoscale}
 \alias{join_geoscale}
-\title{Attach a Geoscale to region-keyed data}
+\title{Attach a GeoScale to region-keyed data}
 \usage{
 join_geoscale(
   x,
@@ -20,7 +20,7 @@ join_geoscale(
 \item{x}{The dataset, in any supported backend (see
 \code{\link[=recast_geoscale]{recast_geoscale()}}'s Backends section).}
 
-\item{gs}{A named \code{\link{Geoscale}}.}
+\item{gs}{A named \code{\link{GeoScale}}.}
 
 \item{key}{Name of the code column in \code{x}. \code{NULL} (default)
 auto-detects as described above.}
@@ -52,16 +52,16 @@ query (default).}
 (lazy in, lazy out).
 }
 \description{
-Adds a region-label column named after the Geoscale (its \code{meta$name}),
+Adds a region-label column named after the GeoScale (its \code{meta$name}),
 plus optionally coarser-geoframe membership columns (each code's
 country, continent, ...) and share/weight, all prefixed \code{"<name>."}.
-Because every Geoscale attaches under its own name, several can be
+Because every GeoScale attaches under its own name, several can be
 joined to the same dataset -- and a dataset carrying two label columns
 is a direct crosswalk between those objects. The spatial mirror of
 \code{timescales::join_calendar()}.
 }
 \details{
-The key is auto-detected: an existing column named like the Geoscale is
+The key is auto-detected: an existing column named like the GeoScale is
 used as-is; else a column named like the keyed geoframe; else \code{region}.
 Codes are validated against the geoframe (unknown codes warn).
 Existing columns are never overwritten; the join errors instead.

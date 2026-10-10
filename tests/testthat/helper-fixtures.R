@@ -7,7 +7,7 @@
 # other recurring shapes so test files stop re-deriving them.
 # =========================================================================== #
 
-# The cross-cutting second Geoscale sharing the A1..A6 atom keys (bands X/Y
+# The cross-cutting second GeoScale sharing the A1..A6 atom keys (bands X/Y
 # interleaved) -- the two-object join/map/crosswalk fixture.
 .bands_gs <- function() {
   lf <- data.frame(band = rep(c("X", "Y"), 3),
@@ -35,7 +35,7 @@
     crs = 4326))
 }
 
-# A standard keyed value table on a Geoscale's atoms: `values` named numeric
+# A standard keyed value table on a GeoScale's atoms: `values` named numeric
 # columns recycled over the atoms; optional `ids` replicates the block per id
 # (panel shape). Uncovered atoms (NA at every geoframe, like ROW) are
 # excluded so totals stay known.

@@ -2,8 +2,8 @@
 % Please edit documentation in R/plot.R
 \name{geoscale_autoplot}
 \alias{geoscale_autoplot}
-\alias{autoplot.Geoscale}
-\title{Plot a Geoscale}
+\alias{autoplot.GeoScale}
+\title{Plot a GeoScale}
 \usage{
 geoscale_autoplot(
   x,
@@ -33,10 +33,10 @@ geoscale_autoplot(
   ...
 )
 
-\method{autoplot}{Geoscale}(x, ...)
+\method{autoplot}{GeoScale}(x, ...)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{type}{\code{"icicle"} (default) or \code{"stack"} — the axonometric
 stacked-maps view: one sheared map plane per geoframe, coarsest on
@@ -138,7 +138,7 @@ Draws the hierarchy as an icicle: one row per geoframe, coarsest at the top,
 each region's width proportional to its share of the weight.
 }
 \details{
-This is the \emph{structure} plot — it shows the Geoscale itself and needs no
+This is the \emph{structure} plot — it shows the GeoScale itself and needs no
 geometry. For a map of values over regions, see \code{\link[=geoscale_plot]{geoscale_plot()}}.
 
 Also registered as an \code{autoplot()} method, so \code{ggplot2::autoplot(gs)} works

@@ -7,7 +7,7 @@
 geoscale_rank(x, geoframe)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{geoframe}{Character vector of geoframe names.}
 }

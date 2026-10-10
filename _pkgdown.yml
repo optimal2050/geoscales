@@ -60,19 +60,19 @@ redirects:
   - ["articles/plotting.html", "articles/visualization.html"]
 
 reference:
-  - title: The Geoscale class
+  - title: The GeoScale class
     desc: >
       A nested spatial partition: a flat table of weighted leaf regions
       ("atoms") plus the ordered geoframes that group them.
     contents:
-      - Geoscale
+      - GeoScale
       - geoscale_example
       - geoscale_geoframes
       - geoscale_regions
       - geoscale_rank
       - geoscale_weights
-      - summary.Geoscale
-      - "[.Geoscale"
+      - summary.GeoScale
+      - "[.GeoScale"
 
   - title: Construction
     desc: >
@@ -136,7 +136,7 @@ reference:
     contents:
       - geom_geoscale
       - geoscale_autoplot
-      - plot.Geoscale
+      - plot.GeoScale
       - geoscale_plot
       - geoscale_layout
 

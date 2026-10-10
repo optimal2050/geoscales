@@ -26,7 +26,7 @@
 #' @noRd
 .warn <- function(...) warning(sprintf(...), call. = FALSE)
 
-#' Name of a Geoscale (meta$name), required for conversion and attach
+#' Name of a GeoScale (meta$name), required for conversion and attach
 #'
 #' Mirrors timescales' .calendar_name(): the crosswalk's label columns and
 #' join_geoscale()'s attached columns are named after the object, so those
@@ -37,7 +37,7 @@
   if (require && (!is.character(nm) || length(nm) != 1L || is.na(nm) ||
                   !nzchar(nm))) {
     .stop(paste0("`%s` has no name; conversion and attach need a named ",
-                 "Geoscale -- set meta$name, or pass `name=` to ",
+                 "GeoScale -- set meta$name, or pass `name=` to ",
                  "geoscale_from_leaftable()/geoscale_build()"), arg)
   }
   nm

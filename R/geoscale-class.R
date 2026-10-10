@@ -1,7 +1,7 @@
 # =============================================================================
-# Geoscale (S7 class) — slim core type
+# GeoScale (S7 class) — slim core type
 # =============================================================================
-# A `Geoscale` is a nested spatial partition:
+# A `GeoScale` is a nested spatial partition:
 #
 #   * `leaftable`   — flat enumeration of leaf regions ("atoms"), with one column
 #                  per geoframe in the hierarchy plus `region` (the unique atom
@@ -30,7 +30,7 @@
 #      In the spatial domain "geoframe" is the natural word for the hierarchy.
 # =============================================================================
 
-#' Geoscale (S7 class)
+#' GeoScale (S7 class)
 #'
 #' A nested spatial partition: a flat table of weighted leaf regions ("atoms")
 #' plus the ordered hierarchy of geoframes that groups them.
@@ -51,12 +51,12 @@
 #' @param meta Named list of attributes (`name`, `desc`, `weights`,
 #'   `default_weight`, `crs`, `source`, `labels`).
 #'
-#' @return A `Geoscale` object.
+#' @return A `GeoScale` object.
 #'
 #' @seealso [`recast_geoscale()`], [`filter_geoscale()`], [`geoscale_share()`]
 #' @export
-Geoscale <- S7::new_class(
-  "Geoscale",
+GeoScale <- S7::new_class(
+  "GeoScale",
   parent = nestedscales::scale_class(),
   properties = list(
     # `geoframes` is this dimension's name for the inherited `frames`, so
@@ -141,7 +141,7 @@ Geoscale <- S7::new_class(
         errs <- c(errs, sprintf(
           paste0("`leaftable$region` must be unique; duplicated: %s. ",
                  "Parallel dimensions (e.g. onshore/offshore) belong in ",
-                 "separate Geoscale objects."),
+                 "separate GeoScale objects."),
           .preview(dup)))
       }
     }
@@ -261,8 +261,8 @@ Geoscale <- S7::new_class(
 # S7::methods_register() in .onLoad).
 .scale_vocab_generic <- S7::new_external_generic("nestedscales",
                                                  "scale_vocab", "x")
-S7::method(.scale_vocab_generic, Geoscale) <- function(x, ...) {
-  list(object = "Geoscale", frame = "geoframe", frames = "geoframes",
+S7::method(.scale_vocab_generic, GeoScale) <- function(x, ...) {
+  list(object = "GeoScale", frame = "geoframe", frames = "geoframes",
        unit = "region", units = "regions", atoms = "geoatoms",
        register_rule = "register_geoscale_rule()",
        register_map = "register_geoscale_map_between()")
@@ -272,7 +272,7 @@ S7::method(.scale_vocab_generic, Geoscale) <- function(x, ...) {
 # keeps a subset of rows, it keeps the same subset of shapes.
 .payload_slice_generic <- S7::new_external_generic("nestedscales",
                                                    "scale_payload_slice", "x")
-S7::method(.payload_slice_generic, Geoscale) <- function(x, i, ...) {
+S7::method(.payload_slice_generic, GeoScale) <- function(x, i, ...) {
   geom <- S7::prop(x, "geometry")
   if (!is.null(geom)) S7::prop(x, "geometry") <- geom[i]
   x
@@ -284,7 +284,7 @@ S7::method(.payload_slice_generic, Geoscale) <- function(x, i, ...) {
 #'
 #' Position of a geoframe in the hierarchy: 1 is the coarsest.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param geoframe Character vector of geoframe names.
 #'
 #' @return An integer vector of ranks; `NA` for names that are not geoframes of
@@ -299,12 +299,12 @@ geoscale_rank <- function(x, geoframe) {
   match(geoframe, S7::prop(x, "geoframes"))
 }
 
-#' Geoframes of a Geoscale
+#' Geoframes of a GeoScale
 #'
 #' The hierarchy names, ordered coarsest first. The last entry is the atom
 #' geoframe — the finest regions, which every other geoframe groups.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param finest Return only the finest (atom) geoframe.
 #'
 #' @return A character vector of geoframe names, or a single name when
@@ -321,17 +321,17 @@ geoscale_geoframes <- function(x, finest = FALSE) {
   if (isTRUE(finest)) lv[length(lv)] else lv
 }
 
-#' The leaftable of a Geoscale
+#' The leaftable of a GeoScale
 #'
 #' The one-row-per-atom table the geoscale is built on, as a plain
 #' `data.frame` — the exported accessor to prefer over reaching for
 #' `x@leaftable` (the twin of `timescales::calendar_leaftable()`).
-#' `as.data.frame()` and `ggplot2::fortify()` on a Geoscale are
+#' `as.data.frame()` and `ggplot2::fortify()` on a GeoScale are
 #' equivalent, so `ggplot(gs) + geom_*()` pipelines work directly.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param row.names,optional Ignored (S3 signature compatibility).
-#' @param model A [`Geoscale`] (the `fortify()` generic's argument name).
+#' @param model A [`GeoScale`] (the `fortify()` generic's argument name).
 #' @param data Ignored (S3 signature compatibility).
 #' @param ... Ignored.
 #' @return A `data.frame`: one row per atom, with the geoframe columns
@@ -347,21 +347,21 @@ geoscale_leaftable <- function(x) {
 
 #' @rdname geoscale_leaftable
 #' @export
-#' @method as.data.frame Geoscale
-as.data.frame.Geoscale <- function(x, row.names = NULL, optional = FALSE,
+#' @method as.data.frame GeoScale
+as.data.frame.GeoScale <- function(x, row.names = NULL, optional = FALSE,
                                    ...) {
   geoscale_leaftable(x)
 }
 
-S7::method(as.data.frame, Geoscale) <- as.data.frame.Geoscale
+S7::method(as.data.frame, GeoScale) <- as.data.frame.GeoScale
 
 #' @rdname geoscale_leaftable
 #' @export
-`as.data.frame.geoscales::Geoscale` <- as.data.frame.Geoscale
+`as.data.frame.geoscales::GeoScale` <- as.data.frame.GeoScale
 
-#' Weight columns of a Geoscale
+#' Weight columns of a GeoScale
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #'
 #' @return A character vector of weight column names (possibly empty).
 #'
@@ -375,15 +375,15 @@ geoscale_weights <- function(x) {
 
 #' @noRd
 .check_geoscale <- function(x, arg = "x") {
-  if (!S7::S7_inherits(x, Geoscale)) {
-    .stop("`%s` must be a Geoscale object", arg)
+  if (!S7::S7_inherits(x, GeoScale)) {
+    .stop("`%s` must be a GeoScale object", arg)
   }
   invisible(TRUE)
 }
 
-#' Resolve a geoframe name against a Geoscale
+#' Resolve a geoframe name against a GeoScale
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param geoframe A single geoframe name.
 #' @param arg Argument name used in the error message.
 #' @noRd
@@ -394,7 +394,7 @@ geoscale_weights <- function(x) {
           arg, paste(lv, collapse = ", "))
   }
   if (!geoframe %in% lv) {
-    .stop("`%s` = \"%s\" is not a geoframe of this Geoscale; one of: %s",
+    .stop("`%s` = \"%s\" is not a geoframe of this GeoScale; one of: %s",
           arg, geoframe, paste(lv, collapse = ", "))
   }
   invisible(geoframe)
@@ -421,44 +421,44 @@ geoscale_weights <- function(x) {
 
 # Format / print ---------------------------------------------------------------
 
-S7::method(format, Geoscale) <- function(x, ...) {
-  sprintf("<Geoscale[%s] atoms=%d>",
+S7::method(format, GeoScale) <- function(x, ...) {
+  sprintf("<GeoScale[%s] atoms=%d>",
           paste(S7::prop(x, "geoframes"), collapse = "/"),
           nrow(S7::prop(x, "leaftable")))
 }
 
-#' Plot a Geoscale
+#' Plot a GeoScale
 #'
 #' Dispatches to [`geoscale_autoplot()`] — the geometry-free structure
 #' icicle (parity with `plot()` on a `timescales::Calendar`). For maps,
 #' see [`geoscale_plot()`] and [`geom_geoscale()`].
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param ... Passed to [`geoscale_autoplot()`].
 #' @return A ggplot object.
 #' @export
-#' @method plot Geoscale
-plot.Geoscale <- function(x, ...) {
+#' @method plot GeoScale
+plot.GeoScale <- function(x, ...) {
   geoscale_autoplot(x, ...)
 }
 
 # Alias on the fully-qualified S7 class name: `class()` reports
-# `geoscales::Geoscale` first (see the `[.Geoscale` note in R/filter.R),
+# `geoscales::GeoScale` first (see the `[.GeoScale` note in R/filter.R),
 # and that is the registration that actually dispatches when installed.
-#' @rdname plot.Geoscale
+#' @rdname plot.GeoScale
 #' @export
-`plot.geoscales::Geoscale` <- plot.Geoscale
+`plot.geoscales::GeoScale` <- plot.GeoScale
 
 #' @export
-#' @method print Geoscale
-print.Geoscale <- function(x, ...) {
+#' @method print GeoScale
+print.GeoScale <- function(x, ...) {
   meta <- S7::prop(x, "meta")
   lv   <- S7::prop(x, "geoframes")
   mb   <- S7::prop(x, "members")
   lf   <- S7::prop(x, "leaftable")
 
   name <- meta$name %||% ""
-  cat("Geoscale:", if (nzchar(name)) name else "<unnamed>", "\n")
+  cat("GeoScale:", if (nzchar(name)) name else "<unnamed>", "\n")
   if (!is.null(meta$desc) && nzchar(meta$desc)) {
     cat("Description:", meta$desc, "\n")
   }
@@ -489,27 +489,27 @@ print.Geoscale <- function(x, ...) {
   invisible(x)
 }
 
-S7::method(print, Geoscale) <- print.Geoscale
+S7::method(print, GeoScale) <- print.GeoScale
 
 # Backward-compat alias: dispatch on the fully-qualified S7 class name so
 # base-R `print()` finds it before falling through to `print.S7_object`.
 #' @export
-`print.geoscales::Geoscale` <- print.Geoscale
+`print.geoscales::GeoScale` <- print.GeoScale
 
 # Summary ----------------------------------------------------------------------
 
-#' Summarize a Geoscale
+#' Summarize a GeoScale
 #'
 #' Complements [print()] with the quantitative view: per-weight totals
 #' and coverage, the adjacent-geoframe nesting table, and the geometry
-#' status. Returns a `"summary_Geoscale"` object (a list) with its own
+#' status. Returns a `"summary_GeoScale"` object (a list) with its own
 #' print method — the mirror of `summary.Calendar()` in timescales.
 #' sf-free: geometry is reported from the object itself, never touched.
 #'
-#' @param object A [`Geoscale`].
-#' @param x A `"summary_Geoscale"` object (the print method's argument).
+#' @param object A [`GeoScale`].
+#' @param x A `"summary_GeoScale"` object (the print method's argument).
 #' @param ... Ignored.
-#' @return `summary()` returns a list of class `"summary_Geoscale"`:
+#' @return `summary()` returns a list of class `"summary_GeoScale"`:
 #'   `name`, `desc`, `geoframes` (named member counts), `unassigned`
 #'   (named NA-atom counts), `n_atoms`, `weights`, `weight_totals`,
 #'   `default_weight`, `coverage` (see [geoscale_coverage()]),
@@ -520,8 +520,8 @@ S7::method(print, Geoscale) <- print.Geoscale
 #' summary(geoscale_example())
 #' summary(filter_geoscale(geoscale_example(), "country", "N"))
 #' @export
-#' @method summary Geoscale
-summary.Geoscale <- function(object, ...) {
+#' @method summary GeoScale
+summary.GeoScale <- function(object, ...) {
   meta <- S7::prop(object, "meta")
   lt <- S7::prop(object, "leaftable")
   gf <- S7::prop(object, "geoframes")
@@ -560,21 +560,21 @@ summary.Geoscale <- function(object, ...) {
                     crs = meta[["crs"]]),
     source = meta[["source"]]
   )
-  class(out) <- "summary_Geoscale"
+  class(out) <- "summary_GeoScale"
   out
 }
 
-S7::method(summary, Geoscale) <- summary.Geoscale
+S7::method(summary, GeoScale) <- summary.GeoScale
 
-#' @rdname summary.Geoscale
+#' @rdname summary.GeoScale
 #' @export
-`summary.geoscales::Geoscale` <- summary.Geoscale
+`summary.geoscales::GeoScale` <- summary.GeoScale
 
-#' @rdname summary.Geoscale
+#' @rdname summary.GeoScale
 #' @export
-#' @method print summary_Geoscale
-print.summary_Geoscale <- function(x, ...) {
-  cat("<summary of Geoscale",
+#' @method print summary_GeoScale
+print.summary_GeoScale <- function(x, ...) {
+  cat("<summary of GeoScale",
       if (nzchar(x$name)) paste0("'", x$name, "'"), ">\n")
   if (nzchar(x$desc)) cat("  desc:          ", x$desc, "\n", sep = "")
   cat("  geoframes:      ",
@@ -632,10 +632,10 @@ print.summary_Geoscale <- function(x, ...) {
 
 #' @rdname geoscale_geoframes
 #' @export
-#' @method names Geoscale
-names.Geoscale <- function(x) geoscale_geoframes(x)
+#' @method names GeoScale
+names.GeoScale <- function(x) geoscale_geoframes(x)
 
-S7::method(names, Geoscale) <- names.Geoscale
+S7::method(names, GeoScale) <- names.GeoScale
 
 #' @export
-`names.geoscales::Geoscale` <- names.Geoscale
+`names.geoscales::GeoScale` <- names.GeoScale

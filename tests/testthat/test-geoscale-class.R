@@ -1,6 +1,6 @@
-test_that("the example Geoscale is well formed", {
+test_that("the example GeoScale is well formed", {
   gs <- geoscale_example()
-  expect_s3_class(gs, "geoscales::Geoscale")
+  expect_s3_class(gs, "geoscales::GeoScale")
   expect_equal(S7::prop(gs, "geoframes"),
                c("country", "state", "zone", "atom"))
   expect_equal(nrow(S7::prop(gs, "leaftable")), 7L)
@@ -74,7 +74,7 @@ test_that("a geoframe absent from leaves is rejected", {
 test_that("members disagreeing with leaves is rejected", {
   df <- data.frame(top = c("T", "T"), atom = c("A", "B"))
   expect_error(
-    Geoscale(leaftable = transform(df, region = df$atom),
+    GeoScale(leaftable = transform(df, region = df$atom),
              geoframes = c("top", "atom"),
              members = list(top = "T", atom = c("A", "B", "GHOST"))),
     "exactly the non-NA values"
@@ -92,6 +92,6 @@ test_that("print is informative and returns invisibly", {
   gs <- geoscale_example()
   out <- capture.output(res <- withVisible(print(gs)))
   expect_false(res$visible)
-  expect_true(any(grepl("Geoscale: example", out)))
+  expect_true(any(grepl("GeoScale: example", out)))
   expect_true(any(grepl("unassigned", out)))
 })

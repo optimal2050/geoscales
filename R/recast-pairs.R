@@ -18,7 +18,7 @@
 #'
 #' @param x The data: a data.frame, tibble, data.table, or arrow
 #'   table/dataset/query with two endpoint columns.
-#' @param gs The [`Geoscale`] the endpoints are keyed in.
+#' @param gs The [`GeoScale`] the endpoints are keyed in.
 #' @param to Target geoframe name, coarser than `from`.
 #' @param from Geoframe the endpoint codes belong to. `NULL` (default) is the
 #'   finest (atom) geoframe.
@@ -41,7 +41,7 @@
 #'   (default).
 #'
 #' @return One row per (endpoint pair x identifier combination), the endpoint
-#'   columns keeping their input names and holding `to`-level codes. In the
+#'   columns keeping their input names and holding target-geoframe codes. In the
 #'   input's class; lazy in, lazy out.
 #'
 #' @seealso [`recast_geoscale()`], [`recast_from_geoatoms()`]

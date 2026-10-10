@@ -23,13 +23,13 @@ recast_geoscale(
 named by \code{key} plus one or more numeric value columns; other columns
 are preserved as identifiers.}
 
-\item{gs}{The \code{\link{Geoscale}} the codes in \code{x} belong to.}
+\item{gs}{The \code{\link{GeoScale}} the codes in \code{x} belong to.}
 
 \item{from}{Geoframe name the codes belong to. \code{NULL} (default) is
 inferred: \code{key} when it is a geoframe name, else the single geoframe
 name appearing among \code{x}'s columns.}
 
-\item{to}{Target geoframe name of \code{gs}, or another (named) \code{\link{Geoscale}}
+\item{to}{Target geoframe name of \code{gs}, or another (named) \code{\link{GeoScale}}
 -- then the target is that object's atom layer, matched on the atom
 \code{region} keys the two objects share.}
 
@@ -74,7 +74,7 @@ types are preserved.
 \description{
 The central conversion verb: takes a table keyed by region code at
 geoframe \code{from} and returns one keyed at \code{to} -- a geoframe name of the
-same \code{\link{Geoscale}}, or ANOTHER Geoscale (whose atom layer is the target,
+same \code{\link{GeoScale}}, or ANOTHER GeoScale (whose atom layer is the target,
 matched on shared atom \code{region} keys). Handles both aggregation (fine to
 coarse) and disaggregation (coarse to fine) with a single rule per value
 column; geoframes that cross-cut work too, because the route always goes

@@ -3,7 +3,7 @@
 \name{geom_geoscale}
 \alias{geom_geoscale}
 \alias{theme_geoscale}
-\title{Geoscale layers for ggplot2}
+\title{GeoScale layers for ggplot2}
 \usage{
 geom_geoscale(
   gs,
@@ -19,7 +19,7 @@ geom_geoscale(
 theme_geoscale(...)
 }
 \arguments{
-\item{gs}{A \code{\link{Geoscale}} with attached geometry (see
+\item{gs}{A \code{\link{GeoScale}} with attached geometry (see
 \code{\link[=attach_geometry_geoscale]{attach_geometry_geoscale()}}).}
 
 \item{z}{Name of the numeric column of the data to aggregate and fill

@@ -13,13 +13,13 @@
 #
 # THE NESTING REQUIREMENT IS REAL AND NARROW. Spatial geoframes generally
 # cross-cut (see `geoscale_ancestry()`), so nesting is never assumed here. But
-# the cut is carved OUT of a chain of geoframes, and the levels it was carved
+# the cut is carved OUT of a chain of geoframes. The geoframes it was carved
 # from cannot survive beside it: "rest of NUTS1" spans several NUTS2, so
 # {cut, nuts2} does not nest. Keeping both would produce an object that
-# validates and aggregates wrongly. So the intermediate levels are dropped, and
-# what remains is VERIFIED with `geoscale_nests()` rather than asserted.
+# validates and aggregates wrongly. So the intermediate geoframes are dropped,
+# and what remains is VERIFIED with `geoscale_nests()` rather than asserted.
 #
-# ATOMS WITH NO CODE at the coarsest level keep `NA` in the cut, matching
+# ATOMS WITH NO CODE in the coarsest geoframe keep `NA` in the cut, matching
 # `prune_geoscale()`: they have no place in the coarse partition, the loss shows
 # up in `geoscale_coverage()`, and it is not silently invented.
 # =========================================================================== #
@@ -28,10 +28,10 @@
 #'
 #' Builds a new geoframe that keeps `focus` atoms at full resolution and
 #' collapses everything else into progressively coarser rings drawn from
-#' `levels`. The result is a partition of the atoms, carried as a geoframe.
+#' `geoframes`. The result is a partition of the atoms, carried as a geoframe.
 #'
 #' @details
-#' With focus atoms and `levels = c("nuts0", "nuts1", "nuts2")` (coarsest
+#' With focus atoms and `geoframes = c("nuts0", "nuts1", "nuts2")` (coarsest
 #' first), each remaining atom joins the **finest** ring that also contains a
 #' focus atom, so the cut telescopes outward:
 #'
@@ -39,50 +39,53 @@
 #' * the rest of each `nuts2` holding a focus atom;
 #' * the rest of each `nuts1` holding one of those;
 #' * the rest of each `nuts0` holding one of those;
-#' * every other atom, grouped at `levels[1]`.
+#' * every other atom, grouped in `geoframes[1]`.
 #'
 #' The intermediate geoframes are **dropped**. A ring like "rest of nuts1" spans
-#' several `nuts2`, so the cut cannot nest with the levels it was carved from;
-#' only `levels[1]` and the atom layer are kept beside it. That is checked, not
-#' assumed — see [geoscale_nests()].
+#' several `nuts2`, so the cut cannot nest with the geoframes it was carved
+#' from; only `geoframes[1]` and the atom geoframe are kept beside it. That is
+#' checked, not assumed -- see [geoscale_nests()].
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param focus Character vector of **atom** codes to keep at full resolution.
-#' @param levels Ordered geoframes to build rings from, coarsest first.
+#' @param geoframes Ordered geoframes to build rings from, coarsest first.
 #'   Defaults to every geoframe of `x` except the atom layer.
 #' @param name Name of the new geoframe. Default `"zoom"`.
 #' @param label_rest `sprintf` format for a ring's code, with `%s` the parent
 #'   code. Default `"%s_rest"`.
 #'
-#' @return A [`Geoscale`] with geoframes `levels[1]`, `name` and the atom layer;
-#'   weights and geometry carried through unchanged.
+#' @return A [`GeoScale`] with geoframes `geoframes[1]`, `name` and the atom
+#'   geoframe; weights and geometry carried through unchanged.
 #'
 #' @seealso [filter_geoscale()] to sample, [prune_geoscale()] to coarsen
 #'   uniformly, [geoscale_nests()] for the guarantee this relies on.
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' z <- zoom_geoscale(gs, focus = "A1", levels = c("country", "state"))
+#' z <- zoom_geoscale(gs, focus = "A1",
+#'                    geoframes = c("country", "state"))
 #' geoscale_geoframes(z)
 #' geoscale_regions(z, "zoom")
 #' @export
-zoom_geoscale <- function(x, focus, levels = NULL, name = "zoom",
+zoom_geoscale <- function(x, focus, geoframes = NULL, name = "zoom",
                           label_rest = "%s_rest") {
-  if (!inherits(x, "geoscales::Geoscale")) .stop("`x` must be a Geoscale")
+  if (!inherits(x, "geoscales::GeoScale")) .stop("`x` must be a GeoScale")
 
   frames <- geoscale_geoframes(x)
   atom_frame <- frames[length(frames)]
-  if (is.null(levels)) levels <- setdiff(frames, atom_frame)
-  levels <- as.character(levels)
+  if (is.null(geoframes)) geoframes <- setdiff(frames, atom_frame)
+  geoframes <- as.character(geoframes)
 
-  if (!length(levels)) .stop("`levels` must name at least one geoframe")
-  unknown <- setdiff(levels, frames)
+  if (!length(geoframes)) {
+    .stop("`geoframes` must name at least one geoframe")
+  }
+  unknown <- setdiff(geoframes, frames)
   if (length(unknown)) {
-    .stop("unknown geoframe(s) in `levels`: %s; available: %s",
+    .stop("unknown geoframe(s) in `geoframes`: %s; available: %s",
           .preview(unknown), paste(frames, collapse = ", "))
   }
-  if (identical(levels, atom_frame) || atom_frame %in% levels) {
-    .stop("`levels` must not include the atom geoframe `%s`", atom_frame)
+  if (identical(geoframes, atom_frame) || atom_frame %in% geoframes) {
+    .stop("`geoframes` must not include the atom geoframe `%s`", atom_frame)
   }
   if (name %in% frames) .stop("`name` = `%s` is already a geoframe of `x`", name)
 
@@ -106,23 +109,23 @@ zoom_geoscale <- function(x, focus, levels = NULL, name = "zoom",
   cut <- rep(NA_character_, length(atoms))
   cut[is_focus] <- atoms[is_focus]
 
-  for (lvl in rev(levels)) {
+  for (lvl in rev(geoframes)) {
     codes <- as.character(lt[[lvl]])
     touched <- unique(codes[is_focus & !is.na(codes)])
     hit <- is.na(cut) & !is.na(codes) & codes %in% touched
     cut[hit] <- sprintf(label_rest, codes[hit])
   }
 
-  # Everything the rings never reached groups at the coarsest level. Atoms with
-  # no code there keep NA, exactly as `prune_geoscale()` would leave them.
-  coarsest <- as.character(lt[[levels[1]]])
+  # Everything the rings never reached groups in the coarsest geoframe. Atoms
+  # with no code there keep NA, exactly as `prune_geoscale()` would leave them.
+  coarsest <- as.character(lt[[geoframes[1]]])
   fill <- is.na(cut)
   cut[fill] <- coarsest[fill]
 
-  ordered <- c(levels[1], name, atom_frame)
+  ordered <- c(geoframes[1], name, atom_frame)
   carried <- setdiff(names(lt), frames)          # region + weights + extras
   new_lt <- lt[, carried, drop = FALSE]
-  new_lt[[levels[1]]] <- lt[[levels[1]]]
+  new_lt[[geoframes[1]]] <- lt[[geoframes[1]]]
   new_lt[[name]] <- cut
   new_lt[[atom_frame]] <- lt[[atom_frame]]
 
@@ -138,13 +141,14 @@ zoom_geoscale <- function(x, focus, levels = NULL, name = "zoom",
                    length(focus), x@meta$name %||% "a geoscale"),
     crs = x@meta$crs,
     source = x@meta$source,
-    zoom = list(focus = focus, levels = levels, parent_name = x@meta$name)
+    zoom = list(focus = focus, geoframes = geoframes,
+                parent_name = x@meta$name)
   )
 
   # The guarantee, verified rather than asserted: every ring inside exactly one
-  # code of the coarsest level, every atom inside exactly one ring. Without it a
-  # quantity aggregated to the cut would double-count.
-  for (pair in list(c(levels[1], name), c(name, atom_frame))) {
+  # code in the coarsest geoframe, every atom inside exactly one ring. Without
+  # it a quantity aggregated to the cut would double-count.
+  for (pair in list(c(geoframes[1], name), c(name, atom_frame))) {
     ok <- geoscale_nests(out, pair[1], pair[2])
     if (!isTRUE(ok)) {
       .stop(paste0("the zoom does not nest: `%s` -> `%s` has %d code(s) with ",

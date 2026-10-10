@@ -17,7 +17,7 @@ geoscale_descendants(x, geoframe, region, to = NULL)
 geoscale_ancestors(x, geoframe, region, to = NULL)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{geoframe}{Geoframe that \code{region} belongs to.}
 

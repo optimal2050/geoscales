@@ -71,7 +71,7 @@ design position, not an oversight.
 
 ## Package conventions
 
-- **S7, not S4 or R6.** A `Geoscale` holds `leaftable`, `geoframes`, `members`,
+- **S7, not S4 or R6.** A `GeoScale` holds `leaftable`, `geoframes`, `members`,
   optional `geometry` and `meta`. Everything derivable — parent/child tables,
   ancestry, shares, level ranks — is computed on demand. Nothing is cached on
   the object.

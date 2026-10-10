@@ -1,5 +1,5 @@
 # =========================================================================== #
-# Base-generic methods on Geoscale: summary / names / as.data.frame /
+# Base-generic methods on GeoScale: summary / names / as.data.frame /
 # ggplot2::fortify (mirrored in timescales/tests/testthat/test-methods.R).
 # =========================================================================== #
 
@@ -7,7 +7,7 @@
 test_that("summary() returns the classed quantitative view", {
   gs <- geoscale_example()
   s <- summary(gs)
-  expect_s3_class(s, "summary_Geoscale")
+  expect_s3_class(s, "summary_GeoScale")
   expect_named(s, c("name", "desc", "geoframes", "unassigned", "n_atoms",
                     "weights", "weight_totals", "default_weight",
                     "coverage", "sampled", "parent_name", "nesting",
@@ -23,7 +23,7 @@ test_that("summary() returns the classed quantitative view", {
   expect_identical(nrow(row), 1L)
   expect_false(row$nests)
   expect_gt(row$n_offenders, 0)
-  expect_output(print(s), "summary of Geoscale 'example'")
+  expect_output(print(s), "summary of GeoScale 'example'")
   expect_output(print(s), "CROSS-CUTTING")
   expect_output(print(s), "geometry:       none")
 })

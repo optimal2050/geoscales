@@ -8,9 +8,14 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
                       fig.width = 7, fig.height = 4.5)
 library(geoscales)
 library(dplyr, warn.conflicts = FALSE)
+# energyRt ships its topia geoscales as saved S7 objects, which embed the
+# class name; a copy stamped under an earlier class spelling is not a
+# GeoScale to this package, so the topia sections are skipped until it is
+# re-stamped rather than failing the build.
 has_topia <- requireNamespace("energyRt", quietly = TRUE) &&
   requireNamespace("sf", quietly = TRUE) &&
-  requireNamespace("ggplot2", quietly = TRUE)
+  requireNamespace("ggplot2", quietly = TRUE) &&
+  S7::S7_inherits(energyRt::topia$geoscales$honeycomb, GeoScale)
 has_ne <- has_topia &&
   requireNamespace("rnaturalearth", quietly = TRUE) &&
   requireNamespace("rnaturalearthhires", quietly = TRUE)
@@ -239,7 +244,7 @@ tibble(country = "ISL", capacity_mw = 3000) |>
 
 ## One resource, three geoframes
 
-Model design is choosing a resolution. The wind-cluster Geoscale from
+Model design is choosing a resolution. The wind-cluster GeoScale from
 the [get-started
 vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
 carries Iceland's mean wind speed on its cluster atoms; recasting the

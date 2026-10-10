@@ -1,4 +1,4 @@
-# geom_geoscale() / theme_geoscale() / plot.Geoscale ---------------------------
+# geom_geoscale() / theme_geoscale() / plot.GeoScale ---------------------------
 
 .toy_gs <- function() {
   skip_if_not_installed("sf")

@@ -2,12 +2,12 @@
 % Please edit documentation in R/geometry.R
 \name{attach_geometry_geoscale}
 \alias{attach_geometry_geoscale}
-\title{Attach geometry to a Geoscale}
+\title{Attach geometry to a GeoScale}
 \usage{
 attach_geometry_geoscale(x, geom, by = NULL, geoframe = NULL)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{geom}{An \code{sf} object or \code{sfc}. When \code{sf} with a code column, it is
 matched on \code{by}; when \code{sfc}, it must already be in \verb{@leaftable} row order.}
@@ -19,7 +19,7 @@ atom geoframe, then \code{"region"}.}
 geoframe. When coarser, each atom inherits its parent's geometry.}
 }
 \value{
-A \code{\link{Geoscale}} with \verb{@geometry} populated.
+A \code{\link{GeoScale}} with \verb{@geometry} populated.
 }
 \description{
 Stores an \code{sfc} on the object, aligned to \verb{@leaftable} row order.

@@ -7,7 +7,7 @@
 geoscale_family(x, parent = NULL, child = NULL)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{parent, child}{Geoframe names. Defaults to every adjacent pair in
 \code{x@geoframes}.}

@@ -7,7 +7,7 @@
 geoscale_geometry(x, geoframe = NULL, precision = 0)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}} with geometry attached.}
+\item{x}{A \code{\link{GeoScale}} with geometry attached.}
 
 \item{geoframe}{Geoframe to dissolve to. Defaults to the atom geoframe.}
 

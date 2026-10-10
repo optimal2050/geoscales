@@ -24,7 +24,7 @@ values between carvings is error-prone precisely where it matters:
 totals must conserve, intensities must average correctly, and region
 systems drawn by different hands rarely nest.
 
-`geoscales` represents any such carving as a **Geoscale**: a set of
+`geoscales` represents any such carving as a **GeoScale**: a set of
 *atoms* (the finest regions) plus ordered *geoframes* that group them.
 
 ## Atoms and geoframes
@@ -77,7 +77,7 @@ So a bare code is ambiguous, and every lookup names its geoframe — a
 
 ## Shares and weights
 
-A Geoscale carries one or more named **weight** columns on its atoms
+A GeoScale carries one or more named **weight** columns on its atoms
 (area, population, ...); `meta$default_weight` names the default.
 **`share`** is the universal derived quantity: a fraction of the whole
 that sums to coverage and aggregates by SUM — the same word with the
@@ -105,7 +105,7 @@ entry is an error, in both siblings.
 - **Explicit registries only.** Constructors return values; behavior
   changes only through `register_geoscale_rule()`, `register_geoscale_map()`,
   `register_geoscale_provider()`.
-- **Label-stable.** A Geoscale's region codes and their order are fixed
+- **Label-stable.** A GeoScale's region codes and their order are fixed
   at construction; conversions never mutate them.
 
 ## The *scales naming lattice (glossary)
@@ -134,7 +134,7 @@ registry, then an error — never a silent fallback.
 
 ## Where to next?
 
-- [Data structures](data-structures.html) — anatomy of a `Geoscale`
+- [Data structures](data-structures.html) — anatomy of a `GeoScale`
   object and its registries.
 - [Data manipulation](data-manipulation.html) — attach, recast,
   crosswalks, backends.

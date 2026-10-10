@@ -2,7 +2,7 @@
 % Please edit documentation in R/naturalearth.R
 \name{ne_geoscale}
 \alias{ne_geoscale}
-\title{Build a Geoscale from Natural Earth}
+\title{Build a GeoScale from Natural Earth}
 \usage{
 ne_geoscale(
   scale = 110,
@@ -25,12 +25,12 @@ unsuitable for area weights (see details).}
 \item{...}{Passed to the underlying \code{rnaturalearth} function.}
 }
 \value{
-A \code{\link{Geoscale}}, with \code{scale} and \code{source} recorded in \verb{@meta} so the
+A \code{\link{GeoScale}}, with \code{scale} and \code{source} recorded in \verb{@meta} so the
 object is self-documenting and reproducible.
 }
 \description{
 Convenience wrapper: fetches Natural Earth via \code{\link[=ne_source]{ne_source()}} and builds a
-\code{\link{Geoscale}} nested \code{continent -> subregion -> country -> feature},
+\code{\link{GeoScale}} nested \code{continent -> subregion -> country -> feature},
 weighted by population and GDP.
 }
 \details{

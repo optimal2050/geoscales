@@ -10,7 +10,7 @@ coords_to_region(x, gs, geoframe = NULL, coords = c("lon", "lat"), crs = 4326)
 \item{x}{An \code{sf}/\code{sfc} object of points, or a data.frame with
 coordinate columns.}
 
-\item{gs}{A \code{\link{Geoscale}} with geometry attached (see
+\item{gs}{A \code{\link{GeoScale}} with geometry attached (see
 \code{\link[=attach_geometry_geoscale]{attach_geometry_geoscale()}}).}
 
 \item{geoframe}{Geoframe to resolve to; \code{NULL} (default) uses the

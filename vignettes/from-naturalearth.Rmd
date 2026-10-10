@@ -1,9 +1,9 @@
 ---
-title: "Building a Geoscale from Natural Earth"
-description: "Providers in practice: pull Natural Earth admin layers into a Geoscale, aggregate up and split back down, and let geometry follow the geoframes."
+title: "Building a GeoScale from Natural Earth"
+description: "Providers in practice: pull Natural Earth admin layers into a GeoScale, aggregate up and split back down, and let geometry follow the geoframes."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Building a Geoscale from Natural Earth}
+  %\VignetteIndexEntry{Building a GeoScale from Natural Earth}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options:

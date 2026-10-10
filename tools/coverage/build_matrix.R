@@ -78,7 +78,7 @@ kind_of <- function(nm, obj) {
   if (grepl("^(register|get|list|clear)_", nm)) return("registry")
   if (grepl("^(geom_|theme_)|_(autoplot|plot|layout|breaks)$|_wall_|weekdays$",
             nm)) return("plot")
-  if (grepl("^(Calendar|Geoscale)$|_from_|_build$|^calendar$|^base_calendar$|^ne_|_example$",
+  if (grepl("^(Calendar|GeoScale)$|_from_|_build$|^calendar$|^base_calendar$|^ne_|_example$",
             nm)) return("constructor")
   if (grepl("^(join|recast|filter|prune|expand|attach|add|zoom)_|_to_timeslice$|_to_region$|^as_timeframe$|^instant",
             nm)) return("verb")

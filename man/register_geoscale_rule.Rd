@@ -12,7 +12,7 @@ register_geoscale_rule(param, rule, weight = NULL)
 \item{rule}{One of \code{\link{GEOSCALE_RULES}}.}
 
 \item{weight}{Optional weight column name used by \code{sum} (down) and
-\code{weighted_mean} (up). \code{NULL} means the Geoscale's default weight.}
+\code{weighted_mean} (up). \code{NULL} means the GeoScale's default weight.}
 }
 \value{
 Invisibly, the registered entry.

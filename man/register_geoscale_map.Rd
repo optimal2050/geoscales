@@ -19,13 +19,13 @@ get_geoscale_map_between(from, to)
 list_geoscale_maps()
 }
 \arguments{
-\item{gs}{The \code{\link{Geoscale}} the geoframes belong to, or its name.}
+\item{gs}{The \code{\link{GeoScale}} the geoframes belong to, or its name.}
 
 \item{from, to}{For the within-object functions, geoframe names of \code{gs}.
-For the \verb{_between} functions, two \code{\link{Geoscale}} objects or their names.}
+For the \verb{_between} functions, two \code{\link{GeoScale}} objects or their names.}
 
 \item{map}{A \code{data.frame} shaped like a \code{\link[=geoscale_map]{geoscale_map()}} result: the
-two label columns named after the geoframes (or Geoscales), plus
+two label columns named after the geoframes (or GeoScales), plus
 \code{n_from}, \code{n_overlap}, \code{w} and \code{w_from}. \code{NULL} removes a previously
 registered map.}
 }
@@ -43,10 +43,10 @@ concordance tables).
 }
 \details{
 \code{register_geoscale_map()} and \code{get_geoscale_map()} handle a pair of
-geoframes of one Geoscale; the map is scoped to that object, so
+geoframes of one GeoScale; the map is scoped to that object, so
 \code{"state" -> "zone"} maps of two different objects do not collide.
 \code{register_geoscale_map_between()} and \code{get_geoscale_map_between()} handle a
-pair of Geoscales.
+pair of GeoScales.
 }
 \examples{
 gs <- geoscale_example()

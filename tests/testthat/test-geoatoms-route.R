@@ -50,7 +50,7 @@ test_that("composition of the halves equals recast_geoscale", {
                full$capacity, tolerance = 1e-12)
 })
 
-test_that("the halves recast across two Geoscales sharing atom keys", {
+test_that("the halves recast across two GeoScales sharing atom keys", {
   lf <- data.frame(band = rep(c("X", "Y"), 3),
                    atom = atoms,
                    km2 = c(100, 200, 300, 400, 500, 600))
@@ -63,7 +63,7 @@ test_that("the halves recast across two Geoscales sharing atom keys", {
   expect_equal(out$capacity[out$band == "X"], 1 + 3 + 5)
   expect_equal(out$capacity[out$band == "Y"], 2 + 4 + 6)
 
-  # the fused verb: `to` = another Geoscale targets its atom layer
+  # the fused verb: `to` = another GeoScale targets its atom layer
   cty <- data.frame(country = c("N", "S"), capacity = c(10, 20))
   ab <- recast_geoscale(cty, gs, from = "country", to = gs_b,
                         rule = "sum", weight = "km2")

@@ -13,7 +13,7 @@
 #' @noRd
 .PROVIDER_REGISTRY <- new.env(parent = emptyenv())
 
-#' Register a Geoscale data provider
+#' Register a GeoScale data provider
 #'
 #' A provider is a function `function(...)` returning either an `sf` object or
 #' a `data.frame`, wide enough that its columns can be used as geoframes and
@@ -85,10 +85,10 @@ list_geoscale_providers <- function() {
   )
 }
 
-#' Build a Geoscale from a provider
+#' Build a GeoScale from a provider
 #'
 #' Fetches a source table from a registered provider and turns it into a
-#' [`Geoscale`]. Geoframe and weight defaults come from the provider when not
+#' [`GeoScale`]. Geoframe and weight defaults come from the provider when not
 #' given.
 #'
 #' @param provider Provider name, or a source `sf`/`data.frame` to use
@@ -99,7 +99,7 @@ list_geoscale_providers <- function() {
 #' @param name,desc Short name and description for the result.
 #' @param ... Passed to the provider's `fetch()`.
 #'
-#' @return A [`Geoscale`].
+#' @return A [`GeoScale`].
 #'
 #' @examples
 #' \dontrun{
@@ -157,7 +157,7 @@ geoscale_from_provider <- function(provider = "naturalearth",
     name = name, desc = desc, source = src_name
   )
   if (!is.null(geom)) {
-    gs <- Geoscale(
+    gs <- GeoScale(
       leaftable = S7::prop(gs, "leaftable"), geoframes = S7::prop(gs, "geoframes"),
       members = S7::prop(gs, "members"), geometry = geom,
       meta = S7::prop(gs, "meta")

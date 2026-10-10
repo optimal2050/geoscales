@@ -35,7 +35,7 @@ recast_from_geoatoms(
 geoframe \code{from}; for \code{recast_from_geoatoms()} keyed by atom \code{region}
 IDs.}
 
-\item{gs}{The \code{\link{Geoscale}} the data is keyed in (\code{to_geoatoms}) or
+\item{gs}{The \code{\link{GeoScale}} the data is keyed in (\code{to_geoatoms}) or
 aggregated into (\code{from_geoatoms}).}
 
 \item{from}{\code{to_geoatoms} only: geoframe name the codes belong to.
@@ -51,7 +51,7 @@ column exists, otherwise \code{"region"}. \code{from_geoatoms}: default
 \code{\link[=recast_geoscale]{recast_geoscale()}}. \code{from_geoatoms}: the name of a column of \code{x} to
 weight by, so the weight may vary by identifier -- a capacity-weighted
 efficiency differs by year and vintage. \code{NULL} (default) uses a \code{weight}
-column of \code{x} if present, else the Geoscale's declared weight.}
+column of \code{x} if present, else the GeoScale's declared weight.}
 
 \item{attach_weight}{\code{to_geoatoms} only: attach the \code{weight} column
 (default \code{TRUE}).}
@@ -83,7 +83,7 @@ The two public halves of the \code{from -> atoms -> to} route:
 (one row per atom), and \code{recast_from_geoatoms()} aggregates atom-keyed
 data UP into a geoframe's regions. Their composition is
 \code{\link[=recast_geoscale]{recast_geoscale()}}, and because the atom rows are keyed by the atom
-\code{region} IDs, \code{recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to)} recasts across two different Geoscales that share atom keys.
+\code{region} IDs, \code{recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to)} recasts across two different GeoScales that share atom keys.
 }
 \details{
 Going down, extensive columns (rule \code{"sum"}) are split across a region's

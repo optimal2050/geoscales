@@ -2,12 +2,12 @@
 % Please edit documentation in R/filter.R
 \name{geoscale_coverage}
 \alias{geoscale_coverage}
-\title{Sampled coverage of a Geoscale}
+\title{Sampled coverage of a GeoScale}
 \usage{
 geoscale_coverage(x, weight = NULL)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{weight}{A single weight name for a scalar answer; \code{NULL}
 (default) returns the named vector over all declared weights.}

@@ -20,7 +20,7 @@
 #' finest geoframe (the atoms) — the twin of
 #' `timescales::calendar_timeslices(x, timeframe = NULL)`.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param geoframe A single geoframe name, or `NULL` (default) for the
 #'   finest geoframe.
 #'
@@ -40,7 +40,7 @@ geoscale_regions <- function(x, geoframe = NULL) {
 
 #' Immediate parent-child table between two geoframes
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param parent,child Geoframe names. Defaults to every adjacent pair in
 #'   `x@geoframes`.
 #'
@@ -74,10 +74,10 @@ geoscale_family <- function(x, parent = NULL, child = NULL) {
 #' `reg32` code `APY` merges Andhra Pradesh with part of Puducherry, so
 #' `reg35` does not nest inside `reg32`.
 #'
-#' Nesting is *not* required by [`Geoscale`] — [`recast_geoscale()`] routes through
+#' Nesting is *not* required by [`GeoScale`] — [`recast_geoscale()`] routes through
 #' the atom layer and works either way. This function is a diagnostic.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param parent,child Geoframe names.
 #'
 #' @return `TRUE` or `FALSE`. When `FALSE`, the offending child codes are
@@ -103,7 +103,7 @@ geoscale_nests <- function(x, parent, child) {
 #' Computed **atom-mediated**, directly from `@leaftable` — deliberately not as a
 #' transitive closure of [`geoscale_family()`]. `timeslices` can use a closure
 #' because time geoframes genuinely nest; spatial geoframes cross-cut, and a closure
-#' then manufactures false relationships. In the example Geoscale, zone `ZB`
+#' then manufactures false relationships. In the example GeoScale, zone `ZB`
 #' straddles both countries, so closing `country -> state -> zone -> atom`
 #' would wrongly report country `N` as an ancestor of atom `A5`, which lies in
 #' country `S`.
@@ -115,7 +115,7 @@ geoscale_nests <- function(x, parent, child) {
 #' geoframes: in the example, `"N1"` exists at both `state` and `zone`, so a bare
 #' `(parent, child)` pair would read as a self-loop.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #'
 #' @return A `data.frame` with columns `parent_geoframe`, `parent`,
 #'   `child_geoframe`, `child`.
@@ -140,7 +140,7 @@ geoscale_ancestry <- function(x) {
 #' `geoframe` is required in every case — region codes are not unique across
 #' geoframes, so a bare code is ambiguous.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param geoframe Geoframe that `region` belongs to.
 #' @param region Character vector of region codes at `geoframe`.
 #' @param to Target geoframe. For `geoscale_children()`/`geoscale_parents()` this defaults
@@ -205,7 +205,7 @@ geoscale_ancestors <- function(x, geoframe, region, to = NULL) {
   d
 }
 
-#' Subset a Geoscale by region
+#' Subset a GeoScale by region
 #'
 #' Keeps only the atoms belonging to `region` at `geoframe`, and rebuilds the
 #' member vocabularies accordingly. Geometry, when attached, is subset in step.
@@ -222,12 +222,12 @@ geoscale_ancestors <- function(x, geoframe, region, to = NULL) {
 #' filter that keeps every atom is a true no-op. Read the fraction back
 #' with [`geoscale_coverage()`].
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param geoframe Geoframe that `region` belongs to.
 #' @param region Character vector of region codes to keep.
 #' @param drop_empty_geoframes Drop geoframes left with no codes at all.
 #'
-#' @return A [`Geoscale`].
+#' @return A [`GeoScale`].
 #'
 #' @examples
 #' gs <- geoscale_example()
@@ -268,9 +268,9 @@ filter_geoscale <- function(x, geoframe, region, drop_empty_geoframes = FALSE) {
   meta
 }
 
-#' Collapse a Geoscale to a coarser geoframe
+#' Collapse a GeoScale to a coarser geoframe
 #'
-#' Returns a new [`Geoscale`] whose atom layer is `geoframe`, dropping every
+#' Returns a new [`GeoScale`] whose atom layer is `geoframe`, dropping every
 #' finer geoframe. Weights are summed over the collapsed atoms.
 #'
 #' The result is renamed `"name@geoframe"` (the
@@ -282,13 +282,13 @@ filter_geoscale <- function(x, geoframe, region, drop_empty_geoframes = FALSE) {
 #' attached, the pruned atoms carry the dissolved (unioned) geometry of
 #' their fine atoms unless `keep_geometry = FALSE`.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param geoframe The geoframe to become the new atom layer.
 #' @param keep_geometry Dissolve and keep the attached geometry.
 #'   Default: yes, when geometry is attached (needs the sf package;
 #'   drops with a message otherwise).
 #'
-#' @return A [`Geoscale`].
+#' @return A [`GeoScale`].
 #'
 #' @examples
 #' prune_geoscale(geoscale_example(), "state")
@@ -355,7 +355,7 @@ prune_geoscale <- function(x, geoframe,
   gs
 }
 
-#' Sampled coverage of a Geoscale
+#' Sampled coverage of a GeoScale
 #'
 #' The spatial mirror of a partial calendar's `year_fraction`: the
 #' fraction of the ROOT parent's weight totals that this object still
@@ -363,7 +363,7 @@ prune_geoscale <- function(x, geoframe,
 #' drops uncovered atoms) record it in `meta$coverage`; an object that
 #' was never sampled reports `1` for every weight.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param weight A single weight name for a scalar answer; `NULL`
 #'   (default) returns the named vector over all declared weights.
 #'
@@ -380,16 +380,16 @@ geoscale_coverage <- function(x, weight = NULL) {
   nestedscales::scale_coverage(x, weight)
 }
 
-#' Subset a Geoscale with `[`
+#' Subset a GeoScale with `[`
 #'
 #' `gs[geoframe, region]` is shorthand for [`filter_geoscale()`].
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param i Geoframe name.
 #' @param j Character vector of region codes.
 #' @param ... Unused.
 #'
-#' @return A [`Geoscale`].
+#' @return A [`GeoScale`].
 #'
 #' @examples
 #' gs <- geoscale_example()
@@ -398,18 +398,18 @@ geoscale_coverage <- function(x, weight = NULL) {
 #' @details
 #' S7 ships a `[.S7_object` that errors, so a method must be registered for
 #' the class itself. Under S7 0.2 `class()` reports the package-qualified
-#' `geoscales::Geoscale` both when sourced and when installed, so that is the
-#' registration that actually dispatches; the bare `Geoscale` one is kept as a
+#' `geoscales::GeoScale` both when sourced and when installed, so that is the
+#' registration that actually dispatches; the bare `GeoScale` one is kept as a
 #' cheap guard in case an S7 version reports the short name. This mirrors the
 #' two-function pattern `print()` uses in geoscale-class.R. Declaring both as
 #' real methods with `@export`, rather than via `@rawNamespace`, is what stops
 #' roxygen2 reporting them as unexported.
 #'
 #' @export
-#' @method [ Geoscale
-`[.Geoscale` <- function(x, i, j, ...) {
+#' @method [ GeoScale
+`[.GeoScale` <- function(x, i, j, ...) {
   if (missing(i) || missing(j)) {
-    .stop("subset a Geoscale as `gs[geoframe, region]`")
+    .stop("subset a GeoScale as `gs[geoframe, region]`")
   }
   filter_geoscale(x, i, j)
 }
@@ -417,15 +417,15 @@ geoscale_coverage <- function(x, weight = NULL) {
 # Alias on the fully-qualified S7 class name: that is what `class()` returns
 # for an INSTALLED package, so without this `gs[geoframe, region]` falls through
 # to `[.S7_object`, which errors.
-#' @rdname sub-.Geoscale
+#' @rdname sub-.GeoScale
 #' @export
-`[.geoscales::Geoscale` <- `[.Geoscale`
+`[.geoscales::GeoScale` <- `[.GeoScale`
 
 #' Weight shares within a geoframe
 #'
 #' Normalised weights, either of the whole object or within each parent group.
 #'
-#' @param x A [`Geoscale`].
+#' @param x A [`GeoScale`].
 #' @param geoframe Geoframe to report shares for.
 #' @param weight Weight column. `NULL` uses the default.
 #' @param within Optional coarser geoframe to normalise within. `NULL`

@@ -1,6 +1,16 @@
+# geoscales 0.6.0.9000
+
+## Breaking changes
+
+* The class is now spelled `GeoScale` (was `Geoscale`), matching
+  `NestedScale` and `EnergyScale`. Function names keep the `geoscale_`
+  prefix. Saved GeoScale objects embed the class name: rebuild or re-stamp
+  any `.rds`/`.rda` that holds one (see `data-raw/restamp_iceland_wind.R`
+  for the pattern). No deprecation alias.
+
 # geoscales 0.6.0
 
-## Breaking: crosswalk functions split by task
+## Breaking changes
 
 * `geoscale_map(gs, from, to)` now takes the Geoscale first and maps between
   two of its geoframes only; the map between two Geoscales is
@@ -12,6 +22,23 @@
 * The shared core package is now called nestedscales (formerly multiscales).
   `data-raw/iceland_wind.rds` (used by the README and the "Get started"
   vignette) was re-stamped with `data-raw/restamp_iceland_wind.R`.
+
+## New features
+
+* `zoom_geoscale()` builds a telescoping geoframe with full detail in a focus
+  area and progressively coarser rings elsewhere. Its ordered input is named
+  `geoframes=` to match the package vocabulary.
+
+## Bug fixes
+
+* Panel-data expansion to geoatoms now declares its expected many-to-many join
+  and no longer emits a dplyr relationship warning.
+
+## Dependencies
+
+* `timescales` is no longer a suggested dependency. The optional time-and-space
+  example is non-executing package documentation, and sibling API parity is
+  checked separately in project CI.
 
 # geoscales 0.5.4
 

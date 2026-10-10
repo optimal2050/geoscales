@@ -2,15 +2,15 @@
 % Please edit documentation in R/geoscale-class.R
 \name{geoscale_geoframes}
 \alias{geoscale_geoframes}
-\alias{names.Geoscale}
-\title{Geoframes of a Geoscale}
+\alias{names.GeoScale}
+\title{Geoframes of a GeoScale}
 \usage{
 geoscale_geoframes(x, finest = FALSE)
 
-\method{names}{Geoscale}(x)
+\method{names}{GeoScale}(x)
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}}.}
+\item{x}{A \code{\link{GeoScale}}.}
 
 \item{finest}{Return only the finest (atom) geoframe.}
 }

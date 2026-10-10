@@ -2,12 +2,12 @@
 % Please edit documentation in R/map.R
 \name{geoscale_map}
 \alias{geoscale_map}
-\title{Crosswalk between two geoframes of a Geoscale}
+\title{Crosswalk between two geoframes of a GeoScale}
 \usage{
 geoscale_map(gs, from, to, weight = NULL)
 }
 \arguments{
-\item{gs}{The \code{\link{Geoscale}} the geoframes belong to.}
+\item{gs}{The \code{\link{GeoScale}} the geoframes belong to.}
 
 \item{from, to}{Geoframe names of \code{gs}.}
 
@@ -44,5 +44,5 @@ geoscale_map(gs, "state", "zone")
 geoscale_map(gs, "country", "state", weight = "km2")
 }
 \seealso{
-\code{\link[=geoscale_map_between]{geoscale_map_between()}} for the map between two Geoscales.
+\code{\link[=geoscale_map_between]{geoscale_map_between()}} for the map between two GeoScales.
 }

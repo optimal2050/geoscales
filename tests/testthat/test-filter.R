@@ -122,7 +122,7 @@ test_that("the validator rejects tampered coverage", {
   m <- S7::prop(n, "meta")
   m$coverage[["km2"]] <- 0.9
   expect_error(
-    Geoscale(leaftable = S7::prop(n, "leaftable"),
+    GeoScale(leaftable = S7::prop(n, "leaftable"),
              geoframes = S7::prop(n, "geoframes"),
              members   = S7::prop(n, "members"),
              meta      = m),
@@ -130,7 +130,7 @@ test_that("the validator rejects tampered coverage", {
   m2 <- S7::prop(n, "meta")
   m2$coverage[["km2"]] <- 1.7
   expect_error(
-    Geoscale(leaftable = S7::prop(n, "leaftable"),
+    GeoScale(leaftable = S7::prop(n, "leaftable"),
              geoframes = S7::prop(n, "geoframes"),
              members   = S7::prop(n, "members"),
              meta      = m2),

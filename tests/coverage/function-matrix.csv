@@ -7,7 +7,7 @@ coords_to_region,verb,"",x+gs+geoframe+coords+crs,U,"",helper-fixtures.R;test-co
 CORE_GEOFRAMES,constant,"","",U,"",test-rules.R,inferred
 filter_geoscale,verb,"",x+geoframe+region+drop_empty_geoframes,U,"",test-filter.R;test-mirror-parity.R,inferred
 geom_geoscale,plot,"",gs+z+geoframe+region+fun+data+precision+...,U,"",test-ggplot-layers.R,inferred
-Geoscale,constructor,"",leaftable+geoframes+members+geometry+meta,U,"",helper-fixtures.R;test-filter.R;test-geoatoms-route.R;test-geoscale-class.R;test-ggplot-layers.R;test-harmonized-names.R;test-join.R;test-mirror-parity.R,inferred
+GeoScale,constructor,"",leaftable+geoframes+members+geometry+meta,U,"",helper-fixtures.R;test-filter.R;test-geoatoms-route.R;test-geoscale-class.R;test-ggplot-layers.R;test-harmonized-names.R;test-join.R;test-mirror-parity.R,inferred
 geoscale_ancestors,query,"",x+geoframe+region+to,U,"",test-filter.R,inferred
 geoscale_ancestry,query,"",x,U,"",test-filter.R;test-mirror-parity.R,inferred
 geoscale_autoplot,plot,"",x+type+weight+fill+label+view+angle+ratio+shear+depth+gap+rotate+direction+precision+data+z+rule+labels+palette+colour+linewidth+frame+frame_fill+connectors+...,U,"",test-build-plot-providers.R;test-ggplot-layers.R;test-mirror-parity.R,inferred

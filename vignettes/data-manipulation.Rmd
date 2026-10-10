@@ -1,6 +1,6 @@
 ---
 title: "Data manipulation with geoscales"
-description: "The tidy workflow end to end: attach a Geoscale to region-keyed tables, recast values between resolutions, inspect the crosswalk, chain time and space with recast(), and run the same pipelines over data.table and arrow backends."
+description: "The tidy workflow end to end: attach a GeoScale to region-keyed tables, recast values between resolutions, inspect the crosswalk, chain time and space with recast(), and run the same pipelines over data.table and arrow backends."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Data manipulation with geoscales}
@@ -20,7 +20,7 @@ has_dt <- requireNamespace("data.table", quietly = TRUE) &&
 
 | verb | direction | what it does |
 |---|---|---|
-| `join_geoscale()` | Geoscale → columns | *attach* labels, membership, share/weight to a table (no aggregation) |
+| `join_geoscale()` | GeoScale → columns | *attach* labels, membership, share/weight to a table (no aggregation) |
 | `recast_geoscale()` | geoframe A → geoframe B | *convert* values between resolutions, one rule per column |
 | `recast_to_geoatoms()` / `recast_from_geoatoms()` | the route halves | project down to the atom layer / aggregate up from it |
 | `geoscale_map()` | A → B crosswalk | the conversion, materialised as a small table |
@@ -38,10 +38,10 @@ atoms <- geoscale_leaftable(gs)$region[!is.na(geoscale_leaftable(gs)$country)]
 cap <- tibble(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
 ```
 
-## Attaching a Geoscale to a table
+## Attaching a GeoScale to a table
 
 `join_geoscale()` *decorates* rather than converts: it adds a label
-column **named after the Geoscale**, plus optional coarser-geoframe
+column **named after the GeoScale**, plus optional coarser-geoframe
 membership columns and share/weight, all `"<name>."`-prefixed. The keyed
 geoframe is inferred from the columns (or passed as `geoframe=`):
 
@@ -50,7 +50,7 @@ tibble(state = c("N1", "N2", "S1"), v = 1:3) |>
   join_geoscale(gs, geoframes = TRUE, meta = TRUE)
 ```
 
-Because every Geoscale attaches under its own name, several can coexist
+Because every GeoScale attaches under its own name, several can coexist
 on one dataset — and a table carrying two label columns is itself an
 empirical crosswalk between the region systems. Existing columns are
 never overwritten; a clashing attach errors instead.
@@ -119,7 +119,7 @@ output there unfiltered.
 clear_geoscale_rules()
 ```
 
-## The route halves and cross-Geoscale conversion
+## The route halves and cross-GeoScale conversion
 
 `recast_geoscale()` is the fused route `from -> atoms -> to`; its halves
 are public. Going down, extensive columns split by the chosen weight and
@@ -134,9 +134,9 @@ a |> recast_from_geoatoms(gs, to = "state", rule = "sum")
 ```
 
 Because the atom rows are keyed by atom `region` IDs, the halves also
-convert **across two different Geoscales that share atom keys** (reg32
+convert **across two different GeoScales that share atom keys** (reg32
 to NUTS style conversions) — and the fused verb accepts another
-Geoscale as `to`, targeting its atom layer:
+GeoScale as `to`, targeting its atom layer:
 
 ```{r}
 lf <- tibble(band = rep(c("X", "Y"), 3), atom = atoms,
@@ -174,10 +174,11 @@ clear_geoscale_maps()
 ## One verb across time and space
 
 The bare `recast()` generic is owned by nestedscales and re-exported by both
-geoscales and timescales. It dispatches on the scale object, so with
-timescales installed one pipeline chains both dimensions:
+geoscales and timescales. It dispatches on the scale object, so the two
+packages can be composed in one pipeline. This illustrative snippet requires
+timescales, which is intentionally not a dependency of geoscales:
 
-```{r, eval = requireNamespace("timescales", quietly = TRUE)}
+```r
 library(timescales)
 x <- expand.grid(timeslice = sprintf("m%02d", 1:12),
                  state = c("N1", "N2", "S1"),

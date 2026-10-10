@@ -1,7 +1,7 @@
-# Iceland onshore wind-speed Geoscale: country -> region -> cluster ----------
+# Iceland onshore wind-speed GeoScale: country -> region -> cluster ----------
 #
 # Builds `data-raw/iceland_wind.rds` (a small, committed list with the
-# Geoscale and the per-cluster mean wind speed) from the Global Wind Atlas
+# GeoScale and the per-cluster mean wind speed) from the Global Wind Atlas
 # 100 m mean-wind-speed raster. Used by README.Rmd and the "Get started"
 # vignette; neither the raster nor this script ships with the package
 # (`^data-raw$` is .Rbuildignored, `data-raw/gwa/` is gitignored).
@@ -130,7 +130,7 @@ clusters$wind <- terra::extract(
   fun = mean, na.rm = TRUE, ID = FALSE
 )[[1]]
 
-# 6. Geoscale + pre-saved bundle ------------------------------------------------
+# 6. GeoScale + pre-saved bundle ------------------------------------------------
 atoms <- clusters |>                         # already in ISN93 Lambert
   mutate(km2 = as.numeric(units::set_units(st_area(geometry), "km^2")))
 

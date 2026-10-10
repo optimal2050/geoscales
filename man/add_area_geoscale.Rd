@@ -7,7 +7,7 @@
 add_area_geoscale(x, name = "km2", crs = "ESRI:54034")
 }
 \arguments{
-\item{x}{A \code{\link{Geoscale}} with geometry attached.}
+\item{x}{A \code{\link{GeoScale}} with geometry attached.}
 
 \item{name}{Name of the weight column to add.}
 
@@ -16,7 +16,7 @@ Cylindrical Equal Area, is global; a local equal-area projection is more
 accurate for a single region.}
 }
 \value{
-A \code{\link{Geoscale}} with the area column added to \verb{@leaftable} and
+A \code{\link{GeoScale}} with the area column added to \verb{@leaftable} and
 registered in \code{meta$weights}.
 }
 \description{

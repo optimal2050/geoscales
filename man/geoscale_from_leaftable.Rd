@@ -2,7 +2,7 @@
 % Please edit documentation in R/geoscale-construct.R
 \name{geoscale_from_leaftable}
 \alias{geoscale_from_leaftable}
-\title{Build a Geoscale from a flat table of leaf regions}
+\title{Build a GeoScale from a flat table of leaf regions}
 \usage{
 geoscale_from_leaftable(
   leaftable,
@@ -44,11 +44,11 @@ geoframe. Derived from \code{leaftable} when \code{NULL} (first-appearance order
 \item{...}{Further named entries merged into \code{meta} (e.g. \code{crs}, \code{source}).}
 }
 \value{
-A \code{\link{Geoscale}}.
+A \code{\link{GeoScale}}.
 }
 \description{
 The general constructor. Takes a wide \code{data.frame} with one row per atom
-(the finest region) and one column per geoframe, and returns a \code{\link{Geoscale}}.
+(the finest region) and one column per geoframe, and returns a \code{\link{GeoScale}}.
 }
 \details{
 Blank strings (\code{""}) in geoframe columns are normalised to \code{NA}, meaning "this
