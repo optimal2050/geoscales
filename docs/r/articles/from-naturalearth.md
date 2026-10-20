@@ -1,4 +1,4 @@
-# Building a Geoscale from Natural Earth
+# Building a GeoScale from Natural Earth
 
 ``` r
 
@@ -31,7 +31,7 @@ with `pop_est` and `gdp_md` as ready-made weights.
 
 gs <- ne_geoscale(scale = 110)
 gs
-#> Geoscale: naturalearth-110 
+#> GeoScale: naturalearth-110 
 #> Description: Natural Earth admin-0 hierarchy 
 #> Geoframes (4, coarsest first):
 #>   - continent (8)
@@ -147,7 +147,7 @@ g <- geoscale_from_leaftable(isl, geoframes = c("country", "landshluti", "unit")
 g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", geoframe = "unit")
 g <- add_area_geoscale(g, name = "km2")
 g
-#> Geoscale: iceland 
+#> GeoScale: iceland 
 #> Geoframes (3, coarsest first):
 #>   - country (1)
 #>     - landshluti (8)

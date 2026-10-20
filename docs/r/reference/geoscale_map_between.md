@@ -1,12 +1,12 @@
-# Crosswalk between two Geoscales through their shared atoms
+# Crosswalk between two GeoScales through their shared atoms
 
 The counterpart of
 [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
-for two Geoscales: atoms are matched on their `region` keys, so a region
+for two GeoScales: atoms are matched on their `region` keys, so a region
 of `from` overlaps a region of `to` where they contain the same atoms.
 Same columns as
 [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md),
-with the two label columns named after the Geoscales. Atoms of `from`
+with the two label columns named after the GeoScales. Atoms of `from`
 absent from `to` get an `NA` target (with a warning). A crosswalk
 registered with
 [`register_geoscale_map_between()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
@@ -23,7 +23,7 @@ geoscale_map_between(from, to, weight = NULL)
 - from, to:
 
   Two named
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   objects whose atom keys overlap.
 
 - weight:

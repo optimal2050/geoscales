@@ -1,4 +1,4 @@
-# The leaftable of a Geoscale
+# The leaftable of a GeoScale
 
 The one-row-per-atom table the geoscale is built on, as a plain
 `data.frame` — the exported accessor to prefer over reaching for
@@ -6,7 +6,7 @@ The one-row-per-atom table the geoscale is built on, as a plain
 [`timescales::calendar_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_leaftable.html)).
 [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) and
 [`ggplot2::fortify()`](https://ggplot2.tidyverse.org/reference/fortify.html)
-on a Geoscale are equivalent, so `ggplot(gs) + geom_*()` pipelines work
+on a GeoScale are equivalent, so `ggplot(gs) + geom_*()` pipelines work
 directly.
 
 ## Usage
@@ -14,13 +14,13 @@ directly.
 ``` r
 geoscale_leaftable(x)
 
-# S3 method for class 'Geoscale'
+# S3 method for class 'GeoScale'
 as.data.frame(x, row.names = NULL, optional = FALSE, ...)
 
-# S3 method for class '`geoscales::Geoscale`'
+# S3 method for class '`geoscales::GeoScale`'
 as.data.frame(x, row.names = NULL, optional = FALSE, ...)
 
-# S3 method for class 'Geoscale'
+# S3 method for class 'GeoScale'
 fortify(model, data, ...)
 ```
 
@@ -29,7 +29,7 @@ fortify(model, data, ...)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - row.names, optional:
 
@@ -42,7 +42,7 @@ fortify(model, data, ...)
 - model:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   (the
   [`fortify()`](https://ggplot2.tidyverse.org/reference/fortify.html)
   generic's argument name).

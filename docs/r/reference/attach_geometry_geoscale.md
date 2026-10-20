@@ -1,4 +1,4 @@
-# Attach geometry to a Geoscale
+# Attach geometry to a GeoScale
 
 Stores an `sfc` on the object, aligned to `@leaftable` row order.
 
@@ -13,7 +13,7 @@ attach_geometry_geoscale(x, geom, by = NULL, geoframe = NULL)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - geom:
 
@@ -33,7 +33,7 @@ attach_geometry_geoscale(x, geom, by = NULL, geoframe = NULL)
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
 with `@geometry` populated.
 
 ## Examples

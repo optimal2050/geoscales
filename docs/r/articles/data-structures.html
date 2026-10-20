@@ -16,8 +16,8 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Data structures">
-<meta name="description" content="Anatomy of a Geoscale: the leaftable, geoframes, members, geometry and meta properties, what the validator guarantees, and the rule/map/provider registries.">
-<meta property="og:description" content="Anatomy of a Geoscale: the leaftable, geoframes, members, geometry and meta properties, what the validator guarantees, and the rule/map/provider registries.">
+<meta name="description" content="Anatomy of a GeoScale: the leaftable, geoframes, members, geometry and meta properties, what the validator guarantees, and the rule/map/provider registries.">
+<meta property="og:description" content="Anatomy of a GeoScale: the leaftable, geoframes, members, geometry and meta properties, what the validator guarantees, and the rule/map/provider registries.">
 <meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png">
 </head>
 <body>
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
 <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
     <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a GeoScale from Natural Earth</a></li>
     <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
@@ -86,9 +86,9 @@
     
     
 <div class="section level2">
-<h2 id="the-geoscale-object">The Geoscale object<a class="anchor" aria-label="anchor" href="#the-geoscale-object"></a>
+<h2 id="the-geoscale-object">The GeoScale object<a class="anchor" aria-label="anchor" href="#the-geoscale-object"></a>
 </h2>
-<p>A <code>Geoscale</code> is an S7 object with five properties:</p>
+<p>A <code>GeoScale</code> is an S7 object with five properties:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop_names.html" class="external-link">prop_names</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span>
@@ -231,7 +231,7 @@ transitive closure:</p>
 their working columns after the object (<code><a href="../reference/geoscale_map.html">geoscale_map()</a></code>
 label columns, <code><a href="../reference/join_geoscale.html">join_geoscale()</a></code>’s
 <code>"&lt;name&gt;."</code> prefixes), so both require a named
-Geoscale. <code><a href="../reference/geoscale_build.html">geoscale_build()</a></code> derives a default name from the
+GeoScale. <code><a href="../reference/geoscale_build.html">geoscale_build()</a></code> derives a default name from the
 geoframes; <code><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable()</a></code> takes
 <code>name=</code>.</p>
 </div>

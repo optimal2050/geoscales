@@ -21,7 +21,7 @@ geoscale_ancestors(x, geoframe, region, to = NULL)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - geoframe:
 

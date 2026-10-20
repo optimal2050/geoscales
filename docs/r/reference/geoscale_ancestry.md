@@ -14,7 +14,7 @@ geoscale_ancestry(x)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Value
 
@@ -28,7 +28,7 @@ not as a transitive closure of
 [`geoscale_family()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_family.md).
 `timeslices` can use a closure because time geoframes genuinely nest;
 spatial geoframes cross-cut, and a closure then manufactures false
-relationships. In the example Geoscale, zone `ZB` straddles both
+relationships. In the example GeoScale, zone `ZB` straddles both
 countries, so closing `country -> state -> zone -> atom` would wrongly
 report country `N` as an ancestor of atom `A5`, which lies in country
 `S`.

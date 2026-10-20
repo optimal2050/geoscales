@@ -9,7 +9,7 @@ geoframe pairs."><meta property="og:image" content="https://optimal2050.github.i
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +24,7 @@ geoframe pairs."><meta property="og:image" content="https://optimal2050.github.i
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
     <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a GeoScale from Natural Earth</a></li>
     <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -64,7 +64,7 @@ geoframe pairs.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A <code><a href="Geoscale.html">Geoscale</a></code>.</p></dd>
+<dd><p>A <code><a href="GeoScale.html">GeoScale</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -77,7 +77,7 @@ geoframe pairs.</p>
     <p>Computed <strong>atom-mediated</strong>, directly from <code>@leaftable</code> — deliberately not as a
 transitive closure of <code><a href="geoscale_family.html">geoscale_family()</a></code>. <code>timeslices</code> can use a closure
 because time geoframes genuinely nest; spatial geoframes cross-cut, and a closure
-then manufactures false relationships. In the example Geoscale, zone <code>ZB</code>
+then manufactures false relationships. In the example GeoScale, zone <code>ZB</code>
 straddles both countries, so closing <code>country -&gt; state -&gt; zone -&gt; atom</code>
 would wrongly report country <code>N</code> as an ancestor of atom <code>A5</code>, which lies in
 country <code>S</code>.</p>

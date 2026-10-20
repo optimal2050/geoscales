@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,7 +22,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
     <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a GeoScale from Natural Earth</a></li>
     <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -46,7 +46,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="the-geoscale-class">The Geoscale class<a class="anchor" aria-label="anchor" href="#the-geoscale-class"></a></h2>
+      <h2 id="the-geoscale-class">The GeoScale class<a class="anchor" aria-label="anchor" href="#the-geoscale-class"></a></h2>
 
       <div class="section-desc"><p>A nested spatial partition: a flat table of weighted leaf regions (“atoms”) plus the ordered geoframes that group them.</p></div>
 
@@ -57,24 +57,24 @@
 
       <dl><dt>
 
-          <code><a href="Geoscale.html">Geoscale()</a></code>
+          <code><a href="GeoScale.html">GeoScale()</a></code>
 
         </dt>
-        <dd>Geoscale (S7 class)</dd>
+        <dd>GeoScale (S7 class)</dd>
 
         <dt>
 
           <code><a href="geoscale_example.html">geoscale_example()</a></code>
 
         </dt>
-        <dd>A small example Geoscale</dd>
+        <dd>A small example GeoScale</dd>
 
         <dt>
 
-          <code><a href="geoscale_geoframes.html">geoscale_geoframes()</a></code> <code><a href="geoscale_geoframes.html">names(<i>&lt;Geoscale&gt;</i>)</a></code>
+          <code><a href="geoscale_geoframes.html">geoscale_geoframes()</a></code> <code><a href="geoscale_geoframes.html">names(<i>&lt;GeoScale&gt;</i>)</a></code>
 
         </dt>
-        <dd>Geoframes of a Geoscale</dd>
+        <dd>Geoframes of a GeoScale</dd>
 
         <dt>
 
@@ -95,21 +95,21 @@
           <code><a href="geoscale_weights.html">geoscale_weights()</a></code>
 
         </dt>
-        <dd>Weight columns of a Geoscale</dd>
+        <dd>Weight columns of a GeoScale</dd>
 
         <dt>
 
-          <code><a href="summary.Geoscale.html">summary(<i>&lt;Geoscale&gt;</i>)</a></code> <code><a href="summary.Geoscale.html">summary(<i>&lt;geoscales::Geoscale&gt;</i>)</a></code> <code><a href="summary.Geoscale.html">print(<i>&lt;summary_Geoscale&gt;</i>)</a></code>
+          <code><a href="summary.GeoScale.html">summary(<i>&lt;GeoScale&gt;</i>)</a></code> <code><a href="summary.GeoScale.html">summary(<i>&lt;geoscales::GeoScale&gt;</i>)</a></code> <code><a href="summary.GeoScale.html">print(<i>&lt;summary_GeoScale&gt;</i>)</a></code>
 
         </dt>
-        <dd>Summarize a Geoscale</dd>
+        <dd>Summarize a GeoScale</dd>
 
         <dt>
 
-          <code><a href="sub-.Geoscale.html">`[`(<i>&lt;Geoscale&gt;</i>)</a></code> <code><a href="sub-.Geoscale.html">`[`(<i>&lt;geoscales::Geoscale&gt;</i>)</a></code>
+          <code><a href="sub-.GeoScale.html">`[`(<i>&lt;GeoScale&gt;</i>)</a></code> <code><a href="sub-.GeoScale.html">`[`(<i>&lt;geoscales::GeoScale&gt;</i>)</a></code>
 
         </dt>
-        <dd>Subset a Geoscale with <code>[</code></dd>
+        <dd>Subset a GeoScale with <code>[</code></dd>
       </dl></div><div class="section level2">
       <h2 id="construction">Construction<a class="anchor" aria-label="anchor" href="#construction"></a></h2>
 
@@ -125,21 +125,21 @@
           <code><a href="geoscale_from_provider.html">geoscale_from_provider()</a></code>
 
         </dt>
-        <dd>Build a Geoscale from a provider</dd>
+        <dd>Build a GeoScale from a provider</dd>
 
         <dt>
 
           <code><a href="geoscale_build.html">geoscale_build()</a></code>
 
         </dt>
-        <dd>Build a Geoscale from parent-child crosswalks</dd>
+        <dd>Build a GeoScale from parent-child crosswalks</dd>
 
         <dt>
 
           <code><a href="geoscale_from_leaftable.html">geoscale_from_leaftable()</a></code>
 
         </dt>
-        <dd>Build a Geoscale from a flat table of leaf regions</dd>
+        <dd>Build a GeoScale from a flat table of leaf regions</dd>
       </dl></div><div class="section level2">
       <h2 id="conversion">Conversion<a class="anchor" aria-label="anchor" href="#conversion"></a></h2>
 
@@ -183,14 +183,14 @@
           <code><a href="geoscale_map.html">geoscale_map()</a></code>
 
         </dt>
-        <dd>Crosswalk between two geoframes of a Geoscale</dd>
+        <dd>Crosswalk between two geoframes of a GeoScale</dd>
 
         <dt>
 
           <code><a href="geoscale_map_between.html">geoscale_map_between()</a></code>
 
         </dt>
-        <dd>Crosswalk between two Geoscales through their shared atoms</dd>
+        <dd>Crosswalk between two GeoScales through their shared atoms</dd>
 
         <dt>
 
@@ -211,7 +211,7 @@
           <code><a href="join_geoscale.html">join_geoscale()</a></code>
 
         </dt>
-        <dd>Attach a Geoscale to region-keyed data</dd>
+        <dd>Attach a GeoScale to region-keyed data</dd>
 
         <dt>
 
@@ -266,10 +266,10 @@
 
         <dt>
 
-          <code><a href="geoscale_leaftable.html">geoscale_leaftable()</a></code> <code><a href="geoscale_leaftable.html">as.data.frame(<i>&lt;Geoscale&gt;</i>)</a></code> <code><a href="geoscale_leaftable.html">as.data.frame(<i>&lt;geoscales::Geoscale&gt;</i>)</a></code> <code><a href="geoscale_leaftable.html">fortify(<i>&lt;Geoscale&gt;</i>)</a></code>
+          <code><a href="geoscale_leaftable.html">geoscale_leaftable()</a></code> <code><a href="geoscale_leaftable.html">as.data.frame(<i>&lt;GeoScale&gt;</i>)</a></code> <code><a href="geoscale_leaftable.html">as.data.frame(<i>&lt;geoscales::GeoScale&gt;</i>)</a></code> <code><a href="geoscale_leaftable.html">fortify(<i>&lt;GeoScale&gt;</i>)</a></code>
 
         </dt>
-        <dd>The leaftable of a Geoscale</dd>
+        <dd>The leaftable of a GeoScale</dd>
 
         <dt>
 
@@ -297,21 +297,21 @@
           <code><a href="filter_geoscale.html">filter_geoscale()</a></code>
 
         </dt>
-        <dd>Subset a Geoscale by region</dd>
+        <dd>Subset a GeoScale by region</dd>
 
         <dt>
 
           <code><a href="geoscale_coverage.html">geoscale_coverage()</a></code>
 
         </dt>
-        <dd>Sampled coverage of a Geoscale</dd>
+        <dd>Sampled coverage of a GeoScale</dd>
 
         <dt>
 
           <code><a href="prune_geoscale.html">prune_geoscale()</a></code>
 
         </dt>
-        <dd>Collapse a Geoscale to a coarser geoframe</dd>
+        <dd>Collapse a GeoScale to a coarser geoframe</dd>
 
         <dt>
 
@@ -341,7 +341,7 @@
           <code><a href="attach_geometry_geoscale.html">attach_geometry_geoscale()</a></code>
 
         </dt>
-        <dd>Attach geometry to a Geoscale</dd>
+        <dd>Attach geometry to a GeoScale</dd>
 
         <dt>
 
@@ -378,35 +378,35 @@
           <code><a href="geom_geoscale.html">geom_geoscale()</a></code> <code><a href="geom_geoscale.html">theme_geoscale()</a></code>
 
         </dt>
-        <dd>Geoscale layers for ggplot2</dd>
+        <dd>GeoScale layers for ggplot2</dd>
 
         <dt>
 
-          <code><a href="geoscale_autoplot.html">geoscale_autoplot()</a></code> <code><a href="geoscale_autoplot.html">autoplot(<i>&lt;Geoscale&gt;</i>)</a></code>
+          <code><a href="geoscale_autoplot.html">geoscale_autoplot()</a></code> <code><a href="geoscale_autoplot.html">autoplot(<i>&lt;GeoScale&gt;</i>)</a></code>
 
         </dt>
-        <dd>Plot a Geoscale</dd>
+        <dd>Plot a GeoScale</dd>
 
         <dt>
 
-          <code><a href="plot.Geoscale.html">plot(<i>&lt;Geoscale&gt;</i>)</a></code> <code><a href="plot.Geoscale.html">plot(<i>&lt;geoscales::Geoscale&gt;</i>)</a></code>
+          <code><a href="plot.GeoScale.html">plot(<i>&lt;GeoScale&gt;</i>)</a></code> <code><a href="plot.GeoScale.html">plot(<i>&lt;geoscales::GeoScale&gt;</i>)</a></code>
 
         </dt>
-        <dd>Plot a Geoscale</dd>
+        <dd>Plot a GeoScale</dd>
 
         <dt>
 
           <code><a href="geoscale_plot.html">geoscale_plot()</a></code>
 
         </dt>
-        <dd>Map data onto a Geoscale</dd>
+        <dd>Map data onto a GeoScale</dd>
 
         <dt>
 
           <code><a href="geoscale_layout.html">geoscale_layout()</a></code>
 
         </dt>
-        <dd>Icicle layout for a Geoscale</dd>
+        <dd>Icicle layout for a GeoScale</dd>
       </dl></div><div class="section level2">
       <h2 id="data-providers">Data providers<a class="anchor" aria-label="anchor" href="#data-providers"></a></h2>
 
@@ -429,7 +429,7 @@
           <code><a href="register_geoscale_provider.html">register_geoscale_provider()</a></code>
 
         </dt>
-        <dd>Register a Geoscale data provider</dd>
+        <dd>Register a GeoScale data provider</dd>
 
         <dt>
 
@@ -450,7 +450,7 @@
           <code><a href="ne_geoscale.html">ne_geoscale()</a></code>
 
         </dt>
-        <dd>Build a Geoscale from Natural Earth</dd>
+        <dd>Build a GeoScale from Natural Earth</dd>
       </dl></div><div class="section level2">
       <h2 id="geoframes">Geoframes<a class="anchor" aria-label="anchor" href="#geoframes"></a></h2>
 

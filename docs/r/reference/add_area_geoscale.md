@@ -14,7 +14,7 @@ add_area_geoscale(x, name = "km2", crs = "ESRI:54034")
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   with geometry attached.
 
 - name:
@@ -30,7 +30,7 @@ add_area_geoscale(x, name = "km2", crs = "ESRI:54034")
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
 with the area column added to `@leaftable` and registered in
 `meta$weights`.
 

@@ -1,6 +1,6 @@
-# Weight columns of a Geoscale
+# Weight columns of a GeoScale
 
-Weight columns of a Geoscale
+Weight columns of a GeoScale
 
 ## Usage
 
@@ -13,7 +13,7 @@ geoscale_weights(x)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Value
 

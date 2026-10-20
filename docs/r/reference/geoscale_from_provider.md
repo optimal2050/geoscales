@@ -1,7 +1,7 @@
-# Build a Geoscale from a provider
+# Build a GeoScale from a provider
 
 Fetches a source table from a registered provider and turns it into a
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 Geoframe and weight defaults come from the provider when not given.
 
 ## Usage
@@ -47,7 +47,7 @@ geoscale_from_provider(
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Examples
 

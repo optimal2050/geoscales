@@ -1,4 +1,4 @@
-# Subset a Geoscale by region
+# Subset a GeoScale by region
 
 Keeps only the atoms belonging to `region` at `geoframe`, and rebuilds
 the member vocabularies accordingly. Geometry, when attached, is subset
@@ -15,7 +15,7 @@ filter_geoscale(x, geoframe, region, drop_empty_geoframes = FALSE)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - geoframe:
 
@@ -32,7 +32,7 @@ filter_geoscale(x, geoframe, region, drop_empty_geoframes = FALSE)
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Details
 
@@ -57,7 +57,7 @@ fraction back with
 gs <- geoscale_example()
 n <- filter_geoscale(gs, "country", "N")
 n
-#> Geoscale: example[country:N] 
+#> GeoScale: example[country:N] 
 #> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
 #> Geoframes (4, coarsest first):
 #>   - country (1)

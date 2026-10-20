@@ -1,4 +1,4 @@
-# Register a Geoscale data provider
+# Register a GeoScale data provider
 
 A provider is a function `function(...)` returning either an `sf` object
 or a `data.frame`, wide enough that its columns can be used as geoframes

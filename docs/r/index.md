@@ -4,11 +4,11 @@
 
 geoscales provides **nested regions and spatial hierarchies** for
 optimization and simulation models: organize the spatial dimension of
-your model data, convert it between region systems, and see every level
-at once.
+your model data, convert it between region systems, and see every
+geoframe at once.
 
 - [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.html)
-  builds a `Geoscale` — ordered geoframes, their members, and one
+  builds a `GeoScale` — ordered geoframes, their members, and one
   leaftable row per leaf region (“atom”) with its weights (area,
   population, capacity);
   [`ne_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.html)
@@ -31,7 +31,7 @@ at once.
 - [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.html)
   and
   [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.html)
-  draw any level: choropleths, icicles, and axonometric stacks.
+  draw any geoframe: choropleths, icicles, and axonometric stacks.
 
 geoscales is the spatial-domain package of the
 [optimal2050](https://github.com/optimal2050) modeling stack; its time
@@ -55,7 +55,7 @@ pak::pkg_install("optimal2050/geoscales")
 
 ## Usage
 
-One `Geoscale`, three resolutions of the same country: Iceland’s onshore
+One `GeoScale`, three resolutions of the same country: Iceland’s onshore
 wind resource (Global Wind Atlas, 100 m) clustered by wind speed within
 each region — the whole hierarchy drawn as a single perspective stack,
 every plane on the Global Wind Atlas palette at its absolute scale (from
@@ -67,7 +67,7 @@ shows how the cluster layer is built from the raster.
 
 ![](reference/figures/README-hero-iceland-wind-1.png)
 
-The same data moves between the levels by one verb —
+The same data moves between geoframes by one verb —
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
 the same machinery that converts model tables — here the cluster values
 as area-weighted means of each region’s resource area, on the flat map:
@@ -77,7 +77,7 @@ as area-weighted means of each region’s resource area, on the flat map:
 *Wind data: [Global Wind Atlas](https://globalwindatlas.info) — DTU, in
 partnership with the World Bank Group, data by Vortex, funded by ESMAP.*
 
-And building a `Geoscale` takes a leaftable and (optionally) a map —
+And building a `GeoScale` takes a leaftable and (optionally) a map —
 here Iceland’s administrative hierarchy from Natural Earth, drawn as a
 top-down stack:
 

@@ -1,7 +1,7 @@
-# Collapse a Geoscale to a coarser geoframe
+# Collapse a GeoScale to a coarser geoframe
 
 Returns a new
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
 whose atom layer is `geoframe`, dropping every finer geoframe. Weights
 are summed over the collapsed atoms.
 
@@ -16,7 +16,7 @@ prune_geoscale(x, geoframe, keep_geometry = !is.null(S7::prop(x, "geometry")))
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - geoframe:
 
@@ -30,7 +30,7 @@ prune_geoscale(x, geoframe, keep_geometry = !is.null(S7::prop(x, "geometry")))
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Details
 
@@ -48,7 +48,7 @@ geometry of their fine atoms unless `keep_geometry = FALSE`.
 
 ``` r
 prune_geoscale(geoscale_example(), "state")
-#> Geoscale: example@state 
+#> GeoScale: example@state 
 #> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
 #> Geoframes (2, coarsest first):
 #>   - country (2)

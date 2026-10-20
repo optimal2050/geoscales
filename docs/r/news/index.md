@@ -1,8 +1,19 @@
 # Changelog
 
+## geoscales 0.6.0.9000
+
+### Breaking changes
+
+- The class is now spelled `GeoScale` (was `Geoscale`), matching
+  `NestedScale` and `EnergyScale`. Function names keep the `geoscale_`
+  prefix. Saved GeoScale objects embed the class name: rebuild or
+  re-stamp any `.rds`/`.rda` that holds one (see
+  `data-raw/restamp_iceland_wind.R` for the pattern). No deprecation
+  alias.
+
 ## geoscales 0.6.0
 
-### Breaking: crosswalk functions split by task
+### Breaking changes
 
 - `geoscale_map(gs, from, to)` now takes the Geoscale first and maps
   between two of its geoframes only; the map between two Geoscales is
@@ -19,6 +30,24 @@
   multiscales). `data-raw/iceland_wind.rds` (used by the README and the
   “Get started” vignette) was re-stamped with
   `data-raw/restamp_iceland_wind.R`.
+
+### New features
+
+- [`zoom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/zoom_geoscale.md)
+  builds a telescoping geoframe with full detail in a focus area and
+  progressively coarser rings elsewhere. Its ordered input is named
+  `geoframes=` to match the package vocabulary.
+
+### Bug fixes
+
+- Panel-data expansion to geoatoms now declares its expected
+  many-to-many join and no longer emits a dplyr relationship warning.
+
+### Dependencies
+
+- `timescales` is no longer a suggested dependency. The optional
+  time-and-space example is non-executing package documentation, and
+  sibling API parity is checked separately in project CI.
 
 ## geoscales 0.5.4
 
@@ -63,16 +92,16 @@
 
 - **`timescales` moves from `Imports` to `Suggests`.** It was a hard
   dependency for exactly one symbol – the
-  [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html) generic
-  – which is now owned by `nestedscales`. Installing geoscales no longer
-  pulls in a calendar package and `lubridate`. timescales stays in
-  `Suggests` because the mirror-parity test compares the two packages’
-  export surfaces.
+  [`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html)
+  generic – which is now owned by `nestedscales`. Installing geoscales
+  no longer pulls in a calendar package and `lubridate`. timescales
+  stays in `Suggests` because the mirror-parity test compares the two
+  packages’ export surfaces.
 
 - `nestedscales` is added to `Imports` and the
-  [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html) generic
-  is re-exported from there.
-  [`geoscales::recast`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+  [`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html)
+  generic is re-exported from there.
+  [`geoscales::recast`](https://optimal2050.github.io/nestedscales/reference/recast.html)
   resolves and dispatches on `Geoscale` exactly as before; the source
   frame is still `from_geoframe`, since `from` is the dispatch argument
   and names the scale.
@@ -293,8 +322,8 @@ aliases are kept – old names are gone, not wrapped.
   and
   [`vignette("data-manipulation")`](https://optimal2050.github.io/geoscales/r/articles/data-manipulation.md)
   (including a runnable time-and-space
-  [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html) chain
-  and backend examples); the plotting article is rewritten on the
+  [`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html)
+  chain and backend examples); the plotting article is rewritten on the
   current API as “Visualization with ggplot2” with a real-map tour of
   Iceland built from Natural Earth, with area data attached (old URL
   redirects). Vignette code follows the stack-wide tidyverse + `|>`
@@ -327,7 +356,8 @@ provider – under one naming convention shared with timescales.
   derives a default). Existing columns are never overwritten (error).
 - Conflicting registered per-column weights build one crosswalk per
   weight instead of silently splitting equally.
-- The [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+- The
+  [`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html)
   method argument `from_level` is now `from_geoframe`.
 
 ### New features
@@ -356,7 +386,8 @@ provider – under one naming convention shared with timescales.
   `register_geo_rule()` / `get_geo_rule()` / `list_geo_rules()` /
   `clear_geo_rules()`; `na_action = c("drop", "error", "keep")` for
   partial coverage.
-- The [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+- The
+  [`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html)
   generic (owned by timescales, now in Imports) chains time and space:
   `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`; the source
   geoframe is inferred from `x`’s columns or passed as `from_geoframe=`.

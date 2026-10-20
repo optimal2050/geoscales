@@ -11,23 +11,23 @@
 - [Data
   structures](https://optimal2050.github.io/geoscales/r/articles/data-structures.md):
 
-  Anatomy of a Geoscale: the leaftable, geoframes, members, geometry and
+  Anatomy of a GeoScale: the leaftable, geoframes, members, geometry and
   meta properties, what the validator guarantees, and the
   rule/map/provider registries.
 
 - [Data manipulation with
   geoscales](https://optimal2050.github.io/geoscales/r/articles/data-manipulation.md):
 
-  The tidy workflow end to end: attach a Geoscale to region-keyed
+  The tidy workflow end to end: attach a GeoScale to region-keyed
   tables, recast values between resolutions, inspect the crosswalk,
   chain time and space with recast(), and run the same pipelines over
   data.table and arrow backends.
 
-- [Building a Geoscale from Natural
+- [Building a GeoScale from Natural
   Earth](https://optimal2050.github.io/geoscales/r/articles/from-naturalearth.md):
 
   Providers in practice: pull Natural Earth admin layers into a
-  Geoscale, aggregate up and split back down, and let geometry follow
+  GeoScale, aggregate up and split back down, and let geometry follow
   the geoframes.
 
 - [Visualization with

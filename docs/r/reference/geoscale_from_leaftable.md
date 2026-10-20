@@ -1,8 +1,8 @@
-# Build a Geoscale from a flat table of leaf regions
+# Build a GeoScale from a flat table of leaf regions
 
 The general constructor. Takes a wide `data.frame` with one row per atom
 (the finest region) and one column per geoframe, and returns a
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Usage
 
@@ -69,7 +69,7 @@ geoscale_from_leaftable(
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Details
 
@@ -87,7 +87,7 @@ df <- data.frame(
   km2     = c(100, 200, 300, 400)
 )
 geoscale_from_leaftable(df, geoframes = c("country", "zone", "atom"))
-#> Geoscale: <unnamed> 
+#> GeoScale: <unnamed> 
 #> Geoframes (3, coarsest first):
 #>   - country (2)
 #>     - zone (3)

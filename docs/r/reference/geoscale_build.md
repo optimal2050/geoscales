@@ -1,4 +1,4 @@
-# Build a Geoscale from parent-child crosswalks
+# Build a GeoScale from parent-child crosswalks
 
 Assembles a wide leaftable table from a set of two-column crosswalks.
 Each crosswalk is a `data.frame` whose column names are two geoframe
@@ -35,7 +35,7 @@ geoscale_build(..., geoframes, weights = NULL, name = "", desc = "")
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Details
 
@@ -55,7 +55,7 @@ geoscale_build(
   weights = data.frame(atom = c("A1", "A2", "A3", "A4"),
                        km2  = c(10, 20, 30, 40))
 )
-#> Geoscale: country_state_atom 
+#> GeoScale: country_state_atom 
 #> Geoframes (3, coarsest first):
 #>   - country (2)
 #>     - state (3)

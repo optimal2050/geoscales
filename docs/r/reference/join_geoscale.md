@@ -1,9 +1,9 @@
-# Attach a Geoscale to region-keyed data
+# Attach a GeoScale to region-keyed data
 
-Adds a region-label column named after the Geoscale (its `meta$name`),
+Adds a region-label column named after the GeoScale (its `meta$name`),
 plus optionally coarser-geoframe membership columns (each code's
 country, continent, ...) and share/weight, all prefixed `"<name>."`.
-Because every Geoscale attaches under its own name, several can be
+Because every GeoScale attaches under its own name, several can be
 joined to the same dataset – and a dataset carrying two label columns is
 a direct crosswalk between those objects. The spatial mirror of
 [`timescales::join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.html).
@@ -35,7 +35,7 @@ join_geoscale(
 - gs:
 
   A named
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - key:
 
@@ -81,7 +81,7 @@ out).
 
 ## Details
 
-The key is auto-detected: an existing column named like the Geoscale is
+The key is auto-detected: an existing column named like the GeoScale is
 used as-is; else a column named like the keyed geoframe; else `region`.
 Codes are validated against the geoframe (unknown codes warn). Existing
 columns are never overwritten; the join errors instead.

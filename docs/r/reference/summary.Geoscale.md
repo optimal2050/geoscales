@@ -1,8 +1,8 @@
-# Summarize a Geoscale
+# Summarize a GeoScale
 
 Complements [`print()`](https://rdrr.io/r/base/print.html) with the
 quantitative view: per-weight totals and coverage, the adjacent-geoframe
-nesting table, and the geometry status. Returns a `"summary_Geoscale"`
+nesting table, and the geometry status. Returns a `"summary_GeoScale"`
 object (a list) with its own print method — the mirror of
 `summary.Calendar()` in timescales. sf-free: geometry is reported from
 the object itself, never touched.
@@ -10,13 +10,13 @@ the object itself, never touched.
 ## Usage
 
 ``` r
-# S3 method for class 'Geoscale'
+# S3 method for class 'GeoScale'
 summary(object, ...)
 
-# S3 method for class '`geoscales::Geoscale`'
+# S3 method for class '`geoscales::GeoScale`'
 summary(object, ...)
 
-# S3 method for class 'summary_Geoscale'
+# S3 method for class 'summary_GeoScale'
 print(x, ...)
 ```
 
@@ -25,7 +25,7 @@ print(x, ...)
 - object:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - ...:
 
@@ -33,12 +33,12 @@ print(x, ...)
 
 - x:
 
-  A `"summary_Geoscale"` object (the print method's argument).
+  A `"summary_GeoScale"` object (the print method's argument).
 
 ## Value
 
 [`summary()`](https://rdrr.io/r/base/summary.html) returns a list of
-class `"summary_Geoscale"`: `name`, `desc`, `geoframes` (named member
+class `"summary_GeoScale"`: `name`, `desc`, `geoframes` (named member
 counts), `unassigned` (named NA-atom counts), `n_atoms`, `weights`,
 `weight_totals`, `default_weight`, `coverage` (see
 [`geoscale_coverage()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.md)),
@@ -51,7 +51,7 @@ counts, see
 
 ``` r
 summary(geoscale_example())
-#> <summary of Geoscale 'example' >
+#> <summary of GeoScale 'example' >
 #>   desc:          Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom
 #>   geoframes:      country (2) / state (3) / zone (3) / atom (7)
 #>   atoms:          7
@@ -62,7 +62,7 @@ summary(geoscale_example())
 #>   nesting:        zone > atom: nested
 #>   geometry:       none
 summary(filter_geoscale(geoscale_example(), "country", "N"))
-#> <summary of Geoscale 'example[country:N]' >
+#> <summary of GeoScale 'example[country:N]' >
 #>   desc:          Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom
 #>   geoframes:      country (1) / state (2) / zone (2) / atom (4)
 #>   atoms:          4

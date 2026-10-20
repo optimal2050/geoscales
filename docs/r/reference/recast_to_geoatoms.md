@@ -7,7 +7,7 @@ data UP into a geoframe's regions. Their composition is
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
 and because the atom rows are keyed by the atom `region` IDs,
 `recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to)` recasts
-across two different Geoscales that share atom keys.
+across two different GeoScales that share atom keys.
 
 ## Usage
 
@@ -48,7 +48,7 @@ recast_from_geoatoms(
 - gs:
 
   The
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the data is keyed in (`to_geoatoms`) or aggregated into
   (`from_geoatoms`).
 
@@ -75,7 +75,7 @@ recast_from_geoatoms(
   `from_geoatoms`: the name of a column of `x` to weight by, so the
   weight may vary by identifier – a capacity-weighted efficiency differs
   by year and vintage. `NULL` (default) uses a `weight` column of `x` if
-  present, else the Geoscale's declared weight.
+  present, else the GeoScale's declared weight.
 
 - attach_weight:
 

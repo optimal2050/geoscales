@@ -1,4 +1,4 @@
-# Plot a Geoscale
+# Plot a GeoScale
 
 Dispatches to
 [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
@@ -13,10 +13,10 @@ and
 ## Usage
 
 ``` r
-# S3 method for class 'Geoscale'
+# S3 method for class 'GeoScale'
 plot(x, ...)
 
-# S3 method for class '`geoscales::Geoscale`'
+# S3 method for class '`geoscales::GeoScale`'
 plot(x, ...)
 ```
 
@@ -25,7 +25,7 @@ plot(x, ...)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - ...:
 

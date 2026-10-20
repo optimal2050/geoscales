@@ -1,4 +1,4 @@
-# Geoscale layers for ggplot2
+# GeoScale layers for ggplot2
 
 Composable choropleth layers that put region-keyed data on a map inside
 a normal `ggplot()` pipeline (the assembled-figure counterparts are
@@ -28,7 +28,7 @@ theme_geoscale(...)
 - gs:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   with attached geometry (see
   [`attach_geometry_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.md)).
 

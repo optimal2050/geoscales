@@ -13,7 +13,7 @@ geoscale_geometry(x, geoframe = NULL, precision = 0)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   with geometry attached.
 
 - geoframe:

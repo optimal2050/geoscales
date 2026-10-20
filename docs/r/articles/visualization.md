@@ -35,7 +35,7 @@ normal ggplot2 path.
 
 gs <- energyRt::topia$geoscales$honeycomb
 gs
-#> Geoscale: topia_honeycomb 
+#> GeoScale: topia_honeycomb 
 #> Description: TOPIA reference regions (honeycomb layout), nested nation -> zone -> region 
 #> Geoframes (3, coarsest first):
 #>   - nation (1)
@@ -240,7 +240,7 @@ isl <- geoscale_from_leaftable(
   attach_geometry_geoscale(s, by = "iso_3166_2", geoframe = "unit") |>
   add_area_geoscale(name = "km2")
 isl
-#> Geoscale: iceland 
+#> GeoScale: iceland 
 #> Geoframes (3, coarsest first):
 #>   - country (1)
 #>     - landshluti (8)
@@ -292,7 +292,7 @@ tibble(country = "ISL", capacity_mw = 3000) |>
 
 ## One resource, three geoframes
 
-Model design is choosing a resolution. The wind-cluster Geoscale from
+Model design is choosing a resolution. The wind-cluster GeoScale from
 the [get-started
 vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
 carries Iceland’s mean wind speed on its cluster atoms; recasting the

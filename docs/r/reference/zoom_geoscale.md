@@ -2,12 +2,19 @@
 
 Builds a new geoframe that keeps `focus` atoms at full resolution and
 collapses everything else into progressively coarser rings drawn from
-`levels`. The result is a partition of the atoms, carried as a geoframe.
+`geoframes`. The result is a partition of the atoms, carried as a
+geoframe.
 
 ## Usage
 
 ``` r
-zoom_geoscale(x, focus, levels = NULL, name = "zoom", label_rest = "%s_rest")
+zoom_geoscale(
+  x,
+  focus,
+  geoframes = NULL,
+  name = "zoom",
+  label_rest = "%s_rest"
+)
 ```
 
 ## Arguments
@@ -15,13 +22,13 @@ zoom_geoscale(x, focus, levels = NULL, name = "zoom", label_rest = "%s_rest")
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - focus:
 
   Character vector of **atom** codes to keep at full resolution.
 
-- levels:
+- geoframes:
 
   Ordered geoframes to build rings from, coarsest first. Defaults to
   every geoframe of `x` except the atom layer.
@@ -38,15 +45,15 @@ zoom_geoscale(x, focus, levels = NULL, name = "zoom", label_rest = "%s_rest")
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
-with geoframes `levels[1]`, `name` and the atom layer; weights and
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
+with geoframes `geoframes[1]`, `name` and the atom geoframe; weights and
 geometry carried through unchanged.
 
 ## Details
 
-With focus atoms and `levels = c("nuts0", "nuts1", "nuts2")` (coarsest
-first), each remaining atom joins the **finest** ring that also contains
-a focus atom, so the cut telescopes outward:
+With focus atoms and `geoframes = c("nuts0", "nuts1", "nuts2")`
+(coarsest first), each remaining atom joins the **finest** ring that
+also contains a focus atom, so the cut telescopes outward:
 
 - the focus atoms themselves, individually;
 
@@ -56,12 +63,12 @@ a focus atom, so the cut telescopes outward:
 
 - the rest of each `nuts0` holding one of those;
 
-- every other atom, grouped at `levels[1]`.
+- every other atom, grouped in `geoframes[1]`.
 
 The intermediate geoframes are **dropped**. A ring like "rest of nuts1"
-spans several `nuts2`, so the cut cannot nest with the levels it was
-carved from; only `levels[1]` and the atom layer are kept beside it.
-That is checked, not assumed — see
+spans several `nuts2`, so the cut cannot nest with the geoframes it was
+carved from; only `geoframes[1]` and the atom geoframe are kept beside
+it. That is checked, not assumed – see
 [`geoscale_nests()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_nests.md).
 
 ## See also
@@ -77,7 +84,8 @@ for the guarantee this relies on.
 
 ``` r
 gs <- geoscale_example()
-z <- zoom_geoscale(gs, focus = "A1", levels = c("country", "state"))
+z <- zoom_geoscale(gs, focus = "A1",
+                   geoframes = c("country", "state"))
 geoscale_geoframes(z)
 #> [1] "country" "zoom"    "atom"   
 geoscale_regions(z, "zoom")

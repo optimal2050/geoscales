@@ -13,7 +13,7 @@ geoscale_family(x, parent = NULL, child = NULL)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - parent, child:
 

@@ -24,7 +24,7 @@ coords_to_region(x, gs, geoframe = NULL, coords = c("lon", "lat"), crs = 4326)
 - gs:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   with geometry attached (see
   [`attach_geometry_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.md)).
 

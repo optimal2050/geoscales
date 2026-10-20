@@ -1,8 +1,8 @@
 # Data structures
 
-## The Geoscale object
+## The GeoScale object
 
-A `Geoscale` is an S7 object with five properties:
+A `GeoScale` is an S7 object with five properties:
 
 ``` r
 
@@ -122,7 +122,7 @@ columns after the object
 ([`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
 label columns,
 [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)’s
-`"<name>."` prefixes), so both require a named Geoscale.
+`"<name>."` prefixes), so both require a named GeoScale.
 [`geoscale_build()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_build.md)
 derives a default name from the geoframes;
 [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md)

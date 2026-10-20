@@ -4,12 +4,12 @@ recast_to_geoatoms() projects region-keyed data DOWN to the atom layer
 (one row per atom), and recast_from_geoatoms() aggregates atom-keyed
 data UP into a geoframe's regions. Their composition is
 recast_geoscale(), and because the atom rows are keyed by the atom
-region IDs, recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to) recasts across two different Geoscales that share atom keys."><meta property="og:description" content="The two public halves of the from -&amp;gt; atoms -&amp;gt; to route:
+region IDs, recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to) recasts across two different GeoScales that share atom keys."><meta property="og:description" content="The two public halves of the from -&amp;gt; atoms -&amp;gt; to route:
 recast_to_geoatoms() projects region-keyed data DOWN to the atom layer
 (one row per atom), and recast_from_geoatoms() aggregates atom-keyed
 data UP into a geoframe's regions. Their composition is
 recast_geoscale(), and because the atom rows are keyed by the atom
-region IDs, recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to) recasts across two different Geoscales that share atom keys."><meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png"></head><body>
+region IDs, recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to) recasts across two different GeoScales that share atom keys."><meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ region IDs, recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to) recasts 
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,7 @@ region IDs, recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to) recasts 
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
     <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a GeoScale from Natural Earth</a></li>
     <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -63,7 +63,7 @@ region IDs, recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to) recasts 
 (one row per atom), and <code>recast_from_geoatoms()</code> aggregates atom-keyed
 data UP into a geoframe's regions. Their composition is
 <code><a href="recast_geoscale.html">recast_geoscale()</a></code>, and because the atom rows are keyed by the atom
-<code>region</code> IDs, <code>recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to)</code> recasts across two different Geoscales that share atom keys.</p>
+<code>region</code> IDs, <code>recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to)</code> recasts across two different GeoScales that share atom keys.</p>
     </div>
 
     <div class="section level2">
@@ -105,7 +105,7 @@ IDs.</p></dd>
 
 
 <dt id="arg-gs">gs<a class="anchor" aria-label="anchor" href="#arg-gs"></a></dt>
-<dd><p>The <code><a href="Geoscale.html">Geoscale</a></code> the data is keyed in (<code>to_geoatoms</code>) or
+<dd><p>The <code><a href="GeoScale.html">GeoScale</a></code> the data is keyed in (<code>to_geoatoms</code>) or
 aggregated into (<code>from_geoatoms</code>).</p></dd>
 
 
@@ -129,7 +129,7 @@ column exists, otherwise <code>"region"</code>. <code>from_geoatoms</code>: defa
 <code><a href="recast_geoscale.html">recast_geoscale()</a></code>. <code>from_geoatoms</code>: the name of a column of <code>x</code> to
 weight by, so the weight may vary by identifier – a capacity-weighted
 efficiency differs by year and vintage. <code>NULL</code> (default) uses a <code>weight</code>
-column of <code>x</code> if present, else the Geoscale's declared weight.</p></dd>
+column of <code>x</code> if present, else the GeoScale's declared weight.</p></dd>
 
 
 <dt id="arg-attach-weight">attach_weight<a class="anchor" aria-label="anchor" href="#arg-attach-weight"></a></dt>

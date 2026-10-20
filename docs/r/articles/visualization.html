@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
 <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
     <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a GeoScale from Natural Earth</a></li>
     <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
@@ -152,7 +152,7 @@ normal ggplot2 path.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu">energyRt</span><span class="fu">::</span><span class="va"><a href="https://energyRt.org/reference/topia.html" class="external-link">topia</a></span><span class="op">$</span><span class="va">geoscales</span><span class="op">$</span><span class="va">honeycomb</span></span>
 <span><span class="va">gs</span></span>
-<span><span class="co">#&gt; Geoscale: topia_honeycomb </span></span>
+<span><span class="co">#&gt; GeoScale: topia_honeycomb </span></span>
 <span><span class="co">#&gt; Description: TOPIA reference regions (honeycomb layout), nested nation -&gt; zone -&gt; region </span></span>
 <span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
 <span><span class="co">#&gt;   - nation (1)</span></span>
@@ -316,7 +316,7 @@ of one region:</p>
 <span>  <span class="fu"><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">s</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"unit"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_area_geoscale.html">add_area_geoscale</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="va">isl</span></span>
-<span><span class="co">#&gt; Geoscale: iceland </span></span>
+<span><span class="co">#&gt; GeoScale: iceland </span></span>
 <span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
 <span><span class="co">#&gt;   - country (1)</span></span>
 <span><span class="co">#&gt;     - landshluti (8)</span></span>
@@ -359,7 +359,7 @@ as one region:</p>
 <div class="section level2">
 <h2 id="one-resource-three-geoframes">One resource, three geoframes<a class="anchor" aria-label="anchor" href="#one-resource-three-geoframes"></a>
 </h2>
-<p>Model design is choosing a resolution. The wind-cluster Geoscale from
+<p>Model design is choosing a resolution. The wind-cluster GeoScale from
 the <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started
 vignette</a> carries Iceland’s mean wind speed on its cluster atoms;
 recasting the same values up the hierarchy shows exactly what each

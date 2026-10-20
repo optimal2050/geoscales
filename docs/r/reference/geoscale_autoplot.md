@@ -1,4 +1,4 @@
-# Plot a Geoscale
+# Plot a GeoScale
 
 Draws the hierarchy as an icicle: one row per geoframe, coarsest at the
 top, each region's width proportional to its share of the weight.
@@ -34,7 +34,7 @@ geoscale_autoplot(
   ...
 )
 
-# S3 method for class 'Geoscale'
+# S3 method for class 'GeoScale'
 autoplot(x, ...)
 ```
 
@@ -43,7 +43,7 @@ autoplot(x, ...)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - type:
 
@@ -179,7 +179,7 @@ A `ggplot` object.
 
 ## Details
 
-This is the *structure* plot — it shows the Geoscale itself and needs no
+This is the *structure* plot — it shows the GeoScale itself and needs no
 geometry. For a map of values over regions, see
 [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md).
 

@@ -1,4 +1,4 @@
-# Geoscale (S7 class)
+# GeoScale (S7 class)
 
 A nested spatial partition: a flat table of weighted leaf regions
 ("atoms") plus the ordered hierarchy of geoframes that groups them.
@@ -6,7 +6,7 @@ A nested spatial partition: a flat table of weighted leaf regions
 ## Usage
 
 ``` r
-Geoscale(leaftable, geoframes, members, geometry = NULL, meta = list())
+GeoScale(leaftable, geoframes, members, geometry = NULL, meta = list())
 ```
 
 ## Arguments
@@ -39,7 +39,7 @@ Geoscale(leaftable, geoframes, members, geometry = NULL, meta = list())
 
 ## Value
 
-A `Geoscale` object.
+A `GeoScale` object.
 
 ## Details
 

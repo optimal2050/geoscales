@@ -11,7 +11,7 @@ carvings is error-prone precisely where it matters: totals must
 conserve, intensities must average correctly, and region systems drawn
 by different hands rarely nest.
 
-`geoscales` represents any such carving as a **Geoscale**: a set of
+`geoscales` represents any such carving as a **GeoScale**: a set of
 *atoms* (the finest regions) plus ordered *geoframes* that group them.
 
 ## Atoms and geoframes
@@ -25,7 +25,7 @@ coarsest first, and the object’s hierarchy is that ordered set:
 
 gs <- geoscale_example()
 gs
-#> Geoscale: example 
+#> GeoScale: example 
 #> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
 #> Geoframes (4, coarsest first):
 #>   - country (2)  [1 atom(s) unassigned]
@@ -82,7 +82,7 @@ So a bare code is ambiguous, and every lookup names its geoframe — a
 
 ## Shares and weights
 
-A Geoscale carries one or more named **weight** columns on its atoms
+A GeoScale carries one or more named **weight** columns on its atoms
 (area, population, …); `meta$default_weight` names the default.
 **`share`** is the universal derived quantity: a fraction of the whole
 that sums to coverage and aggregates by SUM — the same word with the
@@ -119,7 +119,7 @@ entry is an error, in both siblings.
   [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md),
   [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md),
   [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md).
-- **Label-stable.** A Geoscale’s region codes and their order are fixed
+- **Label-stable.** A GeoScale’s region codes and their order are fixed
   at construction; conversions never mutate them.
 
 ## The \*scales naming lattice (glossary)
@@ -153,7 +153,7 @@ fallback.
 
 - [Data
   structures](https://optimal2050.github.io/geoscales/r/articles/data-structures.md)
-  — anatomy of a `Geoscale` object and its registries.
+  — anatomy of a `GeoScale` object and its registries.
 - [Data
   manipulation](https://optimal2050.github.io/geoscales/r/articles/data-manipulation.md)
   — attach, recast, crosswalks, backends.

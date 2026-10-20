@@ -3,8 +3,8 @@
 The central conversion verb: takes a table keyed by region code at
 geoframe `from` and returns one keyed at `to` – a geoframe name of the
 same
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md),
-or ANOTHER Geoscale (whose atom layer is the target, matched on shared
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md),
+or ANOTHER GeoScale (whose atom layer is the target, matched on shared
 atom `region` keys). Handles both aggregation (fine to coarse) and
 disaggregation (coarse to fine) with a single rule per value column;
 geoframes that cross-cut work too, because the route always goes through
@@ -44,7 +44,7 @@ recast_geoscale(
 - gs:
 
   The
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the codes in `x` belong to.
 
 - from:
@@ -56,7 +56,7 @@ recast_geoscale(
 - to:
 
   Target geoframe name of `gs`, or another (named)
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   – then the target is that object's atom layer, matched on the atom
   `region` keys the two objects share.
 

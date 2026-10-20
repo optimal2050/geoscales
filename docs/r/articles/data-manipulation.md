@@ -4,12 +4,12 @@
 
 | verb | direction | what it does |
 |----|----|----|
-| [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md) | Geoscale → columns | *attach* labels, membership, share/weight to a table (no aggregation) |
+| [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md) | GeoScale → columns | *attach* labels, membership, share/weight to a table (no aggregation) |
 | [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md) | geoframe A → geoframe B | *convert* values between resolutions, one rule per column |
 | [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) / [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) | the route halves | project down to the atom layer / aggregate up from it |
 | [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md) | A → B crosswalk | the conversion, materialised as a small table |
 | [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md) / [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md) / [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md) | registries | per-column rules, exact crosswalks, map sources |
-| [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html) | generic | one pipeline verb across time AND space |
+| [`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html) | generic | one pipeline verb across time AND space |
 
 Everything below runs on the synthetic
 [`geoscale_example()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_example.md)
@@ -24,11 +24,11 @@ atoms <- geoscale_leaftable(gs)$region[!is.na(geoscale_leaftable(gs)$country)]
 cap <- tibble(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
 ```
 
-## Attaching a Geoscale to a table
+## Attaching a GeoScale to a table
 
 [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
 *decorates* rather than converts: it adds a label column **named after
-the Geoscale**, plus optional coarser-geoframe membership columns and
+the GeoScale**, plus optional coarser-geoframe membership columns and
 share/weight, all `"<name>."`-prefixed. The keyed geoframe is inferred
 from the columns (or passed as `geoframe=`):
 
@@ -44,7 +44,7 @@ tibble(state = c("N1", "N2", "S1"), v = 1:3) |>
 #> 3 S1        3 S                         1100         0.524 S1
 ```
 
-Because every Geoscale attaches under its own name, several can coexist
+Because every GeoScale attaches under its own name, several can coexist
 on one dataset — and a table carrying two label columns is itself an
 empirical crosswalk between the region systems. Existing columns are
 never overwritten; a clashing attach errors instead.
@@ -131,7 +131,7 @@ conserve), or `"error"`. Note that downstream, energyRt reads `NA` in a
 region column as a wildcard meaning *all* regions — don’t pass `"keep"`
 output there unfiltered.
 
-## The route halves and cross-Geoscale conversion
+## The route halves and cross-GeoScale conversion
 
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 is the fused route `from -> atoms -> to`; its halves are public. Going
@@ -160,8 +160,8 @@ a |> recast_from_geoatoms(gs, to = "state", rule = "sum")
 ```
 
 Because the atom rows are keyed by atom `region` IDs, the halves also
-convert **across two different Geoscales that share atom keys** (reg32
-to NUTS style conversions) — and the fused verb accepts another Geoscale
+convert **across two different GeoScales that share atom keys** (reg32
+to NUTS style conversions) — and the fused verb accepts another GeoScale
 as `to`, targeting its atom layer:
 
 ``` r
@@ -214,10 +214,12 @@ clear_geoscale_maps()
 
 ## One verb across time and space
 
-The bare [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+The bare
+[`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html)
 generic is owned by nestedscales and re-exported by both geoscales and
-timescales. It dispatches on the scale object, so with timescales
-installed one pipeline chains both dimensions:
+timescales. It dispatches on the scale object, so the two packages can
+be composed in one pipeline. This illustrative snippet requires
+timescales, which is intentionally not a dependency of geoscales:
 
 ``` r
 
@@ -232,17 +234,6 @@ x |>
   recast(calendar("m12"), to = calendar("q4"), year = 2025,
          rule = "sum") |>
   recast(gs, to = "country", rule = "sum")
-#> # A tibble: 8 × 3
-#>   country timeslice demand
-#>   <chr>   <chr>      <dbl>
-#> 1 N       Q1            48
-#> 2 S       Q1            78
-#> 3 N       Q2            66
-#> 4 S       Q2            87
-#> 5 N       Q3            84
-#> 6 S       Q3            96
-#> 7 N       Q4           102
-#> 8 S       Q4           105
 ```
 
 Same contract on both sides: explicit rules, identifier columns

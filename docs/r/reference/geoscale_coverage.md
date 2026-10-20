@@ -1,4 +1,4 @@
-# Sampled coverage of a Geoscale
+# Sampled coverage of a GeoScale
 
 The spatial mirror of a partial calendar's `year_fraction`: the fraction
 of the ROOT parent's weight totals that this object still carries.
@@ -19,7 +19,7 @@ geoscale_coverage(x, weight = NULL)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - weight:
 

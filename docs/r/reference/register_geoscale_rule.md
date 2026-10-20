@@ -26,7 +26,7 @@ register_geoscale_rule(param, rule, weight = NULL)
 - weight:
 
   Optional weight column name used by `sum` (down) and `weighted_mean`
-  (up). `NULL` means the Geoscale's default weight.
+  (up). `NULL` means the GeoScale's default weight.
 
 ## Value
 

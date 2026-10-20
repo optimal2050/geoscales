@@ -9,7 +9,7 @@ are arbitrary, the weights (area, population) are data, and region
 systems drawn by different hands rarely nest — converting values between
 them is where unit errors live.
 
-`geoscales` represents any such carving as a **Geoscale**: a set of
+`geoscales` represents any such carving as a **GeoScale**: a set of
 *atoms* (the finest regions) plus ordered *geoframes* that group them —
 the spatial companion to a
 [`timescales::Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.html).
@@ -24,7 +24,7 @@ With one object you get:
 
 ## A 5-minute tour
 
-### 1. Build a Geoscale
+### 1. Build a GeoScale
 
 Three construction layers, from most to least convenient — a provider,
 parent-child crosswalks, or a wide table you already have:
@@ -42,7 +42,7 @@ gs <- geoscale_from_leaftable(
   name = "tour"
 )
 gs
-#> Geoscale: tour 
+#> GeoScale: tour 
 #> Geoframes (3, coarsest first):
 #>   - country (2)
 #>     - state (3)
@@ -109,11 +109,11 @@ column with
 [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md);
 a silently guessed rule would be a silent unit error.
 
-### 4. Attach a Geoscale to a table
+### 4. Attach a GeoScale to a table
 
 [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
 decorates rather than converts — membership and share/weight columns
-arrive `"<name>."`-prefixed, so several Geoscales can coexist on one
+arrive `"<name>."`-prefixed, so several GeoScales can coexist on one
 dataset:
 
 ``` r
@@ -169,7 +169,7 @@ cap |>
 
 (The visualization article does the same on real maps.)
 
-## From raster data to a Geoscale: wind clusters
+## From raster data to a GeoScale: wind clusters
 
 The stack on the package’s front page is a real, data-built hierarchy:
 Iceland’s onshore wind resource from the [Global Wind
@@ -180,7 +180,8 @@ regions per admin unit, ranked by resource quality, not two million
 raster cells.
 
 The pipeline below is complete and pasteable (packages: sf, terra,
-dplyr, [globalwindatlas](https://github.com/energyRt/globalwindatlas); a
+dplyr,
+[globalwindatlas](https://github.com/optimal2050/globalwindatlas); a
 one-time ~64 MB download plus a few minutes of geometry work). It is the
 same code as `data-raw/iceland_wind.R` in the repository, which
 additionally caches the slow steps and pre-saves the result. Not run
@@ -287,7 +288,7 @@ clusters$wind <- terra::extract(
 clusters$km2 <- as.numeric(units::set_units(st_area(clusters), "km^2"))
 ```
 
-**Assemble the Geoscale** — the clusters are the atoms:
+**Assemble the GeoScale** — the clusters are the atoms:
 
 ``` r
 
@@ -303,7 +304,7 @@ gs <- geoscale_from_leaftable(
 wind <- clusters |> st_drop_geometry() |> select(cluster, wind)
 ```
 
-The result is an ordinary three-geoframe Geoscale — the clusters are its
+The result is an ordinary three-geoframe GeoScale — the clusters are its
 atoms, so everything above applies. The repository ships it pre-built
 (`data-raw/iceland_wind.rds`, written by `data-raw/iceland_wind.R`),
 which is what renders here: recast the per-cluster wind speed up to the
@@ -372,7 +373,7 @@ deferred for now.
   — atoms, partitions vs trees, the shared \*scales glossary.
 - [Data
   structures](https://optimal2050.github.io/geoscales/r/articles/data-structures.md)
-  — anatomy of a `Geoscale` and its registries.
+  — anatomy of a `GeoScale` and its registries.
 - [Data
   manipulation](https://optimal2050.github.io/geoscales/r/articles/data-manipulation.md)
   — attach, recast, route halves, crosswalks, backends, and chaining

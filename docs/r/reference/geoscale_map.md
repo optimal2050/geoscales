@@ -1,4 +1,4 @@
-# Crosswalk between two geoframes of a Geoscale
+# Crosswalk between two geoframes of a GeoScale
 
 Materialises the `from -> atoms -> to` route as a table: one row per
 pair of overlapping regions with
@@ -14,7 +14,7 @@ geoscale_map(gs, from, to, weight = NULL)
 - gs:
 
   The
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the geoframes belong to.
 
 - from, to:
@@ -52,7 +52,7 @@ is returned as-is instead of being derived.
 ## See also
 
 [`geoscale_map_between()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map_between.md)
-for the map between two Geoscales.
+for the map between two GeoScales.
 
 ## Examples
 

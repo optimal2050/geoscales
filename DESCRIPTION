@@ -1,6 +1,6 @@
 Package: geoscales
 Title: Nested Regions and Spatial Hierarchies for Modeling
-Version: 0.6.0
+Version: 0.6.1.9000
 URL: https://optimal2050.github.io/geoscales/r/,
     https://optimal2050.github.io/geoscales/,
     https://github.com/optimal2050/geoscales
@@ -11,25 +11,28 @@ Authors@R:
            role = c("aut", "cre"),
            email = "olugovoy@optimalsolution.dev",
            comment = c(ORCID = "0000-0001-5546-9875"))
-Description: Discrete spatial representations for optimization and simulation
-    models, including nested sets of regions, conversion between alternative
-    spatial resolutions, and mapping of data onto region hierarchies for
-    modeling and visualization. Built on 'nestedscales'; the spatial
-    companion to 'timescales'.
+Description: Provides discrete spatial representations for optimization and
+    simulation models. A geoscale records atomic regions and their membership
+    in nested or cross-cutting geoframes, with optional geometry and multiple
+    weights. Joins region labels to tabular data and recasts values between
+    spatial resolutions using explicit aggregation and disaggregation rules.
+    Supports sampling, coarsening and telescoping zooms, with optional
+    integration with 'sf' and 'rnaturalearth' for geometry, maps and
+    coordinate-to-region matching; no boundary data are bundled. Extends
+    'nestedscales' with spatial semantics.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:
     R (>= 4.2)
 Imports:
-    dplyr,
+    dplyr (>= 1.1.1),
     rlang,
     S7,
     stats,
-    nestedscales,
+    nestedscales (>= 0.1.0),
     utils
 Suggests:
-    timescales,
     withr,
     arrow,
     scales,
@@ -49,9 +52,6 @@ Suggests:
     yaml
 Additional_repositories: https://ropensci.r-universe.dev,
     https://optimal2050.r-universe.dev
-Remotes: optimal2050/nestedscales, optimal2050/timescales,
-    optimal2050/energypal,
-    ropensci/rnaturalearthhires
 Config/testthat/edition: 3
 Config/Needs/website: pkgdown, rmarkdown, sf, ggplot2, rnaturalearth,
     rnaturalearthdata, rnaturalearthhires, energyRt, patchwork, energypal

@@ -1,4 +1,4 @@
-# Map data onto a Geoscale
+# Map data onto a GeoScale
 
 Draws a choropleth of `data` at `geoframe`. Requires `sf`, `ggplot2`,
 and geometry attached with
@@ -26,7 +26,7 @@ geoscale_plot(
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   with geometry attached.
 
 - data:

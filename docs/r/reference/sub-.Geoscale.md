@@ -1,4 +1,4 @@
-# Subset a Geoscale with `[`
+# Subset a GeoScale with `[`
 
 `gs[geoframe, region]` is shorthand for
 [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md).
@@ -6,10 +6,10 @@
 ## Usage
 
 ``` r
-# S3 method for class 'Geoscale'
+# S3 method for class 'GeoScale'
 x[i, j, ...]
 
-# S3 method for class '`geoscales::Geoscale`'
+# S3 method for class '`geoscales::GeoScale`'
 x[i, j, ...]
 ```
 
@@ -18,7 +18,7 @@ x[i, j, ...]
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - i:
 
@@ -35,7 +35,7 @@ x[i, j, ...]
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 ## Details
 
@@ -43,9 +43,9 @@ S7 ships a `[.S7_object` that errors, so a method must be registered for
 the class itself. Under S7 0.2
 [`class()`](https://rdrr.io/r/base/class.html) reports the
 package-qualified
-[`geoscales::Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+[`geoscales::GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
 both when sourced and when installed, so that is the registration that
-actually dispatches; the bare `Geoscale` one is kept as a cheap guard in
+actually dispatches; the bare `GeoScale` one is kept as a cheap guard in
 case an S7 version reports the short name. This mirrors the two-function
 pattern [`print()`](https://rdrr.io/r/base/print.html) uses in
 geoscale-class.R. Declaring both as real methods with `@export`, rather
@@ -57,7 +57,7 @@ unexported.
 ``` r
 gs <- geoscale_example()
 gs["country", "N"]
-#> Geoscale: example[country:N] 
+#> GeoScale: example[country:N] 
 #> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
 #> Geoframes (4, coarsest first):
 #>   - country (1)

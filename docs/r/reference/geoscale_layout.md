@@ -1,4 +1,4 @@
-# Icicle layout for a Geoscale
+# Icicle layout for a GeoScale
 
 Rectangle coordinates for a geoframe-by-geoframe structure plot: one row
 per geoframe, each region a rectangle whose width is its share of the
@@ -16,7 +16,7 @@ geoscale_layout(x, weight = NULL)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - weight:
 

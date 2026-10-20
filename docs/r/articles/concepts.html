@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
 <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
     <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a GeoScale from Natural Earth</a></li>
     <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
@@ -98,7 +98,7 @@ error-prone precisely where it matters: totals must conserve,
 intensities must average correctly, and region systems drawn by
 different hands rarely nest.</p>
 <p><code>geoscales</code> represents any such carving as a
-<strong>Geoscale</strong>: a set of <em>atoms</em> (the finest regions)
+<strong>GeoScale</strong>: a set of <em>atoms</em> (the finest regions)
 plus ordered <em>geoframes</em> that group them.</p>
 </div>
 <div class="section level2">
@@ -112,7 +112,7 @@ is that ordered set:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">gs</span></span>
-<span><span class="co">#&gt; Geoscale: example </span></span>
+<span><span class="co">#&gt; GeoScale: example </span></span>
 <span><span class="co">#&gt; Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom </span></span>
 <span><span class="co">#&gt; Geoframes (4, coarsest first):</span></span>
 <span><span class="co">#&gt;   - country (2)  [1 atom(s) unassigned]</span></span>
@@ -164,7 +164,7 @@ geoframes:</p>
 <div class="section level2">
 <h2 id="shares-and-weights">Shares and weights<a class="anchor" aria-label="anchor" href="#shares-and-weights"></a>
 </h2>
-<p>A Geoscale carries one or more named <strong>weight</strong> columns
+<p>A GeoScale carries one or more named <strong>weight</strong> columns
 on its atoms (area, population, …); <code>meta$default_weight</code>
 names the default. <strong><code>share</code></strong> is the universal
 derived quantity: a fraction of the whole that sums to coverage and
@@ -203,7 +203,7 @@ values; behavior changes only through
 <code><a href="../reference/register_geoscale_map.html">register_geoscale_map()</a></code>,
 <code><a href="../reference/register_geoscale_provider.html">register_geoscale_provider()</a></code>.</li>
 <li>
-<strong>Label-stable.</strong> A Geoscale’s region codes and their
+<strong>Label-stable.</strong> A GeoScale’s region codes and their
 order are fixed at construction; conversions never mutate them.</li>
 </ul>
 </div>
@@ -324,7 +324,7 @@ fallback.</p>
 <ul>
 <li>
 <a href="data-structures.html">Data structures</a> — anatomy of a
-<code>Geoscale</code> object and its registries.</li>
+<code>GeoScale</code> object and its registries.</li>
 <li>
 <a href="data-manipulation.html">Data manipulation</a> — attach,
 recast, crosswalks, backends.</li>

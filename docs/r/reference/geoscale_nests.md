@@ -16,7 +16,7 @@ geoscale_nests(x, parent, child)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - parent, child:
 
@@ -30,7 +30,7 @@ as the `"offenders"` attribute.
 ## Details
 
 Nesting is *not* required by
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
 —
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 routes through the atom layer and works either way. This function is a

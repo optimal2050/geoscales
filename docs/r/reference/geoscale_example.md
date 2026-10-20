@@ -1,4 +1,4 @@
-# A small example Geoscale
+# A small example GeoScale
 
 A synthetic 3-geoframe hierarchy used in examples and tests. It
 deliberately reproduces three awkward features of real region tables:
@@ -12,7 +12,7 @@ geoscale_example()
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
 with 7 atoms and geoframes `country`/`state`/`zone`/`atom`.
 
 ## Details
@@ -32,7 +32,7 @@ with 7 atoms and geoframes `country`/`state`/`zone`/`atom`.
 ``` r
 gs <- geoscale_example()
 gs
-#> Geoscale: example 
+#> GeoScale: example 
 #> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
 #> Geoframes (4, coarsest first):
 #>   - country (2)  [1 atom(s) unassigned]

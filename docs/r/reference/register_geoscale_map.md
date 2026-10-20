@@ -28,14 +28,14 @@ list_geoscale_maps()
 - gs:
 
   The
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the geoframes belong to, or its name.
 
 - from, to:
 
   For the within-object functions, geoframe names of `gs`. For the
   `_between` functions, two
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   objects or their names.
 
 - map:
@@ -43,7 +43,7 @@ list_geoscale_maps()
   A `data.frame` shaped like a
   [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
   result: the two label columns named after the geoframes (or
-  Geoscales), plus `n_from`, `n_overlap`, `w` and `w_from`. `NULL`
+  GeoScales), plus `n_from`, `n_overlap`, `w` and `w_from`. `NULL`
   removes a previously registered map.
 
 ## Value
@@ -54,10 +54,10 @@ map (or `NULL`); `list_geoscale_maps()` a `data.frame` of registry keys.
 ## Details
 
 `register_geoscale_map()` and `get_geoscale_map()` handle a pair of
-geoframes of one Geoscale; the map is scoped to that object, so
+geoframes of one GeoScale; the map is scoped to that object, so
 `"state" -> "zone"` maps of two different objects do not collide.
 `register_geoscale_map_between()` and `get_geoscale_map_between()`
-handle a pair of Geoscales.
+handle a pair of GeoScales.
 
 ## Examples
 

@@ -1,4 +1,4 @@
-# Geoframes of a Geoscale
+# Geoframes of a GeoScale
 
 The hierarchy names, ordered coarsest first. The last entry is the atom
 geoframe — the finest regions, which every other geoframe groups.
@@ -8,7 +8,7 @@ geoframe — the finest regions, which every other geoframe groups.
 ``` r
 geoscale_geoframes(x, finest = FALSE)
 
-# S3 method for class 'Geoscale'
+# S3 method for class 'GeoScale'
 names(x)
 ```
 
@@ -17,7 +17,7 @@ names(x)
 - x:
 
   A
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md).
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
 - finest:
 

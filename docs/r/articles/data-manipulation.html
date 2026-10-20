@@ -16,8 +16,8 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Data manipulation with geoscales">
-<meta name="description" content="The tidy workflow end to end: attach a Geoscale to region-keyed tables, recast values between resolutions, inspect the crosswalk, chain time and space with recast(), and run the same pipelines over data.table and arrow backends.">
-<meta property="og:description" content="The tidy workflow end to end: attach a Geoscale to region-keyed tables, recast values between resolutions, inspect the crosswalk, chain time and space with recast(), and run the same pipelines over data.table and arrow backends.">
+<meta name="description" content="The tidy workflow end to end: attach a GeoScale to region-keyed tables, recast values between resolutions, inspect the crosswalk, chain time and space with recast(), and run the same pipelines over data.table and arrow backends.">
+<meta property="og:description" content="The tidy workflow end to end: attach a GeoScale to region-keyed tables, recast values between resolutions, inspect the crosswalk, chain time and space with recast(), and run the same pipelines over data.table and arrow backends.">
 <meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png">
 </head>
 <body>
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
 <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
     <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with geoscales</a></li>
-    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a Geoscale from Natural Earth</a></li>
+    <li><a class="dropdown-item" href="../articles/from-naturalearth.html">Building a GeoScale from Natural Earth</a></li>
     <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
@@ -102,7 +102,7 @@
 <tbody>
 <tr class="odd">
 <td><code><a href="../reference/join_geoscale.html">join_geoscale()</a></code></td>
-<td>Geoscale → columns</td>
+<td>GeoScale → columns</td>
 <td>
 <em>attach</em> labels, membership, share/weight to a table (no
 aggregation)</td>
@@ -137,7 +137,7 @@ column</td>
 <td>per-column rules, exact crosswalks, map sources</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast()</a></code></td>
+<td><code><a href="https://optimal2050.github.io/nestedscales/reference/recast.html" class="external-link">recast()</a></code></td>
 <td>generic</td>
 <td>one pipeline verb across time AND space</td>
 </tr>
@@ -154,10 +154,10 @@ arrow input (see <a href="#backends">Backends</a>).</p>
 <span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>atom <span class="op">=</span> <span class="va">atoms</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="attaching-a-geoscale-to-a-table">Attaching a Geoscale to a table<a class="anchor" aria-label="anchor" href="#attaching-a-geoscale-to-a-table"></a>
+<h2 id="attaching-a-geoscale-to-a-table">Attaching a GeoScale to a table<a class="anchor" aria-label="anchor" href="#attaching-a-geoscale-to-a-table"></a>
 </h2>
 <p><code><a href="../reference/join_geoscale.html">join_geoscale()</a></code> <em>decorates</em> rather than converts:
-it adds a label column <strong>named after the Geoscale</strong>, plus
+it adds a label column <strong>named after the GeoScale</strong>, plus
 optional coarser-geoframe membership columns and share/weight, all
 <code>"&lt;name&gt;."</code>-prefixed. The keyed geoframe is inferred
 from the columns (or passed as <code>geoframe=</code>):</p>
@@ -170,7 +170,7 @@ from the columns (or passed as <code>geoframe=</code>):</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1        1 N                          300         0.143 N1     </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2        2 N                          700         0.333 N2     </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1        3 S                         <span style="text-decoration: underline;">1</span>100         0.524 S1</span></span></code></pre></div>
-<p>Because every Geoscale attaches under its own name, several can
+<p>Because every GeoScale attaches under its own name, several can
 coexist on one dataset — and a table carrying two label columns is
 itself an empirical crosswalk between the region systems. Existing
 columns are never overwritten; a clashing attach errors instead.</p>
@@ -275,7 +275,7 @@ energyRt reads <code>NA</code> in a region column as a wildcard meaning
 unfiltered.</p>
 </div>
 <div class="section level2">
-<h2 id="the-route-halves-and-cross-geoscale-conversion">The route halves and cross-Geoscale conversion<a class="anchor" aria-label="anchor" href="#the-route-halves-and-cross-geoscale-conversion"></a>
+<h2 id="the-route-halves-and-cross-geoscale-conversion">The route halves and cross-GeoScale conversion<a class="anchor" aria-label="anchor" href="#the-route-halves-and-cross-geoscale-conversion"></a>
 </h2>
 <p><code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> is the fused route
 <code>from -&gt; atoms -&gt; to</code>; its halves are public. Going
@@ -300,9 +300,9 @@ rules act on the atom rows directly:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2           7</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1          20</span></span></code></pre></div>
 <p>Because the atom rows are keyed by atom <code>region</code> IDs, the
-halves also convert <strong>across two different Geoscales that share
+halves also convert <strong>across two different GeoScales that share
 atom keys</strong> (reg32 to NUTS style conversions) — and the fused
-verb accepts another Geoscale as <code>to</code>, targeting its atom
+verb accepts another GeoScale as <code>to</code>, targeting its atom
 layer:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lf</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>band <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>, atom <span class="op">=</span> <span class="va">atoms</span>,</span>
@@ -348,10 +348,11 @@ accessors to inspect what is installed:</p>
 <div class="section level2">
 <h2 id="one-verb-across-time-and-space">One verb across time and space<a class="anchor" aria-label="anchor" href="#one-verb-across-time-and-space"></a>
 </h2>
-<p>The bare <code><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast()</a></code> generic is owned by nestedscales and
+<p>The bare <code><a href="https://optimal2050.github.io/nestedscales/reference/recast.html" class="external-link">recast()</a></code> generic is owned by nestedscales and
 re-exported by both geoscales and timescales. It dispatches on the scale
-object, so with timescales installed one pipeline chains both
-dimensions:</p>
+object, so the two packages can be composed in one pipeline. This
+illustrative snippet requires timescales, which is intentionally not a
+dependency of geoscales:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/timescales/r/" class="external-link">timescales</a></span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"m%02d"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>,</span>
@@ -361,20 +362,9 @@ dimensions:</p>
 <span>  <span class="fu">mutate</span><span class="op">(</span>demand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">timeslice</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>  <span class="fu"><a href="https://optimal2050.github.io/nestedscales/reference/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
 <span>         rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 3</span></span></span>
-<span><span class="co">#&gt;   country timeslice demand</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N       Q1            48</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> S       Q1            78</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> N       Q2            66</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> S       Q2            87</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> N       Q3            84</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> S       Q3            96</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> N       Q4           102</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> S       Q4           105</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://optimal2050.github.io/nestedscales/reference/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></code></pre></div>
 <p>Same contract on both sides: explicit rules, identifier columns
 preserved, totals conserved under <code>"sum"</code>.</p>
 </div>

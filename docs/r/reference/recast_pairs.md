@@ -36,7 +36,7 @@ recast_pairs(
 - gs:
 
   The
-  [`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the endpoints are keyed in.
 
 - to:
@@ -92,8 +92,8 @@ recast_pairs(
 ## Value
 
 One row per (endpoint pair x identifier combination), the endpoint
-columns keeping their input names and holding `to`-level codes. In the
-input's class; lazy in, lazy out.
+columns keeping their input names and holding target-geoframe codes. In
+the input's class; lazy in, lazy out.
 
 ## Details
 

@@ -1,9 +1,9 @@
-# Build a Geoscale from Natural Earth
+# Build a GeoScale from Natural Earth
 
 Convenience wrapper: fetches Natural Earth via
 [`ne_source()`](https://optimal2050.github.io/geoscales/r/reference/ne_source.md)
 and builds a
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md)
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
 nested `continent -> subregion -> country -> feature`, weighted by
 population and GDP.
 
@@ -45,7 +45,7 @@ ne_geoscale(
 ## Value
 
 A
-[`Geoscale`](https://optimal2050.github.io/geoscales/r/reference/Geoscale.md),
+[`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md),
 with `scale` and `source` recorded in `@meta` so the object is
 self-documenting and reproducible.
 
