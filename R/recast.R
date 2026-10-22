@@ -3,7 +3,7 @@
 # =============================================================================
 # The bare pipeline verb `recast()` is an S7 generic owned by nestedscales;
 # this package registers the GeoScale method on it (end of this file), so
-# `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")` chains across
+# `x |> recast(cal_a, cal_b) |> recast(gs, target = "country")` chains across
 # both dimensions. `recast_geoscale()` is the explicit worker.
 #
 # Aggregation and disaggregation are ONE operation. Every conversion routes
@@ -197,7 +197,7 @@
 #' Recast values from one spatial resolution to another
 #'
 #' The central conversion verb: takes a table keyed by region code at
-#' geoframe `from` and returns one keyed at `to` -- a geoframe name of the
+#' geoframe `source` and returns one keyed at `target` -- a geoframe name of the
 #' same [`GeoScale`], or ANOTHER GeoScale (whose atom layer is the target,
 #' matched on shared atom `region` keys). Handles both aggregation (fine to
 #' coarse) and disaggregation (coarse to fine) with a single rule per value
@@ -231,13 +231,14 @@
 #'   named by `key` plus one or more numeric value columns; other columns
 #'   are preserved as identifiers.
 #' @param gs The [`GeoScale`] the codes in `x` belong to.
-#' @param from Geoframe name the codes belong to. `NULL` (default) is
+#' @param from,to Deprecated names of `source` and `target`.
+#' @param source Geoframe name the codes belong to. `NULL` (default) is
 #'   inferred: `key` when it is a geoframe name, else the single geoframe
 #'   name appearing among `x`'s columns.
-#' @param to Target geoframe name of `gs`, or another (named) [`GeoScale`]
+#' @param target Target geoframe name of `gs`, or another (named) [`GeoScale`]
 #'   -- then the target is that object's atom layer, matched on the atom
 #'   `region` keys the two objects share.
-#' @param key Name of the region-code column in `x`. Defaults to `from`
+#' @param key Name of the region-code column in `x`. Defaults to `source`
 #'   when that column exists, otherwise `"region"`.
 #' @param values Character vector of value columns to convert. Default: all
 #'   numeric columns other than the key and `gs`'s geoframe columns.
@@ -252,19 +253,19 @@
 #'   falling back to the object's default weight; when the object declares
 #'   no weights at all, atoms weigh 1 (an equal split, with a warning when
 #'   that choice is material, i.e. when disaggregating).
-#' @param na_action What to do with atoms that have no code at `from` or
-#'   `to`: `"drop"` (default, with a warning -- the affected source share
+#' @param na_action What to do with atoms that have no code at `source` or
+#'   `target`: `"drop"` (default, with a warning -- the affected source share
 #'   is genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA`
 #'   region row so totals conserve).
 #' @param parent `rule = "share"` only: the geoframe defining the groups
-#'   the shares are taken within. `NULL` (default) uses `to` when it
-#'   differs from `from`, else the geoframe immediately above `from`.
+#'   the shares are taken within. `NULL` (default) uses `target` when it
+#'   differs from `source`, else the geoframe immediately above `source`.
 #' @param collect For lazy inputs (arrow, dtplyr): materialise the result
 #'   (`TRUE`) or return the uncollected query (default).
 #'
 #' @return The recast table in the input's class, with columns
-#'   `c(to, identifiers, values)`: per identifier combination, one row per
-#'   member of `to` (the full target vocabulary, `NA` where uncovered),
+#'   `c(target, identifiers, values)`: per identifier combination, one row per
+#'   member of `target` (the full target vocabulary, `NA` where uncovered),
 #'   plus an `NA` region row under `na_action = "keep"`. Identifier column
 #'   types are preserved.
 #'
@@ -281,12 +282,12 @@
 #' meaning all regions*, so `"keep"` output should not be passed there
 #' unfiltered.
 #'
-#' `"share"` inverts the output contract: the result stays keyed at `from`,
+#' `"share"` inverts the output contract: the result stays keyed at `source`,
 #' and each value becomes that region's share of the total over its parent
 #' group (so the shares sum to 1 per parent, per identifier combination).
-#' The parent is `parent=`, defaulting to `to` (the reading of
-#' `recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")`:
-#' each nuts3's share within its nuts0); `from` must nest within it. A
+#' The parent is `parent=`, defaulting to `target` (the reading of
+#' `recast_geoscale(x, gs, source = "nuts3", target = "nuts0", rule = "share")`:
+#' each nuts3's share within its nuts0); `source` must nest within it. A
 #' parent group whose total is zero yields `NA` shares, and an `NA` value
 #' poisons its group like everywhere else in the package. `"share"` cannot
 #' be combined with other rules in one call, and `weight=` is ignored --
@@ -298,30 +299,41 @@
 #' # Extensive quantity, fine -> coarse: totals are preserved
 #' x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
 #'                 capacity = c(1, 2, 3, 4, 5, 6))
-#' recast_geoscale(x, gs, from = "atom", to = "country", rule = "sum")
+#' recast_geoscale(x, gs, source = "atom", target = "country", rule = "sum")
 #'
 #' # Coarse -> fine: split proportionally to area
 #' y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-#' recast_geoscale(y, gs, from = "country", to = "state",
+#' recast_geoscale(y, gs, source = "country", target = "state",
 #'                 rule = "sum", weight = "km2")
 #'
 #' # Intensive quantity: weighted mean going up, copied going down
 #' z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
 #'                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-#' recast_geoscale(z, gs, from = "atom", to = "state",
+#' recast_geoscale(z, gs, source = "atom", target = "state",
 #'                 rule = "weighted_mean")
 #'
 #' # Share within parent: result stays at the atoms, sums to 1 per country
-#' recast_geoscale(x, gs, from = "atom", to = "country", rule = "share")
+#' recast_geoscale(x, gs, source = "atom", target = "country", rule = "share")
 #' @export
-recast_geoscale <- function(x, gs, from = NULL, to,
+recast_geoscale <- function(x, gs, source = NULL, target,
                             key = NULL,
                             values = NULL,
                             rule = NULL,
                             weight = NULL,
                             na_action = c("drop", "error", "keep"),
                             parent = NULL,
-                            collect = NULL) {
+                            collect = NULL,
+                            from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("recast_geoscale", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("recast_geoscale", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
   # Across two GeoScales the route runs through this package's own halves,
@@ -331,14 +343,14 @@ recast_geoscale <- function(x, gs, from = NULL, to,
       .stop(paste0("rule \"share\" needs a parent geoframe of the same ",
                    "GeoScale; it cannot recast across objects"))
     }
-    g <- recast_to_geoatoms(x, gs, from = from, key = key, values = values,
+    g <- recast_to_geoatoms(x, gs, source = from, key = key, values = values,
                             rule = rule, weight = weight, collect = collect)
     return(recast_from_geoatoms(g, to,
-                                to = geoscale_geoframes(to, finest = TRUE),
+                                target = geoscale_geoframes(to, finest = TRUE),
                                 values = values, rule = rule,
                                 na_action = na_action, collect = collect))
   }
-  nestedscales::recast_scale(x, gs, from = from, to = to, key = key,
+  nestedscales::recast_scale(x, gs, source = from, target = to, key = key,
                             values = values, rule = rule, weight = weight,
                             na_action = na_action, parent = parent,
                             collect = collect)
@@ -385,14 +397,15 @@ recast_geoscale <- function(x, gs, from = NULL, to,
 #' join is a small in-memory frame.
 #'
 #' @param x The data: for `recast_to_geoatoms()` keyed by region code at
-#'   geoframe `from`; for `recast_from_geoatoms()` keyed by atom `region`
+#'   geoframe `source`; for `recast_from_geoatoms()` keyed by atom `region`
 #'   IDs.
 #' @param gs The [`GeoScale`] the data is keyed in (`to_geoatoms`) or
 #'   aggregated into (`from_geoatoms`).
-#' @param from `to_geoatoms` only: geoframe name the codes belong to.
+#' @param from,to Deprecated names of `source` and `target`.
+#' @param source `to_geoatoms` only: geoframe name the codes belong to.
 #'   `NULL` (default) is inferred as in [`recast_geoscale()`].
-#' @param to `from_geoatoms` only: target geoframe name.
-#' @param key The key column. `to_geoatoms`: defaults to `from` when that
+#' @param target `from_geoatoms` only: target geoframe name.
+#' @param key The key column. `to_geoatoms`: defaults to `source` when that
 #'   column exists, otherwise `"region"`. `from_geoatoms`: default
 #'   `"region"`.
 #' @param values,rule As in [`recast_geoscale()`].
@@ -408,7 +421,7 @@ recast_geoscale <- function(x, gs, from = NULL, to,
 #'   (default `FALSE`). Only an all-`NA` group stays `NA`; a weighted mean
 #'   drops the weight of each `NA` member so the divisor still matches.
 #' @param na_action `from_geoatoms` only: what to do with atoms that have
-#'   no code at `to` -- `"drop"` (default, warning), `"error"`, or
+#'   no code at `target` -- `"drop"` (default, warning), `"error"`, or
 #'   `"keep"` (an `NA` region row).
 #' @param collect For lazy inputs: materialise (`TRUE`) or return the
 #'   query (default).
@@ -416,23 +429,29 @@ recast_geoscale <- function(x, gs, from = NULL, to,
 #' @return `recast_to_geoatoms()`: one row per (atom x identifier
 #'   combination) with columns `region`, identifiers, values (and
 #'   `weight`). `recast_from_geoatoms()`: one row per (region x identifier
-#'   combination) with columns `to`-named region, identifiers, values.
+#'   combination) with columns `target`-named region, identifiers, values.
 #'   Both in the input's class; lazy in, lazy out.
 #'
 #' @examples
 #' gs <- geoscale_example()
 #' y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-#' a <- recast_to_geoatoms(y, gs, from = "country", rule = "sum",
+#' a <- recast_to_geoatoms(y, gs, source = "country", rule = "sum",
 #'                         weight = "km2")
 #' a
 #' sum(a$capacity)  # 30 -- totals conserve
 #'
-#' recast_from_geoatoms(a, gs, to = "state", rule = "sum")
+#' recast_from_geoatoms(a, gs, target = "state", rule = "sum")
 #' @export
-recast_to_geoatoms <- function(x, gs, from = NULL,
+recast_to_geoatoms <- function(x, gs, source = NULL,
                                key = NULL, values = NULL, rule = NULL,
                                weight = NULL, attach_weight = TRUE,
-                               collect = NULL) {
+                               collect = NULL,
+                               from = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("recast_to_geoatoms", "from", "source", !missing(source))
+    source <- from
+  }
+  from <- source
   .check_geoscale(gs, "gs")
   backend <- .gs_backend(x)
   if (is.na(backend)) {
@@ -443,7 +462,7 @@ recast_to_geoatoms <- function(x, gs, from = NULL,
   .check_gs_cols(schema)
 
   if (is.null(from)) from <- .geo_infer_from(gs, schema, key)
-  .check_geoframe(gs, from, "from")
+  .check_geoframe(gs, from, "source")
   if (is.null(key)) key <- if (from %in% names(schema)) from else "region"
   if (!key %in% names(schema)) {
     .stop("`x` has no column named `%s`; pass `key=`", key)
@@ -520,11 +539,17 @@ recast_to_geoatoms <- function(x, gs, from = NULL,
 
 #' @rdname recast_to_geoatoms
 #' @export
-recast_from_geoatoms <- function(x, gs, to,
+recast_from_geoatoms <- function(x, gs, target,
                                  key = NULL, values = NULL, rule = NULL,
                                  weight = NULL, na_rm = FALSE,
                                  na_action = c("drop", "error", "keep"),
-                                 collect = NULL) {
+                                 collect = NULL,
+                                 to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("recast_from_geoatoms", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
   backend <- .gs_backend(x)
@@ -532,7 +557,7 @@ recast_from_geoatoms <- function(x, gs, to,
     .stop(paste0("`x` must be a data.frame, tibble, data.table, or an ",
                  "arrow table/dataset/query"))
   }
-  .check_geoframe(gs, to, "to")
+  .check_geoframe(gs, to, "target")
   schema <- .gs_schema(x)
   .check_gs_cols(schema)
   if (is.null(key)) key <- "region"
@@ -639,19 +664,19 @@ recast_from_geoatoms <- function(x, gs, to,
 
 # -- the shared recast() generic ----------------------------------------------
 
-# GeoScale method on nestedscales' `recast()` generic: `from` is the
-# GeoScale, `to` the target geoframe (or another GeoScale); the SOURCE
-# geoframe is `from_geoframe`, or is inferred when exactly one of the
+# GeoScale method on nestedscales' `recast()` generic: `scale` is the
+# GeoScale, `target` the target geoframe (or another GeoScale); the SOURCE
+# geoframe is `source`, or is inferred when exactly one of the
 # object's geoframes appears as a column of `x`. Everything else forwards
 # to recast_geoscale(). Registered against the external generic (S7's
 # cross-package mechanism; activated by S7::methods_register() in .onLoad).
 .recast_generic <- S7::new_external_generic("nestedscales", "recast",
-                                            c("x", "from"))
+                                            c("x", "scale"))
 S7::method(.recast_generic, list(S7::class_any, GeoScale)) <-
-  function(x, from, to, from_geoframe = NULL, key = NULL, values = NULL,
+  function(x, scale, target, source = NULL, key = NULL, values = NULL,
            rule = NULL, weight = NULL,
            na_action = c("drop", "error", "keep"), collect = NULL, ...) {
-    recast_geoscale(x, gs = from, from = from_geoframe, to = to, key = key,
+    recast_geoscale(x, gs = scale, source = source, target = target, key = key,
                     values = values, rule = rule, weight = weight,
                     na_action = na_action, collect = collect)
   }

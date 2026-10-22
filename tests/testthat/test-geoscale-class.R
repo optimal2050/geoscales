@@ -22,7 +22,8 @@ test_that("blank codes are normalised to NA", {
   df <- data.frame(top = c("T", "  ", "T"), unit = c("a", "b", "c"),
                    km2 = c(1, 2, 3))
   gs <- geoscale_from_leaftable(df, geoframes = c("top", "unit"))
-  expect_true(is.na(S7::prop(gs, "leaftable")$top[2]))
+  lt <- S7::prop(gs, "leaftable")
+  expect_true(is.na(lt$top[lt$region == "b"]))
   expect_equal(geoscale_regions(gs, "top"), "T")
 })
 

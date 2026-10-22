@@ -19,9 +19,10 @@
 #' @param x The data: a data.frame, tibble, data.table, or arrow
 #'   table/dataset/query with two endpoint columns.
 #' @param gs The [`GeoScale`] the endpoints are keyed in.
-#' @param to Target geoframe name, coarser than `from`.
-#' @param from Geoframe the endpoint codes belong to. `NULL` (default) is the
+#' @param target Target geoframe name, coarser than `source`.
+#' @param source Geoframe the endpoint codes belong to. `NULL` (default) is the
 #'   finest (atom) geoframe.
+#' @param from,to Deprecated names of `source` and `target`.
 #' @param src,dst The endpoint columns. Default `"src"` and `"dst"`.
 #' @param values Value columns to aggregate. `NULL` (default) is every numeric
 #'   column that is not an endpoint, the weight, or a geoframe.
@@ -54,13 +55,24 @@
 #'   capacity = c(100, 200, 300)
 #' )
 #' # A1-A2 is internal to state N1 and is dropped; the other two survive
-#' recast_pairs(lines, gs, to = "state", rule = "sum")
+#' recast_pairs(lines, gs, target = "state", rule = "sum")
 #' @export
-recast_pairs <- function(x, gs, to, from = NULL,
+recast_pairs <- function(x, gs, target, source = NULL,
                          src = "src", dst = "dst",
                          values = NULL, rule = NULL, weight = NULL,
                          na_rm = FALSE, directed = TRUE,
-                         drop_internal = TRUE, collect = NULL) {
+                         drop_internal = TRUE, collect = NULL,
+                         to = lifecycle::deprecated(), from = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("recast_pairs", "to", "target", !missing(target))
+    target <- to
+  }
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("recast_pairs", "from", "source", !missing(source))
+    source <- from
+  }
+  to <- target
+  from <- source
   .check_geoscale(gs, "gs")
   backend <- .gs_backend(x)
   if (is.na(backend)) {
@@ -69,12 +81,12 @@ recast_pairs <- function(x, gs, to, from = NULL,
   }
   schema <- .gs_schema(x)
   .check_gs_cols(schema)
-  .check_geoframe(gs, to, "to")
+  .check_geoframe(gs, to, "target")
   if (is.null(from)) from <- geoscale_geoframes(gs, finest = TRUE)
-  .check_geoframe(gs, from, "from")
+  .check_geoframe(gs, from, "source")
 
   if (geoscale_rank(gs, to) > geoscale_rank(gs, from)) {
-    .stop(paste0("`to` = \"%s\" is finer than `from` = \"%s\"; pairs ",
+    .stop(paste0("`target` = \"%s\" is finer than `source` = \"%s\"; pairs ",
                  "aggregate only"), to, from)
   }
   if (identical(src, dst)) .stop("`src` and `dst` must differ")

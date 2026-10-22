@@ -12,13 +12,37 @@ is known (hand-audited crosswalks, official concordance tables).
 ## Usage
 
 ``` r
-register_geoscale_map(gs, from, to, map)
+register_geoscale_map(
+  gs,
+  source,
+  target,
+  map,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-register_geoscale_map_between(from, to, map)
+register_geoscale_map_between(
+  source,
+  target,
+  map,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_geoscale_map(gs, from, to)
+get_geoscale_map(
+  gs,
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_geoscale_map_between(from, to)
+get_geoscale_map_between(
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
 list_geoscale_maps()
 ```
@@ -31,12 +55,9 @@ list_geoscale_maps()
   [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the geoframes belong to, or its name.
 
-- from, to:
+- source, target:
 
-  For the within-object functions, geoframe names of `gs`. For the
-  `_between` functions, two
-  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
-  objects or their names.
+  For the within-object functions, geoframe names of `gs`.
 
 - map:
 
@@ -45,6 +66,13 @@ list_geoscale_maps()
   result: the two label columns named after the geoframes (or
   GeoScales), plus `n_from`, `n_overlap`, `w` and `w_from`. `NULL`
   removes a previously registered map.
+
+- from, to:
+
+  Deprecated names of `source` and `target`. For the `_between`
+  functions, two
+  [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
+  objects or their names.
 
 ## Value
 

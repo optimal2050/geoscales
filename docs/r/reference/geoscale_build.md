@@ -8,7 +8,14 @@ geoframe, until every geoframe in `geoframes` is present.
 ## Usage
 
 ``` r
-geoscale_build(..., geoframes, weights = NULL, name = "", desc = "")
+geoscale_build(
+  ...,
+  geoframes,
+  weights = NULL,
+  name = "",
+  desc = "",
+  row_order = c("nested", "given")
+)
 ```
 
 ## Arguments
@@ -31,6 +38,12 @@ geoscale_build(..., geoframes, weights = NULL, name = "", desc = "")
 - name, desc:
 
   Short name and description.
+
+- row_order:
+
+  Passed to
+  [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md):
+  `"nested"` (default) or `"given"`.
 
 ## Value
 

@@ -7,13 +7,37 @@ transitive closure.
 ## Usage
 
 ``` r
-geoscale_children(x, geoframe, region, to = NULL)
+geoscale_children(
+  x,
+  geoframe,
+  region,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-geoscale_parents(x, geoframe, region, to = NULL)
+geoscale_parents(
+  x,
+  geoframe,
+  region,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-geoscale_descendants(x, geoframe, region, to = NULL)
+geoscale_descendants(
+  x,
+  geoframe,
+  region,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-geoscale_ancestors(x, geoframe, region, to = NULL)
+geoscale_ancestors(
+  x,
+  geoframe,
+  region,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 ```
 
 ## Arguments
@@ -31,11 +55,15 @@ geoscale_ancestors(x, geoframe, region, to = NULL)
 
   Character vector of region codes at `geoframe`.
 
-- to:
+- target:
 
   Target geoframe. For `geoscale_children()`/`geoscale_parents()` this
   defaults to the adjacent geoframe; for the transitive versions, `NULL`
   means all geoframes below/above.
+
+- to:
+
+  Deprecated name of `target`.
 
 ## Value
 
@@ -57,7 +85,7 @@ across geoframes, so a bare code is ambiguous.
 gs <- geoscale_example()
 geoscale_children(gs, "country", "N")
 #> [1] "N1" "N2"
-geoscale_parents(gs, "state", "N1", to = "country")
+geoscale_parents(gs, "state", "N1", target = "country")
 #> [1] "N"
 geoscale_descendants(gs, "country", "N")
 #>   geoframe region

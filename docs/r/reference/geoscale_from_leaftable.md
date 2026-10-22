@@ -17,6 +17,7 @@ geoscale_from_leaftable(
   geometry = NULL,
   name = "",
   desc = "",
+  row_order = c("nested", "given"),
   ...
 )
 ```
@@ -61,6 +62,12 @@ geoscale_from_leaftable(
 - name, desc:
 
   Short name and description.
+
+- row_order:
+
+  `"nested"` (default) sorts the rows by geoframe, coarsest first, each
+  in its member order (unassigned codes last; `geometry` follows);
+  `"given"` keeps the rows as supplied.
 
 - ...:
 

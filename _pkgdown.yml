@@ -40,6 +40,12 @@ footer:
 
 navbar:
   bg: primary
+  structure:
+    right: [search, python, github, lightswitch]
+  components:
+    python:
+      text: Python
+      href: ../python/
 
 # The intro (vignettes/geoscales.Rmd, package-named) surfaces as the
 # top-level "Get started" navbar item; everything else sits DIRECTLY in

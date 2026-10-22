@@ -221,7 +221,7 @@ test_that("rule share errors are specific", {
     "coarser|nest")
   expect_error(
     suppressWarnings(recast_from_geoatoms(
-      transform(cap, region = atom), gs, to = "country", rule = "share",
+      transform(cap, region = atom), gs, target = "country", rule = "share",
       values = "capacity")),
     "not supported")
 })

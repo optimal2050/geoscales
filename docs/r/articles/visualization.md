@@ -95,7 +95,7 @@ first and draw the result — the explicit route makes the rule visible
 ``` r
 
 x |>
-  recast_geoscale(gs, from = "region", to = "zone", rule = "sum") |>
+  recast_geoscale(gs, source = "region", target = "zone", rule = "sum") |>
   ggplot() +
   geom_geoscale(gs = gs, z = "capacity", geoframe = "zone") +
   scale_fill_viridis_c(option = "G") +
@@ -277,7 +277,7 @@ geoframe — where the two capital-area units render as one region:
 ``` r
 
 tibble(country = "ISL", capacity_mw = 3000) |>
-  recast_geoscale(isl, from = "country", to = "landshluti",
+  recast_geoscale(isl, source = "country", target = "landshluti",
                   rule = "sum", weight = "km2") |>
   ggplot() +
   geom_geoscale(gs = isl, z = "capacity_mw", geoframe = "landshluti",
@@ -306,7 +306,7 @@ vignette](https://optimal2050.github.io/timescales/r/articles/visualization.html
 iw <- readRDS("../../data-raw/iceland_wind.rds")
 for (gf in c("cluster", "landshluti", "country")) {
   d <- if (gf == "cluster") iw$wind else
-    recast_geoscale(iw$wind, iw$gs, from = "cluster", to = gf,
+    recast_geoscale(iw$wind, iw$gs, source = "cluster", target = gf,
                     rule = "weighted_mean", weight = "km2")
   print(geoscale_plot(iw$gs, d, geoframe = gf, fill = "wind",
                       palette = "G") +

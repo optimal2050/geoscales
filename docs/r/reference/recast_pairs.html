@@ -13,7 +13,7 @@ become internal and are dropped, and the rest are aggregated by rule."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@ become internal and are dropped, and the rest are aggregated by rule."><meta pro
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/geoscales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -65,8 +66,8 @@ become internal and are dropped, and the rest are aggregated by rule.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">recast_pairs</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">gs</span>,</span>
-<span>  <span class="va">to</span>,</span>
-<span>  from <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">target</span>,</span>
+<span>  source <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  src <span class="op">=</span> <span class="st">"src"</span>,</span>
 <span>  dst <span class="op">=</span> <span class="st">"dst"</span>,</span>
 <span>  values <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -75,7 +76,9 @@ become internal and are dropped, and the rest are aggregated by rule.</p>
 <span>  na_rm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  directed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  drop_internal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  collect <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  collect <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  to <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  from <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,11 +95,11 @@ table/dataset/query with two endpoint columns.</p></dd>
 <dd><p>The <code><a href="GeoScale.html">GeoScale</a></code> the endpoints are keyed in.</p></dd>
 
 
-<dt id="arg-to">to<a class="anchor" aria-label="anchor" href="#arg-to"></a></dt>
-<dd><p>Target geoframe name, coarser than <code>from</code>.</p></dd>
+<dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>
+<dd><p>Target geoframe name, coarser than <code>source</code>.</p></dd>
 
 
-<dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
+<dt id="arg-source">source<a class="anchor" aria-label="anchor" href="#arg-source"></a></dt>
 <dd><p>Geoframe the endpoint codes belong to. <code>NULL</code> (default) is the
 finest (atom) geoframe.</p></dd>
 
@@ -141,6 +144,10 @@ region (default <code>TRUE</code>). <code>FALSE</code> keeps them as self-pairs.
 <dd><p>For lazy inputs: materialise (<code>TRUE</code>) or return the query
 (default).</p></dd>
 
+
+<dt id="arg-from-to">from, to<a class="anchor" aria-label="anchor" href="#arg-from-to"></a></dt>
+<dd><p>Deprecated names of <code>source</code> and <code>target</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -173,7 +180,7 @@ region count and almost entirely empty.</p>
 <span class="r-in"><span>  capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># A1-A2 is internal to state N1 and is dropped; the other two survive</span></span></span>
-<span class="r-in"><span><span class="fu">recast_pairs</span><span class="op">(</span><span class="va">lines</span>, <span class="va">gs</span>, to <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">recast_pairs</span><span class="op">(</span><span class="va">lines</span>, <span class="va">gs</span>, target <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1 pair(s) fall inside a single `state` region and were dropped as internal</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   src dst capacity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  N1  S1      300</span>

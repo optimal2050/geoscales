@@ -26,6 +26,8 @@
 #' @param weights Optional `data.frame` keyed by the atom geoframe, carrying one
 #'   or more numeric weight columns.
 #' @param name,desc Short name and description.
+#' @param row_order Passed to [`geoscale_from_leaftable()`]: `"nested"`
+#'   (default) or `"given"`.
 #' @param ... Additional arguments passed to [`geoscale_from_leaftable()`].
 #'
 #' @return A [`GeoScale`].
@@ -42,7 +44,8 @@
 #' )
 #' @export
 geoscale_build <- function(..., geoframes, weights = NULL,
-                           name = "", desc = "") {
+                           name = "", desc = "",
+                           row_order = c("nested", "given")) {
   xwalks <- list(...)
   if (length(xwalks) == 0L) {
     .stop("supply at least one crosswalk data.frame")
@@ -125,5 +128,6 @@ geoscale_build <- function(..., geoframes, weights = NULL,
   }
 
   leaftable <- leaftable[, c(geoframes, setdiff(names(leaftable), geoframes)), drop = FALSE]
-  geoscale_from_leaftable(leaftable, geoframes = geoframes, name = name, desc = desc)
+  geoscale_from_leaftable(leaftable, geoframes = geoframes, name = name, desc = desc,
+                          row_order = row_order)
 }

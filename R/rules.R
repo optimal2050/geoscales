@@ -30,7 +30,7 @@
 #'     (or `parent=`) names the parent -- so it cannot be mixed with other
 #'     rules in one call (the two share rules mix freely, being one
 #'     computation). For building distribution keys and normalised
-#'     profiles; requires `from` to nest within the parent.}
+#'     profiles; requires `source` to nest within the parent.}
 #'   \item{`logshare`}{The same computation as `share` -- the values ARE
 #'     shares -- but figures draw it on a fixed log10 percent scale
 #'     (0.01%..100%), where `share` gets a fixed linear 0..1 scale. Use it

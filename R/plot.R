@@ -353,7 +353,7 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
   vals <- lapply(gfs, function(gf) {
     if (gf == atom_gf) return(data[, c(atom_gf, z)])
     recast_geoscale(data[, c(atom_gf, z)], x,
-                    from = atom_gf, to = gf,
+                    source = atom_gf, target = gf,
                     values = z, rule = rule, weight = weight)
   })
   stats::setNames(vals, gfs)
@@ -387,7 +387,7 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
     na.value = "grey85")
 }
 
-#' Does every region of `from` fall inside exactly one region of `to`?
+#' Does every region of `source` fall inside exactly one region of `target`?
 #' Cross-cutting geoframes (IDEEA's reg35/reg32) fail this.
 #' @noRd
 .geo_nests <- function(gs, from, to) {
@@ -411,12 +411,12 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
     s <- if (gf == atom_gf) {
       data[, c(atom_gf, z)]
     } else {
-      recast_geoscale(data[, c(atom_gf, z)], x, from = atom_gf, to = gf,
+      recast_geoscale(data[, c(atom_gf, z)], x, source = atom_gf, target = gf,
                       values = z, rule = "sum")
     }
     for (j in rev(seq_len(i - 1L))) {
       if (.geo_nests(x, gf, gfs[[j]])) {
-        return(recast_geoscale(s, x, from = gf, to = gfs[[j]],
+        return(recast_geoscale(s, x, source = gf, target = gfs[[j]],
                                values = z, rule = "share"))
       }
     }

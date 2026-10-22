@@ -8,8 +8,8 @@ A `GeoScale` is an S7 object with five properties:
 
 gs <- geoscale_example()
 S7::prop_names(gs)
-#> [1] "leaftable" "frames"    "members"   "key"       "meta"      "geoframes"
-#> [7] "geometry"
+#> [1] "leaftable"  "frames"     "members"    "key"        "meta"      
+#> [6] "attributes" "aliases"    "geoframes"  "geometry"
 ```
 
 | property | type | holds |
@@ -75,7 +75,7 @@ transitive closure:
 
 ``` r
 
-geoscale_parents(gs, "zone", "ZB", to = "state")   # cross-cut: two parents
+geoscale_parents(gs, "zone", "ZB", target = "state")   # cross-cut: two parents
 #> [1] "N2" "S1"
 geoscale_ancestors(gs, "atom", "A5")
 #>   geoframe region

@@ -1,6 +1,6 @@
 Package: geoscales
 Title: Nested Regions and Spatial Hierarchies for Modeling
-Version: 0.6.1.9000
+Version: 0.7.0
 URL: https://optimal2050.github.io/geoscales/r/,
     https://optimal2050.github.io/geoscales/,
     https://github.com/optimal2050/geoscales
@@ -27,10 +27,11 @@ Depends:
     R (>= 4.2)
 Imports:
     dplyr (>= 1.1.1),
+    lifecycle,
     rlang,
     S7,
     stats,
-    nestedscales (>= 0.1.0),
+    nestedscales (>= 0.2.0),
     utils
 Suggests:
     withr,
@@ -56,4 +57,4 @@ Config/testthat/edition: 3
 Config/Needs/website: pkgdown, rmarkdown, sf, ggplot2, rnaturalearth,
     rnaturalearthdata, rnaturalearthhires, energyRt, patchwork, energypal
 VignetteBuilder: knitr
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1

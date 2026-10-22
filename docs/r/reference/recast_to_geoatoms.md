@@ -15,26 +15,28 @@ across two different GeoScales that share atom keys.
 recast_to_geoatoms(
   x,
   gs,
-  from = NULL,
+  source = NULL,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
   attach_weight = TRUE,
-  collect = NULL
+  collect = NULL,
+  from = lifecycle::deprecated()
 )
 
 recast_from_geoatoms(
   x,
   gs,
-  to,
+  target,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
   na_rm = FALSE,
   na_action = c("drop", "error", "keep"),
-  collect = NULL
+  collect = NULL,
+  to = lifecycle::deprecated()
 )
 ```
 
@@ -43,7 +45,7 @@ recast_from_geoatoms(
 - x:
 
   The data: for `recast_to_geoatoms()` keyed by region code at geoframe
-  `from`; for `recast_from_geoatoms()` keyed by atom `region` IDs.
+  `source`; for `recast_from_geoatoms()` keyed by atom `region` IDs.
 
 - gs:
 
@@ -52,7 +54,7 @@ recast_from_geoatoms(
   the data is keyed in (`to_geoatoms`) or aggregated into
   (`from_geoatoms`).
 
-- from:
+- source:
 
   `to_geoatoms` only: geoframe name the codes belong to. `NULL`
   (default) is inferred as in
@@ -60,7 +62,7 @@ recast_from_geoatoms(
 
 - key:
 
-  The key column. `to_geoatoms`: defaults to `from` when that column
+  The key column. `to_geoatoms`: defaults to `source` when that column
   exists, otherwise `"region"`. `from_geoatoms`: default `"region"`.
 
 - values, rule:
@@ -85,7 +87,11 @@ recast_from_geoatoms(
 
   For lazy inputs: materialise (`TRUE`) or return the query (default).
 
-- to:
+- from, to:
+
+  Deprecated names of `source` and `target`.
+
+- target:
 
   `from_geoatoms` only: target geoframe name.
 
@@ -98,17 +104,17 @@ recast_from_geoatoms(
 
 - na_action:
 
-  `from_geoatoms` only: what to do with atoms that have no code at `to`
-  – `"drop"` (default, warning), `"error"`, or `"keep"` (an `NA` region
-  row).
+  `from_geoatoms` only: what to do with atoms that have no code at
+  `target` – `"drop"` (default, warning), `"error"`, or `"keep"` (an
+  `NA` region row).
 
 ## Value
 
 `recast_to_geoatoms()`: one row per (atom x identifier combination) with
 columns `region`, identifiers, values (and `weight`).
 `recast_from_geoatoms()`: one row per (region x identifier combination)
-with columns `to`-named region, identifiers, values. Both in the input's
-class; lazy in, lazy out.
+with columns `target`-named region, identifiers, values. Both in the
+input's class; lazy in, lazy out.
 
 ## Details
 
@@ -133,7 +139,7 @@ frame.
 ``` r
 gs <- geoscale_example()
 y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-a <- recast_to_geoatoms(y, gs, from = "country", rule = "sum",
+a <- recast_to_geoatoms(y, gs, source = "country", rule = "sum",
                         weight = "km2")
 a
 #>   region  capacity weight
@@ -146,7 +152,7 @@ a
 sum(a$capacity)  # 30 -- totals conserve
 #> [1] 30
 
-recast_from_geoatoms(a, gs, to = "state", rule = "sum")
+recast_from_geoatoms(a, gs, target = "state", rule = "sum")
 #>   state capacity
 #> 1    N1        3
 #> 2    N2        7

@@ -7,8 +7,8 @@
 recast_pairs(
   x,
   gs,
-  to,
-  from = NULL,
+  target,
+  source = NULL,
   src = "src",
   dst = "dst",
   values = NULL,
@@ -17,7 +17,9 @@ recast_pairs(
   na_rm = FALSE,
   directed = TRUE,
   drop_internal = TRUE,
-  collect = NULL
+  collect = NULL,
+  to = lifecycle::deprecated(),
+  from = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -26,9 +28,9 @@ table/dataset/query with two endpoint columns.}
 
 \item{gs}{The \code{\link{GeoScale}} the endpoints are keyed in.}
 
-\item{to}{Target geoframe name, coarser than \code{from}.}
+\item{target}{Target geoframe name, coarser than \code{source}.}
 
-\item{from}{Geoframe the endpoint codes belong to. \code{NULL} (default) is the
+\item{source}{Geoframe the endpoint codes belong to. \code{NULL} (default) is the
 finest (atom) geoframe.}
 
 \item{src, dst}{The endpoint columns. Default \code{"src"} and \code{"dst"}.}
@@ -55,6 +57,8 @@ region (default \code{TRUE}). \code{FALSE} keeps them as self-pairs.}
 
 \item{collect}{For lazy inputs: materialise (\code{TRUE}) or return the query
 (default).}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
 One row per (endpoint pair x identifier combination), the endpoint
@@ -87,7 +91,7 @@ lines <- data.frame(
   capacity = c(100, 200, 300)
 )
 # A1-A2 is internal to state N1 and is dropped; the other two survive
-recast_pairs(lines, gs, to = "state", rule = "sum")
+recast_pairs(lines, gs, target = "state", rule = "sum")
 }
 \seealso{
 \code{\link[=recast_geoscale]{recast_geoscale()}}, \code{\link[=recast_from_geoatoms]{recast_from_geoatoms()}}

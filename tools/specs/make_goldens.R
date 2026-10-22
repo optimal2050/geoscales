@@ -74,13 +74,13 @@ run_spec_op <- function(spec, structures_dir = STRUCT_DIR) {
   gs <- load_structure(spec$structure, structures_dir)
   out <- switch(spec$op,
     recast = geoscales::recast_geoscale(
-      x, gs, from = p$from, to = p$to, rule = p$rule,
+      x, gs, source = p$from, target = p$to, rule = p$rule,
       weight = p$weight %||% NULL,
       na_action = p$na_action %||% "drop"),
     to_atoms = geoscales::recast_to_geoatoms(
-      x, gs, from = p$from, rule = p$rule, weight = p$weight %||% NULL),
+      x, gs, source = p$from, rule = p$rule, weight = p$weight %||% NULL),
     from_atoms = geoscales::recast_from_geoatoms(
-      x, gs, to = p$to, rule = p$rule, values = unlist(p$values)),
+      x, gs, target = p$to, rule = p$rule, values = unlist(p$values)),
     join = geoscales::join_geoscale(
       x, gs, geoframe = p$geoframe,
       geoframes = if (!is.null(p$geoframes)) unlist(p$geoframes) else NULL,

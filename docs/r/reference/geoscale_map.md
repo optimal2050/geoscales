@@ -6,7 +6,14 @@ pair of overlapping regions with
 ## Usage
 
 ``` r
-geoscale_map(gs, from, to, weight = NULL)
+geoscale_map(
+  gs,
+  source,
+  target,
+  weight = NULL,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 ```
 
 ## Arguments
@@ -17,7 +24,7 @@ geoscale_map(gs, from, to, weight = NULL)
   [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the geoframes belong to.
 
-- from, to:
+- source, target:
 
   Geoframe names of `gs`.
 
@@ -26,26 +33,31 @@ geoscale_map(gs, from, to, weight = NULL)
   Weight column for `w`. `NULL` uses the default weight; when the object
   declares no weights at all, every atom gets weight 1 (an equal split).
 
+- from, to:
+
+  Deprecated names of `source` and `target`.
+
 ## Value
 
-A `data.frame` with columns `<from>`, `<to>` (`NA` = uncovered by `to`),
-`n_from`, `n_overlap`, `w`, `w_from`.
+A `data.frame` with columns `<source>`, `<target>` (`NA` = uncovered by
+`target`), `n_from`, `n_overlap`, `w`, `w_from`.
 
 ## Details
 
-- `n_from` – atoms in the `from` region (its full set, before any target
-  coverage is considered),
+- `n_from` – atoms in the `source` region (its full set, before any
+  target coverage is considered),
 
 - `n_overlap` – atoms the pair shares,
 
 - `w` – the weight of the overlap (summed atom weights, chosen weight
   column), the quantity `"weighted_mean"` aggregation uses,
 
-- `w_from` – the full weight of the `from` region; `w / w_from` is the
+- `w_from` – the full weight of the `source` region; `w / w_from` is the
   split share `"sum"` disaggregation uses.
 
 The two label columns are named by the geoframes; rows with an `NA`
-target label are atoms `to` does not cover. A crosswalk registered with
+target label are atoms `target` does not cover. A crosswalk registered
+with
 [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
 is returned as-is instead of being derived.
 

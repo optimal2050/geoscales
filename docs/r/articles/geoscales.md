@@ -85,7 +85,7 @@ operation, and totals conserve under `"sum"`:
 ``` r
 
 cap <- tibble(atom = paste0("A", 1:6), capacity = c(1, 2, 3, 4, 5, 6))
-cap |> recast_geoscale(gs, from = "atom", to = "country", rule = "sum")
+cap |> recast_geoscale(gs, source = "atom", target = "country", rule = "sum")
 #> # A tibble: 2 × 2
 #>   country capacity
 #>   <chr>      <dbl>
@@ -94,7 +94,7 @@ cap |> recast_geoscale(gs, from = "atom", to = "country", rule = "sum")
 
 # ... and back down, split by area
 tibble(country = c("N", "S"), capacity = c(10, 20)) |>
-  recast_geoscale(gs, from = "country", to = "state",
+  recast_geoscale(gs, source = "country", target = "state",
                   rule = "sum", weight = "km2")
 #> # A tibble: 3 × 2
 #>   state capacity
@@ -158,7 +158,7 @@ gs <- attach_geometry_geoscale(gs, sf::st_sfc(
   sq(0, 1), sq(0, 0), sq(1, 1), sq(1, 0), sq(2, 1), sq(2, 0)))
 
 cap |>
-  recast_geoscale(gs, from = "atom", to = "state", rule = "sum") |>
+  recast_geoscale(gs, source = "atom", target = "state", rule = "sum") |>
   ggplot() +
   geom_geoscale(gs = gs, z = "capacity", geoframe = "state") +
   scale_fill_viridis_c() +
@@ -321,7 +321,7 @@ head(geoscale_leaftable(iceland$gs), 4)
 #> 4 Iceland Hofudborgarsvadi IS-1_c1  165.8929 IS-1_c1
 
 iceland$wind |>
-  recast_geoscale(iceland$gs, from = "cluster", to = "landshluti",
+  recast_geoscale(iceland$gs, source = "cluster", target = "landshluti",
                   rule = "weighted_mean", weight = "km2")
 #>          landshluti     wind
 #> 1        Austurland 8.694984

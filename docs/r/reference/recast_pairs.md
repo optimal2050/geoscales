@@ -12,8 +12,8 @@ aggregated by rule.
 recast_pairs(
   x,
   gs,
-  to,
-  from = NULL,
+  target,
+  source = NULL,
   src = "src",
   dst = "dst",
   values = NULL,
@@ -22,7 +22,9 @@ recast_pairs(
   na_rm = FALSE,
   directed = TRUE,
   drop_internal = TRUE,
-  collect = NULL
+  collect = NULL,
+  to = lifecycle::deprecated(),
+  from = lifecycle::deprecated()
 )
 ```
 
@@ -39,11 +41,11 @@ recast_pairs(
   [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the endpoints are keyed in.
 
-- to:
+- target:
 
-  Target geoframe name, coarser than `from`.
+  Target geoframe name, coarser than `source`.
 
-- from:
+- source:
 
   Geoframe the endpoint codes belong to. `NULL` (default) is the finest
   (atom) geoframe.
@@ -89,6 +91,10 @@ recast_pairs(
 
   For lazy inputs: materialise (`TRUE`) or return the query (default).
 
+- from, to:
+
+  Deprecated names of `source` and `target`.
+
 ## Value
 
 One row per (endpoint pair x identifier combination), the endpoint
@@ -125,7 +131,7 @@ lines <- data.frame(
   capacity = c(100, 200, 300)
 )
 # A1-A2 is internal to state N1 and is dropped; the other two survive
-recast_pairs(lines, gs, to = "state", rule = "sum")
+recast_pairs(lines, gs, target = "state", rule = "sum")
 #> Warning: 1 pair(s) fall inside a single `state` region and were dropped as internal
 #>   src dst capacity
 #> 1  N1  S1      300

@@ -9,7 +9,7 @@ the geoframe ranks, so aggregation and disaggregation are one operation:"><meta 
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,6 +30,7 @@ the geoframe ranks, so aggregation and disaggregation are one operation:"><meta 
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/geoscales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -92,7 +93,7 @@ result stays keyed at the <strong>source</strong> geoframe – the recast target
 (or <code>parent=</code>) names the parent – so it cannot be mixed with other
 rules in one call (the two share rules mix freely, being one
 computation). For building distribution keys and normalised
-profiles; requires <code>from</code> to nest within the parent.</p></dd>
+profiles; requires <code>source</code> to nest within the parent.</p></dd>
 
 <dt><code>logshare</code></dt>
 <dd><p>The same computation as <code>share</code> – the values ARE

@@ -7,15 +7,17 @@
 recast_geoscale(
   x,
   gs,
-  from = NULL,
-  to,
+  source = NULL,
+  target,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
   na_action = c("drop", "error", "keep"),
   parent = NULL,
-  collect = NULL
+  collect = NULL,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -25,15 +27,15 @@ are preserved as identifiers.}
 
 \item{gs}{The \code{\link{GeoScale}} the codes in \code{x} belong to.}
 
-\item{from}{Geoframe name the codes belong to. \code{NULL} (default) is
+\item{source}{Geoframe name the codes belong to. \code{NULL} (default) is
 inferred: \code{key} when it is a geoframe name, else the single geoframe
 name appearing among \code{x}'s columns.}
 
-\item{to}{Target geoframe name of \code{gs}, or another (named) \code{\link{GeoScale}}
+\item{target}{Target geoframe name of \code{gs}, or another (named) \code{\link{GeoScale}}
 -- then the target is that object's atom layer, matched on the atom
 \code{region} keys the two objects share.}
 
-\item{key}{Name of the region-code column in \code{x}. Defaults to \code{from}
+\item{key}{Name of the region-code column in \code{x}. Defaults to \code{source}
 when that column exists, otherwise \code{"region"}.}
 
 \item{values}{Character vector of value columns to convert. Default: all
@@ -52,28 +54,30 @@ falling back to the object's default weight; when the object declares
 no weights at all, atoms weigh 1 (an equal split, with a warning when
 that choice is material, i.e. when disaggregating).}
 
-\item{na_action}{What to do with atoms that have no code at \code{from} or
-\code{to}: \code{"drop"} (default, with a warning -- the affected source share
+\item{na_action}{What to do with atoms that have no code at \code{source} or
+\code{target}: \code{"drop"} (default, with a warning -- the affected source share
 is genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA}
 region row so totals conserve).}
 
 \item{parent}{\code{rule = "share"} only: the geoframe defining the groups
-the shares are taken within. \code{NULL} (default) uses \code{to} when it
-differs from \code{from}, else the geoframe immediately above \code{from}.}
+the shares are taken within. \code{NULL} (default) uses \code{target} when it
+differs from \code{source}, else the geoframe immediately above \code{source}.}
 
 \item{collect}{For lazy inputs (arrow, dtplyr): materialise the result
 (\code{TRUE}) or return the uncollected query (default).}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
 The recast table in the input's class, with columns
-\code{c(to, identifiers, values)}: per identifier combination, one row per
-member of \code{to} (the full target vocabulary, \code{NA} where uncovered),
+\code{c(target, identifiers, values)}: per identifier combination, one row per
+member of \code{target} (the full target vocabulary, \code{NA} where uncovered),
 plus an \code{NA} region row under \code{na_action = "keep"}. Identifier column
 types are preserved.
 }
 \description{
 The central conversion verb: takes a table keyed by region code at
-geoframe \code{from} and returns one keyed at \code{to} -- a geoframe name of the
+geoframe \code{source} and returns one keyed at \code{target} -- a geoframe name of the
 same \code{\link{GeoScale}}, or ANOTHER GeoScale (whose atom layer is the target,
 matched on shared atom \code{region} keys). Handles both aggregation (fine to
 coarse) and disaggregation (coarse to fine) with a single rule per value
@@ -108,12 +112,12 @@ downstream, \code{energyRt} reads \code{NA} in a region column as a \emph{wildca
 meaning all regions}, so \code{"keep"} output should not be passed there
 unfiltered.
 
-\code{"share"} inverts the output contract: the result stays keyed at \code{from},
+\code{"share"} inverts the output contract: the result stays keyed at \code{source},
 and each value becomes that region's share of the total over its parent
 group (so the shares sum to 1 per parent, per identifier combination).
-The parent is \verb{parent=}, defaulting to \code{to} (the reading of
-\code{recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")}:
-each nuts3's share within its nuts0); \code{from} must nest within it. A
+The parent is \verb{parent=}, defaulting to \code{target} (the reading of
+\code{recast_geoscale(x, gs, source = "nuts3", target = "nuts0", rule = "share")}:
+each nuts3's share within its nuts0); \code{source} must nest within it. A
 parent group whose total is zero yields \code{NA} shares, and an \code{NA} value
 poisons its group like everywhere else in the package. \code{"share"} cannot
 be combined with other rules in one call, and \verb{weight=} is ignored --
@@ -135,19 +139,19 @@ gs <- geoscale_example()
 # Extensive quantity, fine -> coarse: totals are preserved
 x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 capacity = c(1, 2, 3, 4, 5, 6))
-recast_geoscale(x, gs, from = "atom", to = "country", rule = "sum")
+recast_geoscale(x, gs, source = "atom", target = "country", rule = "sum")
 
 # Coarse -> fine: split proportionally to area
 y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-recast_geoscale(y, gs, from = "country", to = "state",
+recast_geoscale(y, gs, source = "country", target = "state",
                 rule = "sum", weight = "km2")
 
 # Intensive quantity: weighted mean going up, copied going down
 z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-recast_geoscale(z, gs, from = "atom", to = "state",
+recast_geoscale(z, gs, source = "atom", target = "state",
                 rule = "weighted_mean")
 
 # Share within parent: result stays at the atoms, sums to 1 per country
-recast_geoscale(x, gs, from = "atom", to = "country", rule = "share")
+recast_geoscale(x, gs, source = "atom", target = "country", rule = "share")
 }

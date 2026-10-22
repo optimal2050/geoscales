@@ -4,7 +4,14 @@
 \alias{geoscale_build}
 \title{Build a GeoScale from parent-child crosswalks}
 \usage{
-geoscale_build(..., geoframes, weights = NULL, name = "", desc = "")
+geoscale_build(
+  ...,
+  geoframes,
+  weights = NULL,
+  name = "",
+  desc = "",
+  row_order = c("nested", "given")
+)
 }
 \arguments{
 \item{...}{Additional arguments passed to \code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}}.}
@@ -16,6 +23,9 @@ last entry is the atom geoframe.}
 or more numeric weight columns.}
 
 \item{name, desc}{Short name and description.}
+
+\item{row_order}{Passed to \code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}}: \code{"nested"}
+(default) or \code{"given"}.}
 }
 \value{
 A \code{\link{GeoScale}}.

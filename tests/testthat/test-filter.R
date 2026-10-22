@@ -10,7 +10,7 @@ test_that("navigation requires an explicit geoframe", {
 
 test_that("children and parents step one geoframe", {
   expect_equal(geoscale_children(gs, "country", "N"), c("N1", "N2"))
-  expect_equal(geoscale_parents(gs, "state", "N1", to = "country"), "N")
+  expect_equal(geoscale_parents(gs, "state", "N1", target = "country"), "N")
   expect_error(geoscale_children(gs, "atom", "A1"), "finest geoframe")
   expect_error(geoscale_parents(gs, "country", "N"), "coarsest geoframe")
 })

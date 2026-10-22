@@ -143,7 +143,8 @@ geoscale_ancestry <- function(x) {
 #' @param x A [`GeoScale`].
 #' @param geoframe Geoframe that `region` belongs to.
 #' @param region Character vector of region codes at `geoframe`.
-#' @param to Target geoframe. For `geoscale_children()`/`geoscale_parents()` this defaults
+#' @param to Deprecated name of `target`.
+#' @param target Target geoframe. For `geoscale_children()`/`geoscale_parents()` this defaults
 #'   to the adjacent geoframe; for the transitive versions, `NULL` means all
 #'   geoframes below/above.
 #'
@@ -156,7 +157,7 @@ geoscale_ancestry <- function(x) {
 #' @examples
 #' gs <- geoscale_example()
 #' geoscale_children(gs, "country", "N")
-#' geoscale_parents(gs, "state", "N1", to = "country")
+#' geoscale_parents(gs, "state", "N1", target = "country")
 #' geoscale_descendants(gs, "country", "N")
 #' geoscale_ancestors(gs, "atom", "A5")
 #' @name geoscale_navigate
@@ -164,37 +165,61 @@ NULL
 
 #' @rdname geoscale_navigate
 #' @export
-geoscale_children <- function(x, geoframe, region, to = NULL) {
+geoscale_children <- function(x, geoframe, region, target = NULL,
+                              to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("geoscale_children", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  if (!is.null(to)) .check_geoframe(x, to, "to")
+  if (!is.null(to)) .check_geoframe(x, to, "target")
   nestedscales::scale_children(x, geoframe, region, to)
 }
 
 #' @rdname geoscale_navigate
 #' @export
-geoscale_parents <- function(x, geoframe, region, to = NULL) {
+geoscale_parents <- function(x, geoframe, region, target = NULL,
+                             to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("geoscale_parents", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  if (!is.null(to)) .check_geoframe(x, to, "to")
+  if (!is.null(to)) .check_geoframe(x, to, "target")
   nestedscales::scale_parents(x, geoframe, region, to)
 }
 
 #' @rdname geoscale_navigate
 #' @export
-geoscale_descendants <- function(x, geoframe, region, to = NULL) {
+geoscale_descendants <- function(x, geoframe, region, target = NULL,
+                                 to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("geoscale_descendants", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  if (!is.null(to)) .check_geoframe(x, to, "to")
+  if (!is.null(to)) .check_geoframe(x, to, "target")
   .geoframe_region_cols(nestedscales::scale_descendants(x, geoframe, region, to))
 }
 
 #' @rdname geoscale_navigate
 #' @export
-geoscale_ancestors <- function(x, geoframe, region, to = NULL) {
+geoscale_ancestors <- function(x, geoframe, region, target = NULL,
+                               to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("geoscale_ancestors", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
-  if (!is.null(to)) .check_geoframe(x, to, "to")
+  if (!is.null(to)) .check_geoframe(x, to, "target")
   .geoframe_region_cols(nestedscales::scale_ancestors(x, geoframe, region, to))
 }
 

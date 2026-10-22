@@ -8,26 +8,52 @@
 \alias{list_geoscale_maps}
 \title{Register / look up a direct spatial crosswalk}
 \usage{
-register_geoscale_map(gs, from, to, map)
+register_geoscale_map(
+  gs,
+  source,
+  target,
+  map,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-register_geoscale_map_between(from, to, map)
+register_geoscale_map_between(
+  source,
+  target,
+  map,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_geoscale_map(gs, from, to)
+get_geoscale_map(
+  gs,
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_geoscale_map_between(from, to)
+get_geoscale_map_between(
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
 list_geoscale_maps()
 }
 \arguments{
 \item{gs}{The \code{\link{GeoScale}} the geoframes belong to, or its name.}
 
-\item{from, to}{For the within-object functions, geoframe names of \code{gs}.
-For the \verb{_between} functions, two \code{\link{GeoScale}} objects or their names.}
+\item{source, target}{For the within-object functions, geoframe names of \code{gs}.}
 
 \item{map}{A \code{data.frame} shaped like a \code{\link[=geoscale_map]{geoscale_map()}} result: the
 two label columns named after the geoframes (or GeoScales), plus
 \code{n_from}, \code{n_overlap}, \code{w} and \code{w_from}. \code{NULL} removes a previously
 registered map.}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.
+For the \verb{_between} functions, two \code{\link{GeoScale}} objects or their names.}
 }
 \value{
 Invisibly, the registry key. The \code{get_} functions return the

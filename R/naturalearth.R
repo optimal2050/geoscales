@@ -137,7 +137,7 @@ ne_source <- function(scale = 110, geoframe = c("country", "states"),
 #' lf <- S7::prop(gs, "leaftable")
 #' pop <- data.frame(country = lf$country, pop = lf$pop_est)
 #' recast_geoscale(pop[!is.na(pop$country), ], gs,
-#'            from = "country", to = "subregion", rule = "sum")
+#'            source = "country", target = "subregion", rule = "sum")
 #' }
 #' @export
 ne_geoscale <- function(scale = 110,

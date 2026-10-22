@@ -14,6 +14,7 @@ geoscale_from_leaftable(
   geometry = NULL,
   name = "",
   desc = "",
+  row_order = c("nested", "given"),
   ...
 )
 }
@@ -40,6 +41,10 @@ geoframe. Derived from \code{leaftable} when \code{NULL} (first-appearance order
 \item{geometry}{Optional \code{sfc} with one geometry per row of \code{leaftable}.}
 
 \item{name, desc}{Short name and description.}
+
+\item{row_order}{\code{"nested"} (default) sorts the rows by geoframe, coarsest
+first, each in its member order (unassigned codes last; \code{geometry} follows); \code{"given"} keeps the rows
+as supplied.}
 
 \item{...}{Further named entries merged into \code{meta} (e.g. \code{crs}, \code{source}).}
 }

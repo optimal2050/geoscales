@@ -33,6 +33,9 @@
 #' @param members Optional named list giving the ordered code vocabulary per
 #'   geoframe. Derived from `leaftable` when `NULL` (first-appearance order).
 #' @param geometry Optional `sfc` with one geometry per row of `leaftable`.
+#' @param row_order `"nested"` (default) sorts the rows by geoframe, coarsest
+#'   first, each in its member order (unassigned codes last; `geometry` follows); `"given"` keeps the rows
+#'   as supplied.
 #' @param name,desc Short name and description.
 #' @param ... Further named entries merged into `meta` (e.g. `crs`, `source`).
 #'
@@ -56,7 +59,9 @@ geoscale_from_leaftable <- function(leaftable,
                                  geometry = NULL,
                                  name = "",
                                  desc = "",
+                                 row_order = c("nested", "given"),
                                  ...) {
+  row_order <- match.arg(row_order)
   extra_names <- names(list(...))
   if (any(c("leaves", "levels") %in% extra_names)) {
     .stop(paste0("arguments `leaves`/`levels` were renamed `leaftable`/",
@@ -135,6 +140,15 @@ geoscale_from_leaftable <- function(leaftable,
           .preview(inverted))
   }
 
+  if (row_order == "nested") {
+    ord <- .nested_row_order(leaftable, geoframes, members)
+    leaftable <- leaftable[ord, , drop = FALSE]
+    rownames(leaftable) <- NULL
+    if (!is.null(geometry) && length(geometry) == length(ord)) {
+      geometry <- geometry[ord]
+    }
+  }
+
   meta <- c(
     list(
       name           = name,
@@ -191,4 +205,15 @@ geoscale_example <- function() {
     desc   = paste("Synthetic example: reused code, non-nesting geoframe pair,",
                    "and an unassigned atom")
   )
+}
+
+#' Row order of a leaftable: by each frame, coarsest first, in member order
+#'
+#' Unassigned (`NA`) codes sort last; ties keep their given order.
+#' @noRd
+.nested_row_order <- function(leaftable, frames, members) {
+  keys <- lapply(frames, function(f) {
+    match(as.character(leaftable[[f]]), as.character(members[[f]]))
+  })
+  do.call(order, c(keys, list(na.last = TRUE, method = "radix")))
 }

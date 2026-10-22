@@ -16,9 +16,8 @@ region hierarchies over weighted atoms — including geoframes that
 cross-cut one another, since every conversion routes through the atom
 layer — keep your tables as tables while they gain spatial structure,
 convert values between region systems with conserved totals, sample
-sub-territories, and see every level of a hierarchy at once. The R
-implementation is active; a C++ core and Python bindings are in
-development.
+sub-territories, and see every level of a hierarchy at once. The R and
+Python implementations are available; a C++ core is in development.
 :::
 
 ## Documentation
@@ -27,7 +26,7 @@ development.
 |----------|--------|---------------|
 | **R** | Available | [R reference and articles](r/) |
 | **C++** | In development | — |
-| **Python** | In development | — |
+| **Python** | Available | [Python reference](python/) |
 
 - [Source on GitHub](https://github.com/optimal2050/geoscales)
 - Companion package for the time dimension:

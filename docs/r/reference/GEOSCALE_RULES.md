@@ -47,7 +47,7 @@ A character vector of length 7.
   at the **source** geoframe – the recast target (or `parent=`) names
   the parent – so it cannot be mixed with other rules in one call (the
   two share rules mix freely, being one computation). For building
-  distribution keys and normalised profiles; requires `from` to nest
+  distribution keys and normalised profiles; requires `source` to nest
   within the parent.
 
 - `logshare`:

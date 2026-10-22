@@ -117,7 +117,7 @@ resource area, on the flat map:
 ```{r hero-iceland-regions, eval = has_wind, fig.width = 7, fig.height = 3, dpi = 300, message = FALSE, echo = FALSE}
 library(ggplot2)
 iceland$wind |>
-  recast_geoscale(iceland$gs, from = "cluster", to = "landshluti",
+  recast_geoscale(iceland$gs, source = "cluster", target = "landshluti",
                   rule = "weighted_mean", weight = "km2") |>
   ggplot() +
   geom_geoscale(gs = iceland$gs, z = "wind", geoframe = "landshluti") +

@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/geoscales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -92,8 +93,8 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop_names.html" class="external-link">prop_names</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "leaftable" "frames"    "members"   "key"       "meta"      "geoframes"</span></span>
-<span><span class="co">#&gt; [7] "geometry"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "leaftable"  "frames"     "members"    "key"        "meta"      </span></span>
+<span><span class="co">#&gt; [6] "attributes" "aliases"    "geoframes"  "geometry"</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -188,7 +189,7 @@ enforcement:</p>
 geoframes may cross-cut, ancestry is computed atom-mediated, never as a
 transitive closure:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_navigate.html">geoscale_parents</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"zone"</span>, <span class="st">"ZB"</span>, to <span class="op">=</span> <span class="st">"state"</span><span class="op">)</span>   <span class="co"># cross-cut: two parents</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_navigate.html">geoscale_parents</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"zone"</span>, <span class="st">"ZB"</span>, target <span class="op">=</span> <span class="st">"state"</span><span class="op">)</span>   <span class="co"># cross-cut: two parents</span></span>
 <span><span class="co">#&gt; [1] "N2" "S1"</span></span>
 <span><span class="fu"><a href="../reference/geoscale_navigate.html">geoscale_ancestors</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"atom"</span>, <span class="st">"A5"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   geoframe region</span></span>

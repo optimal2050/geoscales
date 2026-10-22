@@ -9,7 +9,7 @@
 | [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) / [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) | the route halves | project down to the atom layer / aggregate up from it |
 | [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md) | A → B crosswalk | the conversion, materialised as a small table |
 | [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md) / [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md) / [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md) | registries | per-column rules, exact crosswalks, map sources |
-| [`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html) | generic | one pipeline verb across time AND space |
+| [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html) | generic | one pipeline verb across time AND space |
 
 Everything below runs on the synthetic
 [`geoscale_example()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_example.md)
@@ -66,7 +66,7 @@ register_geoscale_rule("capacity", "sum")            # extensive
 register_geoscale_rule("eff", "weighted_mean",       # intensive
                   weight = "pop")
 
-cap |> recast_geoscale(gs, from = "atom", to = "country")
+cap |> recast_geoscale(gs, source = "atom", target = "country")
 #> # A tibble: 2 × 2
 #>   country capacity
 #>   <chr>      <dbl>
@@ -88,7 +88,7 @@ weight drives the split, and a round trip is exact:
 ``` r
 
 tibble(country = c("N", "S"), capacity = c(10, 20)) |>
-  recast_geoscale(gs, from = "country", to = "state", weight = "km2")
+  recast_geoscale(gs, source = "country", target = "state", weight = "km2")
 #> # A tibble: 3 × 2
 #>   state capacity
 #>   <chr>    <dbl>
@@ -109,7 +109,7 @@ panel <- expand.grid(atom = atoms, year = c(2030L, 2050L),
                      stringsAsFactors = FALSE) |>
   as_tibble() |>
   mutate(capacity = seq_along(atom) * 1.0)
-panel |> recast_geoscale(gs, from = "atom", to = "country",
+panel |> recast_geoscale(gs, source = "atom", target = "country",
                          values = "capacity")
 #> # A tibble: 4 × 3
 #>   country  year capacity
@@ -124,9 +124,9 @@ panel |> recast_geoscale(gs, from = "atom", to = "country",
 auto-detection takes every numeric non-key column, so numeric
 identifiers must be named out.)
 
-**3. Coverage is explicit.** Atoms with no code at `from` or `to` go
-through `na_action=`: `"drop"` (default; warns — the affected share is
-genuinely lost), `"keep"` (an explicit `NA` region row so totals
+**3. Coverage is explicit.** Atoms with no code at `source` or `target`
+go through `na_action=`: `"drop"` (default; warns — the affected share
+is genuinely lost), `"keep"` (an explicit `NA` region row so totals
 conserve), or `"error"`. Note that downstream, energyRt reads `NA` in a
 region column as a wildcard meaning *all* regions — don’t pass `"keep"`
 output there unfiltered.
@@ -142,7 +142,7 @@ rows directly:
 ``` r
 
 a <- tibble(country = c("N", "S"), capacity = c(10, 20)) |>
-  recast_to_geoatoms(gs, from = "country", rule = "sum", weight = "km2")
+  recast_to_geoatoms(gs, source = "country", rule = "sum", weight = "km2")
 head(a, 3)
 #> # A tibble: 3 × 3
 #>   region capacity weight
@@ -150,7 +150,7 @@ head(a, 3)
 #> 1 A1            1    100
 #> 2 A2            2    200
 #> 3 A3            3    300
-a |> recast_from_geoatoms(gs, to = "state", rule = "sum")
+a |> recast_from_geoatoms(gs, target = "state", rule = "sum")
 #> # A tibble: 3 × 2
 #>   state capacity
 #>   <chr>    <dbl>
@@ -162,7 +162,7 @@ a |> recast_from_geoatoms(gs, to = "state", rule = "sum")
 Because the atom rows are keyed by atom `region` IDs, the halves also
 convert **across two different GeoScales that share atom keys** (reg32
 to NUTS style conversions) — and the fused verb accepts another GeoScale
-as `to`, targeting its atom layer:
+as `target`, targeting its atom layer:
 
 ``` r
 
@@ -171,8 +171,8 @@ lf <- tibble(band = rep(c("X", "Y"), 3), atom = atoms,
 gs_b <- geoscale_from_leaftable(lf, geoframes = c("band", "atom"),
                                 name = "bands")
 cap |>
-  recast_geoscale(gs, from = "atom", to = gs_b, rule = "sum") |>
-  recast_geoscale(gs_b, from = "atom", to = "band", rule = "sum")
+  recast_geoscale(gs, source = "atom", target = gs_b, rule = "sum") |>
+  recast_geoscale(gs_b, source = "atom", target = "band", rule = "sum")
 #> # A tibble: 2 × 2
 #>   band  capacity
 #>   <chr>    <dbl>
@@ -214,8 +214,7 @@ clear_geoscale_maps()
 
 ## One verb across time and space
 
-The bare
-[`recast()`](https://optimal2050.github.io/nestedscales/reference/recast.html)
+The bare [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
 generic is owned by nestedscales and re-exported by both geoscales and
 timescales. It dispatches on the scale object, so the two packages can
 be composed in one pipeline. This illustrative snippet requires
@@ -231,9 +230,9 @@ x <- expand.grid(timeslice = sprintf("m%02d", 1:12),
   mutate(demand = seq_along(timeslice) * 1.0)
 
 x |>
-  recast(calendar("m12"), to = calendar("q4"), year = 2025,
+  recast(calendar("m12"), target = calendar("q4"), year = 2025,
          rule = "sum") |>
-  recast(gs, to = "country", rule = "sum")
+  recast(gs, target = "country", rule = "sum")
 ```
 
 Same contract on both sides: explicit rules, identifier columns
@@ -251,12 +250,12 @@ return the *uncollected query* unless `collect = TRUE`:
 dt <- data.table::as.data.table(cap)
 
 dt |>
-  recast_geoscale(gs, from = "atom", to = "country", rule = "sum") |>
+  recast_geoscale(gs, source = "atom", target = "country", rule = "sum") |>
   class()                          # data.table in, data.table out
 #> [1] "data.table" "data.frame"
 
 lazy <- dtplyr::lazy_dt(dt) |>
-  recast_geoscale(gs, from = "atom", to = "country", rule = "sum")
+  recast_geoscale(gs, source = "atom", target = "country", rule = "sum")
 class(lazy)                        # the query, not the result
 #> [1] "dtplyr_step_call" "dtplyr_step"
 as.data.frame(dplyr::collect(lazy))

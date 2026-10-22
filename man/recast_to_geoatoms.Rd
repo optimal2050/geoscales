@@ -8,40 +8,42 @@
 recast_to_geoatoms(
   x,
   gs,
-  from = NULL,
+  source = NULL,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
   attach_weight = TRUE,
-  collect = NULL
+  collect = NULL,
+  from = lifecycle::deprecated()
 )
 
 recast_from_geoatoms(
   x,
   gs,
-  to,
+  target,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
   na_rm = FALSE,
   na_action = c("drop", "error", "keep"),
-  collect = NULL
+  collect = NULL,
+  to = lifecycle::deprecated()
 )
 }
 \arguments{
 \item{x}{The data: for \code{recast_to_geoatoms()} keyed by region code at
-geoframe \code{from}; for \code{recast_from_geoatoms()} keyed by atom \code{region}
+geoframe \code{source}; for \code{recast_from_geoatoms()} keyed by atom \code{region}
 IDs.}
 
 \item{gs}{The \code{\link{GeoScale}} the data is keyed in (\code{to_geoatoms}) or
 aggregated into (\code{from_geoatoms}).}
 
-\item{from}{\code{to_geoatoms} only: geoframe name the codes belong to.
+\item{source}{\code{to_geoatoms} only: geoframe name the codes belong to.
 \code{NULL} (default) is inferred as in \code{\link[=recast_geoscale]{recast_geoscale()}}.}
 
-\item{key}{The key column. \code{to_geoatoms}: defaults to \code{from} when that
+\item{key}{The key column. \code{to_geoatoms}: defaults to \code{source} when that
 column exists, otherwise \code{"region"}. \code{from_geoatoms}: default
 \code{"region"}.}
 
@@ -59,7 +61,9 @@ column of \code{x} if present, else the GeoScale's declared weight.}
 \item{collect}{For lazy inputs: materialise (\code{TRUE}) or return the
 query (default).}
 
-\item{to}{\code{from_geoatoms} only: target geoframe name.}
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
+
+\item{target}{\code{from_geoatoms} only: target geoframe name.}
 
 \item{na_rm}{\code{from_geoatoms} only: read an \code{NA} value as "this member says
 nothing" rather than as an unknown that makes the whole group \code{NA}
@@ -67,14 +71,14 @@ nothing" rather than as an unknown that makes the whole group \code{NA}
 drops the weight of each \code{NA} member so the divisor still matches.}
 
 \item{na_action}{\code{from_geoatoms} only: what to do with atoms that have
-no code at \code{to} -- \code{"drop"} (default, warning), \code{"error"}, or
+no code at \code{target} -- \code{"drop"} (default, warning), \code{"error"}, or
 \code{"keep"} (an \code{NA} region row).}
 }
 \value{
 \code{recast_to_geoatoms()}: one row per (atom x identifier
 combination) with columns \code{region}, identifiers, values (and
 \code{weight}). \code{recast_from_geoatoms()}: one row per (region x identifier
-combination) with columns \code{to}-named region, identifiers, values.
+combination) with columns \code{target}-named region, identifiers, values.
 Both in the input's class; lazy in, lazy out.
 }
 \description{
@@ -104,10 +108,10 @@ join is a small in-memory frame.
 \examples{
 gs <- geoscale_example()
 y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-a <- recast_to_geoatoms(y, gs, from = "country", rule = "sum",
+a <- recast_to_geoatoms(y, gs, source = "country", rule = "sum",
                         weight = "km2")
 a
 sum(a$capacity)  # 30 -- totals conserve
 
-recast_from_geoatoms(a, gs, to = "state", rule = "sum")
+recast_from_geoatoms(a, gs, target = "state", rule = "sum")
 }

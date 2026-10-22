@@ -10,8 +10,8 @@
 # data.frame / data.table / arrow backends.
 #
 # Two functions, one per shape:
-#   * geoscale_map(gs, from, to)      -- `from`/`to` are geoframe names of `gs`;
-#   * geoscale_map_between(from, to)  -- two GeoScale objects, matched on
+#   * geoscale_map(gs, source, target)     -- `source`/`target` are geoframe names of `gs`;
+#   * geoscale_map_between(source, target) -- two GeoScale objects, matched on
 #     shared atom `region` keys (reg32 <-> NUTS style conversions).
 #
 # The derivation and the registry of exact / hand-audited crosswalks live in
@@ -23,26 +23,27 @@
 #' Materialises the `from -> atoms -> to` route as a table: one row per pair
 #' of overlapping regions with
 #'
-#' * `n_from` -- atoms in the `from` region (its full set, before any
+#' * `n_from` -- atoms in the `source` region (its full set, before any
 #'   target coverage is considered),
 #' * `n_overlap` -- atoms the pair shares,
 #' * `w` -- the weight of the overlap (summed atom weights, chosen weight
 #'   column), the quantity `"weighted_mean"` aggregation uses,
-#' * `w_from` -- the full weight of the `from` region; `w / w_from` is the
+#' * `w_from` -- the full weight of the `source` region; `w / w_from` is the
 #'   split share `"sum"` disaggregation uses.
 #'
 #' The two label columns are named by the geoframes; rows with an `NA` target
-#' label are atoms `to` does not cover. A crosswalk registered with
+#' label are atoms `target` does not cover. A crosswalk registered with
 #' [`register_geoscale_map()`] is returned as-is instead of being derived.
 #'
 #' @param gs The [`GeoScale`] the geoframes belong to.
-#' @param from,to Geoframe names of `gs`.
+#' @param source,target Geoframe names of `gs`.
+#' @param from,to Deprecated names of `source` and `target`.
 #' @param weight Weight column for `w`. `NULL` uses the default weight; when
 #'   the object declares no weights at all, every atom gets weight 1
 #'   (an equal split).
 #'
-#' @return A `data.frame` with columns `<from>`, `<to>` (`NA` = uncovered by
-#'   `to`), `n_from`, `n_overlap`, `w`, `w_from`.
+#' @return A `data.frame` with columns `<source>`, `<target>` (`NA` = uncovered by
+#'   `target`), `n_from`, `n_overlap`, `w`, `w_from`.
 #'
 #' @seealso [`geoscale_map_between()`] for the map between two GeoScales.
 #' @examples
@@ -50,29 +51,41 @@
 #' geoscale_map(gs, "state", "zone")
 #' geoscale_map(gs, "country", "state", weight = "km2")
 #' @export
-geoscale_map <- function(gs, from, to, weight = NULL) {
+geoscale_map <- function(gs, source, target, weight = NULL,
+                         from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("geoscale_map", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("geoscale_map", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   if (S7::S7_inherits(from, GeoScale) || S7::S7_inherits(to, GeoScale)) {
-    .stop(paste0("`from` and `to` are geoframe names of `gs`; for the map ",
+    .stop(paste0("`source` and `target` are geoframe names of `gs`; for the map ",
                  "between two GeoScales use `geoscale_map_between()`"))
   }
   .check_geoscale(gs, "gs")
-  .check_geoframe(gs, from, "from")
-  .check_geoframe(gs, to, "to")
+  .check_geoframe(gs, from, "source")
+  .check_geoframe(gs, to, "target")
   nestedscales::scale_map(gs, from, to, weight = weight)
 }
 
 #' Crosswalk between two GeoScales through their shared atoms
 #'
 #' The counterpart of [`geoscale_map()`] for two GeoScales: atoms are matched
-#' on their `region` keys, so a region of `from` overlaps a region of `to`
+#' on their `region` keys, so a region of `source` overlaps a region of `target`
 #' where they contain the same atoms. Same columns as [`geoscale_map()`], with
-#' the two label columns named after the GeoScales. Atoms of `from` absent
-#' from `to` get an `NA` target (with a warning). A crosswalk registered with
+#' the two label columns named after the GeoScales. Atoms of `source` absent
+#' from `target` get an `NA` target (with a warning). A crosswalk registered with
 #' [`register_geoscale_map_between()`] is returned as-is instead of being
 #' derived.
 #'
-#' @param from,to Two named [`GeoScale`] objects whose atom keys overlap.
-#' @param weight Weight column of `from` for `w`; `NULL` uses its default
+#' @param source,target Two named [`GeoScale`] objects whose atom keys overlap.
+#' @param from,to Deprecated names of `source` and `target`.
+#' @param weight Weight column of `source` for `w`; `NULL` uses its default
 #'   weight, or weight 1 per atom when it declares none.
 #'
 #' @return A `data.frame` with columns `<from name>`, `<to name>`, `n_from`,
@@ -91,9 +104,20 @@ geoscale_map <- function(gs, from, to, weight = NULL) {
 #' )
 #' geoscale_map_between(gs, bands)
 #' @export
-geoscale_map_between <- function(from, to, weight = NULL) {
-  .check_geoscale(from, "from")
-  .check_geoscale(to, "to")
+geoscale_map_between <- function(source, target, weight = NULL,
+                                 from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("geoscale_map_between", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("geoscale_map_between", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
+  .check_geoscale(from, "source")
+  .check_geoscale(to, "target")
   nestedscales::scale_map_between(from, to, weight = weight)
 }
 
@@ -121,7 +145,8 @@ geoscale_map_between <- function(from, to, weight = NULL) {
 #' pair of GeoScales.
 #'
 #' @param gs The [`GeoScale`] the geoframes belong to, or its name.
-#' @param from,to For the within-object functions, geoframe names of `gs`.
+#' @param source,target For the within-object functions, geoframe names of `gs`.
+#' @param from,to Deprecated names of `source` and `target`.
 #'   For the `_between` functions, two [`GeoScale`] objects or their names.
 #' @param map A `data.frame` shaped like a [`geoscale_map()`] result: the
 #'   two label columns named after the geoframes (or GeoScales), plus
@@ -142,15 +167,37 @@ geoscale_map_between <- function(from, to, weight = NULL) {
 #' register_geoscale_map(gs, "state", "zone", NULL)  # remove
 #' clear_geoscale_maps()
 #' @export
-register_geoscale_map <- function(gs, from, to, map) {
+register_geoscale_map <- function(gs, source, target, map,
+                                  from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("register_geoscale_map", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("register_geoscale_map", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   if (!is.character(gs)) .check_geoscale(gs, "gs")
   nestedscales::register_scale_map(gs, from, to, map)
 }
 
 #' @rdname register_geoscale_map
 #' @export
-register_geoscale_map_between <- function(from, to, map) {
-  for (a in c("from", "to")) {
+register_geoscale_map_between <- function(source, target, map,
+                                          from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("register_geoscale_map_between", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("register_geoscale_map_between", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
+  for (a in c("source", "target")) {
     z <- get(a)
     if (!is.character(z)) .check_geoscale(z, a)
   }
@@ -159,15 +206,37 @@ register_geoscale_map_between <- function(from, to, map) {
 
 #' @rdname register_geoscale_map
 #' @export
-get_geoscale_map <- function(gs, from, to) {
+get_geoscale_map <- function(gs, source, target,
+                             from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("get_geoscale_map", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("get_geoscale_map", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   if (!is.character(gs)) .check_geoscale(gs, "gs")
   nestedscales::get_scale_map(gs, from, to)
 }
 
 #' @rdname register_geoscale_map
 #' @export
-get_geoscale_map_between <- function(from, to) {
-  for (a in c("from", "to")) {
+get_geoscale_map_between <- function(source, target,
+                                     from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("get_geoscale_map_between", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("get_geoscale_map_between", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
+  for (a in c("source", "target")) {
     z <- get(a)
     if (!is.character(z)) .check_geoscale(z, a)
   }

@@ -8,13 +8,37 @@
 \alias{geoscale_ancestors}
 \title{Navigate a region hierarchy}
 \usage{
-geoscale_children(x, geoframe, region, to = NULL)
+geoscale_children(
+  x,
+  geoframe,
+  region,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-geoscale_parents(x, geoframe, region, to = NULL)
+geoscale_parents(
+  x,
+  geoframe,
+  region,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-geoscale_descendants(x, geoframe, region, to = NULL)
+geoscale_descendants(
+  x,
+  geoframe,
+  region,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-geoscale_ancestors(x, geoframe, region, to = NULL)
+geoscale_ancestors(
+  x,
+  geoframe,
+  region,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{x}{A \code{\link{GeoScale}}.}
@@ -23,9 +47,11 @@ geoscale_ancestors(x, geoframe, region, to = NULL)
 
 \item{region}{Character vector of region codes at \code{geoframe}.}
 
-\item{to}{Target geoframe. For \code{geoscale_children()}/\code{geoscale_parents()} this defaults
+\item{target}{Target geoframe. For \code{geoscale_children()}/\code{geoscale_parents()} this defaults
 to the adjacent geoframe; for the transitive versions, \code{NULL} means all
 geoframes below/above.}
+
+\item{to}{Deprecated name of \code{target}.}
 }
 \value{
 \code{geoscale_children()} and \code{geoscale_parents()} return a character vector of
@@ -45,7 +71,7 @@ geoframes, so a bare code is ambiguous.
 \examples{
 gs <- geoscale_example()
 geoscale_children(gs, "country", "N")
-geoscale_parents(gs, "state", "N1", to = "country")
+geoscale_parents(gs, "state", "N1", target = "country")
 geoscale_descendants(gs, "country", "N")
 geoscale_ancestors(gs, "atom", "A5")
 }

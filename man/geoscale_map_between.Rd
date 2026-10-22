@@ -4,13 +4,21 @@
 \alias{geoscale_map_between}
 \title{Crosswalk between two GeoScales through their shared atoms}
 \usage{
-geoscale_map_between(from, to, weight = NULL)
+geoscale_map_between(
+  source,
+  target,
+  weight = NULL,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 }
 \arguments{
-\item{from, to}{Two named \code{\link{GeoScale}} objects whose atom keys overlap.}
+\item{source, target}{Two named \code{\link{GeoScale}} objects whose atom keys overlap.}
 
-\item{weight}{Weight column of \code{from} for \code{w}; \code{NULL} uses its default
+\item{weight}{Weight column of \code{source} for \code{w}; \code{NULL} uses its default
 weight, or weight 1 per atom when it declares none.}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
 A \code{data.frame} with columns \verb{<from name>}, \verb{<to name>}, \code{n_from},
@@ -18,10 +26,10 @@ A \code{data.frame} with columns \verb{<from name>}, \verb{<to name>}, \code{n_f
 }
 \description{
 The counterpart of \code{\link[=geoscale_map]{geoscale_map()}} for two GeoScales: atoms are matched
-on their \code{region} keys, so a region of \code{from} overlaps a region of \code{to}
+on their \code{region} keys, so a region of \code{source} overlaps a region of \code{target}
 where they contain the same atoms. Same columns as \code{\link[=geoscale_map]{geoscale_map()}}, with
-the two label columns named after the GeoScales. Atoms of \code{from} absent
-from \code{to} get an \code{NA} target (with a warning). A crosswalk registered with
+the two label columns named after the GeoScales. Atoms of \code{source} absent
+from \code{target} get an \code{NA} target (with a warning). A crosswalk registered with
 \code{\link[=register_geoscale_map_between]{register_geoscale_map_between()}} is returned as-is instead of being
 derived.
 }

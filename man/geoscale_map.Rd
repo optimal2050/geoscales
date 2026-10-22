@@ -4,20 +4,29 @@
 \alias{geoscale_map}
 \title{Crosswalk between two geoframes of a GeoScale}
 \usage{
-geoscale_map(gs, from, to, weight = NULL)
+geoscale_map(
+  gs,
+  source,
+  target,
+  weight = NULL,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{gs}{The \code{\link{GeoScale}} the geoframes belong to.}
 
-\item{from, to}{Geoframe names of \code{gs}.}
+\item{source, target}{Geoframe names of \code{gs}.}
 
 \item{weight}{Weight column for \code{w}. \code{NULL} uses the default weight; when
 the object declares no weights at all, every atom gets weight 1
 (an equal split).}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
-A \code{data.frame} with columns \verb{<from>}, \verb{<to>} (\code{NA} = uncovered by
-\code{to}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
+A \code{data.frame} with columns \verb{<source>}, \verb{<target>} (\code{NA} = uncovered by
+\code{target}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
 }
 \description{
 Materialises the \code{from -> atoms -> to} route as a table: one row per pair
@@ -25,17 +34,17 @@ of overlapping regions with
 }
 \details{
 \itemize{
-\item \code{n_from} -- atoms in the \code{from} region (its full set, before any
+\item \code{n_from} -- atoms in the \code{source} region (its full set, before any
 target coverage is considered),
 \item \code{n_overlap} -- atoms the pair shares,
 \item \code{w} -- the weight of the overlap (summed atom weights, chosen weight
 column), the quantity \code{"weighted_mean"} aggregation uses,
-\item \code{w_from} -- the full weight of the \code{from} region; \code{w / w_from} is the
+\item \code{w_from} -- the full weight of the \code{source} region; \code{w / w_from} is the
 split share \code{"sum"} disaggregation uses.
 }
 
 The two label columns are named by the geoframes; rows with an \code{NA} target
-label are atoms \code{to} does not cover. A crosswalk registered with
+label are atoms \code{target} does not cover. A crosswalk registered with
 \code{\link[=register_geoscale_map]{register_geoscale_map()}} is returned as-is instead of being derived.
 }
 \examples{

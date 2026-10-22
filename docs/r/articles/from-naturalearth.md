@@ -54,7 +54,7 @@ Europe:
 lf <- S7::prop(gs, "leaftable")
 lf[lf$country == "ISL", c("continent", "subregion", "country", "pop_est")]
 #>     continent       subregion country pop_est
-#> 145    Europe Northern Europe     ISL  361313
+#> 155    Europe Northern Europe     ISL  361313
 ```
 
 Rolling population up from countries to sub-regions is one call.
@@ -65,7 +65,7 @@ Rolling population up from countries to sub-regions is one call.
 pop <- data.frame(country = lf$country, pop = lf$pop_est)
 pop <- pop[!is.na(pop$country), ]
 
-agg <- recast_geoscale(pop, gs, from = "country", to = "subregion", rule = "sum")
+agg <- recast_geoscale(pop, gs, source = "country", target = "subregion", rule = "sum")
 agg[agg$subregion == "Northern Europe", ]
 #>          subregion       pop
 #> 11 Northern Europe 105135601
@@ -80,7 +80,7 @@ total in proportion to a weight, so the total is conserved:
 
 ne <- agg[agg$subregion == "Northern Europe", ]
 
-back <- recast_geoscale(ne, gs, from = "subregion", to = "country",
+back <- recast_geoscale(ne, gs, source = "subregion", target = "country",
                    rule = "sum", weight = "pop_est")
 #> Warning: 21 source unit(s) present in the scale but missing from the data (e.g.
 #> Antarctica, Australia and New Zealand, Caribbean, ... (21 total)); produced NAs
@@ -181,7 +181,7 @@ set.seed(1)
 x <- data.frame(unit = geoscale_regions(g, "unit"),
                 generation = round(runif(9, 50, 500)))
 
-recast_geoscale(x, g, from = "unit", to = "landshluti", rule = "sum")
+recast_geoscale(x, g, source = "unit", target = "landshluti", rule = "sum")
 #>          landshluti generation
 #> 1        Austurland        169
 #> 2         Sudurland        217
@@ -195,7 +195,7 @@ recast_geoscale(x, g, from = "unit", to = "landshluti", rule = "sum")
 
 ``` r
 
-recast_geoscale(x, g, from = "unit", to = "country", rule = "sum")
+recast_geoscale(x, g, source = "unit", target = "country", rule = "sum")
 #>   country generation
 #> 1     ISL       2903
 sum(x$generation)
@@ -208,7 +208,7 @@ sum(x$generation)
 
 tot <- data.frame(country = "ISL", demand = 1000)
 
-dd <- recast_geoscale(tot, g, from = "country", to = "unit",
+dd <- recast_geoscale(tot, g, source = "country", target = "unit",
                  rule = "sum", weight = "km2")
 dd[order(-dd$demand), ]
 #>   unit     demand

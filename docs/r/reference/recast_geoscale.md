@@ -1,8 +1,8 @@
 # Recast values from one spatial resolution to another
 
 The central conversion verb: takes a table keyed by region code at
-geoframe `from` and returns one keyed at `to` – a geoframe name of the
-same
+geoframe `source` and returns one keyed at `target` – a geoframe name of
+the same
 [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md),
 or ANOTHER GeoScale (whose atom layer is the target, matched on shared
 atom `region` keys). Handles both aggregation (fine to coarse) and
@@ -21,15 +21,17 @@ short-circuits the derivation.
 recast_geoscale(
   x,
   gs,
-  from = NULL,
-  to,
+  source = NULL,
+  target,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
   na_action = c("drop", "error", "keep"),
   parent = NULL,
-  collect = NULL
+  collect = NULL,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
 )
 ```
 
@@ -47,13 +49,13 @@ recast_geoscale(
   [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   the codes in `x` belong to.
 
-- from:
+- source:
 
   Geoframe name the codes belong to. `NULL` (default) is inferred: `key`
   when it is a geoframe name, else the single geoframe name appearing
   among `x`'s columns.
 
-- to:
+- target:
 
   Target geoframe name of `gs`, or another (named)
   [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
@@ -62,7 +64,7 @@ recast_geoscale(
 
 - key:
 
-  Name of the region-code column in `x`. Defaults to `from` when that
+  Name of the region-code column in `x`. Defaults to `source` when that
   column exists, otherwise `"region"`.
 
 - values:
@@ -92,29 +94,33 @@ recast_geoscale(
 
 - na_action:
 
-  What to do with atoms that have no code at `from` or `to`: `"drop"`
-  (default, with a warning – the affected source share is genuinely
-  lost), `"error"`, or `"keep"` (retain an explicit `NA` region row so
-  totals conserve).
+  What to do with atoms that have no code at `source` or `target`:
+  `"drop"` (default, with a warning – the affected source share is
+  genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA`
+  region row so totals conserve).
 
 - parent:
 
   `rule = "share"` only: the geoframe defining the groups the shares are
-  taken within. `NULL` (default) uses `to` when it differs from `from`,
-  else the geoframe immediately above `from`.
+  taken within. `NULL` (default) uses `target` when it differs from
+  `source`, else the geoframe immediately above `source`.
 
 - collect:
 
   For lazy inputs (arrow, dtplyr): materialise the result (`TRUE`) or
   return the uncollected query (default).
 
+- from, to:
+
+  Deprecated names of `source` and `target`.
+
 ## Value
 
 The recast table in the input's class, with columns
-`c(to, identifiers, values)`: per identifier combination, one row per
-member of `to` (the full target vocabulary, `NA` where uncovered), plus
-an `NA` region row under `na_action = "keep"`. Identifier column types
-are preserved.
+`c(target, identifiers, values)`: per identifier combination, one row
+per member of `target` (the full target vocabulary, `NA` where
+uncovered), plus an `NA` region row under `na_action = "keep"`.
+Identifier column types are preserved.
 
 ## Details
 
@@ -146,12 +152,13 @@ downstream, `energyRt` reads `NA` in a region column as a *wildcard
 meaning all regions*, so `"keep"` output should not be passed there
 unfiltered.
 
-`"share"` inverts the output contract: the result stays keyed at `from`,
-and each value becomes that region's share of the total over its parent
-group (so the shares sum to 1 per parent, per identifier combination).
-The parent is `parent=`, defaulting to `to` (the reading of
-`recast_geoscale(x, gs, from = "nuts3", to = "nuts0", rule = "share")`:
-each nuts3's share within its nuts0); `from` must nest within it. A
+`"share"` inverts the output contract: the result stays keyed at
+`source`, and each value becomes that region's share of the total over
+its parent group (so the shares sum to 1 per parent, per identifier
+combination). The parent is `parent=`, defaulting to `target` (the
+reading of
+`recast_geoscale(x, gs, source = "nuts3", target = "nuts0", rule = "share")`:
+each nuts3's share within its nuts0); `source` must nest within it. A
 parent group whose total is zero yields `NA` shares, and an `NA` value
 poisons its group like everywhere else in the package. `"share"` cannot
 be combined with other rules in one call, and `weight=` is ignored – the
@@ -174,14 +181,14 @@ gs <- geoscale_example()
 # Extensive quantity, fine -> coarse: totals are preserved
 x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 capacity = c(1, 2, 3, 4, 5, 6))
-recast_geoscale(x, gs, from = "atom", to = "country", rule = "sum")
+recast_geoscale(x, gs, source = "atom", target = "country", rule = "sum")
 #>   country capacity
 #> 1       N       10
 #> 2       S       11
 
 # Coarse -> fine: split proportionally to area
 y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-recast_geoscale(y, gs, from = "country", to = "state",
+recast_geoscale(y, gs, source = "country", target = "state",
                 rule = "sum", weight = "km2")
 #>   state capacity
 #> 1    N1        3
@@ -191,7 +198,7 @@ recast_geoscale(y, gs, from = "country", to = "state",
 # Intensive quantity: weighted mean going up, copied going down
 z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-recast_geoscale(z, gs, from = "atom", to = "state",
+recast_geoscale(z, gs, source = "atom", target = "state",
                 rule = "weighted_mean")
 #>   state       eff
 #> 1    N1 0.3666667
@@ -199,7 +206,7 @@ recast_geoscale(z, gs, from = "atom", to = "state",
 #> 3    S1 0.6000000
 
 # Share within parent: result stays at the atoms, sums to 1 per country
-recast_geoscale(x, gs, from = "atom", to = "country", rule = "share")
+recast_geoscale(x, gs, source = "atom", target = "country", rule = "share")
 #> Warning: 1 unit(s) of `atom` have no code at parent `country` and get NA shares (ROW). Use na_action = "keep" to treat them as one group.
 #>   atom  capacity
 #> 1   A1 0.1000000

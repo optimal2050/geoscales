@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/geoscales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -198,7 +199,7 @@ result — the explicit route makes the rule visible (and lets intensive
 quantities use <code>weighted_mean</code>):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, from <span class="op">=</span> <span class="st">"region"</span>, to <span class="op">=</span> <span class="st">"zone"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"region"</span>, target <span class="op">=</span> <span class="st">"zone"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">gs</span>, z <span class="op">=</span> <span class="st">"capacity"</span>, geoframe <span class="op">=</span> <span class="st">"zone"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -345,7 +346,7 @@ regions by area (<code>rule = "sum"</code> conserves it), drawn at the
 as one region:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"ISL"</span>, capacity_mw <span class="op">=</span> <span class="fl">3000</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">isl</span>, from <span class="op">=</span> <span class="st">"country"</span>, to <span class="op">=</span> <span class="st">"landshluti"</span>,</span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">isl</span>, source <span class="op">=</span> <span class="st">"country"</span>, target <span class="op">=</span> <span class="st">"landshluti"</span>,</span>
 <span>                  rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">isl</span>, z <span class="op">=</span> <span class="st">"capacity_mw"</span>, geoframe <span class="op">=</span> <span class="st">"landshluti"</span>,</span>
@@ -370,7 +371,7 @@ visualization vignette</a>:</p>
 <code class="sourceCode R"><span><span class="va">iw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"../../data-raw/iceland_wind.rds"</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">gf</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cluster"</span>, <span class="st">"landshluti"</span>, <span class="st">"country"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">gf</span> <span class="op">==</span> <span class="st">"cluster"</span><span class="op">)</span> <span class="va">iw</span><span class="op">$</span><span class="va">wind</span> <span class="kw">else</span></span>
-<span>    <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">iw</span><span class="op">$</span><span class="va">wind</span>, <span class="va">iw</span><span class="op">$</span><span class="va">gs</span>, from <span class="op">=</span> <span class="st">"cluster"</span>, to <span class="op">=</span> <span class="va">gf</span>,</span>
+<span>    <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">iw</span><span class="op">$</span><span class="va">wind</span>, <span class="va">iw</span><span class="op">$</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cluster"</span>, target <span class="op">=</span> <span class="va">gf</span>,</span>
 <span>                    rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_plot.html">geoscale_plot</a></span><span class="op">(</span><span class="va">iw</span><span class="op">$</span><span class="va">gs</span>, <span class="va">d</span>, geoframe <span class="op">=</span> <span class="va">gf</span>, fill <span class="op">=</span> <span class="st">"wind"</span>,</span>
 <span>                      palette <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>

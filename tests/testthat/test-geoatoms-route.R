@@ -5,7 +5,7 @@ atoms <- c("A1", "A2", "A3", "A4", "A5", "A6")
 
 test_that("to_geoatoms splits extensive values by the weight and attaches it", {
   y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-  a <- recast_to_geoatoms(y, gs, from = "country", rule = "sum",
+  a <- recast_to_geoatoms(y, gs, source = "country", rule = "sum",
                           weight = "km2")
   expect_named(a, c("region", "capacity", "weight"))
   expect_equal(sum(a$capacity), 30, tolerance = 1e-12)
@@ -16,7 +16,7 @@ test_that("to_geoatoms splits extensive values by the weight and attaches it", {
 
   # intensive values are repeated, not split
   z <- data.frame(country = c("N", "S"), eff = c(0.4, 0.6))
-  az <- recast_to_geoatoms(z, gs, from = "country",
+  az <- recast_to_geoatoms(z, gs, source = "country",
                            rule = "weighted_mean", weight = "km2")
   expect_equal(az$eff[az$region == "A1"], 0.4)
   expect_equal(az$eff[az$region == "A6"], 0.6)
@@ -24,26 +24,26 @@ test_that("to_geoatoms splits extensive values by the weight and attaches it", {
 
 test_that("from_geoatoms aggregates atoms up, using the carried weight", {
   y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-  a <- recast_to_geoatoms(y, gs, from = "country", rule = "sum",
+  a <- recast_to_geoatoms(y, gs, source = "country", rule = "sum",
                           weight = "km2")
-  s <- recast_from_geoatoms(a, gs, to = "state", rule = "sum")
+  s <- recast_from_geoatoms(a, gs, target = "state", rule = "sum")
   expect_equal(s$capacity[s$state == "N1"], 3, tolerance = 1e-12)
   expect_equal(s$capacity[s$state == "N2"], 7, tolerance = 1e-12)
   expect_equal(s$capacity[s$state == "S1"], 20, tolerance = 1e-12)
 
   # weighted_mean reproduces the source weighting exactly via `weight`
   z <- data.frame(state = c("N1", "N2", "S1"), eff = c(0.39, 0.5, 0.55))
-  az <- recast_to_geoatoms(z, gs, from = "state",
+  az <- recast_to_geoatoms(z, gs, source = "state",
                            rule = "weighted_mean", weight = "pop")
-  up <- recast_from_geoatoms(az, gs, to = "state", rule = "weighted_mean")
+  up <- recast_from_geoatoms(az, gs, target = "state", rule = "weighted_mean")
   expect_equal(up$eff, z$eff, tolerance = 1e-12)
 })
 
 test_that("composition of the halves equals recast_geoscale", {
   cap <- data.frame(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
-  a <- recast_to_geoatoms(cap, gs, from = "atom", rule = "sum",
+  a <- recast_to_geoatoms(cap, gs, source = "atom", rule = "sum",
                           weight = "km2")
-  half <- recast_from_geoatoms(a, gs, to = "state", rule = "sum")
+  half <- recast_from_geoatoms(a, gs, target = "state", rule = "sum")
   full <- recast_geoscale(cap, gs, "atom", "state", rule = "sum",
                           weight = "km2")
   expect_equal(half$capacity[match(full$state, half$state)],
@@ -58,14 +58,14 @@ test_that("the halves recast across two GeoScales sharing atom keys", {
                                   name = "bands")
   cap <- data.frame(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
 
-  a <- recast_to_geoatoms(cap, gs, from = "atom", rule = "sum")
-  out <- recast_from_geoatoms(a, gs_b, to = "band", rule = "sum")
+  a <- recast_to_geoatoms(cap, gs, source = "atom", rule = "sum")
+  out <- recast_from_geoatoms(a, gs_b, target = "band", rule = "sum")
   expect_equal(out$capacity[out$band == "X"], 1 + 3 + 5)
   expect_equal(out$capacity[out$band == "Y"], 2 + 4 + 6)
 
   # the fused verb: `to` = another GeoScale targets its atom layer
   cty <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-  ab <- recast_geoscale(cty, gs, from = "country", to = gs_b,
+  ab <- recast_geoscale(cty, gs, source = "country", target = gs_b,
                         rule = "sum", weight = "km2")
   expect_equal(sum(ab$capacity), 30, tolerance = 1e-12)
   expect_equal(ab$capacity[ab$atom == "A1"], 1, tolerance = 1e-12)
@@ -78,8 +78,8 @@ test_that("the sd rule aggregates dispersion", {
                tolerance = 1e-9)
   expect_equal(s$capacity[s$state == "S1"], stats::sd(c(5, 6)),
                tolerance = 1e-9)
-  a <- recast_to_geoatoms(cap, gs, from = "atom", rule = "mean")
-  s2 <- recast_from_geoatoms(a, gs, to = "state", rule = "sd")
+  a <- recast_to_geoatoms(cap, gs, source = "atom", rule = "mean")
+  s2 <- recast_from_geoatoms(a, gs, target = "state", rule = "sd")
   expect_equal(s2$capacity[s2$state == "N2"], stats::sd(c(3, 4)),
                tolerance = 1e-9)
 })
@@ -90,7 +90,7 @@ test_that("conflicting per-column weights are rejected in to_geoatoms", {
   register_geoscale_rule("a", "sum", weight = "km2")
   register_geoscale_rule("b", "sum", weight = "pop")
   y <- data.frame(country = c("N", "S"), a = c(1, 2), b = c(3, 4))
-  expect_error(recast_to_geoatoms(y, gs, from = "country"),
+  expect_error(recast_to_geoatoms(y, gs, source = "country"),
                "different weights")
 })
 

@@ -26,11 +26,11 @@ test_that("recast_to_geoatoms honours the backend contract", {
   expect_backend_contract(
     x,
     function(d, collect = NULL) recast_to_geoatoms(
-      d, gs, from = "country", rule = "sum", weight = "km2",
+      d, gs, source = "country", rule = "sum", weight = "km2",
       collect = collect),
     key_cols = c("atom", "region"), value_cols = "cap")
   expect_backend_rejects(function(d, collect = NULL) recast_to_geoatoms(
-    d, gs, from = "country", rule = "sum"))
+    d, gs, source = "country", rule = "sum"))
 })
 
 # @covers recast_from_geoatoms depth=B backends=data.frame,tibble,data.table,dtplyr,arrow
@@ -38,15 +38,15 @@ test_that("recast_from_geoatoms honours the backend contract", {
   gs <- geoscale_example()
   base <- recast_to_geoatoms(
     data.frame(country = c("N", "S"), cap = c(120, 60)),
-    gs, from = "country", rule = "sum", weight = "km2")
+    gs, source = "country", rule = "sum", weight = "km2")
   expect_backend_contract(
     base,
     function(d, collect = NULL) recast_from_geoatoms(
-      d, gs, to = "state", rule = "sum", values = "cap",
+      d, gs, target = "state", rule = "sum", values = "cap",
       collect = collect),
     key_cols = "state", value_cols = "cap")
   expect_backend_rejects(function(d, collect = NULL) recast_from_geoatoms(
-    d, gs, to = "state", rule = "sum", values = "cap"))
+    d, gs, target = "state", rule = "sum", values = "cap"))
 })
 
 # @covers join_geoscale depth=B backends=data.frame,tibble,data.table,dtplyr,arrow

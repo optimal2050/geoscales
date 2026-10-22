@@ -1,3 +1,17 @@
+# geoscales 0.7.0
+
+* Requires nestedscales 0.2.0.
+* Leaftable rows are in nested order by default: sorted by geoframe,
+  coarsest first, each in its member order, with unassigned codes last;
+  geometry follows the rows. `row_order = "given"` keeps the rows as
+  supplied.
+* `from` and `to` are now `source` and `target` in the navigation, map and
+  recast functions (`recast_geoscale()`, `recast_pairs()`, the geoatom
+  halves), matching nestedscales. The old names still work, with a
+  deprecation warning, and will be removed in a later release.
+* The `recast()` method follows the generic's new arguments:
+  `recast(x, scale, target, source = NULL, ...)`.
+
 # geoscales 0.6.0.9000
 
 ## Breaking changes

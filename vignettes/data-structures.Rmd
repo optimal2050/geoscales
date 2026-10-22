@@ -67,7 +67,7 @@ geoframes may cross-cut, ancestry is computed atom-mediated, never as a
 transitive closure:
 
 ```{r}
-geoscale_parents(gs, "zone", "ZB", to = "state")   # cross-cut: two parents
+geoscale_parents(gs, "zone", "ZB", target = "state")   # cross-cut: two parents
 geoscale_ancestors(gs, "atom", "A5")
 geoscale_descendants(gs, "country", "N")
 head(geoscale_ancestry(gs), 4)

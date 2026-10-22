@@ -109,9 +109,9 @@ test_that("geoatoms composition equals the fused recast, per rule, with ids", {
                   cap = c(120, 60, 80, 40), level = 5,
                   id = rep(c("A", "B"), each = 2))
   for (r in c("sum", "mean", "weighted_mean")) {
-    base <- recast_to_geoatoms(x, gs, from = "country", rule = r,
+    base <- recast_to_geoatoms(x, gs, source = "country", rule = r,
                                weight = "km2")
-    via <- recast_from_geoatoms(base, gs, to = "state", rule = r,
+    via <- recast_from_geoatoms(base, gs, target = "state", rule = r,
                                 values = c("cap", "level"))
     fused <- recast_geoscale(x, gs, "country", "state", rule = r,
                              weight = "km2")
@@ -119,10 +119,10 @@ test_that("geoatoms composition equals the fused recast, per rule, with ids", {
                                 key = c("id", "state"))
   }
   # attach_weight = FALSE still composes for sum
-  base0 <- recast_to_geoatoms(x, gs, from = "country", rule = "sum",
+  base0 <- recast_to_geoatoms(x, gs, source = "country", rule = "sum",
                               weight = "km2", attach_weight = FALSE)
   expect_false("weight" %in% names(base0))
-  via0 <- recast_from_geoatoms(base0, gs, to = "state", rule = "sum",
+  via0 <- recast_from_geoatoms(base0, gs, target = "state", rule = "sum",
                                values = c("cap", "level"))
   fused0 <- recast_geoscale(x, gs, "country", "state", rule = "sum",
                             weight = "km2")
@@ -203,11 +203,11 @@ test_that("values auto-detection and from_geoatoms na_action", {
   # a route-vs-fused asymmetry to rule on.
   base <- recast_to_geoatoms(
     data.frame(country = c("N", "S"), cap = c(120, 60)),
-    gs, from = "country", rule = "sum", weight = "km2")
+    gs, source = "country", rule = "sum", weight = "km2")
   base1 <- base[base$region != "A1", ]
   for (na in c("drop", "keep")) {
     got <- as.data.frame(
-      recast_from_geoatoms(base1, gs, to = "state", rule = "sum",
+      recast_from_geoatoms(base1, gs, target = "state", rule = "sum",
                            values = "cap", na_action = na))
     expect_false(anyNA(got$cap))
     expect_equal(got$cap[got$state == "N1"],

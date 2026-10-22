@@ -19,9 +19,12 @@
 utils::globalVariables(c(".gs_to", ".gs_f", ".gs_n_from", ".gs_n_overlap",
                          ".gs_w", ".gs_w_from", ".gs_label", "weight"))
 
-.gs_backend <- nestedscales::.ms_backend
-.gs_is_lazy <- nestedscales::.ms_is_lazy
-.gs_lazy    <- nestedscales::.ms_lazy
-.gs_schema  <- nestedscales::.ms_schema
-.gs_pull    <- nestedscales::.ms_pull
-.gs_restore <- nestedscales::.ms_restore
+# NA for an unsupported input; callers raise their own error.
+.gs_backend <- function(x) {
+  tryCatch(nestedscales::backend_of(x), error = function(e) NA_character_)
+}
+.gs_is_lazy <- nestedscales::backend_is_lazy
+.gs_lazy    <- nestedscales::backend_lazy
+.gs_schema  <- nestedscales::backend_schema
+.gs_pull    <- nestedscales::backend_pull
+.gs_restore <- nestedscales::backend_restore

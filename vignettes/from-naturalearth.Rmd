@@ -64,7 +64,7 @@ because population is *extensive* — it adds up:
 pop <- data.frame(country = lf$country, pop = lf$pop_est)
 pop <- pop[!is.na(pop$country), ]
 
-agg <- recast_geoscale(pop, gs, from = "country", to = "subregion", rule = "sum")
+agg <- recast_geoscale(pop, gs, source = "country", target = "subregion", rule = "sum")
 agg[agg$subregion == "Northern Europe", ]
 ```
 
@@ -76,7 +76,7 @@ proportion to a weight, so the total is conserved:
 ```{r}
 ne <- agg[agg$subregion == "Northern Europe", ]
 
-back <- recast_geoscale(ne, gs, from = "subregion", to = "country",
+back <- recast_geoscale(ne, gs, source = "subregion", target = "country",
                    rule = "sum", weight = "pop_est")
 head(back[order(-back$pop), ], 4)
 ```
@@ -145,11 +145,11 @@ set.seed(1)
 x <- data.frame(unit = geoscale_regions(g, "unit"),
                 generation = round(runif(9, 50, 500)))
 
-recast_geoscale(x, g, from = "unit", to = "landshluti", rule = "sum")
+recast_geoscale(x, g, source = "unit", target = "landshluti", rule = "sum")
 ```
 
 ```{r, eval = has_hires}
-recast_geoscale(x, g, from = "unit", to = "country", rule = "sum")
+recast_geoscale(x, g, source = "unit", target = "country", rule = "sum")
 sum(x$generation)
 ```
 
@@ -158,7 +158,7 @@ sum(x$generation)
 ```{r, eval = has_hires}
 tot <- data.frame(country = "ISL", demand = 1000)
 
-dd <- recast_geoscale(tot, g, from = "country", to = "unit",
+dd <- recast_geoscale(tot, g, source = "country", target = "unit",
                  rule = "sum", weight = "km2")
 dd[order(-dd$demand), ]
 ```

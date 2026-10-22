@@ -30,7 +30,7 @@ result stays keyed at the \strong{source} geoframe -- the recast target
 (or \verb{parent=}) names the parent -- so it cannot be mixed with other
 rules in one call (the two share rules mix freely, being one
 computation). For building distribution keys and normalised
-profiles; requires \code{from} to nest within the parent.}
+profiles; requires \code{source} to nest within the parent.}
 \item{\code{logshare}}{The same computation as \code{share} -- the values ARE
 shares -- but figures draw it on a fixed log10 percent scale
 (0.01\%..100\%), where \code{share} gets a fixed linear 0..1 scale. Use it
