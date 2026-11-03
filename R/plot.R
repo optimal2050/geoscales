@@ -152,15 +152,20 @@ geoscale_layout <- function(x, weight = NULL) {
 #' @param view `type = "stack"` only: a predefined point of view --
 #'   `"oblique"` (the shear/depth default), `"top-down"`, `"cavalier"`,
 #'   `"cabinet"`, `"military"`, `"isometric"`, `"dimetric"`,
-#'   `"trimetric"`, or `"perspective"` (receding planes shrink).
+#'   `"trimetric"`, `"perspective"` (receding planes shrink) or
+#'   `"pyramid"` (receding planes grow: the coarsest geoframe is the small
+#'   top, the finest the wide base).
 #' @param angle,ratio `type = "stack"` only: oblique view by angle
 #'   (degrees of the receding axis) and foreshortening ratio --
 #'   `e2 = ratio * (cos(angle), sin(angle))`. Overridden by `view`.
 #' @param shear,depth,gap `type = "stack"` only: raw receding-axis
 #'   components (`e2 = (shear, depth)`; used when neither `view` nor
-#'   `angle`/`ratio` is given) and the vertical spacing between planes.
+#'   `angle`/`ratio` is given) and the vertical spacing between planes:
+#'   one value for every pair, or one per pair from the top down.
 #'   `gap = NULL` (default) spaces planes almost touching, with a slight
-#'   overlap.
+#'   overlap. Under `"perspective"` and `"pyramid"` each spacing is scaled
+#'   with the planes it separates, so it stays uniform relative to their
+#'   size.
 #' @param rotate `type = "stack"` only: in-plane rotation of each plane
 #'   (degrees, counter-clockwise) -- point North where you want it.
 #' @param direction `type = "stack"` only: `"up"` (default) stacks the
@@ -190,6 +195,13 @@ geoscale_layout <- function(x, weight = NULL) {
 #'   `colour = c("white", "grey40", "white")` styles one plane per
 #'   entry). Defaults `"grey35"` and `0.2` -- ggplot2's own sf polygon
 #'   border.
+#' @param outline `type = "stack"` only: coarser geoframe(s) whose
+#'   borders are drawn over every finer plane, so the groups they form are
+#'   visible at the finer resolution (`outline = "zone"` marks the zones
+#'   on the region plane). `NULL` (default) = none.
+#' @param outline_colour,outline_linewidth `type = "stack"` only: colour
+#'   and width of the `outline` borders, recycled over `outline`.
+#'   Defaults `"grey20"` and `0.6`.
 #' @param frame `type = "stack"` only: draw each plane's outline (the
 #'   footprint box run through the same projection) as a guide --
 #'   curved shapes are much easier to read in oblique views with the
@@ -236,6 +248,8 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
                               colour = "grey35", linewidth = 0.2,
                               frame = NULL, frame_fill = NA,
                               connectors = FALSE,
+                              outline = NULL, outline_colour = "grey20",
+                              outline_linewidth = 0.6,
                               ...) {
   .need_ggplot("geoscale_autoplot()")
   type <- match.arg(type)
@@ -250,7 +264,10 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
                                 palette = palette,
                                 colour = colour, linewidth = linewidth,
                                 frame = frame, frame_fill = frame_fill,
-                                connectors = connectors))
+                                connectors = connectors,
+                                outline = outline,
+                                outline_colour = outline_colour,
+                                outline_linewidth = outline_linewidth))
   }
   fill <- match.arg(fill)
   d <- geoscale_layout(x, weight = weight)
@@ -533,7 +550,8 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   if (!is.null(view)) {
     view <- match.arg(view, c("oblique", "top-down", "cavalier",
                               "cabinet", "military", "isometric",
-                              "dimetric", "trimetric", "perspective"))
+                              "dimetric", "trimetric", "perspective",
+                              "pyramid"))
     return(switch(view,
       "oblique"     = list(e1 = c(1, 0), e2 = c(shear, depth), scale = 1),
       "top-down"    = list(e1 = c(1, 0), e2 = c(0, 1), scale = 1),
@@ -557,7 +575,11 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
                            scale = 1),
       "perspective" = list(e1 = c(1, 0),
                            e2 = 0.5 * c(cos(45 * deg), sin(45 * deg)),
-                           scale = 0.82)
+                           scale = 0.82),
+      # the inverse of perspective: each plane below the top is larger
+      "pyramid"     = list(e1 = c(1, 0),
+                           e2 = 0.5 * c(cos(45 * deg), sin(45 * deg)),
+                           scale = 1 / 0.82)
     ))
   }
   if (!is.null(angle) || !is.null(ratio)) {
@@ -589,7 +611,9 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
                                  labels = NULL, palette = "H",
                                  colour = "grey35", linewidth = 0.2,
                                  frame = NULL, frame_fill = NA,
-                                 connectors = FALSE) {
+                                 connectors = FALSE,
+                                 outline = NULL, outline_colour = "grey20",
+                                 outline_linewidth = 0.6) {
   .need_sf("geoscale_autoplot(type = \"stack\")")
   if (is.null(S7::prop(x, "geometry"))) {
     .stop(paste0("the stack view needs attached geometry; use ",
@@ -615,11 +639,14 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   M <- R %*% rbind(v$e1, v$e2)    # in-plane rotation, then projection
   ctr <- c(c(0.5, 0.5) %*% M)
 
-  norm01 <- function(g) {
-    bb <- sf::st_bbox(g)
+  # normalise `g` to the unit box of `ref` (default: its own box), so an
+  # overlay drawn on a plane shares that plane's frame of reference
+  norm_by <- function(g, ref = g) {
+    bb <- sf::st_bbox(ref)
     (g - c(bb[["xmin"]], bb[["ymin"]])) /
       max(bb[["xmax"]] - bb[["xmin"]], bb[["ymax"]] - bb[["ymin"]])
   }
+  norm01 <- function(g) norm_by(g)
 
   shapes <- lapply(gfs, function(gf)
     geoscale_geometry(x, gf, precision = precision))
@@ -631,11 +658,27 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   gap <- gap %||% (0.85 * (bb1[["ymax"]] - bb1[["ymin"]]))
 
   nk <- length(gfs)
-  zlev <- if (direction == "up") (nk - seq_len(nk)) * gap
-          else (seq_len(nk) - 1) * gap
   top_rank <- if (direction == "up") seq_len(nk) - 1 else nk - seq_len(nk)
+  # per-plane size factor. A factor below 1 shrinks the planes below the
+  # top (perspective); a factor above 1 is applied from the bottom up, so
+  # the largest plane is always full size and pyramid mirrors perspective.
+  fac <- if (v$scale < 1) v$scale^top_rank
+         else (1 / v$scale)^(nk - 1 - top_rank)
+  # vertical placement: `gap` is the spacing between consecutive planes,
+  # top to bottom, one value for all or one per pair. Each step scales with
+  # the larger of the two planes it separates, so spacing stays uniform
+  # relative to plane size and pyramid mirrors perspective exactly.
+  if (!length(gap) %in% c(1L, nk - 1L)) {
+    .stop("`gap` must be a single value or one per pair of planes (%d)",
+          nk - 1L)
+  }
+  pos <- if (direction == "up") seq_len(nk) else rev(seq_len(nk))  # 1 = top
+  fac_tb <- fac[order(pos)]                                       # top to bottom
+  steps <- rep_len(gap, nk - 1L) * pmax(fac_tb[-nk], fac_tb[-1L])
+  zlev <- vapply(pos, function(p) sum(steps[seq_len(nk - 1L) >= p]),
+                 numeric(1))
   layers <- lapply(seq_along(gfs), function(k) {
-    sk <- v$scale^top_rank[k]                 # top plane is largest
+    sk <- fac[k]
     g <- (planes[[k]] - ctr) * sk + ctr + c(0, zlev[k])
     d <- sf::st_sf(code = shapes[[k]][[gfs[k]]], gf = gfs[k], geometry = g)
     if (!is.null(vals)) {
@@ -663,9 +706,33 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
                 c(nb[["xmax"]] + fp, nb[["ymax"]] + fp),
                 c(nb[["xmin"]] - fp, nb[["ymax"]] + fp)) %*% M
     frames <- lapply(seq_len(nk), function(k) {
-      q <- sweep(sweep(cn, 2, ctr) * v$scale^top_rank[k], 2, ctr, `+`)
+      q <- sweep(sweep(cn, 2, ctr) * fac[k], 2, ctr, `+`)
       data.frame(x = q[, 1], y = q[, 2] + zlev[k])
     })
+  }
+
+  # coarser-geoframe borders over the finer planes: the atoms dissolved
+  # at each `outline` geoframe, run through the plane's own transform.
+  # A plane shows only the outlines of geoframes coarser than its own.
+  outlines <- vector("list", nk)
+  if (!is.null(outline)) {
+    bad <- setdiff(outline, gfs)
+    if (length(bad)) {
+      .stop("`outline` must name geoframes of the geoscale (unknown: %s)",
+            paste(bad, collapse = ", "))
+    }
+    o_shapes <- lapply(outline, function(o)
+      sf::st_geometry(geoscale_geometry(x, o, precision = precision)))
+    o_col <- rep_len(outline_colour, length(outline))
+    o_lwd <- rep_len(outline_linewidth, length(outline))
+    for (k in seq_len(nk)) {
+      coarser <- which(match(outline, gfs) < k)
+      outlines[[k]] <- lapply(coarser, function(i) {
+        g <- norm_by(o_shapes[[i]], sf::st_geometry(shapes[[k]])) * M
+        list(geometry = (g - ctr) * fac[k] + ctr + c(0, zlev[k]),
+             colour = o_col[i], linewidth = o_lwd[i])
+      })
+    }
   }
 
   xr <- range(vapply(layers, function(l)
@@ -724,6 +791,12 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
       p + ggplot2::geom_sf(data = layers[[k]],
                            ggplot2::aes(fill = .z),
                            colour = col_k[k], linewidth = lwd_k[k])
+    }
+    for (o in outlines[[k]]) {                 # group borders on top
+      p <- p + ggplot2::geom_sf(data = sf::st_sf(geometry = o$geometry),
+                                fill = NA, colour = o$colour,
+                                linewidth = o$linewidth,
+                                inherit.aes = FALSE)
     }
   }
   p <- p +

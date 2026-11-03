@@ -30,6 +30,9 @@ geoscale_autoplot(
   frame = NULL,
   frame_fill = NA,
   connectors = FALSE,
+  outline = NULL,
+  outline_colour = "grey20",
+  outline_linewidth = 0.6,
   ...
 )
 
@@ -53,7 +56,9 @@ icicle only.}
 \item{view}{\code{type = "stack"} only: a predefined point of view --
 \code{"oblique"} (the shear/depth default), \code{"top-down"}, \code{"cavalier"},
 \code{"cabinet"}, \code{"military"}, \code{"isometric"}, \code{"dimetric"},
-\code{"trimetric"}, or \code{"perspective"} (receding planes shrink).}
+\code{"trimetric"}, \code{"perspective"} (receding planes shrink) or
+\code{"pyramid"} (receding planes grow: the coarsest geoframe is the small
+top, the finest the wide base).}
 
 \item{angle, ratio}{\code{type = "stack"} only: oblique view by angle
 (degrees of the receding axis) and foreshortening ratio --
@@ -61,9 +66,12 @@ icicle only.}
 
 \item{shear, depth, gap}{\code{type = "stack"} only: raw receding-axis
 components (\verb{e2 = (shear, depth)}; used when neither \code{view} nor
-\code{angle}/\code{ratio} is given) and the vertical spacing between planes.
+\code{angle}/\code{ratio} is given) and the vertical spacing between planes:
+one value for every pair, or one per pair from the top down.
 \code{gap = NULL} (default) spaces planes almost touching, with a slight
-overlap.}
+overlap. Under \code{"perspective"} and \code{"pyramid"} each spacing is scaled
+with the planes it separates, so it stays uniform relative to their
+size.}
 
 \item{rotate}{\code{type = "stack"} only: in-plane rotation of each plane
 (degrees, counter-clockwise) -- point North where you want it.}
@@ -127,6 +135,15 @@ Setting a fill draws the frames even without \code{frame}; \code{NA}
 the corresponding frame corners of adjacent planes -- the vertical
 guides of the stack. \code{TRUE} uses the frame colour, a colour string
 picks its own; default \code{FALSE}.}
+
+\item{outline}{\code{type = "stack"} only: coarser geoframe(s) whose
+borders are drawn over every finer plane, so the groups they form are
+visible at the finer resolution (\code{outline = "zone"} marks the zones
+on the region plane). \code{NULL} (default) = none.}
+
+\item{outline_colour, outline_linewidth}{\code{type = "stack"} only: colour
+and width of the \code{outline} borders, recycled over \code{outline}.
+Defaults \code{"grey20"} and \code{0.6}.}
 
 \item{...}{Unused.}
 }

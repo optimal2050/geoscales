@@ -159,7 +159,8 @@ geoscale_autoplot(gs, type = "stack")
 The stack takes a `view` preset — from flat `"top-down"` through the
 oblique family (`"cavalier"`, `"cabinet"`) and the axonometric family
 (`"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`) to
-`"perspective"`, where receding planes shrink. Custom obliques come via
+`"perspective"`, where receding planes shrink, and its inverse
+`"pyramid"`, where they grow. Custom obliques come via
 `angle`/`ratio`, `rotate=` turns the plane (point North anywhere),
 `direction=` flips the stack, and `gap` defaults to planes almost
 touching:
@@ -168,7 +169,7 @@ touching:
 # grouped by aspect so tall and flat views don't squeeze each other
 views <- c("top-down", "military", "isometric",
            "dimetric", "trimetric", "cabinet",
-           "oblique", "cavalier", "perspective")
+           "oblique", "perspective", "pyramid")
 views |>
   lapply(function(vw)
     geoscale_autoplot(gs, type = "stack", view = vw) +

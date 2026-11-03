@@ -125,15 +125,32 @@ test_that("stack views, rotation and direction all render", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
   for (vw in c("top-down", "cabinet", "military", "isometric",
-               "perspective")) {
+               "perspective", "pyramid")) {
     expect_s3_class(geoscale_autoplot(gs, type = "stack", view = vw),
                     "ggplot")
   }
+  # pyramid inverts perspective: same axes, reciprocal per-plane factor
+  expect_equal(geoscales:::.stack_view("pyramid")$scale,
+               1 / geoscales:::.stack_view("perspective")$scale)
   expect_s3_class(geoscale_autoplot(gs, type = "stack", angle = 30,
                                     ratio = 0.4), "ggplot")
   expect_s3_class(geoscale_autoplot(gs, type = "stack", rotate = 45,
                                     direction = "down"), "ggplot")
   expect_error(geoscale_autoplot(gs, type = "stack", view = "nope"))
+  # one gap per pair of planes, top to bottom
+  nk <- length(geoscale_geoframes(gs))
+  expect_s3_class(geoscale_autoplot(gs, type = "stack",
+                                    gap = seq(0.2, 0.4, length.out = nk - 1)),
+                  "ggplot")
+  expect_error(geoscale_autoplot(gs, type = "stack", gap = rep(0.3, nk + 1)),
+               "one per pair")
+  # coarser borders overlaid on the finer plane: one more sf layer
+  p0 <- geoscale_autoplot(gs, type = "stack")
+  p1 <- geoscale_autoplot(gs, type = "stack", outline = "top",
+                          outline_linewidth = 1)
+  expect_equal(length(p1$layers), length(p0$layers) + 1L)
+  expect_error(geoscale_autoplot(gs, type = "stack", outline = "nope"),
+               "unknown")
 })
 
 test_that("stack value fill recasts atom data onto every plane", {

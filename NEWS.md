@@ -1,3 +1,16 @@
+# geoscales 0.7.1
+
+* `geoscale_autoplot(type = "stack")` gains `view = "pyramid"`, the mirror
+  image of `"perspective"`: the coarsest geoframe is the small top and the
+  finest the wide base.
+* `geoscale_autoplot(type = "stack", outline = "zone")` draws the borders
+  of a coarser geoframe over every finer plane, so the groups it forms
+  stay visible at the finer resolution; `outline_colour` and
+  `outline_linewidth` style them.
+* `gap` accepts one value per pair of planes, top to bottom. Under
+  `"perspective"` and `"pyramid"` the spacing is scaled with the planes it
+  separates, so it stays uniform relative to their size.
+
 # geoscales 0.7.0
 
 * Requires nestedscales 0.2.0.
