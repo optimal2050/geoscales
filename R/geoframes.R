@@ -16,6 +16,7 @@
 #' syntactically valid geoframe name; see [`is_valid_geoframe()`].
 #'
 #' @format A character vector of length 6.
+#' @returns A character vector of six geoframe names, coarsest first.
 #' @examples
 #' CORE_GEOFRAMES
 #' @export

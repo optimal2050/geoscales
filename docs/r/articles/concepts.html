@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -141,9 +141,9 @@ of the other:</p>
 <p>Real data behaves the same way. In the IDEEA region system for India,
 the <code>r32o11</code> code <code>APY</code> merges Andhra Pradesh with
 <em>part of</em> Puducherry, so the 36-region carving does not nest
-inside the 32-region one. This is exactly why the atom layer exists, and
-why <code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> always routes through it: neither
-direction of a conversion ever assumes the geoframes nest.</p>
+inside the 32-region one. The atom layer exists for this case:
+<code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> always routes through it, so neither
+direction of a conversion assumes the geoframes nest.</p>
 </div>
 <div class="section level2">
 <h2 id="region-ids-are-authored-and-not-unique-across-geoframes">Region IDs are authored, and not unique across geoframes<a class="anchor" aria-label="anchor" href="#region-ids-are-authored-and-not-unique-across-geoframes"></a>
@@ -190,9 +190,10 @@ error, in both siblings.</p>
 <ul>
 <li>
 <strong>The package ships no maps and selects no
-boundaries.</strong> Providers (<code><a href="../reference/ne_geoscale.html">ne_geoscale()</a></code>, your own via
-<code><a href="../reference/register_geoscale_provider.html">register_geoscale_provider()</a></code>) pass a point of view through
-and record it in <code>@meta</code>; the choice stays yours.</li>
+boundaries.</strong> Providers (<code><a href="../reference/ne_geoscale.html">ne_geoscale()</a></code>, user-defined
+ones via <code><a href="../reference/register_geoscale_provider.html">register_geoscale_provider()</a></code>) pass a point of view
+through and record it in <code>@meta</code>; the choice is the
+caller’s.</li>
 <li>
 <strong>Everything derivable is computed on demand.</strong>
 Parent/child tables, ancestry, shares, dissolved geometry — nothing is
@@ -212,9 +213,8 @@ order are fixed at construction; conversions never mutate them.</li>
 <h2 id="the-scales-naming-lattice-glossary">The *scales naming lattice (glossary)<a class="anchor" aria-label="anchor" href="#the-scales-naming-lattice-glossary"></a>
 </h2>
 <p>The sibling packages <code>timescales</code> (time) and
-<code>geoscales</code> (space) share one vocabulary, locked 2026-08. No
-surviving word changes meaning between the packages; the word “levels”
-is retired from both.</p>
+<code>geoscales</code> (space) share one vocabulary. No word changes
+meaning between the packages; neither uses the word “levels”.</p>
 <table class="table">
 <colgroup>
 <col width="20%">
@@ -320,7 +320,7 @@ both packages resolve aggregation rules the same way: explicit
 fallback.</p>
 </div>
 <div class="section level2">
-<h2 id="where-to-next">Where to next?<a class="anchor" aria-label="anchor" href="#where-to-next"></a>
+<h2 id="further-reading">Further reading<a class="anchor" aria-label="anchor" href="#further-reading"></a>
 </h2>
 <ul>
 <li>
@@ -330,8 +330,8 @@ fallback.</p>
 <a href="data-manipulation.html">Data manipulation</a> — attach,
 recast, crosswalks, backends.</li>
 <li>
-<a href="visualization.html">Visualization</a> — maps with
-<code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> and the structure figures.</li>
+<a href="https://optimal2050.github.io/geoscales/r/articles/visualization.html">Visualization</a>
+— maps with <code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> and the structure figures.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

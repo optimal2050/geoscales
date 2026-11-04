@@ -147,9 +147,6 @@ enforces:
 - a warning (not an error) when geoframes look ordered finer-to-coarser
   — order carries meaning: aggregation direction follows it.
 
-The old argument names `leaves=`/`levels=` are rejected with a pointer
-to the current spelling.
-
 ## The registries
 
 Three package-level registries change behavior explicitly — the only way
@@ -209,7 +206,7 @@ get_geoscale_provider("naturalearth")$desc
 #> [1] "Natural Earth admin-0/admin-1 (rnaturalearth)"
 ```
 
-## Where to next?
+## Further reading
 
 - [Concepts](https://optimal2050.github.io/geoscales/r/articles/concepts.md)
   — why the structures look this way.

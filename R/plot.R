@@ -167,7 +167,7 @@ geoscale_layout <- function(x, weight = NULL) {
 #'   with the planes it separates, so it stays uniform relative to their
 #'   size.
 #' @param rotate `type = "stack"` only: in-plane rotation of each plane
-#'   (degrees, counter-clockwise) -- point North where you want it.
+#'   (degrees, counter-clockwise).
 #' @param direction `type = "stack"` only: `"up"` (default) stacks the
 #'   coarsest geoframe on top; `"down"` puts it at the bottom.
 #' @param precision `type = "stack"` only: GEOS precision for the
@@ -219,7 +219,7 @@ geoscale_layout <- function(x, weight = NULL) {
 #'   picks its own; default `FALSE`.
 #' @param palette Viridis palette option (`"A"`..`"H"`) for the plane
 #'   fill and for both types' `data` fills. Default `"H"`. `NULL` adds no
-#'   fill scale at all, so you can supply your own -- e.g.
+#'   fill scale at all, so a custom scale can be supplied -- e.g.
 #'   `energypal::scale_fill_energy_b()` for the Global Wind Atlas
 #'   colours on their absolute breaks. With `rule = "share"` the fill is
 #'   a fixed linear 0..1 scale, with `"logshare"` a fixed log10 percent

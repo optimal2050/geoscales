@@ -39,6 +39,8 @@
 #' }
 #'
 #' @format A character vector of length 7.
+#' @returns A character vector of the seven rule names accepted by the `rule`
+#'   argument of [recast_geoscale()] and [register_geoscale_rule()].
 #' @examples
 #' GEOSCALE_RULES
 #' @export

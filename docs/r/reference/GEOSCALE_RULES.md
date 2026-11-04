@@ -14,6 +14,14 @@ GEOSCALE_RULES
 
 A character vector of length 7.
 
+## Value
+
+A character vector of the seven rule names accepted by the `rule`
+argument of
+[`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
+and
+[`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md).
+
 ## Details
 
 - `sum`:

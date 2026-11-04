@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,7 @@
     
     
 <div class="section level2">
-<h2 id="what-problem-does-this-solve">What problem does this solve?<a class="anchor" aria-label="anchor" href="#what-problem-does-this-solve"></a>
+<h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
 </h2>
 <p>Energy-system, climate, and policy models carve space into discrete
 <em>regions</em>, and different models pick different carvings: one
@@ -98,13 +98,13 @@ between them is where unit errors live.</p>
 <p><code>geoscales</code> represents any such carving as a
 <strong>GeoScale</strong>: a set of <em>atoms</em> (the finest regions)
 plus ordered <em>geoframes</em> that group them — the spatial companion
-to a <code><a href="https://optimal2050.github.io/timescales/r/reference/Calendar.html" class="external-link">timescales::Calendar</a></code>. With one object you get:</p>
+to a <code><a href="https://optimal2050.github.io/timescales/r/reference/Calendar.html" class="external-link">timescales::Calendar</a></code>. One object provides:</p>
 <ul>
 <li>a stable schema for region codes and their weights,</li>
 <li>well-defined conversions between any two resolutions — including
 cross-cutting ones, because every conversion routes through the atom
 layer,</li>
-<li>attachment of hierarchy columns to your tables, and ggplot2-ready
+<li>attachment of hierarchy columns to tables, and ggplot2-ready
 maps.</li>
 </ul>
 </div>
@@ -115,7 +115,7 @@ maps.</li>
 <h3 id="build-a-geoscale">1. Build a GeoScale<a class="anchor" aria-label="anchor" href="#build-a-geoscale"></a>
 </h3>
 <p>Three construction layers, from most to least convenient — a
-provider, parent-child crosswalks, or a wide table you already have:</p>
+provider, parent-child crosswalks, or an existing wide table:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -183,9 +183,9 @@ same operation, and totals conserve under <code>"sum"</code>:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1           3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2           7</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1          20</span></span></code></pre></div>
-<p>The <code>rule</code> is deliberately mandatory — pass one, or
-register it per column with <code><a href="../reference/register_geoscale_rule.html">register_geoscale_rule()</a></code>; a
-silently guessed rule would be a silent unit error.</p>
+<p>The <code>rule</code> is mandatory: passed per call, or registered
+per column with <code><a href="../reference/register_geoscale_rule.html">register_geoscale_rule()</a></code>; a silently
+guessed rule would be a silent unit error.</p>
 </div>
 <div class="section level3">
 <h3 id="attach-a-geoscale-to-a-table">4. Attach a GeoScale to a table<a class="anchor" aria-label="anchor" href="#attach-a-geoscale-to-a-table"></a>
@@ -216,8 +216,8 @@ to every geoframe — see the visualization article):</p>
 <p><img src="geoscales_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672"></p>
 <p>With geometry attached (any <code>sfc</code> aligned with the atoms),
 <code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> puts values on a map inside a normal
-<code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code> pipeline. The data must be keyed at the geoframe
-you draw, so recast finer data up first:</p>
+<code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code> pipeline. The data must be keyed at the drawn
+geoframe, so finer data is recast up first:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sq</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st.html" class="external-link">st_polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">x</span>, <span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">y</span>, <span class="va">y</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">y</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -240,9 +240,9 @@ you draw, so recast finer data up first:</p>
 <p>The stack on the package’s front page is a real, data-built
 hierarchy: Iceland’s onshore wind resource from the <a href="https://globalwindatlas.info/" class="external-link">Global Wind Atlas</a>, clustered
 <em>within</em> each administrative region into contiguous wind-speed
-classes. That is the standard renewable-modeling move — a model wants a
-handful of supply regions per admin unit, ranked by resource quality,
-not two million raster cells.</p>
+classes. This is a common construction in renewable modeling: a model
+uses a handful of supply regions per admin unit, ranked by resource
+quality, rather than two million raster cells.</p>
 <p>The pipeline below is complete and pasteable (packages: sf, terra,
 dplyr, <a href="https://github.com/optimal2050/globalwindatlas" class="external-link">globalwindatlas</a>;
 a one-time ~64 MB download plus a few minutes of geometry work). It is
@@ -407,12 +407,9 @@ the front-page figure:</p>
 <p><em>Wind data: <a href="https://globalwindatlas.info" class="external-link">Global Wind
 Atlas</a> — DTU, in partnership with the World Bank Group, data by
 Vortex, funded by ESMAP.</em></p>
-<p>Offshore wind areas would slot in as a sibling branch of the same
-hierarchy, but they first need a regionalization of the sea area —
-deferred for now.</p>
 </div>
 <div class="section level2">
-<h2 id="where-to-next">Where to next?<a class="anchor" aria-label="anchor" href="#where-to-next"></a>
+<h2 id="further-reading">Further reading<a class="anchor" aria-label="anchor" href="#further-reading"></a>
 </h2>
 <ul>
 <li>
@@ -429,8 +426,9 @@ space.</li>
 <a href="from-naturalearth.html">Building from Natural Earth</a> —
 providers in practice.</li>
 <li>
-<a href="visualization.html">Visualization</a> — maps with
-<code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code>, on a real multi-layer example.</li>
+<a href="https://optimal2050.github.io/geoscales/r/articles/visualization.html">Visualization</a>
+— maps with <code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code>, on a real multi-layer
+example.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

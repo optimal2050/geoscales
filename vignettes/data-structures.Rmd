@@ -101,9 +101,6 @@ Construction (any layer: `geoscale_from_provider()`,
 - a warning (not an error) when geoframes look ordered finer-to-coarser
   — order carries meaning: aggregation direction follows it.
 
-The old argument names `leaves=`/`levels=` are rejected with a pointer
-to the current spelling.
-
 ## The registries
 
 Three package-level registries change behavior explicitly — the only
@@ -141,7 +138,7 @@ list_geoscale_providers()
 get_geoscale_provider("naturalearth")$desc
 ```
 
-## Where to next?
+## Further reading
 
 - [Concepts](concepts.html) — why the structures look this way.
 - [Data manipulation](data-manipulation.html) — the verbs over these

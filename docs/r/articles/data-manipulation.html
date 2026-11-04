@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,7 +138,7 @@ column</td>
 <td>per-column rules, exact crosswalks, map sources</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast()</a></code></td>
+<td><code><a href="https://optimal2050.github.io/nestedscales/r/reference/recast.html" class="external-link">recast()</a></code></td>
 <td>generic</td>
 <td>one pipeline verb across time AND space</td>
 </tr>
@@ -165,12 +165,12 @@ from the columns (or passed as <code>geoframe=</code>):</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tibble</span><span class="op">(</span>state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span><span class="op">)</span>, v <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/join_geoscale.html">join_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, geoframes <span class="op">=</span> <span class="cn">TRUE</span>, meta <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 6</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 6</span></span></span>
 <span><span class="co">#&gt;   state     v example.country example.weight example.share example</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt; &lt;int&gt; &lt;fct&gt;                    &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt; 1 N1        1 N                          300         0.143 N1     </span></span>
-<span><span class="co">#&gt; 2 N2        2 N                          700         0.333 N2     </span></span>
-<span><span class="co">#&gt; 3 S1        3 S                         1100         0.524 S1</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1        1 N                          300         0.143 N1     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2        2 N                          700         0.333 N2     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1        3 S                         <span style="text-decoration: underline;">1</span>100         0.524 S1</span></span></code></pre></div>
 <p>Because every GeoScale attaches under its own name, several can
 coexist on one dataset — and a table carrying two label columns is
 itself an empirical crosswalk between the region systems. Existing
@@ -181,8 +181,7 @@ columns are never overwritten; a clashing attach errors instead.</p>
 </h2>
 <p><code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> converts values — aggregation and
 disaggregation are one operation, routed through the atom layer, so
-cross-cutting geoframes need no special handling. Three things to
-know:</p>
+cross-cutting geoframes need no special handling. Three rules apply:</p>
 <p><strong>1. One rule per value column, and the rule is
 mandatory.</strong> Pass <code>rule=</code> for all columns, or register
 per-column rules once; a column with neither errors — a silently guessed
@@ -193,11 +192,11 @@ rule is a silent unit error.</p>
 <span>                  weight <span class="op">=</span> <span class="st">"pop"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cap</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"country"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
 <span><span class="co">#&gt;   country capacity</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;      &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 N             10</span></span>
-<span><span class="co">#&gt; 2 S             11</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N             10</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> S             11</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th>rule</th>
@@ -237,12 +236,12 @@ weight drives the split, and a round trip is exact:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tibble</span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"country"</span>, target <span class="op">=</span> <span class="st">"state"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   state capacity</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 N1           3</span></span>
-<span><span class="co">#&gt; 2 N2           7</span></span>
-<span><span class="co">#&gt; 3 S1          20</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1           3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2           7</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1          20</span></span></code></pre></div>
 <p><strong>2. Identifier columns ride along.</strong> Columns that are
 neither the key nor values (a year, a technology) are grouping columns,
 so panel data converts in one call, and totals conserve <em>per
@@ -256,13 +255,13 @@ landed), so downstream joins see a stable schema.</p>
 <span>  <span class="fu">mutate</span><span class="op">(</span>capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">atom</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.0</span><span class="op">)</span></span>
 <span><span class="va">panel</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"country"</span>,</span>
 <span>                         values <span class="op">=</span> <span class="st">"capacity"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 4 × 3</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
 <span><span class="co">#&gt;   country  year capacity</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;   &lt;int&gt;    &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 N        2030       10</span></span>
-<span><span class="co">#&gt; 2 S        2030       11</span></span>
-<span><span class="co">#&gt; 3 N        2050       34</span></span>
-<span><span class="co">#&gt; 4 S        2050       23</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N        <span style="text-decoration: underline;">2</span>030       10</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> S        <span style="text-decoration: underline;">2</span>030       11</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> N        <span style="text-decoration: underline;">2</span>050       34</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> S        <span style="text-decoration: underline;">2</span>050       23</span></span></code></pre></div>
 <p>(<code>values=</code> is explicit here because <code>year</code> is
 numeric — value auto-detection takes every numeric non-key column, so
 numeric identifiers must be named out.)</p>
@@ -271,9 +270,9 @@ numeric identifiers must be named out.)</p>
 <code>na_action=</code>: <code>"drop"</code> (default; warns — the
 affected share is genuinely lost), <code>"keep"</code> (an explicit
 <code>NA</code> region row so totals conserve), or <code>"error"</code>.
-Note that downstream, energyRt reads <code>NA</code> in a region column
-as a wildcard meaning <em>all</em> regions — don’t pass
-<code>"keep"</code> output there unfiltered.</p>
+Downstream, energyRt reads <code>NA</code> in a region column as a
+wildcard meaning <em>all</em> regions, so <code>"keep"</code> output
+must be filtered before it is passed there.</p>
 </div>
 <div class="section level2">
 <h2 id="the-route-halves-and-cross-geoscale-conversion">The route halves and cross-GeoScale conversion<a class="anchor" aria-label="anchor" href="#the-route-halves-and-cross-geoscale-conversion"></a>
@@ -287,19 +286,19 @@ rules act on the atom rows directly:</p>
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_to_geoatoms.html">recast_to_geoatoms</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">a</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 3</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">#&gt;   region capacity weight</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 A1            1    100</span></span>
-<span><span class="co">#&gt; 2 A2            2    200</span></span>
-<span><span class="co">#&gt; 3 A3            3    300</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> A1            1    100</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> A2            2    200</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> A3            3    300</span></span>
 <span><span class="va">a</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms</a></span><span class="op">(</span><span class="va">gs</span>, target <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   state capacity</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 N1           3</span></span>
-<span><span class="co">#&gt; 2 N2           7</span></span>
-<span><span class="co">#&gt; 3 S1          20</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1           3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2           7</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1          20</span></span></code></pre></div>
 <p>Because the atom rows are keyed by atom <code>region</code> IDs, the
 halves also convert <strong>across two different GeoScales that share
 atom keys</strong> (reg32 to NUTS style conversions) — and the fused
@@ -313,11 +312,11 @@ layer:</p>
 <span><span class="va">cap</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="va">gs_b</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs_b</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"band"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
 <span><span class="co">#&gt;   band  capacity</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 X            9</span></span>
-<span><span class="co">#&gt; 2 Y           12</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> X            9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Y           12</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="the-crosswalk-inspectable-and-overridable">The crosswalk, inspectable and overridable<a class="anchor" aria-label="anchor" href="#the-crosswalk-inspectable-and-overridable"></a>
@@ -349,11 +348,11 @@ accessors to inspect what is installed:</p>
 <div class="section level2">
 <h2 id="one-verb-across-time-and-space">One verb across time and space<a class="anchor" aria-label="anchor" href="#one-verb-across-time-and-space"></a>
 </h2>
-<p>The bare <code><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast()</a></code> generic is owned by nestedscales and
+<p>The bare <code><a href="https://optimal2050.github.io/nestedscales/r/reference/recast.html" class="external-link">recast()</a></code> generic is owned by nestedscales and
 re-exported by both geoscales and timescales. It dispatches on the scale
 object, so the two packages can be composed in one pipeline. This
-illustrative snippet requires timescales, which is intentionally not a
-dependency of geoscales:</p>
+illustrative snippet requires timescales, which is not a dependency of
+geoscales:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/timescales/r/" class="external-link">timescales</a></span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"m%02d"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>,</span>
@@ -363,16 +362,16 @@ dependency of geoscales:</p>
 <span>  <span class="fu">mutate</span><span class="op">(</span>demand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">timeslice</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>, target <span class="op">=</span> <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>  <span class="fu"><a href="https://optimal2050.github.io/nestedscales/r/reference/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>, target <span class="op">=</span> <span class="fu"><a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html" class="external-link">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
 <span>         rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://optimal2050.github.io/nestedscales/r/reference/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></code></pre></div>
 <p>Same contract on both sides: explicit rules, identifier columns
 preserved, totals conserved under <code>"sum"</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="backends">Backends<a class="anchor" aria-label="anchor" href="#backends"></a>
 </h2>
-<p>The verbs are single dplyr pipelines, so the SAME code runs over an
+<p>The verbs are single dplyr pipelines, so the same code runs over an
 in-memory <code>data.frame</code>/tibble, a <code>data.table</code> (via
 dtplyr), or an arrow Dataset/query. Eager inputs come back in their own
 class; lazy inputs return the <em>uncollected query</em> unless
@@ -400,7 +399,7 @@ join is a small in-memory frame, so an on-disk arrow dataset is never
 pulled into memory for the geoscale arithmetic.</p>
 </div>
 <div class="section level2">
-<h2 id="where-to-next">Where to next?<a class="anchor" aria-label="anchor" href="#where-to-next"></a>
+<h2 id="further-reading">Further reading<a class="anchor" aria-label="anchor" href="#further-reading"></a>
 </h2>
 <ul>
 <li>
@@ -410,8 +409,8 @@ through the atom layer.</li>
 <a href="data-structures.html">Data structures</a> — the registries
 as structures.</li>
 <li>
-<a href="visualization.html">Visualization</a> — the same pipelines
-flowing onto maps.</li>
+<a href="https://optimal2050.github.io/geoscales/r/articles/visualization.html">Visualization</a>
+— the same pipelines flowing onto maps.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

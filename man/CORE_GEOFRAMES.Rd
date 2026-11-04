@@ -9,6 +9,9 @@ A character vector of length 6.
 \usage{
 CORE_GEOFRAMES
 }
+\value{
+A character vector of six geoframe names, coarsest first.
+}
 \description{
 Recommended geoframe names, ordered coarsest first. Analogue of
 \code{timescales::CORE_TIMEFRAMES}.

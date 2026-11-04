@@ -4,9 +4,9 @@
 
 | kind | functions | use when |
 |----|----|----|
-| composable layers | [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md), [`theme_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md) | you are building your own [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html) and want a choropleth as one layer among others |
-| assembled figures | [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md) (structure icicle; also [`plot()`](https://rspatial.github.io/terra/reference/plot.html)), [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md) (one-call choropleth) | you want a finished figure in one call |
-| layout / geometry workers | [`geoscale_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.md), [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md) | you want the plain frames behind the figures |
+| composable layers | [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md), [`theme_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md) | a choropleth as one layer among others in a custom [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html) |
+| assembled figures | [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md) (structure icicle; also [`plot()`](https://rspatial.github.io/terra/reference/plot.html)), [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md) (one-call choropleth) | a finished figure in one call |
+| layout / geometry workers | [`geoscale_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.md), [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md) | the plain frames behind the figures |
 
 This article needs maps, so it runs on two fixtures that stay out of the
 package by design (geoscales ships integration code, not data): the
@@ -73,7 +73,7 @@ ggplot() +
 ## Recasting, seen on the map
 
 The same data drawn at another geoframe is one `geoframe=` away — the
-layer dissolves and aggregates for you (here with `fun = sum` for an
+layer dissolves and aggregates itself (here with `fun = sum` for an
 extensive quantity):
 
 ``` r
@@ -185,17 +185,17 @@ geoscale_autoplot(gs, type = "stack")
 The stack takes a `view` preset — from flat `"top-down"` through the
 oblique family (`"cavalier"`, `"cabinet"`) and the axonometric family
 (`"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`) to
-`"perspective"`, where receding planes shrink. Custom obliques come via
-`angle`/`ratio`, `rotate=` turns the plane (point North anywhere),
-`direction=` flips the stack, and `gap` defaults to planes almost
-touching:
+`"perspective"`, where receding planes shrink, and its inverse
+`"pyramid"`, where they grow. Custom obliques come via `angle`/`ratio`,
+`rotate=` turns the plane (point North anywhere), `direction=` flips the
+stack, and `gap` defaults to planes almost touching:
 
 ``` r
 
 # grouped by aspect so tall and flat views don't squeeze each other
 views <- c("top-down", "military", "isometric",
            "dimetric", "trimetric", "cabinet",
-           "oblique", "cavalier", "perspective")
+           "oblique", "perspective", "pyramid")
 views |>
   lapply(function(vw)
     geoscale_autoplot(gs, type = "stack", view = vw) +
@@ -252,7 +252,7 @@ isl
 ```
 
 [`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md)
-just attached real data — equal-area km² per unit — which is also the
+attached real data — equal-area km² per unit — which is also the
 object’s default weight. Drawn straight from the leaftable:
 
 ``` r
@@ -292,8 +292,7 @@ tibble(country = "ISL", capacity_mw = 3000) |>
 
 ## One resource, three geoframes
 
-Model design is choosing a resolution. The wind-cluster GeoScale from
-the [get-started
+The wind-cluster GeoScale from the [get-started
 vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
 carries Iceland’s mean wind speed on its cluster atoms; recasting the
 same values up the hierarchy shows exactly what each aggregation keeps —

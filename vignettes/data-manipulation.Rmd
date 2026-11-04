@@ -59,7 +59,7 @@ never overwritten; a clashing attach errors instead.
 
 `recast_geoscale()` converts values — aggregation and disaggregation are
 one operation, routed through the atom layer, so cross-cutting
-geoframes need no special handling. Three things to know:
+geoframes need no special handling. Three rules apply:
 
 **1. One rule per value column, and the rule is mandatory.** Pass
 `rule=` for all columns, or register per-column rules once; a column
@@ -111,9 +111,9 @@ identifiers must be named out.)
 **3. Coverage is explicit.** Atoms with no code at `source` or `target` go
 through `na_action=`: `"drop"` (default; warns — the affected share is
 genuinely lost), `"keep"` (an explicit `NA` region row so totals
-conserve), or `"error"`. Note that downstream, energyRt reads `NA` in a
-region column as a wildcard meaning *all* regions — don't pass `"keep"`
-output there unfiltered.
+conserve), or `"error"`. Downstream, energyRt reads `NA` in a region
+column as a wildcard meaning *all* regions, so `"keep"` output must be
+filtered before it is passed there.
 
 ```{r, include = FALSE}
 clear_geoscale_rules()
@@ -176,7 +176,7 @@ clear_geoscale_maps()
 The bare `recast()` generic is owned by nestedscales and re-exported by both
 geoscales and timescales. It dispatches on the scale object, so the two
 packages can be composed in one pipeline. This illustrative snippet requires
-timescales, which is intentionally not a dependency of geoscales:
+timescales, which is not a dependency of geoscales:
 
 ```r
 library(timescales)
@@ -197,7 +197,7 @@ preserved, totals conserved under `"sum"`.
 
 ## Backends
 
-The verbs are single dplyr pipelines, so the SAME code runs over an
+The verbs are single dplyr pipelines, so the same code runs over an
 in-memory `data.frame`/tibble, a `data.table` (via dtplyr), or an arrow
 Dataset/query. Eager inputs come back in their own class; lazy inputs
 return the *uncollected query* unless `collect = TRUE`:
@@ -221,11 +221,11 @@ on materialisation — and the geoscale side of every join is a small
 in-memory frame, so an on-disk arrow dataset is never pulled into memory
 for the geoscale arithmetic.
 
-## Where to next?
+## Further reading
 
 - [Concepts](concepts.html) — why the route always goes through the
   atom layer.
 - [Data structures](data-structures.html) — the registries as
   structures.
-- [Visualization](visualization.html) — the same pipelines flowing onto
+- [Visualization](https://optimal2050.github.io/geoscales/r/articles/visualization.html) — the same pipelines flowing onto
   maps.

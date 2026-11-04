@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,12 +83,12 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>geoscales provides <strong>nested regions and spatial hierarchies</strong> for optimization and simulation models: organize the spatial dimension of your model data, convert it between region systems, and see every geoframe at once.</p>
+<p>geoscales provides <strong>nested regions and spatial hierarchies</strong> for optimization and simulation models: organize the spatial dimension of model data, convert it between region systems, and draw every geoframe at once.</p>
 <ul>
 <li>
 <a href="https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.html"><code>geoscale_from_leaftable()</code></a> builds a <code>GeoScale</code> — ordered geoframes, their members, and one leaftable row per leaf region (“atom”) with its weights (area, population, capacity); <a href="https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.html"><code>ne_geoscale()</code></a> builds one straight from Natural Earth, and <a href="https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.html"><code>attach_geometry_geoscale()</code></a> adds boundaries from any source — the package ships integration code, not maps.</li>
 <li>
-<a href="https://optimal2050.github.io/geoscales/r/reference/join_geoscale.html"><code>join_geoscale()</code></a> decorates a table keyed by regions with the geoscale’s columns — your tables stay tables (data.frame, tibble, data.table, dtplyr/arrow in; the same class out).</li>
+<a href="https://optimal2050.github.io/geoscales/r/reference/join_geoscale.html"><code>join_geoscale()</code></a> decorates a table keyed by regions with the geoscale’s columns — the table keeps its class (data.frame, tibble, data.table, dtplyr/arrow in; the same class out).</li>
 <li>
 <a href="https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.html"><code>recast_geoscale()</code></a> converts values between geoframes — up, down, and across cross-cutting region systems — one rule per value column, totals conserved.</li>
 <li>
@@ -97,13 +97,16 @@
 <a href="https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.html"><code>geom_geoscale()</code></a> and <a href="https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.html"><code>geoscale_autoplot()</code></a> draw any geoframe: choropleths, icicles, and axonometric stacks.</li>
 </ul>
 <p>geoscales is the spatial-domain package of the <a href="https://github.com/optimal2050" class="external-link">optimal2050</a> modeling stack; its time companion, <a href="https://github.com/optimal2050/timescales" class="external-link">timescales</a>, shares the same design and vocabulary.</p>
-<p>If you are new to geoscales, the best place to start is the <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started vignette</a> (<code><a href="articles/geoscales.html">vignette("geoscales")</a></code>).</p>
+<p>The <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started vignette</a> (<code><a href="articles/geoscales.html">vignette("geoscales")</a></code>) introduces the package.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>geoscales is not on CRAN yet; install the development version from GitHub:</p>
+<p>From CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"geoscales"</span><span class="op">)</span></span></code></pre></div>
+<p>The development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"optimal2050/geoscales"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -115,8 +118,8 @@
 <p>The same data moves between geoframes by one verb — <code><a href="reference/recast_geoscale.html">recast_geoscale()</a></code>, the same machinery that converts model tables — here the cluster values as area-weighted means of each region’s resource area, on the flat map:</p>
 <p><img src="reference/figures/README-hero-iceland-regions-1.png" alt="" width="100%"></p>
 <p><em>Wind data: <a href="https://globalwindatlas.info" class="external-link">Global Wind Atlas</a> — DTU, in partnership with the World Bank Group, data by Vortex, funded by ESMAP.</em></p>
-<p>And building a <code>GeoScale</code> takes a leaftable and (optionally) a map — here Iceland’s administrative hierarchy from Natural Earth, drawn as a top-down stack:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>Building a <code>GeoScale</code> takes a leaftable and (optionally) a map — here Iceland’s administrative hierarchy from Natural Earth, drawn as a top-down stack:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/geoscales/r/">geoscales</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ne</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ne_source.html">ne_source</a></span><span class="op">(</span>geoframe <span class="op">=</span> <span class="st">"states"</span>, country <span class="op">=</span> <span class="st">"Iceland"</span><span class="op">)</span></span>

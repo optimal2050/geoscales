@@ -1,6 +1,6 @@
 # Getting started with geoscales
 
-## What problem does this solve?
+## Purpose
 
 Energy-system, climate, and policy models carve space into discrete
 *regions*, and different models pick different carvings: one nation,
@@ -13,21 +13,20 @@ them is where unit errors live.
 *atoms* (the finest regions) plus ordered *geoframes* that group them —
 the spatial companion to a
 [`timescales::Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.html).
-With one object you get:
+One object provides:
 
 - a stable schema for region codes and their weights,
 - well-defined conversions between any two resolutions — including
   cross-cutting ones, because every conversion routes through the atom
   layer,
-- attachment of hierarchy columns to your tables, and ggplot2-ready
-  maps.
+- attachment of hierarchy columns to tables, and ggplot2-ready maps.
 
 ## A 5-minute tour
 
 ### 1. Build a GeoScale
 
 Three construction layers, from most to least convenient — a provider,
-parent-child crosswalks, or a wide table you already have:
+parent-child crosswalks, or an existing wide table:
 
 ``` r
 
@@ -104,8 +103,7 @@ tibble(country = c("N", "S"), capacity = c(10, 20)) |>
 #> 3 S1          20
 ```
 
-The `rule` is deliberately mandatory — pass one, or register it per
-column with
+The `rule` is mandatory: passed per call, or registered per column with
 [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md);
 a silently guessed rule would be a silent unit error.
 
@@ -147,8 +145,8 @@ With geometry attached (any `sfc` aligned with the atoms),
 [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
 puts values on a map inside a normal
 [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html)
-pipeline. The data must be keyed at the geoframe you draw, so recast
-finer data up first:
+pipeline. The data must be keyed at the drawn geoframe, so finer data is
+recast up first:
 
 ``` r
 
@@ -174,10 +172,10 @@ cap |>
 The stack on the package’s front page is a real, data-built hierarchy:
 Iceland’s onshore wind resource from the [Global Wind
 Atlas](https://globalwindatlas.info/), clustered *within* each
-administrative region into contiguous wind-speed classes. That is the
-standard renewable-modeling move — a model wants a handful of supply
-regions per admin unit, ranked by resource quality, not two million
-raster cells.
+administrative region into contiguous wind-speed classes. This is a
+common construction in renewable modeling: a model uses a handful of
+supply regions per admin unit, ranked by resource quality, rather than
+two million raster cells.
 
 The pipeline below is complete and pasteable (packages: sf, terra,
 dplyr,
@@ -363,11 +361,7 @@ geoscale_autoplot(iceland$gs, type = "stack", view = "perspective",
 *Wind data: [Global Wind Atlas](https://globalwindatlas.info) — DTU, in
 partnership with the World Bank Group, data by Vortex, funded by ESMAP.*
 
-Offshore wind areas would slot in as a sibling branch of the same
-hierarchy, but they first need a regionalization of the sea area —
-deferred for now.
-
-## Where to next?
+## Further reading
 
 - [Concepts](https://optimal2050.github.io/geoscales/r/articles/concepts.md)
   — atoms, partitions vs trees, the shared \*scales glossary.
@@ -381,7 +375,7 @@ deferred for now.
 - [Building from Natural
   Earth](https://optimal2050.github.io/geoscales/r/articles/from-naturalearth.md)
   — providers in practice.
-- [Visualization](https://optimal2050.github.io/geoscales/r/articles/visualization.md)
+- [Visualization](https://optimal2050.github.io/geoscales/r/articles/visualization.html)
   — maps with
   [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md),
   on a real multi-layer example.

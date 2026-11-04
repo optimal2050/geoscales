@@ -9,6 +9,10 @@ A character vector of length 7.
 \usage{
 GEOSCALE_RULES
 }
+\value{
+A character vector of the seven rule names accepted by the \code{rule}
+argument of \code{\link[=recast_geoscale]{recast_geoscale()}} and \code{\link[=register_geoscale_rule]{register_geoscale_rule()}}.
+}
 \description{
 Each rule defines behaviour in \strong{both} directions. Direction is taken from
 the geoframe ranks, so aggregation and disaggregation are one operation:

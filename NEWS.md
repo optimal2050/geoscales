@@ -1,5 +1,7 @@
 # geoscales 0.7.1
 
+## New features
+
 * `geoscale_autoplot(type = "stack")` gains `view = "pyramid"`, the mirror
   image of `"perspective"`: the coarsest geoframe is the small top and the
   finest the wide base.
@@ -13,27 +15,26 @@
 
 # geoscales 0.7.0
 
+## Breaking changes
+
 * Requires nestedscales 0.2.0.
+* The class is now spelled `GeoScale` (was `Geoscale`), matching
+  `NestedScale`. Function names keep the `geoscale_` prefix. Saved
+  GeoScale objects embed the class name: rebuild any `.rds`/`.rda` that
+  holds one. No deprecation alias.
 * Leaftable rows are in nested order by default: sorted by geoframe,
   coarsest first, each in its member order, with unassigned codes last;
   geometry follows the rows. `row_order = "given"` keeps the rows as
   supplied.
+* The `recast()` method follows the generic's new arguments:
+  `recast(x, scale, target, source = NULL, ...)`.
+
+## Deprecations
+
 * `from` and `to` are now `source` and `target` in the navigation, map and
   recast functions (`recast_geoscale()`, `recast_pairs()`, the geoatom
   halves), matching nestedscales. The old names still work, with a
   deprecation warning, and will be removed in a later release.
-* The `recast()` method follows the generic's new arguments:
-  `recast(x, scale, target, source = NULL, ...)`.
-
-# geoscales 0.6.0.9000
-
-## Breaking changes
-
-* The class is now spelled `GeoScale` (was `Geoscale`), matching
-  `NestedScale` and `EnergyScale`. Function names keep the `geoscale_`
-  prefix. Saved GeoScale objects embed the class name: rebuild or re-stamp
-  any `.rds`/`.rda` that holds one (see `data-raw/restamp_iceland_wind.R`
-  for the pattern). No deprecation alias.
 
 # geoscales 0.6.0
 

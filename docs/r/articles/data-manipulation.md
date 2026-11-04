@@ -9,7 +9,7 @@
 | [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) / [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) | the route halves | project down to the atom layer / aggregate up from it |
 | [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md) | A → B crosswalk | the conversion, materialised as a small table |
 | [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md) / [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md) / [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md) | registries | per-column rules, exact crosswalks, map sources |
-| [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html) | generic | one pipeline verb across time AND space |
+| [`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html) | generic | one pipeline verb across time AND space |
 
 Everything below runs on the synthetic
 [`geoscale_example()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_example.md)
@@ -54,7 +54,7 @@ never overwritten; a clashing attach errors instead.
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 converts values — aggregation and disaggregation are one operation,
 routed through the atom layer, so cross-cutting geoframes need no
-special handling. Three things to know:
+special handling. Three rules apply:
 
 **1. One rule per value column, and the rule is mandatory.** Pass
 `rule=` for all columns, or register per-column rules once; a column
@@ -127,9 +127,9 @@ identifiers must be named out.)
 **3. Coverage is explicit.** Atoms with no code at `source` or `target`
 go through `na_action=`: `"drop"` (default; warns — the affected share
 is genuinely lost), `"keep"` (an explicit `NA` region row so totals
-conserve), or `"error"`. Note that downstream, energyRt reads `NA` in a
-region column as a wildcard meaning *all* regions — don’t pass `"keep"`
-output there unfiltered.
+conserve), or `"error"`. Downstream, energyRt reads `NA` in a region
+column as a wildcard meaning *all* regions, so `"keep"` output must be
+filtered before it is passed there.
 
 ## The route halves and cross-GeoScale conversion
 
@@ -214,11 +214,12 @@ clear_geoscale_maps()
 
 ## One verb across time and space
 
-The bare [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+The bare
+[`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html)
 generic is owned by nestedscales and re-exported by both geoscales and
 timescales. It dispatches on the scale object, so the two packages can
 be composed in one pipeline. This illustrative snippet requires
-timescales, which is intentionally not a dependency of geoscales:
+timescales, which is not a dependency of geoscales:
 
 ``` r
 
@@ -240,7 +241,7 @@ preserved, totals conserved under `"sum"`.
 
 ## Backends
 
-The verbs are single dplyr pipelines, so the SAME code runs over an
+The verbs are single dplyr pipelines, so the same code runs over an
 in-memory `data.frame`/tibble, a `data.table` (via dtplyr), or an arrow
 Dataset/query. Eager inputs come back in their own class; lazy inputs
 return the *uncollected query* unless `collect = TRUE`:
@@ -270,12 +271,12 @@ on materialisation — and the geoscale side of every join is a small
 in-memory frame, so an on-disk arrow dataset is never pulled into memory
 for the geoscale arithmetic.
 
-## Where to next?
+## Further reading
 
 - [Concepts](https://optimal2050.github.io/geoscales/r/articles/concepts.md)
   — why the route always goes through the atom layer.
 - [Data
   structures](https://optimal2050.github.io/geoscales/r/articles/data-structures.md)
   — the registries as structures.
-- [Visualization](https://optimal2050.github.io/geoscales/r/articles/visualization.md)
+- [Visualization](https://optimal2050.github.io/geoscales/r/articles/visualization.html)
   — the same pipelines flowing onto maps.

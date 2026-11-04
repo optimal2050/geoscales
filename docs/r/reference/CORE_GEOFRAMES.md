@@ -13,6 +13,10 @@ CORE_GEOFRAMES
 
 A character vector of length 6.
 
+## Value
+
+A character vector of six geoframe names, coarsest first.
+
 ## Details
 
 These are guidance only.

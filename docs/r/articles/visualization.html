@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,8 +106,9 @@
 <td>
 <code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code>, <code><a href="../reference/geom_geoscale.html">theme_geoscale()</a></code>
 </td>
-<td>you are building your own <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code> and want a
-choropleth as one layer among others</td>
+<td>a choropleth as one layer among others in a custom
+<code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code>
+</td>
 </tr>
 <tr class="even">
 <td>assembled figures</td>
@@ -115,7 +116,7 @@ choropleth as one layer among others</td>
 <code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code> (structure icicle; also
 <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code>), <code><a href="../reference/geoscale_plot.html">geoscale_plot()</a></code> (one-call
 choropleth)</td>
-<td>you want a finished figure in one call</td>
+<td>a finished figure in one call</td>
 </tr>
 <tr class="odd">
 <td>layout / geometry workers</td>
@@ -123,7 +124,7 @@ choropleth)</td>
 <code><a href="../reference/geoscale_layout.html">geoscale_layout()</a></code>,
 <code><a href="../reference/geoscale_geometry.html">geoscale_geometry()</a></code>
 </td>
-<td>you want the plain frames behind the figures</td>
+<td>the plain frames behind the figures</td>
 </tr>
 </tbody>
 </table>
@@ -185,7 +186,7 @@ under other layers:</p>
 <h2 id="recasting-seen-on-the-map">Recasting, seen on the map<a class="anchor" aria-label="anchor" href="#recasting-seen-on-the-map"></a>
 </h2>
 <p>The same data drawn at another geoframe is one <code>geoframe=</code>
-away — the layer dissolves and aggregates for you (here with
+away — the layer dissolves and aggregates itself (here with
 <code>fun = sum</code> for an extensive quantity):</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">+</span></span>
@@ -270,16 +271,16 @@ stacked:</p>
 (<code>"cavalier"</code>, <code>"cabinet"</code>) and the axonometric
 family (<code>"military"</code>, <code>"isometric"</code>,
 <code>"dimetric"</code>, <code>"trimetric"</code>) to
-<code>"perspective"</code>, where receding planes shrink. Custom
-obliques come via <code>angle</code>/<code>ratio</code>,
-<code>rotate=</code> turns the plane (point North anywhere),
-<code>direction=</code> flips the stack, and <code>gap</code> defaults
-to planes almost touching:</p>
+<code>"perspective"</code>, where receding planes shrink, and its
+inverse <code>"pyramid"</code>, where they grow. Custom obliques come
+via <code>angle</code>/<code>ratio</code>, <code>rotate=</code> turns
+the plane (point North anywhere), <code>direction=</code> flips the
+stack, and <code>gap</code> defaults to planes almost touching:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># grouped by aspect so tall and flat views don't squeeze each other</span></span>
 <span><span class="va">views</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"top-down"</span>, <span class="st">"military"</span>, <span class="st">"isometric"</span>,</span>
 <span>           <span class="st">"dimetric"</span>, <span class="st">"trimetric"</span>, <span class="st">"cabinet"</span>,</span>
-<span>           <span class="st">"oblique"</span>, <span class="st">"cavalier"</span>, <span class="st">"perspective"</span><span class="op">)</span></span>
+<span>           <span class="st">"oblique"</span>, <span class="st">"perspective"</span>, <span class="st">"pyramid"</span><span class="op">)</span></span>
 <span><span class="va">views</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">vw</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="../reference/geoscale_autoplot.html">geoscale_autoplot</a></span><span class="op">(</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="va">vw</span><span class="op">)</span> <span class="op">+</span></span>
@@ -326,8 +327,8 @@ of one region:</p>
 <span><span class="co">#&gt; Weights: km2 (default: km2)</span></span>
 <span><span class="co">#&gt; CRS: WGS 84</span></span>
 <span><span class="co">#&gt; Geometry: attached (9 features)</span></span></code></pre></div>
-<p><code><a href="../reference/add_area_geoscale.html">add_area_geoscale()</a></code> just attached real data — equal-area
-km² per unit — which is also the object’s default weight. Drawn straight
+<p><code><a href="../reference/add_area_geoscale.html">add_area_geoscale()</a></code> attached real data — equal-area km²
+per unit — which is also the object’s default weight. Drawn straight
 from the leaftable:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">isl</span><span class="op">)</span></span>
@@ -360,8 +361,7 @@ as one region:</p>
 <div class="section level2">
 <h2 id="one-resource-three-geoframes">One resource, three geoframes<a class="anchor" aria-label="anchor" href="#one-resource-three-geoframes"></a>
 </h2>
-<p>Model design is choosing a resolution. The wind-cluster GeoScale from
-the <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started
+<p>The wind-cluster GeoScale from the <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started
 vignette</a> carries Iceland’s mean wind speed on its cluster atoms;
 recasting the same values up the hierarchy shows exactly what each
 aggregation keeps — the temporal twin of this figure (one wind year at

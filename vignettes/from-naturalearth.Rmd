@@ -50,7 +50,7 @@ gs
 
 ## Aggregating up
 
-We will follow Iceland through the hierarchy. It sits in Northern Europe:
+Iceland serves as the running example. It sits in Northern Europe:
 
 ```{r}
 lf <- S7::prop(gs, "leaftable")
@@ -68,7 +68,7 @@ agg <- recast_geoscale(pop, gs, source = "country", target = "subregion", rule =
 agg[agg$subregion == "Northern Europe", ]
 ```
 
-## ... and back down
+## Disaggregating down
 
 The same verb runs the other way. Going down, `rule = "sum"` splits a total in
 proportion to a weight, so the total is conserved:
@@ -81,15 +81,15 @@ back <- recast_geoscale(ne, gs, source = "subregion", target = "country",
 head(back[order(-back$pop), ], 4)
 ```
 
-Because we split by the same quantity we aggregated, the round trip is exact:
+Because the split uses the same quantity that was aggregated, the round trip
+is exact:
 
 ```{r}
 back$pop[back$country == "ISL"]
 sum(back$pop) == sum(ne$pop)
 ```
 
-That is the whole idea: **aggregation and disaggregation are one operation.**
-Direction follows the geoframe ranks, and `recast_geoscale()` routes through the atom
+**Aggregation and disaggregation are one operation.** Direction follows the geoframe ranks, and `recast_geoscale()` routes through the atom
 layer either way.
 
 ## Iceland's own regions
@@ -163,15 +163,14 @@ dd <- recast_geoscale(tot, g, source = "country", target = "unit",
 dd[order(-dd$demand), ]
 ```
 
-Look at what that produces. The Capital Region units receive almost nothing,
-because they are tiny — yet they hold most of Iceland's population and would
-consume most of its electricity. **Area is rarely the right weight for
-demand.** This is precisely why `recast_geoscale()` makes you name a `weight =`
-rather than picking one for you; with a population column on the leaftable you
-would pass that instead.
+The Capital Region units receive almost nothing, because they are small in
+area, although they hold most of Iceland's population and would consume most
+of its electricity. **Area is rarely the right weight for demand.**
+`recast_geoscale()` therefore requires an explicit `weight =`; with a
+population column on the leaftable, that column would be the weight.
 
-An *intensive* quantity must not be summed at all — use `weighted_mean`, which
-copies going down and weight-averages going up:
+An *intensive* quantity must not be summed at all; `weighted_mean` copies
+going down and weight-averages going up:
 
 ```{r, eval = has_hires}
 cf <- data.frame(unit = geoscale_regions(g, "unit"),
@@ -182,7 +181,7 @@ recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "k
 
 ### Geometry follows the geoframes
 
-`geoscale_geometry()` dissolves the atoms up to whatever geoframe you ask for, so the
+`geoscale_geometry()` dissolves the atoms up to the requested geoframe, so the
 nine units become eight regions:
 
 ```{r, eval = has_hires}

@@ -55,10 +55,10 @@ geoscale_nests(gs, "state", "zone")   # ZB straddles two states
 
 Real data behaves the same way. In the IDEEA region system for India,
 the `r32o11` code `APY` merges Andhra Pradesh with *part of* Puducherry,
-so the 36-region carving does not nest inside the 32-region one. This is
-exactly why the atom layer exists, and why
+so the 36-region carving does not nest inside the 32-region one. The
+atom layer exists for this case:
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
-always routes through it: neither direction of a conversion ever assumes
+always routes through it, so neither direction of a conversion assumes
 the geoframes nest.
 
 ## Region IDs are authored, and not unique across geoframes
@@ -107,10 +107,10 @@ entry is an error, in both siblings.
 
 - **The package ships no maps and selects no boundaries.** Providers
   ([`ne_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.md),
-  your own via
+  user-defined ones via
   [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md))
-  pass a point of view through and record it in `@meta`; the choice
-  stays yours.
+  pass a point of view through and record it in `@meta`; the choice is
+  the caller’s.
 - **Everything derivable is computed on demand.** Parent/child tables,
   ancestry, shares, dissolved geometry — nothing is cached on the
   object.
@@ -125,8 +125,8 @@ entry is an error, in both siblings.
 ## The \*scales naming lattice (glossary)
 
 The sibling packages `timescales` (time) and `geoscales` (space) share
-one vocabulary, locked 2026-08. No surviving word changes meaning
-between the packages; the word “levels” is retired from both.
+one vocabulary. No word changes meaning between the packages; neither
+uses the word “levels”.
 
 | term | definition | timescales | geoscales | energyRt |
 |----|----|----|----|----|
@@ -149,7 +149,7 @@ route through the atom layer. Both compose into their package’s fused
 way: explicit `rule=`, then the registry, then an error — never a silent
 fallback.
 
-## Where to next?
+## Further reading
 
 - [Data
   structures](https://optimal2050.github.io/geoscales/r/articles/data-structures.md)
@@ -157,7 +157,7 @@ fallback.
 - [Data
   manipulation](https://optimal2050.github.io/geoscales/r/articles/data-manipulation.md)
   — attach, recast, crosswalks, backends.
-- [Visualization](https://optimal2050.github.io/geoscales/r/articles/visualization.md)
+- [Visualization](https://optimal2050.github.io/geoscales/r/articles/visualization.html)
   — maps with
   [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
   and the structure figures.

@@ -30,9 +30,9 @@ if (has_topia) library(ggplot2)
 
 | kind | functions | use when |
 |---|---|---|
-| composable layers | `geom_geoscale()`, `theme_geoscale()` | you are building your own `ggplot()` and want a choropleth as one layer among others |
-| assembled figures | `geoscale_autoplot()` (structure icicle; also `plot()`), `geoscale_plot()` (one-call choropleth) | you want a finished figure in one call |
-| layout / geometry workers | `geoscale_layout()`, `geoscale_geometry()` | you want the plain frames behind the figures |
+| composable layers | `geom_geoscale()`, `theme_geoscale()` | a choropleth as one layer among others in a custom `ggplot()` |
+| assembled figures | `geoscale_autoplot()` (structure icicle; also `plot()`), `geoscale_plot()` (one-call choropleth) | a finished figure in one call |
+| layout / geometry workers | `geoscale_layout()`, `geoscale_geometry()` | the plain frames behind the figures |
 
 This article needs maps, so it runs on two fixtures that stay out of the
 package by design (geoscales ships integration code, not data): the
@@ -78,7 +78,7 @@ ggplot() +
 ## Recasting, seen on the map
 
 The same data drawn at another geoframe is one `geoframe=` away — the
-layer dissolves and aggregates for you (here with `fun = sum` for an
+layer dissolves and aggregates itself (here with `fun = sum` for an
 extensive quantity):
 
 ```{r recast-map, eval = has_topia}
@@ -209,7 +209,7 @@ isl <- geoscale_from_leaftable(
 isl
 ```
 
-`add_area_geoscale()` just attached real data — equal-area km² per
+`add_area_geoscale()` attached real data — equal-area km² per
 unit — which is also the object's default weight. Drawn straight from
 the leaftable:
 
@@ -245,7 +245,7 @@ tibble(country = "ISL", capacity_mw = 3000) |>
 
 ## One resource, three geoframes
 
-Model design is choosing a resolution. The wind-cluster GeoScale from
+The wind-cluster GeoScale from
 the [get-started
 vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
 carries Iceland's mean wind speed on its cluster atoms; recasting the

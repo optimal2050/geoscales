@@ -17,8 +17,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 geoscales provides **nested regions and spatial hierarchies** for
 optimization and simulation models: organize the spatial dimension of
-your model data, convert it between region systems, and see every
-geoframe at once.
+model data, convert it between region systems, and draw every geoframe
+at once.
 
 - [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.html)
   builds a `GeoScale` — ordered geoframes, their members, and one
@@ -30,9 +30,9 @@ geoframe at once.
   adds boundaries from any source — the package ships integration code,
   not maps.
 - [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.html)
-  decorates a table keyed by regions with the geoscale’s columns — your
-  tables stay tables (data.frame, tibble, data.table, dtplyr/arrow in;
-  the same class out).
+  decorates a table keyed by regions with the geoscale’s columns — the
+  table keeps its class (data.frame, tibble, data.table, dtplyr/arrow
+  in; the same class out).
 - [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.html)
   converts values between geoframes — up, down, and across cross-cutting
   region systems — one rule per value column, totals conserved.
@@ -51,14 +51,19 @@ geoscales is the spatial-domain package of the
 companion, [timescales](https://github.com/optimal2050/timescales),
 shares the same design and vocabulary.
 
-If you are new to geoscales, the best place to start is the [get-started
+The [get-started
 vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
-(`vignette("geoscales")`).
+(`vignette("geoscales")`) introduces the package.
 
 ## Installation
 
-geoscales is not on CRAN yet; install the development version from
-GitHub:
+From CRAN:
+
+``` r
+install.packages("geoscales")
+```
+
+The development version from GitHub:
 
 ``` r
 # install.packages("pak")
@@ -77,6 +82,7 @@ README](https://github.com/optimal2050/timescales). The [get-started
 vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
 shows how the cluster layer is built from the raster.
 
+
 <img src="man/figures/README-hero-iceland-wind-1.png" alt="" width="100%" />
 
 The same data moves between geoframes by one verb — `recast_geoscale()`,
@@ -88,8 +94,8 @@ as area-weighted means of each region’s resource area, on the flat map:
 *Wind data: [Global Wind Atlas](https://globalwindatlas.info) — DTU, in
 partnership with the World Bank Group, data by Vortex, funded by ESMAP.*
 
-And building a `GeoScale` takes a leaftable and (optionally) a map —
-here Iceland’s administrative hierarchy from Natural Earth, drawn as a
+Building a `GeoScale` takes a leaftable and (optionally) a map — here
+Iceland’s administrative hierarchy from Natural Earth, drawn as a
 top-down stack:
 
 ``` r

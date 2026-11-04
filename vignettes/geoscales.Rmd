@@ -22,7 +22,7 @@ has_wind <- file.exists("../data-raw/iceland_wind.rds") &&
   requireNamespace("energypal", quietly = TRUE)
 ```
 
-## What problem does this solve?
+## Purpose
 
 Energy-system, climate, and policy models carve space into discrete
 *regions*, and different models pick different carvings: one nation,
@@ -33,14 +33,13 @@ between them is where unit errors live.
 
 `geoscales` represents any such carving as a **GeoScale**: a set of
 *atoms* (the finest regions) plus ordered *geoframes* that group them —
-the spatial companion to a `timescales::Calendar`. With one object you
-get:
+the spatial companion to a `timescales::Calendar`. One object provides:
 
 - a stable schema for region codes and their weights,
 - well-defined conversions between any two resolutions — including
   cross-cutting ones, because every conversion routes through the atom
   layer,
-- attachment of hierarchy columns to your tables, and ggplot2-ready
+- attachment of hierarchy columns to tables, and ggplot2-ready
   maps.
 
 ## A 5-minute tour
@@ -48,7 +47,7 @@ get:
 ### 1. Build a GeoScale
 
 Three construction layers, from most to least convenient — a provider,
-parent-child crosswalks, or a wide table you already have:
+parent-child crosswalks, or an existing wide table:
 
 ```{r}
 gs <- geoscale_from_leaftable(
@@ -92,9 +91,9 @@ tibble(country = c("N", "S"), capacity = c(10, 20)) |>
                   rule = "sum", weight = "km2")
 ```
 
-The `rule` is deliberately mandatory — pass one, or register it per
-column with `register_geoscale_rule()`; a silently guessed rule would be a
-silent unit error.
+The `rule` is mandatory: passed per call, or registered per column with
+`register_geoscale_rule()`; a silently guessed rule would be a silent
+unit error.
 
 ### 4. Attach a GeoScale to a table
 
@@ -119,8 +118,8 @@ geoscale_autoplot(gs)
 
 With geometry attached (any `sfc` aligned with the atoms),
 `geom_geoscale()` puts values on a map inside a normal `ggplot()`
-pipeline. The data must be keyed at the geoframe you draw, so recast
-finer data up first:
+pipeline. The data must be keyed at the drawn geoframe, so finer data is
+recast up first:
 
 ```{r, fig.width = 7, fig.height = 2.8, eval = requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("sf", quietly = TRUE)}
 sq <- function(x, y) sf::st_polygon(list(cbind(
@@ -143,10 +142,10 @@ cap |>
 The stack on the package's front page is a real, data-built hierarchy:
 Iceland's onshore wind resource from the
 [Global Wind Atlas](https://globalwindatlas.info/), clustered *within*
-each administrative region into contiguous wind-speed classes. That is
-the standard renewable-modeling move — a model wants a handful of
-supply regions per admin unit, ranked by resource quality, not two
-million raster cells.
+each administrative region into contiguous wind-speed classes. This is
+a common construction in renewable modeling: a model uses a handful of
+supply regions per admin unit, ranked by resource quality, rather than
+two million raster cells.
 
 The pipeline below is complete and pasteable (packages: sf, terra,
 dplyr, [globalwindatlas](https://github.com/optimal2050/globalwindatlas);
@@ -310,11 +309,7 @@ geoscale_autoplot(iceland$gs, type = "stack", view = "perspective",
 in partnership with the World Bank Group, data by Vortex, funded by
 ESMAP.*
 
-Offshore wind areas would slot in as a sibling branch of the same
-hierarchy, but they first need a regionalization of the sea area —
-deferred for now.
-
-## Where to next?
+## Further reading
 
 - [Concepts](concepts.html) — atoms, partitions vs trees, the shared
   *scales glossary.
@@ -324,5 +319,5 @@ deferred for now.
   halves, crosswalks, backends, and chaining time with space.
 - [Building from Natural Earth](from-naturalearth.html) — providers in
   practice.
-- [Visualization](visualization.html) — maps with `geom_geoscale()`,
+- [Visualization](https://optimal2050.github.io/geoscales/r/articles/visualization.html) — maps with `geom_geoscale()`,
   on a real multi-layer example.

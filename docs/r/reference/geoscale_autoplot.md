@@ -31,6 +31,9 @@ geoscale_autoplot(
   frame = NULL,
   frame_fill = NA,
   connectors = FALSE,
+  outline = NULL,
+  outline_colour = "grey20",
+  outline_linewidth = 0.6,
   ...
 )
 
@@ -68,8 +71,10 @@ autoplot(x, ...)
 
   `type = "stack"` only: a predefined point of view – `"oblique"` (the
   shear/depth default), `"top-down"`, `"cavalier"`, `"cabinet"`,
-  `"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`, or
-  `"perspective"` (receding planes shrink).
+  `"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`,
+  `"perspective"` (receding planes shrink) or `"pyramid"` (receding
+  planes grow: the coarsest geoframe is the small top, the finest the
+  wide base).
 
 - angle, ratio:
 
@@ -81,13 +86,16 @@ autoplot(x, ...)
 
   `type = "stack"` only: raw receding-axis components
   (`e2 = (shear, depth)`; used when neither `view` nor `angle`/`ratio`
-  is given) and the vertical spacing between planes. `gap = NULL`
-  (default) spaces planes almost touching, with a slight overlap.
+  is given) and the vertical spacing between planes: one value for every
+  pair, or one per pair from the top down. `gap = NULL` (default) spaces
+  planes almost touching, with a slight overlap. Under `"perspective"`
+  and `"pyramid"` each spacing is scaled with the planes it separates,
+  so it stays uniform relative to their size.
 
 - rotate:
 
   `type = "stack"` only: in-plane rotation of each plane (degrees,
-  counter-clockwise) – point North where you want it.
+  counter-clockwise).
 
 - direction:
 
@@ -132,7 +140,7 @@ autoplot(x, ...)
 
   Viridis palette option (`"A"`..`"H"`) for the plane fill and for both
   types' `data` fills. Default `"H"`. `NULL` adds no fill scale at all,
-  so you can supply your own – e.g.
+  so a custom scale can be supplied – e.g.
   [`energypal::scale_fill_energy_b()`](https://optimal2050.github.io/energypal/reference/scale_energy.html)
   for the Global Wind Atlas colours on their absolute breaks. With
   `rule = "share"` the fill is a fixed linear 0..1 scale, with
@@ -168,6 +176,18 @@ autoplot(x, ...)
   frame corners of adjacent planes – the vertical guides of the stack.
   `TRUE` uses the frame colour, a colour string picks its own; default
   `FALSE`.
+
+- outline:
+
+  `type = "stack"` only: coarser geoframe(s) whose borders are drawn
+  over every finer plane, so the groups they form are visible at the
+  finer resolution (`outline = "zone"` marks the zones on the region
+  plane). `NULL` (default) = none.
+
+- outline_colour, outline_linewidth:
+
+  `type = "stack"` only: colour and width of the `outline` borders,
+  recycled over `outline`. Defaults `"grey20"` and `0.6`.
 
 - ...:
 

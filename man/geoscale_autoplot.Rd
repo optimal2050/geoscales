@@ -74,7 +74,7 @@ with the planes it separates, so it stays uniform relative to their
 size.}
 
 \item{rotate}{\code{type = "stack"} only: in-plane rotation of each plane
-(degrees, counter-clockwise) -- point North where you want it.}
+(degrees, counter-clockwise).}
 
 \item{direction}{\code{type = "stack"} only: \code{"up"} (default) stacks the
 coarsest geoframe on top; \code{"down"} puts it at the bottom.}
@@ -105,7 +105,7 @@ falling back to codes) drawn on the plane. \code{NULL} (default) = none.}
 
 \item{palette}{Viridis palette option (\code{"A"}..\code{"H"}) for the plane
 fill and for both types' \code{data} fills. Default \code{"H"}. \code{NULL} adds no
-fill scale at all, so you can supply your own -- e.g.
+fill scale at all, so a custom scale can be supplied -- e.g.
 \code{energypal::scale_fill_energy_b()} for the Global Wind Atlas
 colours on their absolute breaks. With \code{rule = "share"} the fill is
 a fixed linear 0..1 scale, with \code{"logshare"} a fixed log10 percent

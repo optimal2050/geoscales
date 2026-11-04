@@ -46,8 +46,7 @@ gs
 
 ## Aggregating up
 
-We will follow Iceland through the hierarchy. It sits in Northern
-Europe:
+Iceland serves as the running example. It sits in Northern Europe:
 
 ``` r
 
@@ -71,7 +70,7 @@ agg[agg$subregion == "Northern Europe", ]
 #> 11 Northern Europe 105135601
 ```
 
-## … and back down
+## Disaggregating down
 
 The same verb runs the other way. Going down, `rule = "sum"` splits a
 total in proportion to a weight, so the total is conserved:
@@ -92,8 +91,8 @@ head(back[order(-back$pop), ], 4)
 #> 152     FIN  5520314
 ```
 
-Because we split by the same quantity we aggregated, the round trip is
-exact:
+Because the split uses the same quantity that was aggregated, the round
+trip is exact:
 
 ``` r
 
@@ -103,8 +102,8 @@ sum(back$pop) == sum(ne$pop)
 #> [1] NA
 ```
 
-That is the whole idea: **aggregation and disaggregation are one
-operation.** Direction follows the geoframe ranks, and
+**Aggregation and disaggregation are one operation.** Direction follows
+the geoframe ranks, and
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 routes through the atom layer either way.
 
@@ -223,16 +222,16 @@ dd[order(-dd$demand), ]
 #> 4 IS-0   3.467314
 ```
 
-Look at what that produces. The Capital Region units receive almost
-nothing, because they are tiny — yet they hold most of Iceland’s
-population and would consume most of its electricity. **Area is rarely
-the right weight for demand.** This is precisely why
+The Capital Region units receive almost nothing, because they are small
+in area, although they hold most of Iceland’s population and would
+consume most of its electricity. **Area is rarely the right weight for
+demand.**
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
-makes you name a `weight =` rather than picking one for you; with a
-population column on the leaftable you would pass that instead.
+therefore requires an explicit `weight =`; with a population column on
+the leaftable, that column would be the weight.
 
-An *intensive* quantity must not be summed at all — use `weighted_mean`,
-which copies going down and weight-averages going up:
+An *intensive* quantity must not be summed at all; `weighted_mean`
+copies going down and weight-averages going up:
 
 ``` r
 
@@ -254,8 +253,8 @@ recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "k
 ### Geometry follows the geoframes
 
 [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md)
-dissolves the atoms up to whatever geoframe you ask for, so the nine
-units become eight regions:
+dissolves the atoms up to the requested geoframe, so the nine units
+become eight regions:
 
 ``` r
 
