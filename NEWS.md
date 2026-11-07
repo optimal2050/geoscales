@@ -1,3 +1,9 @@
+# geoscales 0.7.2
+
+## New features
+
+* `geoscale_adjacency()` builds the neighbour matrix of a geoframe from attached geometry: which of its codes border which. `contiguity` chooses between `"queen"` (contact of any dimension, so features meeting at one corner are neighbours) and `"rook"` (a shared border of non-zero length), `within` cuts every edge that crosses a coarser geoframe, and `isolated = "nearest"` joins an island to its closest permitted neighbour. This is what `nestedscales::cluster_contiguous(adjacency =)` consumes.
+
 # geoscales 0.7.1
 
 ## New features

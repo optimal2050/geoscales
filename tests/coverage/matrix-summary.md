@@ -1,20 +1,20 @@
 # Coverage matrix summary
 
-Package: geoscales 0.5.0
+Package: geoscales 0.7.1
 
 ## Rows by kind x depth
 
 ```
 Key: <kind>
-        kind     U     P     B
-      <char> <int> <int> <int>
-    argument     7     7    29
-    constant     2     0     0
- constructor     6     0     2
-        plot     5     0     0
-       query    16     2     0
-    registry    11     0     0
-        verb     5     0     3
+        kind  none     U     P     B
+      <char> <int> <int> <int> <int>
+    argument     0     9     7    34
+    constant     0     2     0     0
+ constructor     1     5     0     2
+        plot     0     5     0     0
+       query     1    17     2     0
+    registry     0    13     0     0
+        verb     0     7     0     3
 ```
 
 ## Backend sweep (from @covers tags)
@@ -28,10 +28,13 @@ Key: <kind>
    recast_to_geoatoms       TRUE   TRUE       TRUE   TRUE   TRUE
 ```
 
-## Zero-coverage rows (0)
+## Zero-coverage rows (2)
 
 ```
-Empty data.table (0 rows and 2 cols): name,kind
+              name        kind
+            <char>      <char>
+       ne_geoscale constructor
+ is_valid_geoframe       query
 ```
 
-Tagged rows: 4 | inferred: 91 | uncovered: 0 of 95
+Tagged rows: 8 | inferred: 98 | uncovered: 2 of 108
