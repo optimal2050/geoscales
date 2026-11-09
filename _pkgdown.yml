@@ -120,6 +120,7 @@ reference:
       - geoscale_family
       - geoscale_ancestry
       - geoscale_nests
+      - geoscale_adjacent
       - filter_geoscale
       - geoscale_coverage
       - prune_geoscale

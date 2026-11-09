@@ -1,6 +1,6 @@
 # Coverage matrix summary
 
-Package: geoscales 0.7.1
+Package: geoscales 0.7.2
 
 ## Rows by kind x depth
 

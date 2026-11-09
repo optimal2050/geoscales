@@ -7,6 +7,12 @@
 # consumes exactly this matrix, so the supplier belongs here rather than in
 # each caller.
 #
+# The name follows `terra::adjacent()`. R-spatial's other word is
+# "neighbours" (spdep's `poly2nb()` and the `nb` class, rgeoda's
+# `get_neighbors()`), but there it names a LIST, with `nb2mat()` the separate
+# step that makes a matrix; "adjacency" is the matrix, as in
+# `igraph::as_adjacency_matrix()`.
+#
 # Rook or queen, never "touching". `sf::st_touches()` reports contact of ANY
 # dimension, so two squares meeting at one corner come back as neighbours.
 # Whether that is wanted is a modelling choice and differs between callers --
@@ -69,18 +75,18 @@
 #'
 #' @examples
 #' \dontrun{
-#' a <- geoscale_adjacency(gs, geoframe = "region")
+#' a <- geoscale_adjacent(gs, geoframe = "region")
 #' sum(a) / 2                                    # number of borders
-#' geoscale_adjacency(gs, "region", within = "zone")        # confined
-#' geoscale_adjacency(gs, "region", contiguity = "rook")    # edges only
+#' geoscale_adjacent(gs, "region", within = "zone")        # confined
+#' geoscale_adjacent(gs, "region", contiguity = "rook")    # edges only
 #' }
 #' @export
-geoscale_adjacency <- function(x, geoframe = NULL, within = NULL,
+geoscale_adjacent <- function(x, geoframe = NULL, within = NULL,
                                contiguity = c("queen", "rook"),
                                isolated = c("none", "nearest"),
                                precision = 0) {
   .check_geoscale(x)
-  .need_sf("geoscale_adjacency()")
+  .need_sf("geoscale_adjacent()")
   contiguity <- match.arg(contiguity)
   isolated   <- match.arg(isolated)
 
