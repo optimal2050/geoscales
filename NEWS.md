@@ -1,5 +1,13 @@
 # geoscales 0.7.2
 
+## Breaking changes
+
+* `gg_geoscale()` replaces `geoscale_autoplot()` and `geoscale_plot()`: one function, `type = c("icicle", "stack", "map")`. The old names are gone. `autoplot()` returns the same figure; `plot()` now draws it and returns it invisibly, like base `plot()`.
+* The value column is `z` for every figure (the map's `fill=` is gone) and is required whenever `data` is given. `labels=` replaces `label=`. The map's `title`, `subtitle` and `fill_label` are gone: add `+ labs(title =, subtitle =, fill =)`.
+* `palette = NULL` is each figure's default scale; `palette = NA` adds none. The stack's bring-your-own-scale spelling was `NULL`.
+* `...` goes to the figure's drawing layer. An argument that belongs to another `type` is an error. `precision` applies to the map as well as the stack.
+* The first argument of the plotting function and of `autoplot()` is `object`.
+
 ## New features
 
 * `geoscale_adjacent()` builds the neighbour matrix of a geoframe from attached geometry: which of its codes border which. `contiguity` chooses between `"queen"` (contact of any dimension, so features meeting at one corner are neighbours) and `"rook"` (a shared border of non-zero length), `within` cuts every edge that crosses a coarser geoframe, and `isolated = "nearest"` joins an island to its closest permitted neighbour. This is what `nestedscales::cluster_contiguous(adjacency =)` consumes.

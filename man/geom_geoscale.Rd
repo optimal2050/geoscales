@@ -50,7 +50,7 @@ theme).
 \description{
 Composable choropleth layers that put region-keyed data on a map inside
 a normal \code{ggplot()} pipeline (the assembled-figure counterparts are
-\code{\link[=geoscale_plot]{geoscale_plot()}} and \code{\link[=geoscale_autoplot]{geoscale_autoplot()}}):
+\code{\link[=gg_geoscale]{gg_geoscale()}}):
 }
 \details{
 \itemize{

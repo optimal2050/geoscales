@@ -1,4 +1,4 @@
-# geom_geoscale() / theme_geoscale() / plot.GeoScale ---------------------------
+# geom_geoscale() / theme_geoscale() / gg_geoscale() ----------------------------
 
 .toy_gs <- function() {
   skip_if_not_installed("sf")
@@ -70,18 +70,37 @@ test_that("theme_geoscale returns a theme with a solid background", {
   expect_s3_class(th$axis.text, "element_blank")
 })
 
-test_that("plot() dispatches to geoscale_autoplot", {
+test_that("autoplot() returns the figure; plot() draws it", {
   skip_if_not_installed("ggplot2")
-  p <- plot(geoscale_example())
-  expect_s3_class(p, "ggplot")
+  gs <- geoscale_example()
+  expect_s3_class(ggplot2::autoplot(gs), "ggplot")
+  # autoplot() forwards every argument
+  a <- ggplot2::ggplot_build(ggplot2::autoplot(gs, labels = FALSE))$data
+  b <- ggplot2::ggplot_build(gg_geoscale(gs, labels = FALSE))$data
+  expect_identical(a, b)
+  # plot() prints and returns the figure invisibly
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
+  r <- withVisible(plot(gs))
+  expect_false(r$visible)
+  expect_s3_class(r$value, "ggplot")
+})
+
+test_that("gg_geoscale refuses arguments of another type and needs z", {
+  skip_if_not_installed("ggplot2")
+  gs <- geoscale_example()
+  expect_error(gg_geoscale(gs, type = "map", view = "cabinet"),
+               "does not apply")
+  expect_error(gg_geoscale(gs, geoframe = "state"), "does not apply")
+  expect_error(gg_geoscale(gs, data = data.frame(atom = "a", v = 1)), "`z`")
 })
 
 test_that("the stack view draws one plane per geoframe", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
-  p <- geoscale_autoplot(gs, type = "stack")
+  p <- gg_geoscale(gs, type = "stack")
   expect_s3_class(p, "ggplot")
-  expect_error(geoscale_autoplot(geoscale_example(), type = "stack"),
+  expect_error(gg_geoscale(geoscale_example(), type = "stack"),
                "needs attached geometry")
 })
 
@@ -128,30 +147,30 @@ test_that("stack views, rotation and direction all render", {
   gs <- .toy_gs()
   for (vw in c("top-down", "cabinet", "military", "isometric",
                "perspective", "pyramid")) {
-    expect_s3_class(geoscale_autoplot(gs, type = "stack", view = vw),
+    expect_s3_class(gg_geoscale(gs, type = "stack", view = vw),
                     "ggplot")
   }
   # pyramid inverts perspective: same axes, reciprocal per-plane factor
   expect_equal(geoscales:::.stack_view("pyramid")$scale,
                1 / geoscales:::.stack_view("perspective")$scale)
-  expect_s3_class(geoscale_autoplot(gs, type = "stack", angle = 30,
+  expect_s3_class(gg_geoscale(gs, type = "stack", angle = 30,
                                     ratio = 0.4), "ggplot")
-  expect_s3_class(geoscale_autoplot(gs, type = "stack", rotate = 45,
+  expect_s3_class(gg_geoscale(gs, type = "stack", rotate = 45,
                                     direction = "down"), "ggplot")
-  expect_error(geoscale_autoplot(gs, type = "stack", view = "nope"))
+  expect_error(gg_geoscale(gs, type = "stack", view = "nope"))
   # one gap per pair of planes, top to bottom
   nk <- length(geoscale_geoframes(gs))
-  expect_s3_class(geoscale_autoplot(gs, type = "stack",
+  expect_s3_class(gg_geoscale(gs, type = "stack",
                                     gap = seq(0.2, 0.4, length.out = nk - 1)),
                   "ggplot")
-  expect_error(geoscale_autoplot(gs, type = "stack", gap = rep(0.3, nk + 1)),
+  expect_error(gg_geoscale(gs, type = "stack", gap = rep(0.3, nk + 1)),
                "one per pair")
   # coarser borders overlaid on the finer plane: one more sf layer
-  p0 <- geoscale_autoplot(gs, type = "stack")
-  p1 <- geoscale_autoplot(gs, type = "stack", outline = "top",
+  p0 <- gg_geoscale(gs, type = "stack")
+  p1 <- gg_geoscale(gs, type = "stack", outline = "top",
                           outline_linewidth = 1)
   expect_equal(length(p1$layers), length(p0$layers) + 1L)
-  expect_error(geoscale_autoplot(gs, type = "stack", outline = "nope"),
+  expect_error(gg_geoscale(gs, type = "stack", outline = "nope"),
                "unknown")
 })
 
@@ -159,7 +178,7 @@ test_that("stack value fill recasts atom data onto every plane", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
   x <- data.frame(atom = c("a", "b"), v = c(1, 9))
-  p <- geoscale_autoplot(gs, type = "stack", data = x, z = "v")
+  p <- gg_geoscale(gs, type = "stack", data = x, z = "v")
   expect_s3_class(p, "ggplot")
   # painter order is ascending z: with direction = "up" the atom plane
   # (bottom) draws first and keeps its values; the top geoframe gets the
@@ -174,9 +193,9 @@ test_that("stack value fill recasts atom data onto every plane", {
   expect_equal(nrow(d_top), 1L)
   expect_equal(nrow(d_atom), 2L)
 
-  expect_error(geoscale_autoplot(gs, type = "stack", data = x),
+  expect_error(gg_geoscale(gs, type = "stack", data = x),
                "`z` must name")
-  expect_error(geoscale_autoplot(gs, type = "stack", z = "v",
+  expect_error(gg_geoscale(gs, type = "stack", z = "v",
                                  data = data.frame(top = "T", v = 1)),
                "keyed by the atom geoframe")
 })
@@ -185,35 +204,35 @@ test_that("stack frames, connectors and border styling render", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
   base_n <- length(ggplot2::ggplot_build(
-    geoscale_autoplot(gs, type = "stack"))$plot$layers)
+    gg_geoscale(gs, type = "stack"))$plot$layers)
   # frame = one polygon per plane; connectors = one segment layer
-  p <- geoscale_autoplot(gs, type = "stack", frame = TRUE,
+  p <- gg_geoscale(gs, type = "stack", frame = TRUE,
                          connectors = TRUE)
   expect_equal(length(ggplot2::ggplot_build(p)$plot$layers),
                base_n + 2 + 1)
   # custom border colours, one per plane, land on the sf layers
-  p2 <- geoscale_autoplot(gs, type = "stack",
+  p2 <- gg_geoscale(gs, type = "stack",
                           colour = c("grey20", "red"), linewidth = 0.1)
   cols <- unlist(lapply(p2$layers, function(l) {
     if (inherits(l$geom, "GeomSf")) l$aes_params$colour
   }))
   expect_setequal(cols, c("grey20", "red"))
   # a colour string picks the frame colour directly
-  p3 <- geoscale_autoplot(gs, type = "stack", frame = "steelblue")
+  p3 <- gg_geoscale(gs, type = "stack", frame = "steelblue")
   expect_s3_class(p3, "ggplot")
   # frame_fill alone activates the sheets (edge NA, filled panes)
-  p4 <- geoscale_autoplot(gs, type = "stack", frame_fill = "#6FA8DC26")
+  p4 <- gg_geoscale(gs, type = "stack", frame_fill = "#6FA8DC26")
   expect_equal(length(ggplot2::ggplot_build(p4)$plot$layers), base_n + 2)
 })
 
 test_that("stack labels draw region names of the chosen geoframes", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
-  p <- geoscale_autoplot(gs, type = "stack", labels = "atom")
+  p <- gg_geoscale(gs, type = "stack", labels = "atom")
   lyrs <- ggplot2::ggplot_build(p)$plot$layers
   txt <- lyrs[[length(lyrs)]]$data
   expect_setequal(txt$.label, c("a", "b"))
-  expect_error(geoscale_autoplot(gs, type = "stack", labels = "nope"),
+  expect_error(gg_geoscale(gs, type = "stack", labels = "nope"),
                "unknown")
 })
 
@@ -221,13 +240,13 @@ test_that("icicle data fill recasts values onto every band", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
   x <- data.frame(atom = c("a", "b"), v = c(1, 9))
-  p <- geoscale_autoplot(gs, data = x, z = "v", label = TRUE)
+  p <- gg_geoscale(gs, data = x, z = "v", labels = TRUE)
   expect_s3_class(p, "ggplot")
   d <- p$data
   # atom band keeps values; top band = km2-weighted mean (1*1+9*3)/4 = 7
   expect_equal(sort(d$.fill[d$geoframe == "atom"]), c(1, 9))
   expect_equal(d$.fill[d$geoframe == "top"], 7)
-  expect_error(geoscale_autoplot(gs, data = data.frame(top = "T", v = 1),
+  expect_error(gg_geoscale(gs, data = data.frame(top = "T", v = 1),
                                  z = "v"),
                "keyed by the atom geoframe")
 })

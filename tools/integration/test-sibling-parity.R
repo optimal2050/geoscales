@@ -37,7 +37,7 @@ library(timescales)
   "list_calendar_conversions", "clear_calendar_conversions",
   "ALIGNMENT_RULES",
   # the wall-calendar family + axis helper + the shipped catalog
-  "calendar_wall_plot", "calendar_wall_layout", "calendar_weekdays",
+  "calendar_wall_layout", "calendar_weekdays",
   "calendar_breaks", "calendars", "calendar_catalog",
   # the catalog shortcut: geoscales ships no designs (no bundled maps),
   # so there is no name-based geoscale() constructor
@@ -51,12 +51,15 @@ library(timescales)
   # has no components to read off, so there is no spatial analogue of "which
   # hour is this timeslice".
   "tsl2hour", "tsl2yday", "tsl2month", "tsl2dtm", "dtm2tsl",
-  "hour2HOUR", "yday2YDAY"
+  "hour2HOUR", "yday2YDAY",
+  # chronological successor: regions have no order to follow
+  "calendar_next"
 )
 # Space-only:
 .GS_ONE_SIDERS <- c(
   # geometry (sf-backed, the core is geometry-free)
   "attach_geometry_geoscale", "geoscale_geometry", "add_area_geoscale",
+  "geoscale_adjacent",
   # providers: maps have owners; time has no data provider layer
   "register_geoscale_provider", "get_geoscale_provider",
   "list_geoscale_providers", "ne_geoscale", "ne_source",
@@ -135,10 +138,10 @@ test_that("every export is paired or a declared one-sider", {
        args = c("x", "parent", "child")),
   list("calendar_timeframes", "geoscale_geoframes",
        args = c("x", "finest")),
-  list("calendar_autoplot", "geoscale_autoplot",
-       args = c("x", "type", "rule", "colour", "linewidth", "frame",
-                "frame_fill", "connectors", "direction", "gap", "rotate",
-                "view", "angle", "ratio", "data", "z"))
+  list("gg_calendar", "gg_geoscale",
+       args = c("object", "data", "z", "rule", "palette", "labels",
+                "colour", "linewidth", "frame", "frame_fill", "connectors",
+                "direction", "gap", "rotate", "view", "angle", "ratio"))
 )
 
 test_that("paired signatures agree on their shared arguments", {

@@ -31,7 +31,7 @@ if (has_topia) library(ggplot2)
 | kind | functions | use when |
 |---|---|---|
 | composable layers | `geom_geoscale()`, `theme_geoscale()` | a choropleth as one layer among others in a custom `ggplot()` |
-| assembled figures | `geoscale_autoplot()` (structure icicle; also `plot()`), `geoscale_plot()` (one-call choropleth) | a finished figure in one call |
+| assembled figures | `gg_geoscale()` with `type =` `"icicle"`, `"stack"` or `"map"`; `autoplot()` returns it, `plot()` draws it | a finished figure in one call |
 | layout / geometry workers | `geoscale_layout()`, `geoscale_geometry()` | the plain frames behind the figures |
 
 This article needs maps, so it runs on two fixtures that stay out of the
@@ -128,7 +128,8 @@ ggplot(shapes) +
 ## Structure figures
 
 The assembled counterparts need no geometry at all.
-`geoscale_autoplot()` (also `plot()`) draws the hierarchy as an icicle;
+`gg_geoscale()` (also `autoplot()`; `plot()` draws it) draws the
+hierarchy as an icicle;
 its plain-data frame is `geoscale_layout()`:
 
 ```{r structure, eval = has_topia, fig.height = 2.6}
@@ -143,7 +144,7 @@ bands get the weighted mean):
 ```{r structure-data, eval = has_topia, fig.height = 2.6}
 cap <- data.frame(region = geoscale_regions(gs, "region"),
                   mw = c(40, 15, 75, 30, 60, 22, 8, 55, 34, 12, 48))
-geoscale_autoplot(gs, data = cap, z = "mw", label = TRUE) +
+gg_geoscale(gs, data = cap, z = "mw") +
   labs(fill = "MW")
 ```
 
@@ -151,7 +152,7 @@ With geometry attached, `type = "stack"` draws the layer-stack view —
 the same atoms dissolved at every geoframe, stacked:
 
 ```{r structure-stack, eval = has_topia, fig.height = 5}
-geoscale_autoplot(gs, type = "stack")
+gg_geoscale(gs, type = "stack")
 ```
 
 ### Points of view
@@ -172,18 +173,18 @@ views <- c("top-down", "military", "isometric",
            "oblique", "perspective", "pyramid")
 views |>
   lapply(function(vw)
-    geoscale_autoplot(gs, type = "stack", view = vw) +
+    gg_geoscale(gs, type = "stack", view = vw) +
       labs(title = vw) +
       theme(plot.title = element_text(size = 9, hjust = 0.5))) |>
   patchwork::wrap_plots(ncol = 3)
 ```
 
-And `geoscale_plot()` is the one-call choropleth over the same
+And `type = "map"` is the one-call choropleth over the same
 machinery:
 
 ```{r one-call, eval = has_topia}
-geoscale_plot(gs, x, geoframe = "region", fill = "capacity",
-              palette = "G")
+gg_geoscale(gs, type = "map", data = x, geoframe = "region",
+            z = "capacity", palette = "G")
 ```
 
 ## A real map: Iceland, with data attached
@@ -260,8 +261,8 @@ for (gf in c("cluster", "landshluti", "country")) {
   d <- if (gf == "cluster") iw$wind else
     recast_geoscale(iw$wind, iw$gs, source = "cluster", target = gf,
                     rule = "weighted_mean", weight = "km2")
-  print(geoscale_plot(iw$gs, d, geoframe = gf, fill = "wind",
-                      palette = "G") +
+  print(gg_geoscale(iw$gs, type = "map", data = d, geoframe = gf,
+                    z = "wind", palette = "G") +
           labs(title = paste("Iceland mean wind speed at:", gf),
                fill = "m/s"))
 }

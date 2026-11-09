@@ -1,14 +1,15 @@
 # =============================================================================
 # Plotting
 # =============================================================================
-# Ports the "by geoframe" idea from `timescales::autoplot.Calendar()`: one row
-# per geoframe, laid out on a shared cumulative-weight axis, so the nesting
-# structure reads at a glance.
+# Ports the "by geoframe" idea from timescales: one row per geoframe, laid
+# out on a shared cumulative-weight axis, so the nesting structure reads at
+# a glance.
 #
-# With geometry attached, `geoscale_plot()` draws a choropleth. Without `sf`
-# — or without geometry — `geoscale_autoplot()` gives an icicle instead,
-# mirroring how `energyRt::plot_trade_map()` degrades to points and arrows
-# when `sf` is missing.
+#   geoscale_layout(gs)        -> plain data.frame of rectangles (no ggplot2)
+#   gg_geoscale(gs, type = )   -> the assembled figures: icicle (no geometry
+#                                 needed), stack and map (geometry + sf)
+#   autoplot(gs) / plot(gs)    -> methods over gg_geoscale(); autoplot()
+#                                 returns the ggplot, plot() draws it
 #
 # ggplot2 is in Suggests, so its `autoplot` generic cannot be imported at
 # build time; the S3 method is registered in `.onLoad()` (see zzz.R) only if
@@ -130,155 +131,254 @@ geoscale_layout <- function(x, weight = NULL) {
   out
 }
 
+# -----------------------------------------------------------------------------
+# gg_geoscale(): one entry point, `type` selects the figure
+# -----------------------------------------------------------------------------
+
+# Arguments each figure type accepts, besides `object`, `type` and `...`.
+# Anything listed for another type only is refused, never ignored.
+.GG_GEOSCALE_ARGS <- list(
+  icicle = c("data", "z", "palette", "labels", "rule", "weight", "fill"),
+  stack  = c("data", "z", "palette", "labels", "rule", "weight", "precision",
+             "view", "angle", "ratio", "shear", "depth", "gap", "rotate",
+             "direction", "colour", "linewidth", "frame", "frame_fill",
+             "connectors", "outline", "outline_colour", "outline_linewidth"),
+  map    = c("data", "z", "palette", "labels", "geoframe", "precision")
+)
+
+#' Refuse arguments that belong to another figure type
+#'
+#' `call` is the `match.call()` of the entry point: names passed through
+#' the methods' `...` are expanded there, so the check sees them too.
+#' Names outside the table are the entry point's own `...` (fixed
+#' aesthetics for the drawing layer) and pass. Duplicated verbatim in
+#' timescales/R/plot.R -- keep in sync.
+#' @noRd
+.gg_check_args <- function(call, type, table, fn) {
+  given <- setdiff(names(call)[-1], c("", "object", "type"))
+  known <- unique(unlist(table))
+  bad <- setdiff(intersect(given, known), table[[type]])
+  if (length(bad)) {
+    .stop("`%s` does not apply to %s(type = \"%s\")",
+          paste(bad, collapse = "`, `"), fn, type)
+  }
+}
+
+#' The palette sentinels: `NULL` is the type's default scale, `NA` is none
+#' @noRd
+.gg_palette <- function(palette, type, default) {
+  if (!is.null(palette)) return(palette)
+  if (type %in% c("icicle", "stack")) default else NULL
+}
+
+#' @noRd
+.has_palette <- function(palette) {
+  !is.null(palette) && !(length(palette) == 1L && is.na(palette))
+}
+
+#' Add a layer with fixed aesthetics; the user's `...` override the defaults
+#' @noRd
+.gg_layer <- function(geom, mapping, defaults, dots, data = NULL) {
+  names(dots)[names(dots) == "color"] <- "colour"
+  args <- utils::modifyList(defaults, dots)
+  if (!is.null(data)) args$data <- data
+  do.call(geom, c(list(mapping = mapping), args))
+}
+
 #' Plot a GeoScale
 #'
-#' Draws the hierarchy as an icicle: one row per geoframe, coarsest at the top,
-#' each region's width proportional to its share of the weight.
+#' One function for every geoscale figure, selected by `type`: the structure
+#' icicle (default; needs no geometry), the axonometric stack of map planes,
+#' and a choropleth map of one geoframe. `autoplot()` on a [`GeoScale`]
+#' returns the same ggplot; `plot()` draws it and returns it invisibly.
 #'
-#' This is the *structure* plot — it shows the GeoScale itself and needs no
-#' geometry. For a map of values over regions, see [`geoscale_plot()`].
+#' @param object A [`GeoScale`]. The stack and the map need geometry
+#'   attached with [`attach_geometry_geoscale()`] and the sf package.
+#' @param type The figure: `"icicle"` (default), `"stack"` or `"map"`; see
+#'   the sections below. An argument that belongs to another type is an
+#'   error, not ignored.
+#' @param data,z Colour the figure by a value instead of by structure.
+#'   `data` is a data.frame with the value column named by `z`; `z` is
+#'   required whenever `data` is given. The icicle and the stack take
+#'   `data` keyed by the atom geoframe and recast the value up to every
+#'   coarser geoframe (see `rule`), so the whole figure shares one
+#'   continuous fill scale; the map takes `data` keyed by `geoframe`.
+#'   Legend title via `labs(fill = )`.
+#' @param rule Icicle and stack, with `data`: the rule that recasts `z`
+#'   from the atoms to each coarser geoframe (`"weighted_mean"` default;
+#'   see [`recast_geoscale()`]). `"share"` colours every band or plane by
+#'   each region's share within the one above it on a fixed linear 0..1
+#'   scale; `"logshare"` is the same on a fixed log10 percent scale.
+#' @param weight Icicle and stack: the weight column. On the icicle it sets
+#'   the rectangle widths; with `rule = "weighted_mean"` it is also the
+#'   recast weight. `NULL` uses the geoscale's default weight.
+#' @param palette Fill scale. `NULL` (default) is the type's own: viridis
+#'   `"H"` on the icicle and the stack, ggplot2's default gradient on the
+#'   map. A viridis option letter (`"A"`..`"H"`) opts into that palette on
+#'   any type. `NA` adds no fill scale at all, so a custom one can be
+#'   supplied, e.g. `energypal::scale_fill_energy_b()`.
+#' @param labels What is labelled. `NULL` (default) is the type's own.
+#'   Icicle: `TRUE` (default) draws the region names on the rectangles,
+#'   `FALSE` none. Stack: a character vector of geoframes whose regions get
+#'   their names on the plane (`TRUE` = all; default none). Map: `TRUE`
+#'   draws the region names (default none). Names are the display names of
+#'   the `@meta$labels` column where unambiguous, else the codes.
+#' @param fill Icicle: what to colour by without `data`, `"geoframe"`
+#'   (default) or `"region"`.
+#' @param geoframe Map: the geoframe to draw. Defaults to the atom geoframe.
+#' @param precision Stack and map: GEOS precision for the dissolve,
+#'   forwarded to [`geoscale_geometry()`]. Default `0` = off.
+#' @param view Stack: a predefined point of view -- `"oblique"` (the
+#'   shear/depth default), `"top-down"`, `"cavalier"`, `"cabinet"`,
+#'   `"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`,
+#'   `"perspective"` (receding planes shrink) or `"pyramid"` (receding
+#'   planes grow: the coarsest geoframe is the small top, the finest the
+#'   wide base).
+#' @param angle,ratio Stack: oblique view by angle (degrees of the receding
+#'   axis) and foreshortening ratio -- `e2 = ratio * (cos(angle),
+#'   sin(angle))`. Overridden by `view`.
+#' @param shear,depth,gap Stack: raw receding-axis components
+#'   (`e2 = (shear, depth)`; used when neither `view` nor `angle`/`ratio`
+#'   is given) and the vertical spacing between planes: one value for every
+#'   pair, or one per pair from the top down. `gap = NULL` (default) spaces
+#'   planes almost touching, with a slight overlap. Under `"perspective"`
+#'   and `"pyramid"` each spacing is scaled with the planes it separates,
+#'   so it stays uniform relative to their size.
+#' @param rotate Stack: in-plane rotation of each plane (degrees,
+#'   counter-clockwise).
+#' @param direction Stack: `"up"` (default) stacks the coarsest geoframe on
+#'   top; `"down"` puts it at the bottom.
+#' @param colour,linewidth Stack: region border colour and width, recycled
+#'   across the planes (so `colour = c("white", "grey40", "white")` styles
+#'   one plane per entry). Defaults `"grey35"` and `0.2`, ggplot2's own sf
+#'   polygon border.
+#' @param frame Stack: draw each plane's outline (the footprint box run
+#'   through the same projection) as a guide; curved shapes are much easier
+#'   to read in oblique views with the plane edges visible. `TRUE` uses
+#'   `"grey80"`, a colour string uses that colour, `NULL` (default) draws
+#'   no frames.
+#' @param frame_fill Stack: fill for the plane sheets. Best mostly
+#'   transparent, e.g. `frame_fill = ggplot2::alpha("grey60", 0.12)`; the
+#'   panes then read as glass sheets. Setting a fill draws the frames even
+#'   without `frame`; `NA` (default) = no fill.
+#' @param connectors Stack: dashed lines joining the corresponding frame
+#'   corners of adjacent planes, the vertical guides of the stack. `TRUE`
+#'   uses the frame colour, a colour string picks its own; default `FALSE`.
+#' @param outline Stack: coarser geoframe(s) whose borders are drawn over
+#'   every finer plane, so the groups they form are visible at the finer
+#'   resolution (`outline = "zone"` marks the zones on the region plane).
+#'   `NULL` (default) = none.
+#' @param outline_colour,outline_linewidth Stack: colour and width of the
+#'   `outline` borders, recycled over `outline`. Defaults `"grey20"` and
+#'   `0.6`.
+#' @param ... Fixed aesthetics for the figure's main layer: the icicle's
+#'   `geom_rect()`, the stack's and the map's `geom_sf()` (e.g.
+#'   `alpha = 0.8`).
+#' @param x A [`GeoScale`] (for `plot()`).
 #'
-#' Also registered as an `autoplot()` method, so `ggplot2::autoplot(gs)` works
-#' when ggplot2 is installed.
+#' @section Icicle (`type = "icicle"`):
+#' One row per geoframe, coarsest at the top, each region a rectangle whose
+#' width is its share of `weight`. Shows the GeoScale itself and needs no
+#' geometry. With `data`, each band's rectangles carry the value recast to
+#' that geoframe.
 #'
-#' @param x A [`GeoScale`].
-#' @param type `"icicle"` (default) or `"stack"` — the axonometric
-#'   stacked-maps view: one sheared map plane per geoframe, coarsest on
-#'   top, the same atoms dissolved at each resolution. Requires attached
-#'   geometry (and the sf package); `weight`/`fill`/`label` apply to the
-#'   icicle only.
-#' @param weight Weight column determining widths. `NULL` uses the default.
-#' @param fill What to colour by: `"geoframe"` or `"region"`.
-#' @param label Draw region codes on the rectangles.
-#' @param view `type = "stack"` only: a predefined point of view --
-#'   `"oblique"` (the shear/depth default), `"top-down"`, `"cavalier"`,
-#'   `"cabinet"`, `"military"`, `"isometric"`, `"dimetric"`,
-#'   `"trimetric"`, `"perspective"` (receding planes shrink) or
-#'   `"pyramid"` (receding planes grow: the coarsest geoframe is the small
-#'   top, the finest the wide base).
-#' @param angle,ratio `type = "stack"` only: oblique view by angle
-#'   (degrees of the receding axis) and foreshortening ratio --
-#'   `e2 = ratio * (cos(angle), sin(angle))`. Overridden by `view`.
-#' @param shear,depth,gap `type = "stack"` only: raw receding-axis
-#'   components (`e2 = (shear, depth)`; used when neither `view` nor
-#'   `angle`/`ratio` is given) and the vertical spacing between planes:
-#'   one value for every pair, or one per pair from the top down.
-#'   `gap = NULL` (default) spaces planes almost touching, with a slight
-#'   overlap. Under `"perspective"` and `"pyramid"` each spacing is scaled
-#'   with the planes it separates, so it stays uniform relative to their
-#'   size.
-#' @param rotate `type = "stack"` only: in-plane rotation of each plane
-#'   (degrees, counter-clockwise).
-#' @param direction `type = "stack"` only: `"up"` (default) stacks the
-#'   coarsest geoframe on top; `"down"` puts it at the bottom.
-#' @param precision `type = "stack"` only: GEOS precision for the
-#'   dissolve, forwarded to [`geoscale_geometry()`]. Default `0` = off.
-#' @param data,z Colour the figure by a value instead of by structure:
-#'   works for BOTH types -- the icicle fills each band's rectangles
-#'   (overriding `fill`), the stack fills each plane. `data` must carry
-#'   the atom geoframe as a key column plus the value column named by
-#'   `z`; every coarser geoframe gets the value recast up with
-#'   [`recast_geoscale()`] (see `rule`), so the whole figure shares one
-#'   continuous fill scale (legend title via `labs(fill = )`).
-#' @param rule With `data`: aggregation rule used to recast `z` from
-#'   the atoms to each coarser geoframe (`"weighted_mean"` default; see
-#'   [`recast_geoscale()`]). The icicle `weight` argument doubles as
-#'   the weight column for `"weighted_mean"` (`NULL` = the geoscale's
-#'   default weight). `"share"` colours every plane by each region's
-#'   share within the plane above it (the coarsest plane by its share of
-#'   the grand total), so the whole figure reads on one 0..1 scale;
-#'   `weight` plays no part.
-#' @param labels `type = "stack"` only: character vector of geoframes
-#'   whose regions get their display names (the `@meta$labels` column,
-#'   falling back to codes) drawn on the plane. `NULL` (default) = none.
-#' @param colour,linewidth `type = "stack"` only: region border colour
-#'   and width, recycled across the planes (so
-#'   `colour = c("white", "grey40", "white")` styles one plane per
-#'   entry). Defaults `"grey35"` and `0.2` -- ggplot2's own sf polygon
-#'   border.
-#' @param outline `type = "stack"` only: coarser geoframe(s) whose
-#'   borders are drawn over every finer plane, so the groups they form are
-#'   visible at the finer resolution (`outline = "zone"` marks the zones
-#'   on the region plane). `NULL` (default) = none.
-#' @param outline_colour,outline_linewidth `type = "stack"` only: colour
-#'   and width of the `outline` borders, recycled over `outline`.
-#'   Defaults `"grey20"` and `0.6`.
-#' @param frame `type = "stack"` only: draw each plane's outline (the
-#'   footprint box run through the same projection) as a guide --
-#'   curved shapes are much easier to read in oblique views with the
-#'   plane edges visible. `TRUE` uses `"grey80"`, a colour string uses
-#'   that colour, `NULL` (default) draws no frames.
-#' @param frame_fill `type = "stack"` only: fill for the plane sheets.
-#'   Best mostly transparent, e.g.
-#'   `frame_fill = ggplot2::alpha("grey60", 0.12)` -- the panes then
-#'   read as glass sheets and slightly dim what lies beneath them.
-#'   Setting a fill draws the frames even without `frame`; `NA`
-#'   (default) = no fill.
-#' @param connectors `type = "stack"` only: draw dashed lines joining
-#'   the corresponding frame corners of adjacent planes -- the vertical
-#'   guides of the stack. `TRUE` uses the frame colour, a colour string
-#'   picks its own; default `FALSE`.
-#' @param palette Viridis palette option (`"A"`..`"H"`) for the plane
-#'   fill and for both types' `data` fills. Default `"H"`. `NULL` adds no
-#'   fill scale at all, so a custom scale can be supplied -- e.g.
-#'   `energypal::scale_fill_energy_b()` for the Global Wind Atlas
-#'   colours on their absolute breaks. With `rule = "share"` the fill is
-#'   a fixed linear 0..1 scale, with `"logshare"` a fixed log10 percent
-#'   scale (0.01%..100%) -- either way any two share figures are
-#'   colour-comparable.
-#' @param ... Unused.
+#' @section Stack (`type = "stack"`):
+#' One sheared map plane per geoframe, coarsest on top: the same atoms
+#' dissolved at each resolution, under a chosen point of view. Without
+#' `data`, each plane is coloured by its own regions.
 #'
-#' @return A `ggplot` object.
+#' @section Map (`type = "map"`):
+#' A choropleth of one geoframe. Without `data`, the region outlines are
+#' drawn. Callers that know what their numbers mean (which variable,
+#' extensive or intensive, what units) prepare a `data.frame` keyed by
+#' `geoframe` and hand it here rather than draw their own `geom_sf()`.
+#'
+#' @section Methods:
+#' `autoplot(object, ...)` is `gg_geoscale(object, ...)`. `plot(x, ...)`
+#' prints that figure and returns it invisibly, like base `plot()`.
+#'
+#' @return A ggplot object.
 #'
 #' @examples
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   geoscale_autoplot(geoscale_example())
+#'   gs <- geoscale_example()
+#'   gg_geoscale(gs)
+#'   ggplot2::autoplot(gs)                           # the same figure
+#' }
+#' if (requireNamespace("ggplot2", quietly = TRUE) &&
+#'     requireNamespace("sf", quietly = TRUE)) {
+#'   # the stack and the map need geometry: one unit square per atom
+#'   gs <- geoscale_example()
+#'   n <- length(geoscale_regions(gs, "atom"))
+#'   square <- function(i) {
+#'     sf::st_polygon(list(cbind(c(i, i + 1, i + 1, i, i), c(0, 0, 1, 1, 0))))
+#'   }
+#'   geom <- do.call(sf::st_sfc, lapply(seq_len(n) - 1, square))
+#'   gs <- attach_geometry_geoscale(gs, geom)
+#'   gg_geoscale(gs, type = "map", geoframe = "state")
+#'   gg_geoscale(gs, type = "stack", view = "cabinet")
 #' }
 #' @export
-geoscale_autoplot <- function(x, type = c("icicle", "stack"),
-                              weight = NULL,
-                              fill = c("geoframe", "region"),
-                              label = TRUE,
-                              view = NULL, angle = NULL, ratio = NULL,
-                              shear = 0.45, depth = 0.55, gap = NULL,
-                              rotate = 0, direction = c("up", "down"),
-                              precision = 0,
-                              data = NULL, z = NULL,
-                              rule = "weighted_mean",
-                              labels = NULL, palette = "H",
-                              colour = "grey35", linewidth = 0.2,
-                              frame = NULL, frame_fill = NA,
-                              connectors = FALSE,
-                              outline = NULL, outline_colour = "grey20",
-                              outline_linewidth = 0.6,
-                              ...) {
-  .need_ggplot("geoscale_autoplot()")
+gg_geoscale <- function(object,
+                        type = c("icicle", "stack", "map"),
+                        data = NULL, z = NULL,
+                        rule = "weighted_mean", weight = NULL,
+                        palette = NULL, labels = NULL,
+                        fill = c("geoframe", "region"),
+                        geoframe = NULL,
+                        precision = 0,
+                        view = NULL, angle = NULL, ratio = NULL,
+                        shear = 0.45, depth = 0.55, gap = NULL,
+                        rotate = 0, direction = c("up", "down"),
+                        colour = "grey35", linewidth = 0.2,
+                        frame = NULL, frame_fill = NA, connectors = FALSE,
+                        outline = NULL, outline_colour = "grey20",
+                        outline_linewidth = 0.6,
+                        ...) {
+  .check_geoscale(object)
+  .need_ggplot("gg_geoscale()")
   type <- match.arg(type)
-  if (type == "stack") {
-    return(.geoscale_stack_plot(x, view = view, angle = angle,
-                                ratio = ratio, shear = shear,
-                                depth = depth, gap = gap,
-                                rotate = rotate, direction = direction,
-                                precision = precision,
-                                data = data, z = z, rule = rule,
-                                weight = weight, labels = labels,
-                                palette = palette,
-                                colour = colour, linewidth = linewidth,
-                                frame = frame, frame_fill = frame_fill,
-                                connectors = connectors,
-                                outline = outline,
-                                outline_colour = outline_colour,
-                                outline_linewidth = outline_linewidth))
+  .gg_check_args(match.call(), type, .GG_GEOSCALE_ARGS, "gg_geoscale")
+  if (!is.null(data) && is.null(z)) {
+    .stop("`z` must name the value column of `data`")
   }
+  palette <- .gg_palette(palette, type, default = "H")
+  switch(type,
+    icicle = .gg_geoscale_icicle(
+      object, data = data, z = z, rule = rule, weight = weight,
+      palette = palette, labels = labels, fill = fill, ...),
+    stack = .gg_geoscale_stack(
+      object, view = view, angle = angle, ratio = ratio, shear = shear,
+      depth = depth, gap = gap, rotate = rotate, direction = direction,
+      precision = precision, data = data, z = z, rule = rule,
+      weight = weight, labels = labels, palette = palette,
+      colour = colour, linewidth = linewidth, frame = frame,
+      frame_fill = frame_fill, connectors = connectors, outline = outline,
+      outline_colour = outline_colour,
+      outline_linewidth = outline_linewidth, ...),
+    map = .gg_geoscale_map(
+      object, data = data, z = z, geoframe = geoframe, palette = palette,
+      labels = labels, precision = precision, ...)
+  )
+}
+
+#' The structure icicle (type = "icicle")
+#' @noRd
+.gg_geoscale_icicle <- function(object, data = NULL, z = NULL,
+                                rule = "weighted_mean", weight = NULL,
+                                palette = "H", labels = NULL,
+                                fill = c("geoframe", "region"), ...) {
   fill <- match.arg(fill)
-  d <- geoscale_layout(x, weight = weight)
-  lv <- S7::prop(x, "geoframes")
-  nm <- S7::prop(x, "meta")$name
+  draw_labels <- is.null(labels) || isTRUE(labels)
+  dots <- list(...)
+  d <- geoscale_layout(object, weight = weight)
+  lv <- S7::prop(object, "geoframes")
+  nm <- S7::prop(object, "meta")$name
   vals <- NULL
   if (!is.null(data)) {
     # data fill: each band's rectangles carry the value recast to that
     # geoframe (widths still encode weight shares); overrides `fill`
-    vals <- .geoscale_frame_values(x, lv, data, z, rule, weight)
+    vals <- .geoscale_frame_values(object, lv, data, z, rule, weight)
     d$.fill <- NA_real_
     for (gf in lv) {
       i <- d$geoframe == gf
@@ -293,15 +393,14 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
   d$.label <- d$region
   for (l in unique(d$geoframe)) {
     i <- d$geoframe == l
-    d$.label[i] <- .apply_labels(d$region[i], .region_labels(x, l))
+    d$.label[i] <- .apply_labels(d$region[i], .region_labels(object, l))
   }
 
   p <- ggplot2::ggplot(d) +
-    ggplot2::geom_rect(
-      ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax,
-                   fill = .fill),
-      colour = "white", linewidth = 0.3
-    ) +
+    .gg_layer(ggplot2::geom_rect,
+              ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin,
+                           ymax = ymax, fill = .fill),
+              list(colour = "white", linewidth = 0.3), dots) +
     ggplot2::scale_y_continuous(breaks = rev(seq_along(lv)) - 0.55,
                                 labels = lv) +
     ggplot2::labs(x = "share of weight", y = NULL, fill = fill,
@@ -313,7 +412,7 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
     # continuous value fill: viridis + a retitle-able legend, and label
     # colours that keep contrast on dark cells
     is_share <- any(rule %in% c("share", "logshare"))
-    if (!is.null(palette)) {                 # NULL = caller adds a scale
+    if (.has_palette(palette)) {               # NA = caller adds a scale
       p <- p + if (is_share) {
         .share_fill_scale(palette, log = any(rule %in% "logshare"))
       } else {
@@ -322,7 +421,7 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
     }
     p <- p + ggplot2::labs(fill = if (is_share) "Share" else z)
   }
-  if (isTRUE(label)) {
+  if (draw_labels) {
     # check_overlap keeps the first label drawn, so order widest-first --
     # narrow rectangles lose their label rather than smear the band
     td <- d[order(d$xmax - d$xmin, decreasing = TRUE), ]
@@ -445,10 +544,15 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
   stats::setNames(vals, gfs)
 }
 
-#' @rdname geoscale_autoplot
-#' @param x A [`GeoScale`].
+# -----------------------------------------------------------------------------
+# Methods: autoplot() returns the figure, plot() draws it
+# -----------------------------------------------------------------------------
+
+#' @rdname gg_geoscale
 #' @exportS3Method ggplot2::autoplot
-autoplot.GeoScale <- function(x, ...) geoscale_autoplot(x, ...)
+autoplot.GeoScale <- function(object, ...) {
+  gg_geoscale(object, ...)
+}
 
 #' @rdname geoscale_leaftable
 #' @exportS3Method ggplot2::fortify
@@ -456,76 +560,57 @@ fortify.GeoScale <- function(model, data, ...) {
   geoscale_leaftable(model)
 }
 
-#' Map data onto a GeoScale
-#'
-#' Draws a choropleth of `data` at `geoframe`. Requires `sf`, `ggplot2`, and
-#' geometry attached with [`attach_geometry_geoscale()`].
-#'
-#' This is the package's single choropleth renderer: callers that know what
-#' their numbers *mean* (which variable, extensive or intensive, what units)
-#' should prepare a `data.frame` and hand it here rather than draw their own
-#' `geom_sf()`. `energyRt::geo_map()` works exactly that way.
-#'
-#' @param x A [`GeoScale`] with geometry attached.
-#' @param data Optional `data.frame` with a code column named `geoframe` and the
-#'   column named by `fill`. When `NULL`, region outlines are drawn.
-#' @param geoframe Geoframe to draw. Defaults to the atom geoframe.
-#' @param fill Name of the value column in `data` to colour by.
-#' @param palette Viridis palette option (`"A"`..`"H"`) for the fill scale.
-#'   `NULL` (default) leaves ggplot2's own scale in place.
-#' @param title,subtitle Plot titles. `NULL` for none.
-#' @param fill_label Legend title. Defaults to `fill`; pass `NULL` to drop it.
-#' @param label Draw region labels. `TRUE` uses the display names declared by
-#'   the geoscale's `@meta$labels` column when there is one, otherwise the
-#'   region codes.
-#' @param ... Passed to `ggplot2::geom_sf()`.
-#'
-#' @return A `ggplot` object.
-#'
-#' @examples
-#' \dontrun{
-#' geoscale_plot(gs, capacity_by_state, geoframe = "state", fill = "capacity")
-#'
-#' # titled, viridis, with region names drawn on
-#' geoscale_plot(gs, gen, geoframe = "zone", fill = "value",
-#'          palette = "D", title = "Generation", label = TRUE)
-#' }
+#' @rdname gg_geoscale
 #' @export
-geoscale_plot <- function(x, data = NULL, geoframe = NULL, fill = NULL,
-                     palette = NULL, title = NULL, subtitle = NULL,
-                     fill_label = fill, label = FALSE, ...) {
-  .check_geoscale(x)
-  .need_sf("geoscale_plot()")
-  .need_ggplot("geoscale_plot()")
-  lv    <- S7::prop(x, "geoframes")
+#' @method plot GeoScale
+plot.GeoScale <- function(x, ...) {
+  print(gg_geoscale(x, ...))
+}
+
+# Alias on the fully-qualified S7 class name: `class()` reports
+# `geoscales::GeoScale` first (see the `[.GeoScale` note in R/filter.R),
+# and that is the registration that actually dispatches when installed.
+#' @export
+`plot.geoscales::GeoScale` <- plot.GeoScale
+
+#' The choropleth (type = "map" of gg_geoscale())
+#'
+#' Draws `data[[z]]` over the geometry of `geoframe`, dissolved from the
+#' atoms; without `data`, the region outlines. Needs sf and attached
+#' geometry.
+#' @noRd
+.gg_geoscale_map <- function(object, data = NULL, z = NULL, geoframe = NULL,
+                             palette = NULL, labels = NULL, precision = 0,
+                             ...) {
+  .need_sf("gg_geoscale(type = \"map\")")
+  dots <- list(...)
+  lv <- S7::prop(object, "geoframes")
   geoframe <- geoframe %||% lv[length(lv)]
 
-  shp <- geoscale_geometry(x, geoframe = geoframe)
+  shp <- geoscale_geometry(object, geoframe = geoframe, precision = precision)
   if (!is.null(data)) {
     if (!geoframe %in% names(data)) .stop("`data` has no column `%s`", geoframe)
-    if (is.null(fill) || !fill %in% names(data)) {
-      .stop("`fill` must name a column of `data`")
-    }
-    shp <- merge(shp, data[, c(geoframe, fill)], by = geoframe, all.x = TRUE)
+    if (!z %in% names(data)) .stop("`z` must name a column of `data`")
+    shp <- merge(shp, data[, c(geoframe, z)], by = geoframe, all.x = TRUE)
+    shp$.fill <- shp[[z]]
   }
 
-  shp$.fill <- if (is.null(fill)) NULL else shp[[fill]]
   p <- ggplot2::ggplot(shp)
-  p <- if (is.null(fill)) {
-    p + ggplot2::geom_sf(fill = "grey92", colour = "white", ...)
+  p <- if (is.null(data)) {
+    p + .gg_layer(ggplot2::geom_sf, NULL,
+                  list(fill = "grey92", colour = "white"), dots)
   } else {
-    p + ggplot2::geom_sf(ggplot2::aes(fill = .fill), colour = "white", ...) +
-      ggplot2::labs(fill = fill_label)
+    p + .gg_layer(ggplot2::geom_sf, ggplot2::aes(fill = .fill),
+                  list(colour = "white"), dots) +
+      ggplot2::labs(fill = z)
   }
 
-  if (!is.null(palette) && !is.null(fill)) {
+  if (!is.null(data) && .has_palette(palette)) {
     p <- p + ggplot2::scale_fill_viridis_c(option = palette)
   }
-  if (!is.null(title) || !is.null(subtitle)) {
-    p <- p + ggplot2::labs(title = title, subtitle = subtitle)
-  }
-  if (isTRUE(label)) {
-    shp$.label <- .apply_labels(shp[[geoframe]], .region_labels(x, geoframe))
+  if (isTRUE(labels)) {
+    shp$.label <- .apply_labels(shp[[geoframe]],
+                                .region_labels(object, geoframe))
     p <- p + ggplot2::geom_sf_text(
       data = shp, ggplot2::aes(label = .label), size = 2.8, colour = "grey20"
     )
@@ -591,7 +676,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   list(e1 = c(1, 0), e2 = c(shear, depth), scale = 1)
 }
 
-#' Draw the geoscale as stacked map planes under a chosen point of view
+#' The axonometric stack (type = "stack" of gg_geoscale())
 #'
 #' One plane per geoframe, coarsest on top: the same atoms, dissolved at
 #' each resolution. Footprints are normalized to a unit box, mapped
@@ -600,22 +685,23 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
 #' (perspective), and lifted; painter order is bottom (finest) first, so
 #' planes may overlap when `gap` is small.
 #' @noRd
-.geoscale_stack_plot <- function(x, view = NULL, angle = NULL,
-                                 ratio = NULL, shear = 0.45,
-                                 depth = 0.55, gap = NULL,
-                                 rotate = 0,
-                                 direction = c("up", "down"),
-                                 precision = 0,
-                                 data = NULL, z = NULL,
-                                 rule = "weighted_mean",
-                                 weight = NULL,
-                                 labels = NULL, palette = "H",
-                                 colour = "grey35", linewidth = 0.2,
-                                 frame = NULL, frame_fill = NA,
-                                 connectors = FALSE,
-                                 outline = NULL, outline_colour = "grey20",
-                                 outline_linewidth = 0.6) {
-  .need_sf("geoscale_autoplot(type = \"stack\")")
+.gg_geoscale_stack <- function(x, view = NULL, angle = NULL,
+                               ratio = NULL, shear = 0.45,
+                               depth = 0.55, gap = NULL,
+                               rotate = 0,
+                               direction = c("up", "down"),
+                               precision = 0,
+                               data = NULL, z = NULL,
+                               rule = "weighted_mean",
+                               weight = NULL,
+                               labels = NULL, palette = "H",
+                               colour = "grey35", linewidth = 0.2,
+                               frame = NULL, frame_fill = NA,
+                               connectors = FALSE,
+                               outline = NULL, outline_colour = "grey20",
+                               outline_linewidth = 0.6, ...) {
+  .need_sf("gg_geoscale(type = \"stack\")")
+  dots <- list(...)
   if (is.null(S7::prop(x, "geometry"))) {
     .stop(paste0("the stack view needs attached geometry; use ",
                  "attach_geometry_geoscale(), or the icicle view ",
@@ -628,6 +714,9 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   # value fill: `data` is keyed at the atoms; every coarser plane gets
   # the value recast up so one continuous scale spans the whole stack
   vals <- .geoscale_frame_values(x, gfs, data, z, rule, weight)
+  # `labels`: TRUE = every plane, FALSE/NULL = none, else geoframes
+  if (isTRUE(labels)) labels <- gfs
+  if (isFALSE(labels)) labels <- NULL
   if (!is.null(labels)) {
     bad <- setdiff(labels, gfs)
     if (length(bad)) {
@@ -788,14 +877,14 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
                                      linewidth = 0.3)
     }
     p <- if (is.null(vals)) {
-      p + ggplot2::geom_sf(data = layers[[k]],
-                           ggplot2::aes(fill = code),
-                           colour = col_k[k], linewidth = lwd_k[k],
-                           show.legend = FALSE)
+      p + .gg_layer(ggplot2::geom_sf, ggplot2::aes(fill = code),
+                    list(colour = col_k[k], linewidth = lwd_k[k],
+                         show.legend = FALSE),
+                    dots, data = layers[[k]])
     } else {
-      p + ggplot2::geom_sf(data = layers[[k]],
-                           ggplot2::aes(fill = .z),
-                           colour = col_k[k], linewidth = lwd_k[k])
+      p + .gg_layer(ggplot2::geom_sf, ggplot2::aes(fill = .z),
+                    list(colour = col_k[k], linewidth = lwd_k[k]),
+                    dots, data = layers[[k]])
     }
     for (o in outlines[[k]]) {                 # group borders on top
       p <- p + ggplot2::geom_sf(data = sf::st_sf(geometry = o$geometry),
@@ -827,7 +916,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
     p <- p + ggplot2::labs(
       fill = if (any(rule %in% c("share", "logshare"))) "Share" else z)
   }
-  if (!is.null(palette)) {                   # NULL = caller adds a scale
+  if (.has_palette(palette)) {               # NA = caller adds a scale
     p <- p + if (is.null(vals)) {
       ggplot2::scale_fill_viridis_d(option = palette)
     } else if (any(rule %in% c("share", "logshare"))) {

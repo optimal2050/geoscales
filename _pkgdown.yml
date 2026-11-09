@@ -63,6 +63,9 @@ articles:
 # Old article URLs kept alive: plotting rewritten as visualization
 # (2026-08 parity pass).
 redirects:
+  - ["reference/geoscale_autoplot.html", "reference/gg_geoscale.html"]
+  - ["reference/geoscale_plot.html", "reference/gg_geoscale.html"]
+  - ["reference/plot.GeoScale.html", "reference/gg_geoscale.html"]
   - ["articles/plotting.html", "articles/visualization.html"]
 
 reference:
@@ -139,12 +142,10 @@ reference:
   - title: Visualization
     desc: >
       Composable choropleth layers, the structure icicle, and their
-      plain-data workers. `geoscale_autoplot()` needs no map.
+      plain-data workers. The icicle of `gg_geoscale()` needs no map.
     contents:
       - geom_geoscale
-      - geoscale_autoplot
-      - plot.GeoScale
-      - geoscale_plot
+      - gg_geoscale
       - geoscale_layout
 
   - title: Data providers

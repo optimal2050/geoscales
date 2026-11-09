@@ -430,28 +430,6 @@ S7::method(format, GeoScale) <- function(x, ...) {
           nrow(S7::prop(x, "leaftable")))
 }
 
-#' Plot a GeoScale
-#'
-#' Dispatches to [`geoscale_autoplot()`] — the geometry-free structure
-#' icicle (parity with `plot()` on a `timescales::Calendar`). For maps,
-#' see [`geoscale_plot()`] and [`geom_geoscale()`].
-#'
-#' @param x A [`GeoScale`].
-#' @param ... Passed to [`geoscale_autoplot()`].
-#' @return A ggplot object.
-#' @export
-#' @method plot GeoScale
-plot.GeoScale <- function(x, ...) {
-  geoscale_autoplot(x, ...)
-}
-
-# Alias on the fully-qualified S7 class name: `class()` reports
-# `geoscales::GeoScale` first (see the `[.GeoScale` note in R/filter.R),
-# and that is the registration that actually dispatches when installed.
-#' @rdname plot.GeoScale
-#' @export
-`plot.geoscales::GeoScale` <- plot.GeoScale
-
 #' @export
 #' @method print GeoScale
 print.GeoScale <- function(x, ...) {

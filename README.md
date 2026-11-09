@@ -43,7 +43,7 @@ at once.
   bookkeeping.
 - [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.html)
   and
-  [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.html)
+  [`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.html)
   draw any geoframe: choropleths, icicles, and axonometric stacks.
 
 geoscales is the spatial-domain package of the
@@ -82,7 +82,6 @@ README](https://github.com/optimal2050/timescales). The [get-started
 vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
 shows how the cluster layer is built from the raster.
 
-
 <img src="man/figures/README-hero-iceland-wind-1.png" alt="" width="100%" />
 
 The same data moves between geoframes by one verb — `recast_geoscale()`,
@@ -111,7 +110,7 @@ iceland <- geoscale_from_leaftable(
 ) |>
   attach_geometry_geoscale(ne, by = "iso_3166_2", geoframe = "unit")
 
-geoscale_autoplot(iceland, type = "stack", view = "top-down", gap = .35)
+gg_geoscale(iceland, type = "stack", view = "top-down", gap = .35)
 ```
 
 <img src="man/figures/README-demo-stack-iceland-1.png" alt="" width="100%" />

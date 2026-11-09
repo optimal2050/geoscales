@@ -59,7 +59,7 @@ at once.
   coverage bookkeeping.
 - [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.html)
   and
-  [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.html)
+  [`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.html)
   draw any geoframe: choropleths, icicles, and axonometric stacks.
 
 geoscales is the spatial-domain package of the
@@ -103,13 +103,13 @@ suppressMessages(library(sf))
 library(geoscales)
 iceland <- readRDS("data-raw/iceland_wind.rds")
 
-geoscale_autoplot(iceland$gs, type = "stack", view = "perspective",
-                  direction = "down", data = iceland$wind, z = "wind",
-                  labels = "landshluti", palette = NULL, gap = .27,
-                  colour = ggplot2::alpha("grey35", .75),
-                  linewidth = c(0.2, 0.2, 0.1),
-                  frame = TRUE, connectors = TRUE,
-                  frame_fill = ggplot2::alpha("#6FA8DC", 0.25)) +
+gg_geoscale(iceland$gs, type = "stack", view = "perspective",
+            direction = "down", data = iceland$wind, z = "wind",
+            labels = "landshluti", palette = NA, gap = .27,
+            colour = ggplot2::alpha("grey35", .75),
+            linewidth = c(0.2, 0.2, 0.1),
+            frame = TRUE, connectors = TRUE,
+            frame_fill = ggplot2::alpha("#6FA8DC", 0.25)) +
   energypal::scale_fill_energy_b(palette = "windatlas", limits = c(6.5, 11.5)) +
   ggplot2::labs(fill = "m/s")
 ```
@@ -152,7 +152,7 @@ iceland <- geoscale_from_leaftable(
 ) |>
   attach_geometry_geoscale(ne, by = "iso_3166_2", geoframe = "unit")
 
-geoscale_autoplot(iceland, type = "stack", view = "top-down", gap = .35)
+gg_geoscale(iceland, type = "stack", view = "top-down", gap = .35)
 ```
 
 ## Learning more

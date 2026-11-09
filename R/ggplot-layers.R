@@ -1,7 +1,7 @@
 # =============================================================================
 # ggplot2 extension layers
 # =============================================================================
-# The composable layer over the same helpers that back geoscale_plot():
+# The composable layer over the same helpers that back gg_geoscale():
 #
 #   geom_geoscale()   region-keyed data -> dissolved geoframe -> choropleth
 #   theme_geoscale()  the quiet map theme
@@ -21,7 +21,7 @@
 #'
 #' Composable choropleth layers that put region-keyed data on a map inside
 #' a normal `ggplot()` pipeline (the assembled-figure counterparts are
-#' [`geoscale_plot()`] and [`geoscale_autoplot()`]):
+#' [`gg_geoscale()`]):
 #'
 #' * `geom_geoscale()` — dissolves the object's geometry at `geoframe`
 #'   (via [`geoscale_geometry()`]), aggregates the value column `z` per

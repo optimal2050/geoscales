@@ -190,7 +190,7 @@ nrow(shp)
 ```
 
 ```{r, eval = has_hires && requireNamespace("ggplot2", quietly = TRUE), fig.width = 7, fig.height = 4}
-geoscale_plot(g, geoframe = "landshluti")
+gg_geoscale(g, type = "map", geoframe = "landshluti")
 ```
 
 ## Other providers

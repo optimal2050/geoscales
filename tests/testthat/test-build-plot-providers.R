@@ -72,7 +72,7 @@ test_that("geoscale_layout keeps sibling regions contiguous", {
 test_that("plotting works when ggplot2 is available", {
   skip_if_not_installed("ggplot2")
   gs <- geoscale_example()
-  p <- geoscale_autoplot(gs)
+  p <- gg_geoscale(gs)
   expect_s3_class(p, "ggplot")
   expect_s3_class(ggplot2::autoplot(gs), "ggplot")
 })
@@ -94,32 +94,37 @@ test_that("plotting works when ggplot2 is available", {
     by = "unit", geoframe = "unit")
 }
 
-test_that("geoscale_plot draws outlines and a filled choropleth", {
+test_that("the map draws outlines and a filled choropleth", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("sf")
   gs <- .plot_fixture()
   d <- data.frame(unit = c("u1", "u2", "u3", "u4"), x = c(10, 20, 30, 40))
 
-  expect_s3_class(geoscale_plot(gs), "ggplot")
-  p <- geoscale_plot(gs, d, geoframe = "unit", fill = "x")
+  expect_s3_class(gg_geoscale(gs, type = "map"), "ggplot")
+  p <- gg_geoscale(gs, type = "map", data = d, geoframe = "unit", z = "x")
   expect_s3_class(p, "ggplot")
   # geometry is dissolved to the requested geoframe before drawing
-  built <- ggplot2::ggplot_build(geoscale_plot(gs, geoframe = "zone"))
+  built <- ggplot2::ggplot_build(gg_geoscale(gs, type = "map",
+                                             geoframe = "zone"))
   expect_equal(nrow(built$data[[1]]), 2L)
 
-  expect_error(geoscale_plot(gs, d, geoframe = "zone", fill = "x"), "no column")
-  expect_error(geoscale_plot(gs, d, geoframe = "unit", fill = "nope"),
-               "`fill` must name")
+  expect_error(gg_geoscale(gs, type = "map", data = d, geoframe = "zone",
+                           z = "x"),
+               "no column")
+  expect_error(gg_geoscale(gs, type = "map", data = d, geoframe = "unit",
+                           z = "nope"),
+               "`z` must name")
 })
 
-test_that("geoscale_plot honours palette, titles and the legend label", {
+test_that("the map honours palette and takes titles through labs()", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("sf")
   gs <- .plot_fixture()
   d <- data.frame(unit = c("u1", "u2", "u3", "u4"), x = c(10, 20, 30, 40))
 
-  p <- geoscale_plot(gs, d, geoframe = "unit", fill = "x", palette = "D",
-                title = "Gen", subtitle = "by unit", fill_label = NULL)
+  p <- gg_geoscale(gs, type = "map", data = d, geoframe = "unit", z = "x",
+                   palette = "D") +
+    ggplot2::labs(title = "Gen", subtitle = "by unit", fill = NULL)
   expect_equal(p$labels$title, "Gen")
   expect_equal(p$labels$subtitle, "by unit")
   expect_null(p$labels$fill)
@@ -128,7 +133,7 @@ test_that("geoscale_plot honours palette, titles and the legend label", {
                "#440154")
 
   # defaults must reproduce the pre-enrichment output
-  q <- geoscale_plot(gs, d, geoframe = "unit", fill = "x")
+  q <- gg_geoscale(gs, type = "map", data = d, geoframe = "unit", z = "x")
   expect_equal(as.character(ggplot2::ggplot_build(q)$data[[1]]$fill)[1],
                "#132B43")
   expect_equal(q$labels$fill, "x")
@@ -144,20 +149,23 @@ test_that("labels are used only where they are unambiguous", {
   gsl <- .plot_fixture(labels = "name")
   txt <- function(p) ggplot2::ggplot_build(p)$data[[2]]$label
 
-  expect_equal(txt(geoscale_plot(gsl, geoframe = "unit", label = TRUE)),
+  expect_equal(txt(gg_geoscale(gsl, type = "map", geoframe = "unit",
+                               labels = TRUE)),
                c("Alpha", "Beta", "Gamma", "Delta"))
-  expect_equal(txt(geoscale_plot(gsl, geoframe = "zone", label = TRUE)),
+  expect_equal(txt(gg_geoscale(gsl, type = "map", geoframe = "zone",
+                               labels = TRUE)),
                c("Z1", "Z2"))
   # icicle labels are drawn widest-rectangle-first (check_overlap keeps the
   # first drawn), so compare as sets, not in layout order
-  expect_setequal(txt(geoscale_autoplot(gsl)),
+  expect_setequal(txt(gg_geoscale(gsl)),
                   c("T", "Z1", "Z2", "Alpha", "Beta", "Gamma", "Delta"))
 
   # no `labels` declared -> codes everywhere, exactly as before
   gs <- .plot_fixture()
-  expect_equal(txt(geoscale_plot(gs, geoframe = "unit", label = TRUE)),
+  expect_equal(txt(gg_geoscale(gs, type = "map", geoframe = "unit",
+                               labels = TRUE)),
                c("u1", "u2", "u3", "u4"))
-  expect_setequal(txt(geoscale_autoplot(gs)),
+  expect_setequal(txt(gg_geoscale(gs)),
                   c("T", "Z1", "Z2", "u1", "u2", "u3", "u4"))
 })
 
