@@ -18,9 +18,9 @@ reproduces three awkward features of real region tables:
 \itemize{
 \item a code (\code{"N1"}) reused at more than one geoframe, so bare codes are
 ambiguous and every lookup must name its geoframe;
-\item a non-nesting pair of geoframes — zone \code{"ZB"} draws atoms from two different
-states (and two different countries), so \code{state} and \code{zone} do not form a
-tree;
+\item a non-nesting pair of geoframes — zone \code{"ZB"} draws atoms from two
+different states (and two different countries), so \code{state} and \code{zone} do
+not form a tree;
 \item an atom (\code{"ROW"}) with no code at any coarser geoframe (partial coverage).
 }
 }

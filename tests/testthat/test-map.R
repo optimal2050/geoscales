@@ -46,8 +46,9 @@ test_that("registered maps short-circuit the derivation", {
   register_geoscale_map(gs, "state", "zone", NULL)
   expect_gt(nrow(geoscale_map(gs, "state", "zone")), 1L)
   # malformed maps are rejected
-  expect_error(register_geoscale_map_between("state", "zone", data.frame(a = 1)),
-               "missing column")
+  expect_error(
+    register_geoscale_map_between("state", "zone", data.frame(a = 1)),
+    "missing column")
 })
 
 test_that("cross-object map matches atoms on shared region keys", {

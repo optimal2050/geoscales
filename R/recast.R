@@ -323,7 +323,8 @@ recast_geoscale <- function(x, gs, source = NULL, target,
                             na_action = c("drop", "error", "keep"),
                             parent = NULL,
                             collect = NULL,
-                            from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                            from = lifecycle::deprecated(),
+                            to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("recast_geoscale", "from", "source", !missing(source))
     source <- from
@@ -360,8 +361,10 @@ recast_geoscale <- function(x, gs, source = NULL, target,
 #' it changes; the halves and pairwise converters keep the standard contract
 #' @noRd
 .geo_no_share <- function(rules, where) {
-  if (any(vapply(rules, function(r)
-    r$rule %in% c("share", "logshare"), logical(1)))) {
+  is_share <- vapply(rules, function(r) {
+    r$rule %in% c("share", "logshare")
+  }, logical(1))
+  if (any(is_share)) {
     .stop(paste0("rule \"share\" is not supported by %s(); use ",
                  "recast_geoscale() with a parent geoframe"), where)
   }

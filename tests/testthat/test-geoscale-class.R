@@ -68,8 +68,9 @@ test_that("the validator rejects a negative weight", {
 
 test_that("a geoframe absent from leaves is rejected", {
   df <- data.frame(top = c("T", "T"), atom = c("A", "B"))
-  expect_error(geoscale_from_leaftable(df, geoframes = c("top", "nope", "atom")),
-               "missing geoframe column")
+  expect_error(
+    geoscale_from_leaftable(df, geoframes = c("top", "nope", "atom")),
+    "missing geoframe column")
 })
 
 test_that("members disagreeing with leaves is rejected", {

@@ -20,8 +20,10 @@
 # Unit squares with geometry: A1..A6 on a 3 x 2 grid under N/S countries and
 # N1/N2/S1 states (the coords_to_region and dissolve fixture).
 .squares_gs <- function() {
-  sq <- function(x, y) sf::st_polygon(list(cbind(
-    c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
+  sq <- function(x, y) {
+    sf::st_polygon(list(cbind(c(x, x + 1, x + 1, x, x),
+                              c(y, y, y + 1, y + 1, y))))
+  }
   gs <- geoscale_from_leaftable(
     data.frame(
       country = c("N", "N", "N", "N", "S", "S"),

@@ -22,8 +22,8 @@ geoscale_from_leaftable(
 \item{leaftable}{\code{data.frame} with one row per atom, one column per name in
 \code{geoframes}, and optionally numeric weight columns.}
 
-\item{geoframes}{Ordered character vector of geoframe names, \strong{coarsest first}.
-Each must be a column of \code{leaftable}.}
+\item{geoframes}{Ordered character vector of geoframe names, \strong{coarsest
+first}. Each must be a column of \code{leaftable}.}
 
 \item{key}{Name of the column holding the unique atom key. Defaults to
 \code{"region"} if present, otherwise the finest geoframe (the last entry of
@@ -43,8 +43,8 @@ geoframe. Derived from \code{leaftable} when \code{NULL} (first-appearance order
 \item{name, desc}{Short name and description.}
 
 \item{row_order}{\code{"nested"} (default) sorts the rows by geoframe, coarsest
-first, each in its member order (unassigned codes last; \code{geometry} follows); \code{"given"} keeps the rows
-as supplied.}
+first, each in its member order (unassigned codes last; \code{geometry}
+follows); \code{"given"} keeps the rows as supplied.}
 
 \item{...}{Further named entries merged into \code{meta} (e.g. \code{crs}, \code{source}).}
 }
@@ -56,9 +56,9 @@ The general constructor. Takes a wide \code{data.frame} with one row per atom
 (the finest region) and one column per geoframe, and returns a \code{\link{GeoScale}}.
 }
 \details{
-Blank strings (\code{""}) in geoframe columns are normalised to \code{NA}, meaning "this
-atom has no code at this geoframe" — partial coverage is normal in real region
-tables.
+Blank strings (\code{""}) in geoframe columns are normalised to \code{NA}, meaning
+"this atom has no code at this geoframe" — partial coverage is normal in
+real region tables.
 }
 \examples{
 df <- data.frame(

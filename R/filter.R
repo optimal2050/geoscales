@@ -5,9 +5,9 @@
 # only trace is a commented-out generic. For regions this is central, so it is
 # designed in from the start.
 #
-# Region codes repeat across geoframes (46 of 62 in IDEEA; "AN" appears at seven
-# geoframes), so `geoframe` is ALWAYS a required argument. Nothing is inferred from
-# a bare code.
+# Region codes repeat across geoframes (46 of 62 in IDEEA; "AN" appears at
+# seven geoframes), so `geoframe` is ALWAYS a required argument. Nothing is
+# inferred from a bare code.
 #
 # All derived tables are computed on demand. Nothing is cached on the object.
 # =============================================================================
@@ -74,8 +74,8 @@ geoscale_family <- function(x, parent = NULL, child = NULL) {
 #' `reg32` code `APY` merges Andhra Pradesh with part of Puducherry, so
 #' `reg35` does not nest inside `reg32`.
 #'
-#' Nesting is *not* required by [`GeoScale`] — [`recast_geoscale()`] routes through
-#' the atom layer and works either way. This function is a diagnostic.
+#' Nesting is *not* required by [`GeoScale`] — [`recast_geoscale()`] routes
+#' through the atom layer and works either way. This function is a diagnostic.
 #'
 #' @param x A [`GeoScale`].
 #' @param parent,child Geoframe names.
@@ -100,10 +100,11 @@ geoscale_nests <- function(x, parent, child) {
 #' Every `(coarser, finer)` code pair that shares at least one atom, for all
 #' geoframe pairs.
 #'
-#' Computed **atom-mediated**, directly from `@leaftable` — deliberately not as a
-#' transitive closure of [`geoscale_family()`]. `timeslices` can use a closure
-#' because time geoframes genuinely nest; spatial geoframes cross-cut, and a closure
-#' then manufactures false relationships. In the example GeoScale, zone `ZB`
+#' Computed **atom-mediated**, directly from `@leaftable` — deliberately not
+#' as a transitive closure of [`geoscale_family()`]. `timescales` can use a
+#' closure because timeframes genuinely nest; spatial geoframes cross-cut, and
+#' a closure then manufactures false relationships. In the example GeoScale,
+#' zone `ZB`
 #' straddles both countries, so closing `country -> state -> zone -> atom`
 #' would wrongly report country `N` as an ancestor of atom `A5`, which lies in
 #' country `S`.
@@ -112,8 +113,8 @@ geoscale_nests <- function(x, parent, child) {
 #' test a given pair with [`geoscale_nests()`].
 #'
 #' Geoframe columns are retained because region codes are not unique across
-#' geoframes: in the example, `"N1"` exists at both `state` and `zone`, so a bare
-#' `(parent, child)` pair would read as a self-loop.
+#' geoframes: in the example, `"N1"` exists at both `state` and `zone`, so a
+#' bare `(parent, child)` pair would read as a self-loop.
 #'
 #' @param x A [`GeoScale`].
 #'
@@ -134,8 +135,9 @@ geoscale_ancestry <- function(x) {
 
 #' Navigate a region hierarchy
 #'
-#' `geoscale_children()` and `geoscale_parents()` step one geoframe; `geoscale_descendants()`
-#' and `geoscale_ancestors()` follow the transitive closure.
+#' `geoscale_children()` and `geoscale_parents()` step one geoframe;
+#' `geoscale_descendants()` and `geoscale_ancestors()` follow the transitive
+#' closure.
 #'
 #' `geoframe` is required in every case — region codes are not unique across
 #' geoframes, so a bare code is ambiguous.
@@ -144,13 +146,14 @@ geoscale_ancestry <- function(x) {
 #' @param geoframe Geoframe that `region` belongs to.
 #' @param region Character vector of region codes at `geoframe`.
 #' @param to Deprecated name of `target`.
-#' @param target Target geoframe. For `geoscale_children()`/`geoscale_parents()` this defaults
-#'   to the adjacent geoframe; for the transitive versions, `NULL` means all
-#'   geoframes below/above.
+#' @param target Target geoframe. For `geoscale_children()` and
+#'   `geoscale_parents()` this defaults to the adjacent geoframe; for the
+#'   transitive versions, `NULL` means all geoframes below/above.
 #'
-#' @return `geoscale_children()` and `geoscale_parents()` return a character vector of
-#'   codes at a single geoframe. `geoscale_descendants()` and `geoscale_ancestors()` span
-#'   several geoframes and so return a `data.frame` with columns `geoframe` and
+#' @return `geoscale_children()` and `geoscale_parents()` return a character
+#'   vector of codes at a single geoframe. `geoscale_descendants()` and
+#'   `geoscale_ancestors()` span several geoframes and so return a
+#'   `data.frame` with columns `geoframe` and
 #'   `region` — a bare character vector would be ambiguous, since the same
 #'   code can occur at more than one geoframe.
 #'
@@ -205,7 +208,8 @@ geoscale_descendants <- function(x, geoframe, region, target = NULL,
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
   if (!is.null(to)) .check_geoframe(x, to, "target")
-  .geoframe_region_cols(nestedscales::scale_descendants(x, geoframe, region, to))
+  out <- nestedscales::scale_descendants(x, geoframe, region, to)
+  .geoframe_region_cols(out)
 }
 
 #' @rdname geoscale_navigate
@@ -328,7 +332,9 @@ prune_geoscale <- function(x, geoframe,
   leaves0 <- S7::prop(x, "leaftable")
   covered <- !is.na(leaves0[[geoframe]])
   leaves  <- leaves0[covered, , drop = FALSE]
-  if (nrow(leaves) == 0L) .stop("no atoms have a code at geoframe `%s`", geoframe)
+  if (nrow(leaves) == 0L) {
+    .stop("no atoms have a code at geoframe `%s`", geoframe)
+  }
 
   wts <- geoscale_weights(x)
   grp <- leaves[, keep_lv, drop = FALSE]
@@ -457,8 +463,8 @@ geoscale_coverage <- function(x, weight = NULL) {
 #'   normalises over the whole object.
 #'
 #' @return A `data.frame` with a code column named `geoframe` (matching the
-#'   convention of [`recast_geoscale()`]), the weight, and `share`. When `within`
-#'   is given, a column of that name carries the parent code.
+#'   convention of [`recast_geoscale()`]), the weight, and `share`. When
+#'   `within` is given, a column of that name carries the parent code.
 #'
 #' @examples
 #' gs <- geoscale_example()

@@ -30,12 +30,12 @@ normalises the country-code column.
 }
 \details{
 \code{feature} is the atom and \code{country} is a grouping of atoms on top of it. At
-admin-0 the two are the same code; at admin-1 (\code{geoframe = "states"}) \code{feature}
-is the state and \code{country} is the admin-0 unit it belongs to.
+admin-0 the two are the same code; at admin-1 (\code{geoframe = "states"})
+\code{feature} is the state and \code{country} is the admin-0 unit it belongs to.
 
 Codes of \code{"-99"} mean \emph{unassigned} and are returned as \code{NA}. That is why
-\code{country} is a geoframe rather than the atom key: it may be missing, whereas an
-atom key may not.
+\code{country} is a geoframe rather than the atom key: it may be missing,
+whereas an atom key may not.
 }
 \examples{
 \dontrun{

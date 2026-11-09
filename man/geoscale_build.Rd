@@ -16,8 +16,8 @@ geoscale_build(
 \arguments{
 \item{...}{Additional arguments passed to \code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}}.}
 
-\item{geoframes}{Ordered character vector of geoframe names, coarsest first. The
-last entry is the atom geoframe.}
+\item{geoframes}{Ordered character vector of geoframe names, coarsest
+first. The last entry is the atom geoframe.}
 
 \item{weights}{Optional \code{data.frame} keyed by the atom geoframe, carrying one
 or more numeric weight columns.}
@@ -37,9 +37,9 @@ builder joins them together, starting from the finest geoframe, until every
 geoframe in \code{geoframes} is present.
 }
 \details{
-Crosswalks need not form a strict chain: a geoframe that cross-cuts the others
-(a grid zone crossing state lines, say) is expressed simply by giving its
-crosswalk against the finest geoframe.
+Crosswalks need not form a strict chain: a geoframe that cross-cuts the
+others (a grid zone crossing state lines, say) is expressed simply by giving
+its crosswalk against the finest geoframe.
 }
 \examples{
 geoscale_build(

@@ -47,22 +47,24 @@ geoscale_ancestors(
 
 \item{region}{Character vector of region codes at \code{geoframe}.}
 
-\item{target}{Target geoframe. For \code{geoscale_children()}/\code{geoscale_parents()} this defaults
-to the adjacent geoframe; for the transitive versions, \code{NULL} means all
-geoframes below/above.}
+\item{target}{Target geoframe. For \code{geoscale_children()} and
+\code{geoscale_parents()} this defaults to the adjacent geoframe; for the
+transitive versions, \code{NULL} means all geoframes below/above.}
 
 \item{to}{Deprecated name of \code{target}.}
 }
 \value{
-\code{geoscale_children()} and \code{geoscale_parents()} return a character vector of
-codes at a single geoframe. \code{geoscale_descendants()} and \code{geoscale_ancestors()} span
-several geoframes and so return a \code{data.frame} with columns \code{geoframe} and
+\code{geoscale_children()} and \code{geoscale_parents()} return a character
+vector of codes at a single geoframe. \code{geoscale_descendants()} and
+\code{geoscale_ancestors()} span several geoframes and so return a
+\code{data.frame} with columns \code{geoframe} and
 \code{region} — a bare character vector would be ambiguous, since the same
 code can occur at more than one geoframe.
 }
 \description{
-\code{geoscale_children()} and \code{geoscale_parents()} step one geoframe; \code{geoscale_descendants()}
-and \code{geoscale_ancestors()} follow the transitive closure.
+\code{geoscale_children()} and \code{geoscale_parents()} step one geoframe;
+\code{geoscale_descendants()} and \code{geoscale_ancestors()} follow the transitive
+closure.
 }
 \details{
 \code{geoframe} is required in every case — region codes are not unique across

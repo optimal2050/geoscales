@@ -1,4 +1,4 @@
-# The harmonized naming layer: recast() generic, join_geoscale() ----------------------------------------------------------
+# The harmonized naming layer: recast() generic, join_geoscale() ----------------
 
 test_that("the recast() generic dispatches the GeoScale method", {
   gs <- geoscale_example()

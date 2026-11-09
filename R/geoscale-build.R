@@ -15,14 +15,14 @@
 #' builder joins them together, starting from the finest geoframe, until every
 #' geoframe in `geoframes` is present.
 #'
-#' Crosswalks need not form a strict chain: a geoframe that cross-cuts the others
-#' (a grid zone crossing state lines, say) is expressed simply by giving its
-#' crosswalk against the finest geoframe.
+#' Crosswalks need not form a strict chain: a geoframe that cross-cuts the
+#' others (a grid zone crossing state lines, say) is expressed simply by giving
+#' its crosswalk against the finest geoframe.
 #'
 #' @param ... One or more two-column `data.frame`s, each named after the pair
 #'   of geoframes it connects.
-#' @param geoframes Ordered character vector of geoframe names, coarsest first. The
-#'   last entry is the atom geoframe.
+#' @param geoframes Ordered character vector of geoframe names, coarsest
+#'   first. The last entry is the atom geoframe.
 #' @param weights Optional `data.frame` keyed by the atom geoframe, carrying one
 #'   or more numeric weight columns.
 #' @param name,desc Short name and description.
@@ -72,7 +72,8 @@ geoscale_build <- function(..., geoframes, weights = NULL,
 
   unknown <- setdiff(unlist(lapply(xwalks, names)), geoframes)
   if (length(unknown) > 0L) {
-    .stop("crosswalk column(s) not listed in `geoframes`: %s", .preview(unknown))
+    .stop("crosswalk column(s) not listed in `geoframes`: %s",
+          .preview(unknown))
   }
 
   atom <- geoframes[length(geoframes)]
@@ -81,8 +82,8 @@ geoscale_build <- function(..., geoframes, weights = NULL,
     .stop("no crosswalk mentions the atom geoframe `%s`", atom)
   }
 
-  # Seed with the crosswalks that mention the atom geoframe, then absorb the rest
-  # by shared columns until every geoframe is present.
+  # Seed with the crosswalks that mention the atom geoframe, then absorb the
+  # rest by shared columns until every geoframe is present.
   join_shared <- function(a, b) {
     merge(a, b, by = intersect(names(a), names(b)), all = TRUE, sort = FALSE)
   }
@@ -90,13 +91,14 @@ geoscale_build <- function(..., geoframes, weights = NULL,
   pending <- xwalks[!has_atom]
 
   while (length(pending) > 0L) {
-    shared <- vapply(pending,
-                     function(d) length(intersect(names(d), names(leaftable))) > 0,
-                     logical(1))
+    shared <- vapply(pending, function(d) {
+      length(intersect(names(d), names(leaftable))) > 0
+    }, logical(1))
     if (!any(shared)) {
       stuck <- unique(unlist(lapply(pending, names)))
       .stop(paste0("cannot connect crosswalk(s) covering %s to the atom ",
-                   "geoframe `%s`; add a crosswalk sharing a geoframe with them"),
+                   "geoframe `%s`; add a crosswalk sharing a geoframe with ",
+                   "them"),
             .preview(setdiff(stuck, names(leaftable))), atom)
     }
     i <- which(shared)[1L]
@@ -117,7 +119,8 @@ geoscale_build <- function(..., geoframes, weights = NULL,
       .stop("`weights` must have a `%s` column (the atom geoframe)", atom)
     }
     weights[[atom]] <- .blank_to_na(weights[[atom]])
-    leaftable <- merge(leaftable, weights, by = atom, all.x = TRUE, sort = FALSE)
+    leaftable <- merge(leaftable, weights, by = atom, all.x = TRUE,
+                       sort = FALSE)
   }
 
   dup <- unique(leaftable[[atom]][duplicated(leaftable[[atom]])])
@@ -127,7 +130,8 @@ geoscale_build <- function(..., geoframes, weights = NULL,
           length(dup), .preview(dup))
   }
 
-  leaftable <- leaftable[, c(geoframes, setdiff(names(leaftable), geoframes)), drop = FALSE]
-  geoscale_from_leaftable(leaftable, geoframes = geoframes, name = name, desc = desc,
-                          row_order = row_order)
+  cols <- c(geoframes, setdiff(names(leaftable), geoframes))
+  leaftable <- leaftable[, cols, drop = FALSE]
+  geoscale_from_leaftable(leaftable, geoframes = geoframes, name = name,
+                          desc = desc, row_order = row_order)
 }

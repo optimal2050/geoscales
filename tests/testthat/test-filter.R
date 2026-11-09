@@ -77,7 +77,8 @@ test_that("geoscale_share normalises overall and within a parent", {
 })
 
 test_that("an unknown weight is rejected", {
-  expect_error(geoscale_share(gs, "state", weight = "nope"), "not a weight column")
+  expect_error(geoscale_share(gs, "state", weight = "nope"),
+               "not a weight column")
 })
 
 # Sample bookkeeping (coverage / parent_totals / name mangling) ----------------
@@ -152,8 +153,10 @@ test_that("prune_geoscale preserves meta, mangles the name, records NA loss", {
 test_that("prune_geoscale dissolves geometry when attached", {
   skip_if_not_installed("sf")
   gs <- geoscale_example()
-  sq <- function(x0) sf::st_polygon(list(cbind(
-    c(x0, x0 + 1, x0 + 1, x0, x0), c(0, 0, 1, 1, 0))))
+  sq <- function(x0) {
+    sf::st_polygon(list(cbind(c(x0, x0 + 1, x0 + 1, x0, x0),
+                              c(0, 0, 1, 1, 0))))
+  }
   gs <- attach_geometry_geoscale(gs, sf::st_sfc(
     sq(0), sq(1), sq(2), sq(3), sq(4), sq(5), sq(6)))
   p <- prune_geoscale(gs, "state")

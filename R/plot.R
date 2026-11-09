@@ -1,14 +1,14 @@
 # =============================================================================
 # Plotting
 # =============================================================================
-# Ports the "by geoframe" idea from `timeslices::autoplot.Calendar()`: one row per
-# geoframe, laid out on a shared cumulative-weight axis, so the nesting structure
-# reads at a glance.
+# Ports the "by geoframe" idea from `timescales::autoplot.Calendar()`: one row
+# per geoframe, laid out on a shared cumulative-weight axis, so the nesting
+# structure reads at a glance.
 #
-# With geometry attached, `geoscale_plot()` draws a choropleth. Without `sf` — or
-# without geometry — `geoscale_autoplot()` gives an icicle instead, mirroring how
-# `energyRt::plot_trade_map()` degrades to points and arrows when `sf` is
-# missing.
+# With geometry attached, `geoscale_plot()` draws a choropleth. Without `sf`
+# — or without geometry — `geoscale_autoplot()` gives an icicle instead,
+# mirroring how `energyRt::plot_trade_map()` degrades to points and arrows
+# when `sf` is missing.
 #
 # ggplot2 is in Suggests, so its `autoplot` generic cannot be imported at
 # build time; the S3 method is registered in `.onLoad()` (see zzz.R) only if
@@ -22,8 +22,8 @@
 #
 # The column is per-atom, so a label is only used where it is UNAMBIGUOUS for
 # the region: every atom in the group must carry the same value. At the atom
-# geoframe that is always true; at a coarser geoframe a zone made of Oswestia and
-# Antidia has no name of its own, and labelling it "Oswestia" would be a
+# geoframe that is always true; at a coarser geoframe a zone made of Oswestia
+# and Antidia has no name of its own, and labelling it "Oswestia" would be a
 # fabrication -- so the code is kept instead.
 #
 # Returns a named character vector (code -> label) covering only the
@@ -42,7 +42,8 @@
   lab  <- as.character(leaves[[col]])
   keep <- !is.na(code) & !is.na(lab)
   if (!any(keep)) return(NULL)
-  code <- code[keep]; lab <- lab[keep]
+  code <- code[keep]
+  lab <- lab[keep]
 
   by_code <- split(lab, code)
   uniq <- vapply(by_code, function(v) length(unique(v)) == 1L, logical(1))
@@ -287,8 +288,8 @@ geoscale_autoplot <- function(x, type = c("icicle", "stack"),
     d$.fill <- d[[fill]]
   }
 
-  # Display names are resolved per geoframe (each geoframe has its own lookup) but
-  # written back in place, so row order stays aligned with the rectangles.
+  # Display names are resolved per geoframe (each geoframe has its own lookup)
+  # but written back in place, so row order stays aligned with the rectangles.
   d$.label <- d$region
   for (l in unique(d$geoframe)) {
     i <- d$geoframe == l
@@ -648,8 +649,9 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   }
   norm01 <- function(g) norm_by(g)
 
-  shapes <- lapply(gfs, function(gf)
-    geoscale_geometry(x, gf, precision = precision))
+  shapes <- lapply(gfs, function(gf) {
+    geoscale_geometry(x, gf, precision = precision)
+  })
   planes <- lapply(shapes, function(shp) norm01(sf::st_geometry(shp)) * M)
 
   # default spacing: planes almost touching, slight overlap -- derived
@@ -673,7 +675,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
           nk - 1L)
   }
   pos <- if (direction == "up") seq_len(nk) else rev(seq_len(nk))  # 1 = top
-  fac_tb <- fac[order(pos)]                                       # top to bottom
+  fac_tb <- fac[order(pos)]  # top to bottom
   steps <- rep_len(gap, nk - 1L) * pmax(fac_tb[-nk], fac_tb[-1L])
   zlev <- vapply(pos, function(p) sum(steps[seq_len(nk - 1L) >= p]),
                  numeric(1))
@@ -721,8 +723,9 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
       .stop("`outline` must name geoframes of the geoscale (unknown: %s)",
             paste(bad, collapse = ", "))
     }
-    o_shapes <- lapply(outline, function(o)
-      sf::st_geometry(geoscale_geometry(x, o, precision = precision)))
+    o_shapes <- lapply(outline, function(o) {
+      sf::st_geometry(geoscale_geometry(x, o, precision = precision))
+    })
     o_col <- rep_len(outline_colour, length(outline))
     o_lwd <- rep_len(outline_linewidth, length(outline))
     for (k in seq_len(nk)) {
@@ -735,10 +738,12 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
     }
   }
 
-  xr <- range(vapply(layers, function(l)
-    sf::st_bbox(l)[c("xmin", "xmax")], numeric(2)))
-  yr <- range(vapply(layers, function(l)
-    sf::st_bbox(l)[c("ymin", "ymax")], numeric(2)))
+  xr <- range(vapply(layers, function(l) {
+    sf::st_bbox(l)[c("xmin", "xmax")]
+  }, numeric(2)))
+  yr <- range(vapply(layers, function(l) {
+    sf::st_bbox(l)[c("ymin", "ymax")]
+  }, numeric(2)))
   if (!is.null(frames)) {
     xr <- range(xr, unlist(lapply(frames, `[[`, "x")))
     yr <- range(yr, unlist(lapply(frames, `[[`, "y")))

@@ -32,12 +32,12 @@
 #'
 #' @details
 #' `feature` is the atom and `country` is a grouping of atoms on top of it. At
-#' admin-0 the two are the same code; at admin-1 (`geoframe = "states"`) `feature`
-#' is the state and `country` is the admin-0 unit it belongs to.
+#' admin-0 the two are the same code; at admin-1 (`geoframe = "states"`)
+#' `feature` is the state and `country` is the admin-0 unit it belongs to.
 #'
 #' Codes of `"-99"` mean *unassigned* and are returned as `NA`. That is why
-#' `country` is a geoframe rather than the atom key: it may be missing, whereas an
-#' atom key may not.
+#' `country` is a geoframe rather than the atom key: it may be missing,
+#' whereas an atom key may not.
 #'
 #' @examples
 #' \dontrun{
@@ -168,7 +168,8 @@ ne_geoscale <- function(scale = 110,
   meta <- S7::prop(gs, "meta")
   meta$source <- "naturalearth"
   meta$scale  <- scale
-  GeoScale(leaftable = S7::prop(gs, "leaftable"), geoframes = S7::prop(gs, "geoframes"),
+  GeoScale(leaftable = S7::prop(gs, "leaftable"),
+           geoframes = S7::prop(gs, "geoframes"),
            members = S7::prop(gs, "members"),
            geometry = S7::prop(gs, "geometry"), meta = meta)
 }

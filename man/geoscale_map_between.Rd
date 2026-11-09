@@ -29,8 +29,8 @@ The counterpart of \code{\link[=geoscale_map]{geoscale_map()}} for two GeoScales
 on their \code{region} keys, so a region of \code{source} overlaps a region of \code{target}
 where they contain the same atoms. Same columns as \code{\link[=geoscale_map]{geoscale_map()}}, with
 the two label columns named after the GeoScales. Atoms of \code{source} absent
-from \code{target} get an \code{NA} target (with a warning). A crosswalk registered with
-\code{\link[=register_geoscale_map_between]{register_geoscale_map_between()}} is returned as-is instead of being
+from \code{target} get an \code{NA} target (with a warning). A crosswalk registered
+with \code{\link[=register_geoscale_map_between]{register_geoscale_map_between()}} is returned as-is instead of being
 derived.
 }
 \examples{

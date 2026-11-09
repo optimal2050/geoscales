@@ -88,8 +88,10 @@ test_that("the stack view draws one plane per geoframe", {
 test_that("precision snapping merges eps-jittered boundaries", {
   skip_if_not_installed("sf")
   eps <- 1e-13
-  sq <- function(x0) sf::st_polygon(list(cbind(
-    c(x0, x0 + 1, x0 + 1, x0, x0), c(0, 0, 1, 1, 0))))
+  sq <- function(x0) {
+    sf::st_polygon(list(cbind(c(x0, x0 + 1, x0 + 1, x0, x0),
+                              c(0, 0, 1, 1, 0))))
+  }
   lf <- data.frame(top = c("T", "T"), atom = c("a", "b"), w = c(1, 1))
   gs <- geoscale_from_leaftable(lf, geoframes = c("top", "atom"),
                                 name = "jit") |>
@@ -192,8 +194,9 @@ test_that("stack frames, connectors and border styling render", {
   # custom border colours, one per plane, land on the sf layers
   p2 <- geoscale_autoplot(gs, type = "stack",
                           colour = c("grey20", "red"), linewidth = 0.1)
-  cols <- unlist(lapply(p2$layers, function(l)
-    if (inherits(l$geom, "GeomSf")) l$aes_params$colour))
+  cols <- unlist(lapply(p2$layers, function(l) {
+    if (inherits(l$geom, "GeomSf")) l$aes_params$colour
+  }))
   expect_setequal(cols, c("grey20", "red"))
   # a colour string picks the frame colour directly
   p3 <- geoscale_autoplot(gs, type = "stack", frame = "steelblue")

@@ -18,8 +18,8 @@ normalises over the whole object.}
 }
 \value{
 A \code{data.frame} with a code column named \code{geoframe} (matching the
-convention of \code{\link[=recast_geoscale]{recast_geoscale()}}), the weight, and \code{share}. When \code{within}
-is given, a column of that name carries the parent code.
+convention of \code{\link[=recast_geoscale]{recast_geoscale()}}), the weight, and \code{share}. When
+\code{within} is given, a column of that name carries the parent code.
 }
 \description{
 Normalised weights, either of the whole object or within each parent group.

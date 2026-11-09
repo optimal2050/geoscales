@@ -1,9 +1,10 @@
 # =============================================================================
 # Geometry — optional, sf-backed
 # =============================================================================
-# The core is geometry-free: `recast_geoscale()` and everything in filter.R operate
-# on tables only. Geometry is needed for three jobs — building atoms from
-# shapefiles, computing area weights, and plotting — all of which are R-side
+# The core is geometry-free: `recast_geoscale()` and everything in filter.R
+# operate on tables only. Geometry is needed for three jobs — building atoms
+# from shapefiles, computing area weights, and plotting — all of which are
+# R-side
 # and optional. `sf` is therefore in Suggests, and every entry point here
 # degrades or errors gracefully when it is absent.
 # =============================================================================

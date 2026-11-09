@@ -11,7 +11,8 @@ test_that("aggregation up conserves the total", {
 
 test_that("disaggregation down splits proportionally to the weight", {
   y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-  out <- recast_geoscale(y, gs, "country", "state", rule = "sum", weight = "km2")
+  out <- recast_geoscale(y, gs, "country", "state", rule = "sum",
+                         weight = "km2")
   expect_equal(sum(out$capacity), 30, tolerance = 1e-9)
   # N's atoms carry km2 100/200/300/400: N1 -> 300/1000, N2 -> 700/1000
   expect_equal(out$capacity[out$state == "N1"], 3, tolerance = 1e-9)
@@ -82,7 +83,8 @@ test_that("na_action controls partial coverage", {
   expect_true(any(is.na(keep$country)))
 
   expect_error(
-    recast_geoscale(x2, gs, "atom", "country", rule = "sum", na_action = "error"),
+    recast_geoscale(x2, gs, "atom", "country", rule = "sum",
+                    na_action = "error"),
     "na_action"
   )
 })

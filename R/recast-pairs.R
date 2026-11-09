@@ -62,7 +62,8 @@ recast_pairs <- function(x, gs, target, source = NULL,
                          values = NULL, rule = NULL, weight = NULL,
                          na_rm = FALSE, directed = TRUE,
                          drop_internal = TRUE, collect = NULL,
-                         to = lifecycle::deprecated(), from = lifecycle::deprecated()) {
+                         to = lifecycle::deprecated(),
+                         from = lifecycle::deprecated()) {
   if (lifecycle::is_present(to)) {
     .arg_renamed("recast_pairs", "to", "target", !missing(target))
     target <- to

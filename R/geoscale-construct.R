@@ -5,7 +5,7 @@
 #
 #   Layer 1: `geoscale_from_provider(provider, ...)`  — from a data source
 #   Layer 2: `geoscale_build(mapping, ...)`           — from parent-child pairs
-#   Layer 3: `geoscale_from_leaftable(leaftable, geoframes)`   — full flexibility
+#   Layer 3: `geoscale_from_leaftable(leaftable, geoframes)` — full flexibility
 #
 # Layers 1 and 2 delegate to layer 3.
 # =============================================================================
@@ -15,14 +15,14 @@
 #' The general constructor. Takes a wide `data.frame` with one row per atom
 #' (the finest region) and one column per geoframe, and returns a [`GeoScale`].
 #'
-#' Blank strings (`""`) in geoframe columns are normalised to `NA`, meaning "this
-#' atom has no code at this geoframe" — partial coverage is normal in real region
-#' tables.
+#' Blank strings (`""`) in geoframe columns are normalised to `NA`, meaning
+#' "this atom has no code at this geoframe" — partial coverage is normal in
+#' real region tables.
 #'
 #' @param leaftable `data.frame` with one row per atom, one column per name in
 #'   `geoframes`, and optionally numeric weight columns.
-#' @param geoframes Ordered character vector of geoframe names, **coarsest first**.
-#'   Each must be a column of `leaftable`.
+#' @param geoframes Ordered character vector of geoframe names, **coarsest
+#'   first**. Each must be a column of `leaftable`.
 #' @param key Name of the column holding the unique atom key. Defaults to
 #'   `"region"` if present, otherwise the finest geoframe (the last entry of
 #'   `geoframes`), which is copied into a `region` column.
@@ -34,8 +34,8 @@
 #'   geoframe. Derived from `leaftable` when `NULL` (first-appearance order).
 #' @param geometry Optional `sfc` with one geometry per row of `leaftable`.
 #' @param row_order `"nested"` (default) sorts the rows by geoframe, coarsest
-#'   first, each in its member order (unassigned codes last; `geometry` follows); `"given"` keeps the rows
-#'   as supplied.
+#'   first, each in its member order (unassigned codes last; `geometry`
+#'   follows); `"given"` keeps the rows as supplied.
 #' @param name,desc Short name and description.
 #' @param ... Further named entries merged into `meta` (e.g. `crs`, `source`).
 #'
@@ -78,17 +78,22 @@ geoscale_from_leaftable <- function(leaftable,
   }
   missing_cols <- setdiff(geoframes, names(leaftable))
   if (length(missing_cols) > 0L) {
-    .stop("`leaftable` is missing geoframe column(s): %s", .preview(missing_cols))
+    .stop("`leaftable` is missing geoframe column(s): %s",
+          .preview(missing_cols))
   }
 
-  # Normalise geoframe columns to character, blanks -> NA ------------------------
+  # Normalise geoframe columns to character, blanks -> NA ---------------------
   for (lvl in geoframes) {
     leaftable[[lvl]] <- .blank_to_na(leaftable[[lvl]])
   }
 
   # Atom key ------------------------------------------------------------------
   if (is.null(key)) {
-    key <- if ("region" %in% names(leaftable)) "region" else geoframes[length(geoframes)]
+    key <- if ("region" %in% names(leaftable)) {
+      "region"
+    } else {
+      geoframes[length(geoframes)]
+    }
   }
   if (!key %in% names(leaftable)) {
     .stop("`key` column \"%s\" not found in `leaftable`", key)
@@ -175,9 +180,9 @@ geoscale_from_leaftable <- function(leaftable,
 #'
 #' * a code (`"N1"`) reused at more than one geoframe, so bare codes are
 #'   ambiguous and every lookup must name its geoframe;
-#' * a non-nesting pair of geoframes — zone `"ZB"` draws atoms from two different
-#'   states (and two different countries), so `state` and `zone` do not form a
-#'   tree;
+#' * a non-nesting pair of geoframes — zone `"ZB"` draws atoms from two
+#'   different states (and two different countries), so `state` and `zone` do
+#'   not form a tree;
 #' * an atom (`"ROW"`) with no code at any coarser geoframe (partial coverage).
 #'
 #' @return A [`GeoScale`] with 7 atoms and geoframes

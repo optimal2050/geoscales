@@ -87,7 +87,9 @@ zoom_geoscale <- function(x, focus, geoframes = NULL, name = "zoom",
   if (identical(geoframes, atom_frame) || atom_frame %in% geoframes) {
     .stop("`geoframes` must not include the atom geoframe `%s`", atom_frame)
   }
-  if (name %in% frames) .stop("`name` = `%s` is already a geoframe of `x`", name)
+  if (name %in% frames) {
+    .stop("`name` = `%s` is already a geoframe of `x`", name)
+  }
 
   lt <- x@leaftable
   atoms <- as.character(lt[["region"]])
@@ -136,7 +138,11 @@ zoom_geoscale <- function(x, focus, geoframes = NULL, name = "zoom",
     weights = x@meta$weights,
     default_weight = x@meta$default_weight,
     geometry = x@geometry,
-    name = if (nzchar(x@meta$name %||% "")) paste0(x@meta$name, "@", name) else name,
+    name = if (nzchar(x@meta$name %||% "")) {
+      paste0(x@meta$name, "@", name)
+    } else {
+      name
+    },
     desc = sprintf("telescoping zoom on %d atom(s) of %s",
                    length(focus), x@meta$name %||% "a geoscale"),
     crs = x@meta$crs,

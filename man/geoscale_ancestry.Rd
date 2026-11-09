@@ -18,10 +18,11 @@ Every \verb{(coarser, finer)} code pair that shares at least one atom, for all
 geoframe pairs.
 }
 \details{
-Computed \strong{atom-mediated}, directly from \verb{@leaftable} — deliberately not as a
-transitive closure of \code{\link[=geoscale_family]{geoscale_family()}}. \code{timeslices} can use a closure
-because time geoframes genuinely nest; spatial geoframes cross-cut, and a closure
-then manufactures false relationships. In the example GeoScale, zone \code{ZB}
+Computed \strong{atom-mediated}, directly from \verb{@leaftable} — deliberately not
+as a transitive closure of \code{\link[=geoscale_family]{geoscale_family()}}. \code{timescales} can use a
+closure because timeframes genuinely nest; spatial geoframes cross-cut, and
+a closure then manufactures false relationships. In the example GeoScale,
+zone \code{ZB}
 straddles both countries, so closing \code{country -> state -> zone -> atom}
 would wrongly report country \code{N} as an ancestor of atom \code{A5}, which lies in
 country \code{S}.
@@ -30,8 +31,8 @@ For geoframes that do not nest this relation is \emph{overlap}, not containment 
 test a given pair with \code{\link[=geoscale_nests]{geoscale_nests()}}.
 
 Geoframe columns are retained because region codes are not unique across
-geoframes: in the example, \code{"N1"} exists at both \code{state} and \code{zone}, so a bare
-\verb{(parent, child)} pair would read as a self-loop.
+geoframes: in the example, \code{"N1"} exists at both \code{state} and \code{zone}, so a
+bare \verb{(parent, child)} pair would read as a self-loop.
 }
 \examples{
 head(geoscale_ancestry(geoscale_example()))

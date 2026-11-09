@@ -80,8 +80,9 @@ test_that("plotting works when ggplot2 is available", {
 # A four-square strip, paired into two zones, with a display name per unit.
 # Small enough to reason about, and the only fixture in the suite with geometry.
 .plot_fixture <- function(...) {
-  sq <- function(i) sf::st_polygon(list(cbind(c(i, i + 1, i + 1, i, i),
-                                              c(0, 0, 1, 1, 0))))
+  sq <- function(i) {
+    sf::st_polygon(list(cbind(c(i, i + 1, i + 1, i, i), c(0, 0, 1, 1, 0))))
+  }
   lf <- data.frame(top = "T", zone = c("Z1", "Z1", "Z2", "Z2"),
                    unit = c("u1", "u2", "u3", "u4"),
                    name = c("Alpha", "Beta", "Gamma", "Delta"),
@@ -103,10 +104,12 @@ test_that("geoscale_plot draws outlines and a filled choropleth", {
   p <- geoscale_plot(gs, d, geoframe = "unit", fill = "x")
   expect_s3_class(p, "ggplot")
   # geometry is dissolved to the requested geoframe before drawing
-  expect_equal(nrow(ggplot2::ggplot_build(geoscale_plot(gs, geoframe = "zone"))$data[[1]]), 2L)
+  built <- ggplot2::ggplot_build(geoscale_plot(gs, geoframe = "zone"))
+  expect_equal(nrow(built$data[[1]]), 2L)
 
   expect_error(geoscale_plot(gs, d, geoframe = "zone", fill = "x"), "no column")
-  expect_error(geoscale_plot(gs, d, geoframe = "unit", fill = "nope"), "`fill` must name")
+  expect_error(geoscale_plot(gs, d, geoframe = "unit", fill = "nope"),
+               "`fill` must name")
 })
 
 test_that("geoscale_plot honours palette, titles and the legend label", {
@@ -121,11 +124,13 @@ test_that("geoscale_plot honours palette, titles and the legend label", {
   expect_equal(p$labels$subtitle, "by unit")
   expect_null(p$labels$fill)
   # viridis "D" starts at #440154; the default gradient starts at #132B43
-  expect_equal(as.character(ggplot2::ggplot_build(p)$data[[1]]$fill)[1], "#440154")
+  expect_equal(as.character(ggplot2::ggplot_build(p)$data[[1]]$fill)[1],
+               "#440154")
 
   # defaults must reproduce the pre-enrichment output
   q <- geoscale_plot(gs, d, geoframe = "unit", fill = "x")
-  expect_equal(as.character(ggplot2::ggplot_build(q)$data[[1]]$fill)[1], "#132B43")
+  expect_equal(as.character(ggplot2::ggplot_build(q)$data[[1]]$fill)[1],
+               "#132B43")
   expect_equal(q$labels$fill, "x")
   expect_null(q$labels$title)
 })
@@ -141,7 +146,8 @@ test_that("labels are used only where they are unambiguous", {
 
   expect_equal(txt(geoscale_plot(gsl, geoframe = "unit", label = TRUE)),
                c("Alpha", "Beta", "Gamma", "Delta"))
-  expect_equal(txt(geoscale_plot(gsl, geoframe = "zone", label = TRUE)), c("Z1", "Z2"))
+  expect_equal(txt(geoscale_plot(gsl, geoframe = "zone", label = TRUE)),
+               c("Z1", "Z2"))
   # icicle labels are drawn widest-rectangle-first (check_overlap keeps the
   # first drawn), so compare as sets, not in layout order
   expect_setequal(txt(geoscale_autoplot(gsl)),

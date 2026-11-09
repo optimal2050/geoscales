@@ -25,10 +25,14 @@ test_that("rook counts shared edges and queen adds the diagonals", {
   expect_true(all(queen[rook]))
 
   # the four diagonals, named
-  expect_false(rook["A1", "A4"]); expect_true(queen["A1", "A4"])
-  expect_false(rook["A2", "A3"]); expect_true(queen["A2", "A3"])
-  expect_false(rook["A3", "A6"]); expect_true(queen["A3", "A6"])
-  expect_false(rook["A4", "A5"]); expect_true(queen["A4", "A5"])
+  expect_false(rook["A1", "A4"])
+  expect_true(queen["A1", "A4"])
+  expect_false(rook["A2", "A3"])
+  expect_true(queen["A2", "A3"])
+  expect_false(rook["A3", "A6"])
+  expect_true(queen["A3", "A6"])
+  expect_false(rook["A4", "A5"])
+  expect_true(queen["A4", "A5"])
 })
 
 test_that("the matrix is symmetric, hollow and named in member order", {
@@ -82,8 +86,10 @@ test_that("`within` must be coarser than `geoframe`", {
 })
 
 test_that("an island is isolated by default and joined on request", {
-  sq <- function(x, y) sf::st_polygon(list(cbind(
-    c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
+  sq <- function(x, y) {
+    sf::st_polygon(list(cbind(c(x, x + 1, x + 1, x, x),
+                              c(y, y, y + 1, y + 1, y))))
+  }
   gs <- geoscale_from_leaftable(
     data.frame(country = c("N", "N", "N"),
                atom = c("A1", "A2", "ISL"), km2 = 1),
@@ -107,8 +113,10 @@ test_that("an island is isolated by default and joined on request", {
 })
 
 test_that("isolation is resolved after `within`, never across it", {
-  sq <- function(x, y) sf::st_polygon(list(cbind(
-    c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
+  sq <- function(x, y) {
+    sf::st_polygon(list(cbind(c(x, x + 1, x + 1, x, x),
+                              c(y, y, y + 1, y + 1, y))))
+  }
   # ISL is nearest to B1, which is in the OTHER country. Fixing isolation
   # first and masking second would hand ISL the B1 edge and then cut it,
   # leaving ISL alone anyway; masking first makes it take A1 instead.
@@ -129,8 +137,10 @@ test_that("isolation is resolved after `within`, never across it", {
 })
 
 test_that("a feature alone in its parent stays alone", {
-  sq <- function(x, y) sf::st_polygon(list(cbind(
-    c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
+  sq <- function(x, y) {
+    sf::st_polygon(list(cbind(c(x, x + 1, x + 1, x, x),
+                              c(y, y, y + 1, y + 1, y))))
+  }
   gs <- geoscale_from_leaftable(
     data.frame(country = c("N", "N", "S"),
                atom = c("A1", "A2", "B1"), km2 = 1),
@@ -144,8 +154,10 @@ test_that("a feature alone in its parent stays alone", {
 })
 
 test_that("an unassigned parent is its own group, not pooled with other NAs", {
-  sq <- function(x, y) sf::st_polygon(list(cbind(
-    c(x, x + 1, x + 1, x, x), c(y, y, y + 1, y + 1, y))))
+  sq <- function(x, y) {
+    sf::st_polygon(list(cbind(c(x, x + 1, x + 1, x, x),
+                              c(y, y, y + 1, y + 1, y))))
+  }
   # X1 and X2 touch, and BOTH have no country. `==` on NA would give NA and
   # poison the mask; pooling them would invent a shared parent.
   gs <- geoscale_from_leaftable(

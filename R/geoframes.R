@@ -1,10 +1,10 @@
 # =============================================================================
 # Geoframe vocabulary
 # =============================================================================
-# A *geoframe* is an abstract spatial resolution (the analogue of a timeframe in
-# `timescales`). `CORE_GEOFRAMES` is recommended vocabulary, not enforcement: any
-# syntactically valid name is accepted so that existing region tables — e.g.
-# IDEEA's `reg46`/`reg32`/`reg7` — load unchanged.
+# A *geoframe* is an abstract spatial resolution (the analogue of a timeframe
+# in `timescales`). `CORE_GEOFRAMES` is recommended vocabulary, not
+# enforcement: any syntactically valid name is accepted so that existing
+# region tables — e.g. IDEEA's `reg46`/`reg32`/`reg7` — load unchanged.
 # =============================================================================
 
 #' Core spatial geoframes

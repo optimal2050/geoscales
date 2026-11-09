@@ -9,8 +9,8 @@
 #' Blank-or-NA to NA
 #'
 #' Real-world region tables use `""` and `NA` interchangeably for "this atom
-#' has no code at this geoframe" (e.g. IDEEA's rest-of-world row). Normalise both
-#' to `NA_character_` on the way in.
+#' has no code at this geoframe" (e.g. IDEEA's rest-of-world row). Normalise
+#' both to `NA_character_` on the way in.
 #' @noRd
 .blank_to_na <- function(x) {
   x <- as.character(x)

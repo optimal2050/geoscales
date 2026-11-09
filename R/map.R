@@ -10,7 +10,8 @@
 # data.frame / data.table / arrow backends.
 #
 # Two functions, one per shape:
-#   * geoscale_map(gs, source, target)     -- `source`/`target` are geoframe names of `gs`;
+#   * geoscale_map(gs, source, target)     -- `source`/`target` are geoframe
+#     names of `gs`;
 #   * geoscale_map_between(source, target) -- two GeoScale objects, matched on
 #     shared atom `region` keys (reg32 <-> NUTS style conversions).
 #
@@ -42,8 +43,8 @@
 #'   the object declares no weights at all, every atom gets weight 1
 #'   (an equal split).
 #'
-#' @return A `data.frame` with columns `<source>`, `<target>` (`NA` = uncovered by
-#'   `target`), `n_from`, `n_overlap`, `w`, `w_from`.
+#' @return A `data.frame` with columns `<source>`, `<target>` (`NA` =
+#'   uncovered by `target`), `n_from`, `n_overlap`, `w`, `w_from`.
 #'
 #' @seealso [`geoscale_map_between()`] for the map between two GeoScales.
 #' @examples
@@ -52,7 +53,8 @@
 #' geoscale_map(gs, "country", "state", weight = "km2")
 #' @export
 geoscale_map <- function(gs, source, target, weight = NULL,
-                         from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                         from = lifecycle::deprecated(),
+                         to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("geoscale_map", "from", "source", !missing(source))
     source <- from
@@ -64,8 +66,8 @@ geoscale_map <- function(gs, source, target, weight = NULL,
   from <- source
   to <- target
   if (S7::S7_inherits(from, GeoScale) || S7::S7_inherits(to, GeoScale)) {
-    .stop(paste0("`source` and `target` are geoframe names of `gs`; for the map ",
-                 "between two GeoScales use `geoscale_map_between()`"))
+    .stop(paste0("`source` and `target` are geoframe names of `gs`; for the ",
+                 "map between two GeoScales use `geoscale_map_between()`"))
   }
   .check_geoscale(gs, "gs")
   .check_geoframe(gs, from, "source")
@@ -79,8 +81,8 @@ geoscale_map <- function(gs, source, target, weight = NULL,
 #' on their `region` keys, so a region of `source` overlaps a region of `target`
 #' where they contain the same atoms. Same columns as [`geoscale_map()`], with
 #' the two label columns named after the GeoScales. Atoms of `source` absent
-#' from `target` get an `NA` target (with a warning). A crosswalk registered with
-#' [`register_geoscale_map_between()`] is returned as-is instead of being
+#' from `target` get an `NA` target (with a warning). A crosswalk registered
+#' with [`register_geoscale_map_between()`] is returned as-is instead of being
 #' derived.
 #'
 #' @param source,target Two named [`GeoScale`] objects whose atom keys overlap.
@@ -105,7 +107,8 @@ geoscale_map <- function(gs, source, target, weight = NULL,
 #' geoscale_map_between(gs, bands)
 #' @export
 geoscale_map_between <- function(source, target, weight = NULL,
-                                 from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                 from = lifecycle::deprecated(),
+                                 to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("geoscale_map_between", "from", "source", !missing(source))
     source <- from
@@ -168,7 +171,8 @@ geoscale_map_between <- function(source, target, weight = NULL,
 #' clear_geoscale_maps()
 #' @export
 register_geoscale_map <- function(gs, source, target, map,
-                                  from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                  from = lifecycle::deprecated(),
+                                  to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("register_geoscale_map", "from", "source", !missing(source))
     source <- from
@@ -186,13 +190,16 @@ register_geoscale_map <- function(gs, source, target, map,
 #' @rdname register_geoscale_map
 #' @export
 register_geoscale_map_between <- function(source, target, map,
-                                          from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                          from = lifecycle::deprecated(),
+                                          to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
-    .arg_renamed("register_geoscale_map_between", "from", "source", !missing(source))
+    .arg_renamed("register_geoscale_map_between", "from", "source",
+                 !missing(source))
     source <- from
   }
   if (lifecycle::is_present(to)) {
-    .arg_renamed("register_geoscale_map_between", "to", "target", !missing(target))
+    .arg_renamed("register_geoscale_map_between", "to", "target",
+                 !missing(target))
     target <- to
   }
   from <- source
@@ -207,7 +214,8 @@ register_geoscale_map_between <- function(source, target, map,
 #' @rdname register_geoscale_map
 #' @export
 get_geoscale_map <- function(gs, source, target,
-                             from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                             from = lifecycle::deprecated(),
+                             to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("get_geoscale_map", "from", "source", !missing(source))
     source <- from
@@ -225,7 +233,8 @@ get_geoscale_map <- function(gs, source, target,
 #' @rdname register_geoscale_map
 #' @export
 get_geoscale_map_between <- function(source, target,
-                                     from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                     from = lifecycle::deprecated(),
+                                     to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("get_geoscale_map_between", "from", "source", !missing(source))
     source <- from

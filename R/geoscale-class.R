@@ -3,9 +3,10 @@
 # =============================================================================
 # A `GeoScale` is a nested spatial partition:
 #
-#   * `leaftable`   — flat enumeration of leaf regions ("atoms"), with one column
-#                  per geoframe in the hierarchy plus `region` (the unique atom
-#                  key) and one or more named weight columns (km2, pop, ...)
+#   * `leaftable`   — flat enumeration of leaf regions ("atoms"), with one
+#                  column per geoframe in the hierarchy plus `region` (the
+#                  unique atom key) and one or more named weight columns
+#                  (km2, pop, ...)
 #   * `geoframes`   — ordered character vector naming the hierarchy, COARSEST
 #                  first (e.g. `c("reg1", "reg7", "reg32", "reg46")`)
 #   * `members`  — named list giving the full ordered code vocabulary at each
@@ -26,7 +27,7 @@
 #   1. No stored `share` column. Space needs several weights (km2, pop, gdp)
 #      and share is weight-specific, so it is derived by `geoscale_share()`.
 #   2. `geoframes` names the hierarchy (Calendar calls that `timeframes`) and
-#      `members` holds the per-geoframe vocabulary (Calendar calls that `geoframes`).
+#      `members` holds the per-geoframe vocabulary, as in Calendar.
 #      In the spatial domain "geoframe" is the natural word for the hierarchy.
 # =============================================================================
 
@@ -39,13 +40,13 @@
 #' [`geoscale_build()`] (from a parent-child mapping), or
 #' [`geoscale_from_provider()`] (from a data source such as Natural Earth).
 #'
-#' @param leaftable `data.frame` with a unique `region` key column, one column per
-#'   geoframe in `geoframes`, and one or more numeric weight columns.
-#' @param geoframes Ordered character vector of geoframe names (coarsest first); each
-#'   name must appear as a column in `leaftable`.
+#' @param leaftable `data.frame` with a unique `region` key column, one column
+#'   per geoframe in `geoframes`, and one or more numeric weight columns.
+#' @param geoframes Ordered character vector of geoframe names (coarsest
+#'   first); each name must appear as a column in `leaftable`.
 #' @param members Named list; `members[[lvl]]` is the full ordered set of codes
-#'   present at geoframe `lvl`. Must equal the non-`NA` values of `leaftable[[lvl]]`
-#'   as a set.
+#'   present at geoframe `lvl`. Must equal the non-`NA` values of
+#'   `leaftable[[lvl]]` as a set.
 #' @param geometry Optional `sfc` (or `NULL`) with one geometry per row of
 #'   `leaftable`, in the same order.
 #' @param meta Named list of attributes (`name`, `desc`, `weights`,
@@ -87,7 +88,7 @@ GeoScale <- S7::new_class(
     geometry <- S7::prop(self, "geometry")
     meta     <- S7::prop(self, "meta")
 
-    # leaftable ------------------------------------------------------------------
+    # leaftable ---------------------------------------------------------------
     if (!is.data.frame(leaftable)) {
       return("`leaftable` must be a data.frame")
     }
@@ -98,7 +99,7 @@ GeoScale <- S7::new_class(
       errs <- c(errs, "`leaftable` must have a `region` column (the atom key)")
     }
 
-    # geoframes ------------------------------------------------------------------
+    # geoframes ---------------------------------------------------------------
     if (!is.character(geoframes) || length(geoframes) == 0L) {
       errs <- c(errs, "`geoframes` must be a non-empty character vector")
     } else if (anyDuplicated(geoframes)) {
@@ -109,9 +110,10 @@ GeoScale <- S7::new_class(
         errs <- c(errs, sprintf(
           "`geoframes` contains invalid names: %s", .preview(bad)))
       }
-      # `region` is allowed as the name of the FINEST geoframe: there the geoframe
-      # column *is* the atom key column, so nothing collides. (Downstream
-      # models often call their finest spatial unit "region" -- energyRt does.)
+      # `region` is allowed as the name of the FINEST geoframe: there the
+      # geoframe column *is* the atom key column, so nothing collides.
+      # (Downstream models often call their finest spatial unit "region" --
+      # energyRt does.)
       # As a coarser geoframe it would clash with the key column, so it stays
       # reserved there.
       clash <- intersect(geoframes, setdiff(.RESERVED_COLS, "region"))
@@ -177,8 +179,8 @@ GeoScale <- S7::new_class(
     # tree. Real hierarchies cross-cut: IDEEA's `reg32` code "APY" merges
     # Andhra Pradesh with part of Puducherry, so the `reg35` code "PY" has two
     # parents. That is precisely why the atom layer exists and why
-    # `recast_geoscale()` always routes through it. Use `geoscale_nests()` to test
-    # whether a given pair of geoframes happens to nest cleanly.
+    # `recast_geoscale()` always routes through it. Use `geoscale_nests()` to
+    # test whether a given pair of geoframes happens to nest cleanly.
 
     # weights -----------------------------------------------------------------
     wts <- meta$weights
@@ -188,8 +190,8 @@ GeoScale <- S7::new_class(
       } else {
         for (w in wts) {
           if (!w %in% names(leaftable)) {
-            errs <- c(errs, sprintf("weight column `%s` not found in `leaftable`",
-                                    w))
+            errs <- c(errs,
+                      sprintf("weight column `%s` not found in `leaftable`", w))
             next
           }
           v <- leaftable[[w]]
@@ -240,7 +242,8 @@ GeoScale <- S7::new_class(
           got <- sum(leaftable[[w]], na.rm = TRUE) / pt[[w]]
           if (abs(got - cov[[w]]) > 1e-8) {
             errs <- c(errs, sprintf(
-              "`meta$coverage[\"%s\"]` (%.6g) does not match the leaftable (%.6g)",
+              paste0("`meta$coverage[\"%s\"]` (%.6g) does not match the ",
+                     "leaftable (%.6g)"),
               w, cov[[w]], got))
           }
         }
@@ -549,7 +552,9 @@ summary.GeoScale <- function(object, ...) {
     weights = wts,
     weight_totals = if (length(wts)) {
       colSums(as.data.frame(lt)[, wts, drop = FALSE], na.rm = TRUE)
-    } else numeric(0),
+    } else {
+      numeric(0)
+    },
     default_weight = meta[["default_weight"]],
     coverage = cov,
     sampled = any(cov < 1),
@@ -621,7 +626,9 @@ print.summary_GeoScale <- function(x, ...) {
         paste0("attached (", x$geometry$n_features, " features",
                if (!is.null(x$geometry$crs)) paste0(", ", x$geometry$crs),
                ")")
-      } else "none",
+      } else {
+        "none"
+      },
       "\n", sep = "")
   if (!is.null(x$source)) cat("  source:         ", x$source, "\n",
                               sep = "")

@@ -7,15 +7,15 @@
 GeoScale(leaftable, geoframes, members, geometry = NULL, meta = list())
 }
 \arguments{
-\item{leaftable}{\code{data.frame} with a unique \code{region} key column, one column per
-geoframe in \code{geoframes}, and one or more numeric weight columns.}
+\item{leaftable}{\code{data.frame} with a unique \code{region} key column, one column
+per geoframe in \code{geoframes}, and one or more numeric weight columns.}
 
-\item{geoframes}{Ordered character vector of geoframe names (coarsest first); each
-name must appear as a column in \code{leaftable}.}
+\item{geoframes}{Ordered character vector of geoframe names (coarsest
+first); each name must appear as a column in \code{leaftable}.}
 
 \item{members}{Named list; \code{members[[lvl]]} is the full ordered set of codes
-present at geoframe \code{lvl}. Must equal the non-\code{NA} values of \code{leaftable[[lvl]]}
-as a set.}
+present at geoframe \code{lvl}. Must equal the non-\code{NA} values of
+\code{leaftable[[lvl]]} as a set.}
 
 \item{geometry}{Optional \code{sfc} (or \code{NULL}) with one geometry per row of
 \code{leaftable}, in the same order.}

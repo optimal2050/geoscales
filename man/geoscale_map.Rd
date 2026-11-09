@@ -25,8 +25,8 @@ the object declares no weights at all, every atom gets weight 1
 \item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
-A \code{data.frame} with columns \verb{<source>}, \verb{<target>} (\code{NA} = uncovered by
-\code{target}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
+A \code{data.frame} with columns \verb{<source>}, \verb{<target>} (\code{NA} =
+uncovered by \code{target}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
 }
 \description{
 Materialises the \code{from -> atoms -> to} route as a table: one row per pair

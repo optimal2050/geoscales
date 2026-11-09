@@ -43,7 +43,8 @@ test_that("directed = FALSE merges the two orientations", {
 test_that("identifier columns are preserved as groups", {
   x <- data.frame(src = "A1", dst = c("A5", "A5"), year = c(2030, 2050),
                   capacity = c(10, 20))
-  out <- recast_pairs(x, gs, target = "state", rule = "sum", values = "capacity")
+  out <- recast_pairs(x, gs, target = "state", rule = "sum",
+                      values = "capacity")
   expect_equal(nrow(out), 2L)
   expect_equal(out$capacity[out$year == 2050], 20)
 })

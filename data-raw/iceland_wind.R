@@ -62,7 +62,7 @@ if (file.exists(grp_cache)) {
   saveRDS(grp, grp_cache)
 }
 
-# 4. Nested classes -> disjoint clusters, ranked by potential -------------------
+# 4. Nested classes -> disjoint clusters, ranked by potential ----
 # All of this runs in a projected CRS (ISN93 Lambert): s2 SEGFAULTS on the
 # lat/lon differences here, planar GEOS is fine -- and simplification
 # keeps the committed rds small (the raw shapes carry ~500k vertices).
@@ -72,10 +72,13 @@ if (file.exists(grp_cache)) {
 # and the slivers survive the country dissolve as phantom border lines.
 # rmapshaper::ms_simplify() simplifies every shared arc exactly once.
 grp_sf <- st_as_sf(grp)[, c("region", "int")] |>
-  st_transform(3057) |> st_make_valid() |>
-  st_simplify(dTolerance = 300) |> st_make_valid()
+  st_transform(3057) |>
+  st_make_valid() |>
+  st_simplify(dTolerance = 300) |>
+  st_make_valid()
 reg_m <- reg |>
-  st_transform(3057) |> st_make_valid() |>
+  st_transform(3057) |>
+  st_make_valid() |>
   rmapshaper::ms_simplify(keep = 0.2, keep_shapes = TRUE) |>
   st_make_valid()
 only_poly <- function(g) {                    # differences/clips can leave
@@ -123,14 +126,14 @@ clusters <- do.call(rbind, clusters) |>
   mutate(cluster = paste0(iso, "_c", rank)) |>
   st_as_sf()
 
-# 5. Mean wind speed per cluster (original 250 m raster) ------------------------
+# 5. Mean wind speed per cluster (original 250 m raster) ----
 r <- rast(tif)
 clusters$wind <- terra::extract(
   r, vect(st_transform(clusters, st_crs(r))),  # raster is lat/lon
   fun = mean, na.rm = TRUE, ID = FALSE
 )[[1]]
 
-# 6. GeoScale + pre-saved bundle ------------------------------------------------
+# 6. GeoScale + pre-saved bundle ----
 atoms <- clusters |>                         # already in ISN93 Lambert
   mutate(km2 = as.numeric(units::set_units(st_area(geometry), "km^2")))
 

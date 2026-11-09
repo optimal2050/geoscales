@@ -88,7 +88,8 @@ test_that("na_action grid behaves identically for every aggregating rule", {
     if (r == "sum") expect_conserves(x, kept, "v")
   }
   # a MISSING SOURCE region is the other path: NA values + a warning
-  x2 <- fx_tbl(gs); x2 <- x2[x2$atom != "A1", ]
+  x2 <- fx_tbl(gs)
+  x2 <- x2[x2$atom != "A1", ]
   for (r in c("sum", "mean", "weighted_mean")) {
     expect_warning(
       out <- recast_geoscale(x2, gs, "atom", "state", rule = r,
