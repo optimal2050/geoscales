@@ -9,7 +9,7 @@ plus the ordered hierarchy of geoframes that groups them.'><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,19 +65,19 @@ plus the ordered hierarchy of geoframes that groups them.</p>
 
 
 <dl><dt id="arg-leaftable">leaftable<a class="anchor" aria-label="anchor" href="#arg-leaftable"></a></dt>
-<dd><p><code>data.frame</code> with a unique <code>region</code> key column, one column per
-geoframe in <code>geoframes</code>, and one or more numeric weight columns.</p></dd>
+<dd><p><code>data.frame</code> with a unique <code>region</code> key column, one column
+per geoframe in <code>geoframes</code>, and one or more numeric weight columns.</p></dd>
 
 
 <dt id="arg-geoframes">geoframes<a class="anchor" aria-label="anchor" href="#arg-geoframes"></a></dt>
-<dd><p>Ordered character vector of geoframe names (coarsest first); each
-name must appear as a column in <code>leaftable</code>.</p></dd>
+<dd><p>Ordered character vector of geoframe names (coarsest
+first); each name must appear as a column in <code>leaftable</code>.</p></dd>
 
 
 <dt id="arg-members">members<a class="anchor" aria-label="anchor" href="#arg-members"></a></dt>
 <dd><p>Named list; <code>members[[lvl]]</code> is the full ordered set of codes
-present at geoframe <code>lvl</code>. Must equal the non-<code>NA</code> values of <code>leaftable[[lvl]]</code>
-as a set.</p></dd>
+present at geoframe <code>lvl</code>. Must equal the non-<code>NA</code> values of
+<code>leaftable[[lvl]]</code> as a set.</p></dd>
 
 
 <dt id="arg-geometry">geometry<a class="anchor" aria-label="anchor" href="#arg-geometry"></a></dt>

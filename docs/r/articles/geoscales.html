@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -207,12 +207,13 @@ on one dataset:</p>
 <div class="section level3">
 <h3 id="visualize">5. Visualize<a class="anchor" aria-label="anchor" href="#visualize"></a>
 </h3>
-<p><code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code> (also <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code>) draws the
-hierarchy itself — no geometry needed (and with
-<code>data =</code>/<code>z =</code> its bands fill with a value recast
-to every geoframe — see the visualization article):</p>
+<p><code><a href="../reference/gg_geoscale.html">gg_geoscale()</a></code> (also <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>;
+<code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> draws it) shows the hierarchy itself — no geometry
+needed (and with <code>data =</code>/<code>z =</code> its bands fill
+with a value recast to every geoframe — see the visualization
+article):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_autoplot.html">geoscale_autoplot</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></code></pre></div>
 <p><img src="geoscales_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672"></p>
 <p>With geometry attached (any <code>sfc</code> aligned with the atoms),
 <code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> puts values on a map inside a normal
@@ -385,8 +386,8 @@ area-weighted mean,</p>
 <p>or hand the atom-level values straight to the stack view, which
 recasts them onto every plane itself (<code>data</code>/<code>z</code>)
 and labels a chosen geoframe (<code>labels</code>).
-<code>palette = NULL</code> leaves the fill scale to the caller — here
-the Global Wind Atlas palette from <a href="https://github.com/optimal2050/energypal" class="external-link">energypal</a>, whose
+<code>palette = NA</code> leaves the fill scale to the caller — here the
+Global Wind Atlas palette from <a href="https://github.com/optimal2050/energypal" class="external-link">energypal</a>, whose
 colours sit on the atlas’s absolute breaks (<code>limits</code> only
 windows the legend); <code>frame</code> and <code>connectors</code> draw
 the plane sheets and corner guides that make the perspective legible
@@ -395,12 +396,12 @@ turns the sheets into glass panes, and a per-plane <code>colour</code>
 vector drops the borders on the fragment-heavy cluster plane. This is
 the front-page figure:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_autoplot.html">geoscale_autoplot</a></span><span class="op">(</span><span class="va">iceland</span><span class="op">$</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="st">"perspective"</span>,</span>
-<span>                  direction <span class="op">=</span> <span class="st">"down"</span>, data <span class="op">=</span> <span class="va">iceland</span><span class="op">$</span><span class="va">wind</span>, z <span class="op">=</span> <span class="st">"wind"</span>,</span>
-<span>                  labels <span class="op">=</span> <span class="st">"landshluti"</span>, palette <span class="op">=</span> <span class="cn">NULL</span>, gap <span class="op">=</span> <span class="fl">.275</span>,</span>
-<span>                  colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey35"</span>, <span class="st">"grey35"</span>, <span class="cn">NA</span><span class="op">)</span>,  <span class="co"># no cluster borders</span></span>
-<span>                  frame <span class="op">=</span> <span class="cn">TRUE</span>, connectors <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                  frame_fill <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/alpha.html" class="external-link">alpha</a></span><span class="op">(</span><span class="st">"#6FA8DC"</span>, <span class="fl">0.15</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">iceland</span><span class="op">$</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="st">"perspective"</span>,</span>
+<span>            direction <span class="op">=</span> <span class="st">"down"</span>, data <span class="op">=</span> <span class="va">iceland</span><span class="op">$</span><span class="va">wind</span>, z <span class="op">=</span> <span class="st">"wind"</span>,</span>
+<span>            labels <span class="op">=</span> <span class="st">"landshluti"</span>, palette <span class="op">=</span> <span class="cn">NA</span>, gap <span class="op">=</span> <span class="fl">.275</span>,</span>
+<span>            colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey35"</span>, <span class="st">"grey35"</span>, <span class="cn">NA</span><span class="op">)</span>,  <span class="co"># no cluster borders</span></span>
+<span>            frame <span class="op">=</span> <span class="cn">TRUE</span>, connectors <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>            frame_fill <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/alpha.html" class="external-link">alpha</a></span><span class="op">(</span><span class="st">"#6FA8DC"</span>, <span class="fl">0.15</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">energypal</span><span class="fu">::</span><span class="fu"><a href="https://optimal2050.github.io/energypal/reference/scale_energy.html" class="external-link">scale_fill_energy_b</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6.5</span>, <span class="fl">11.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"m/s at 100m"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="geoscales_files/figure-html/wind-stack-1.png" class="r-plt" alt="" width="1040"></p>

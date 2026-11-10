@@ -9,7 +9,7 @@ geoframe pairs."><meta property="og:image" content="https://optimal2050.github.i
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,18 +75,19 @@ geoframe pairs.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Computed <strong>atom-mediated</strong>, directly from <code>@leaftable</code> — deliberately not as a
-transitive closure of <code><a href="geoscale_family.html">geoscale_family()</a></code>. <code>timeslices</code> can use a closure
-because time geoframes genuinely nest; spatial geoframes cross-cut, and a closure
-then manufactures false relationships. In the example GeoScale, zone <code>ZB</code>
+    <p>Computed <strong>atom-mediated</strong>, directly from <code>@leaftable</code> — deliberately not
+as a transitive closure of <code><a href="geoscale_family.html">geoscale_family()</a></code>. <code>timescales</code> can use a
+closure because timeframes genuinely nest; spatial geoframes cross-cut, and
+a closure then manufactures false relationships. In the example GeoScale,
+zone <code>ZB</code>
 straddles both countries, so closing <code>country -&gt; state -&gt; zone -&gt; atom</code>
 would wrongly report country <code>N</code> as an ancestor of atom <code>A5</code>, which lies in
 country <code>S</code>.</p>
 <p>For geoframes that do not nest this relation is <em>overlap</em>, not containment —
 test a given pair with <code><a href="geoscale_nests.html">geoscale_nests()</a></code>.</p>
 <p>Geoframe columns are retained because region codes are not unique across
-geoframes: in the example, <code>"N1"</code> exists at both <code>state</code> and <code>zone</code>, so a bare
-<code>(parent, child)</code> pair would read as a self-loop.</p>
+geoframes: in the example, <code>"N1"</code> exists at both <code>state</code> and <code>zone</code>, so a
+bare <code>(parent, child)</code> pair would read as a self-loop.</p>
     </div>
 
     <div class="section level2">

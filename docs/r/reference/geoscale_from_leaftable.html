@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,8 +82,8 @@
 
 
 <dt id="arg-geoframes">geoframes<a class="anchor" aria-label="anchor" href="#arg-geoframes"></a></dt>
-<dd><p>Ordered character vector of geoframe names, <strong>coarsest first</strong>.
-Each must be a column of <code>leaftable</code>.</p></dd>
+<dd><p>Ordered character vector of geoframe names, <strong>coarsest
+first</strong>. Each must be a column of <code>leaftable</code>.</p></dd>
 
 
 <dt id="arg-key">key<a class="anchor" aria-label="anchor" href="#arg-key"></a></dt>
@@ -117,8 +117,8 @@ geoframe. Derived from <code>leaftable</code> when <code>NULL</code> (first-appe
 
 <dt id="arg-row-order">row_order<a class="anchor" aria-label="anchor" href="#arg-row-order"></a></dt>
 <dd><p><code>"nested"</code> (default) sorts the rows by geoframe, coarsest
-first, each in its member order (unassigned codes last; <code>geometry</code> follows); <code>"given"</code> keeps the rows
-as supplied.</p></dd>
+first, each in its member order (unassigned codes last; <code>geometry</code>
+follows); <code>"given"</code> keeps the rows as supplied.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -131,9 +131,9 @@ as supplied.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Blank strings (<code>""</code>) in geoframe columns are normalised to <code>NA</code>, meaning "this
-atom has no code at this geoframe" — partial coverage is normal in real region
-tables.</p>
+    <p>Blank strings (<code>""</code>) in geoframe columns are normalised to <code>NA</code>, meaning
+"this atom has no code at this geoframe" — partial coverage is normal in
+real region tables.</p>
     </div>
 
     <div class="section level2">
