@@ -1,3 +1,15 @@
+# geoscales 0.7.3
+
+## New features
+
+* `geoscale_rule_action()` reports what each of the seven rules does going up and going down, and whether a parent's value is therefore divisible between its children. Only `sum` is: a quantity splits by the weight, while a rate, a price or an invariant is replicated unchanged, and `sd` and the two share rules have no downward meaning and come back `NA` rather than guessed at. It lets a consumer decide per column what a partial selection of children does to a parent's value without asking its caller.
+
+## Bug fixes
+
+* `prune_geoscale()` gave each code another code's geometry when the pruned leaftable was not already in nested order. The dissolve now happens before construction and the result is passed to `geoscale_from_leaftable()`, which permutes geometry with the rows it re-orders; `attach_geometry_geoscale()` binds positionally and cannot.
+* A map with a categorical `z` fell through to ggplot2's `hue_pal()`, which put neighbouring hues on unrelated regions. `gg_geoscale(type = "map")` now picks a qualitative scale for a discrete fill, and a discrete viridis above six levels, where no qualitative set clears the contrast floors.
+* The stack fills by the ancestor at the coarsest geoframe rather than by the code of each plane, so a child carries its parent's colour down the stack instead of every frame's codes sharing one ramp.
+
 # geoscales 0.7.2
 
 ## Breaking changes

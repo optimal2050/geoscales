@@ -47,6 +47,58 @@
 GEOSCALE_RULES <- c("sum", "weighted_mean", "mean", "copy", "sd", "share",
                     "logshare")
 
+#' What a rule does in each direction
+#'
+#' Every rule in [`GEOSCALE_RULES`] defines behaviour in both directions, and
+#' the direction follows the geoframe ranks. This reports, per rule, what
+#' going **up** and going **down** mean, and whether a parent's value is
+#' therefore divisible between its children: only `sum` is, because only `sum`
+#' splits a quantity. A rate, a price or a region-invariant scalar is
+#' replicated instead -- the same value holds for every child -- while `sd`
+#' and the two share rules have no downward meaning and are reported as `NA`
+#' rather than guessed at.
+#'
+#' A downstream package uses this to decide, column by column, what a partial
+#' selection of children does to a parent's value, without asking its caller.
+#'
+#' @param rule Character vector of rule names; defaults to every rule.
+#'
+#' @returns A `data.frame` with one row per `rule`, in the order given, and
+#'   columns `rule`, `up`, `down`, `divisible` (`NA` where the rule has no
+#'   downward meaning) and `action`, one of `"split"`, `"replicate"` or
+#'   `"none"`.
+#'
+#' @examples
+#' geoscale_rule_action()
+#' geoscale_rule_action("sum")$divisible
+#' @export
+geoscale_rule_action <- function(rule = GEOSCALE_RULES) {
+  if (!is.character(rule) || length(rule) == 0L || anyNA(rule)) {
+    .stop("`rule` must be a character vector of rule names")
+  }
+  bad <- setdiff(rule, GEOSCALE_RULES)
+  if (length(bad) > 0L) {
+    .stop("not a recast rule: %s. The rules are: %s",
+          paste(bad, collapse = ", "),
+          paste(GEOSCALE_RULES, collapse = ", "))
+  }
+  tbl <- data.frame(
+    rule = GEOSCALE_RULES,
+    up = c("sum", "weighted mean", "mean", "the common value",
+           "standard deviation", "share within parent",
+           "share within parent"),
+    down = c("split proportionally to the weight", "copy", "copy", "copy",
+             NA_character_, NA_character_, NA_character_),
+    divisible = c(TRUE, FALSE, FALSE, FALSE, NA, NA, NA),
+    action = c("split", "replicate", "replicate", "replicate", "none",
+               "none", "none"),
+    stringsAsFactors = FALSE
+  )
+  out <- tbl[match(rule, tbl$rule), , drop = FALSE]
+  rownames(out) <- NULL
+  out
+}
+
 #' Register how a parameter should be recast
 #'
 #' Records the rule (and optionally the weight) to use for a named value

@@ -17,6 +17,27 @@ test_that("rules can be registered, read back and cleared", {
   expect_null(get_geoscale_rule("capacity"))
 })
 
+# @covers geoscale_rule_action depth=U
+test_that("every rule reports its direction, and only sum is divisible", {
+  act <- geoscale_rule_action()
+  expect_equal(act$rule, GEOSCALE_RULES)
+  expect_equal(act$rule[which(act$divisible)], "sum")
+  expect_equal(act$action[act$rule == "sum"], "split")
+  # a rate, a price or an invariant holds for every child unchanged
+  expect_equal(unique(act$action[act$rule %in% c("weighted_mean", "mean",
+                                                 "copy")]), "replicate")
+  # sd and the share rules have no downward meaning, and say so
+  expect_true(all(is.na(act$divisible[act$rule %in% c("sd", "share",
+                                                      "logshare")])))
+  expect_true(all(is.na(act$down[act$rule %in% c("sd", "share",
+                                                 "logshare")])))
+  # the rows come back in the order asked for
+  expect_equal(geoscale_rule_action(c("copy", "sum"))$action,
+               c("replicate", "split"))
+  expect_error(geoscale_rule_action("nonsense"), "not a recast rule")
+  expect_error(geoscale_rule_action(character()), "character vector")
+})
+
 test_that("an invalid rule name is rejected", {
   expect_error(register_geoscale_rule("x", "nonsense"), "arg")
 })
