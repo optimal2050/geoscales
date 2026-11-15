@@ -172,6 +172,32 @@ test_that("prune_geoscale dissolves geometry when attached", {
   expect_null(S7::prop(p0, "geometry"))
 })
 
+# @covers prune_geoscale depth=U
+test_that("prune_geoscale keeps each code's own geometry when rows re-sort", {
+  skip_if_not_installed("sf")
+  sq <- function(x) sf::st_polygon(list(cbind(c(x, x + 1, x + 1, x, x),
+                                              c(0, 0, 1, 1, 0))))
+  # `row_order = "given"` keeps the countries interleaved, so the pruned
+  # leaftable is NOT in nested order and the constructor permutes it. Geometry
+  # attached positionally after construction then lands on the wrong code --
+  # the defect this guards (every state took another state's square).
+  lt <- data.frame(
+    country = c("N", "S", "N", "S", "N", "S"),
+    state   = c("N1", "S1", "N2", "S2", "N3", "S3"),
+    atom    = paste0("A", 1:6), km2 = 1, stringsAsFactors = FALSE)
+  gs <- geoscale_from_leaftable(
+    lt, geoframes = c("country", "state", "atom"), name = "interleaved",
+    row_order = "given",
+    geometry = sf::st_sfc(sq(0), sq(1), sq(2), sq(3), sq(4), sq(5),
+                          crs = 4326))
+
+  g <- geoscale_geometry(prune_geoscale(gs, "state"), "state")
+  got <- stats::setNames(
+    sf::st_coordinates(sf::st_centroid(sf::st_geometry(g)))[, 1], g$state)
+  want <- stats::setNames(seq(0.5, 5.5, by = 1), lt$state)
+  # area alone cannot catch this: every state is one unit square.
+  expect_equal(got[names(want)], want, ignore_attr = TRUE)
+})
 test_that("two samples of one parent no longer collide in the map registry", {
   clear_geoscale_maps()
   gs <- geoscale_example()

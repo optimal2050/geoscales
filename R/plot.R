@@ -579,6 +579,26 @@ plot.GeoScale <- function(x, ...) {
 #' atoms; without `data`, the region outlines. Needs sf and attached
 #' geometry.
 #' @noRd
+# Qualitative fills for a DISCRETE map (region membership, categories), in
+# fixed order. A choropleth is read all-pairs -- any two polygons can be
+# compared anywhere on the map -- so the set is held to the all-pairs floors,
+# not the adjacent-pair ones a bar chart uses. Measured on the light surface:
+#   3-5 slots  worst CVD dE 11.0, normal-vision 15.6  -- clean
+#   6 slots    worst CVD dE  7.6                      -- inside the 6-8 band,
+#              which needs secondary encoding; the white polygon borders and
+#              `labels = TRUE` supply it
+#   7+         no qualitative set clears the floors, so magnitude ordering via
+#              a discrete viridis is the honest fallback
+# Hues are Okabe-Ito, minus its yellow (outside the lightness band) and black.
+.GEO_CAT_FILLS <- c("#E69F00", "#56B4E9", "#009E73",
+                    "#0072B2", "#D55E00", "#CC79A7")
+
+#' @noRd
+.geo_cat_fills <- function(n) {
+  if (n > length(.GEO_CAT_FILLS)) return(NULL)
+  .GEO_CAT_FILLS[seq_len(n)]
+}
+
 .gg_geoscale_map <- function(object, data = NULL, z = NULL, geoframe = NULL,
                              palette = NULL, labels = NULL, precision = 0,
                              ...) {
@@ -605,8 +625,25 @@ plot.GeoScale <- function(x, ...) {
       ggplot2::labs(fill = z)
   }
 
-  if (!is.null(data) && .has_palette(palette)) {
-    p <- p + ggplot2::scale_fill_viridis_c(option = palette)
+  if (!is.null(data)) {
+    # A categorical fill cannot use `scale_fill_viridis_c()`; without a
+    # discrete scale it silently fell through to ggplot's hue_pal(), which
+    # put neighbouring hues on unrelated regions.
+    if (is.numeric(shp$.fill)) {
+      if (.has_palette(palette)) {
+        p <- p + ggplot2::scale_fill_viridis_c(option = palette)
+      }
+    } else {
+      nlev <- length(unique(stats::na.omit(as.character(shp$.fill))))
+      cat_fills <- if (.has_palette(palette)) NULL else .geo_cat_fills(nlev)
+      p <- p + if (!is.null(cat_fills)) {
+        ggplot2::scale_fill_manual(values = cat_fills, na.value = "grey85")
+      } else {
+        ggplot2::scale_fill_viridis_d(
+          option = if (.has_palette(palette)) palette else "D",
+          end = 0.9, na.value = "grey85")
+      }
+    }
   }
   if (isTRUE(labels)) {
     shp$.label <- .apply_labels(shp[[geoframe]],
@@ -620,6 +657,7 @@ plot.GeoScale <- function(x, ...) {
 
 # Columns referenced inside `aes()` by bare name.
 utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
+                         ".grp",
                          "code", "gf", "y",
                          ".label", ".z", "xend", "yend"))
 
@@ -772,6 +810,16 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
     sk <- fac[k]
     g <- (planes[[k]] - ctr) * sk + ctr + c(0, zlev[k])
     d <- sf::st_sf(code = shapes[[k]][[gfs[k]]], gf = gfs[k], geometry = g)
+    # Fill by the ancestor at the COARSEST frame, not by `code`: one fill
+    # scale is shared by every plane, so mapping `code` spreads all frames'
+    # codes over one ramp and alphabetical neighbours land on neighbouring
+    # colours (NORTH and NORTHEAST came out the same yellow). Keying on the
+    # top frame also makes the roll-up visible: a child carries its parent's
+    # colour down the stack.
+    d$.grp <- if (k == 1L) as.character(d$code) else
+      as.character(geoscale_map(x, gfs[1], gfs[k])[[gfs[1]]][
+        match(as.character(d$code),
+              as.character(geoscale_map(x, gfs[1], gfs[k])[[gfs[k]]]))])
     if (!is.null(vals)) {
       d$.z <- vals[[k]][[z]][match(d$code, vals[[k]][[gfs[k]]])]
     }
@@ -877,7 +925,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
                                      linewidth = 0.3)
     }
     p <- if (is.null(vals)) {
-      p + .gg_layer(ggplot2::geom_sf, ggplot2::aes(fill = code),
+      p + .gg_layer(ggplot2::geom_sf, ggplot2::aes(fill = .grp),
                     list(colour = col_k[k], linewidth = lwd_k[k],
                          show.legend = FALSE),
                     dots, data = layers[[k]])
@@ -918,7 +966,16 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   }
   if (.has_palette(palette)) {               # NA = caller adds a scale
     p <- p + if (is.null(vals)) {
-      ggplot2::scale_fill_viridis_d(option = palette)
+      # grouping codes, not magnitudes: use the validated categorical order
+      # while it covers them, and only fall back to the ramp beyond it.
+      ngrp <- length(unique(stats::na.omit(
+        unlist(lapply(layers, function(d) as.character(d$.grp))))))
+      gfill <- .geo_cat_fills(ngrp)
+      if (!is.null(gfill)) {
+        ggplot2::scale_fill_manual(values = gfill, na.value = "grey85")
+      } else {
+        ggplot2::scale_fill_viridis_d(option = palette, na.value = "grey85")
+      }
     } else if (any(rule %in% c("share", "logshare"))) {
       .share_fill_scale(palette, log = any(rule %in% "logshare"))
     } else {

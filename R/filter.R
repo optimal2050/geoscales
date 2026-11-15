@@ -358,15 +358,11 @@ prune_geoscale <- function(x, geoframe,
   new_meta$parent_name <- meta$name
   new_meta$name <- paste0(meta$name, "@", geoframe)
 
-  gs <- geoscale_from_leaftable(
-    out, geoframes = keep_lv, key = "region",
-    weights = wts, default_weight = meta$default_weight,
-    name = new_meta$name, desc = meta$desc
-  )
-  full_meta <- utils::modifyList(new_meta, S7::prop(gs, "meta")[
-    c("weights", "default_weight")])
-  S7::prop(gs, "meta") <- full_meta
-
+  # Dissolve per pruned row BEFORE constructing, and pass the result in:
+  # `geoscale_from_leaftable()` permutes `geometry` with the rows it re-orders,
+  # while `attach_geometry_geoscale()` binds positionally and cannot, which
+  # silently gives every code another code's polygon.
+  new_geom <- NULL
   if (isTRUE(keep_geometry)) {
     geom <- S7::prop(x, "geometry")
     if (is.null(geom)) {
@@ -380,9 +376,20 @@ prune_geoscale <- function(x, geoframe,
         if (length(u) != 1L) u <- sf::st_combine(u)  # one code, one geometry
         u
       })
-      gs <- attach_geometry_geoscale(gs, do.call(c, merged))
+      new_geom <- do.call(c, merged)
     }
   }
+
+  gs <- geoscale_from_leaftable(
+    out, geoframes = keep_lv, key = "region",
+    weights = wts, default_weight = meta$default_weight,
+    name = new_meta$name, desc = meta$desc,
+    geometry = new_geom
+  )
+  full_meta <- utils::modifyList(new_meta, S7::prop(gs, "meta")[
+    c("weights", "default_weight")])
+  S7::prop(gs, "meta") <- full_meta
+
   gs
 }
 
