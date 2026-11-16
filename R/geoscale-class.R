@@ -624,3 +624,110 @@ S7::method(names, GeoScale) <- names.GeoScale
 
 #' @export
 `names.geoscales::GeoScale` <- names.GeoScale
+
+#' Add a weight column to a GeoScale
+#'
+#' Declares one or more numeric weights over the atoms of an existing
+#' `GeoScale`. A weight is what a quantity is divided by when a value declared
+#' at a parent has to be shared out between its children, so a hierarchy that
+#' ships with only `area` cannot apportion a demand or a fleet sensibly; this
+#' is how `population`, `gdp` or any other basis is added after the fact,
+#' without rebuilding the hierarchy.
+#'
+#' @param x A [`GeoScale`].
+#' @param ... Named weights, one per argument: either a numeric vector named
+#'   by atom code, or an unnamed numeric in leaftable row order. A single
+#'   unnamed `data.frame` may be given instead, keyed by the atom column with
+#'   one or more numeric weight columns.
+#' @param default Optional name of the weight to make the default, which
+#'   must be one of the weights the result declares.
+#' @param overwrite Replace a weight column that already exists. `FALSE`
+#'   (the default) refuses instead.
+#'
+#' @return The `GeoScale`, with the weights declared in `meta$weights` and the
+#'   columns in its leaftable.
+#'
+#' @examples
+#' gs <- geoscale_example()
+#' gs2 <- geoscale_add_weight(gs, population = c(A1 = 10, A2 = 20,
+#'                                               A3 = 30, A4 = 40),
+#'                            default = "population")
+#' geoscale_weights(gs2)
+#' @export
+geoscale_add_weight <- function(x, ..., default = NULL, overwrite = FALSE) {
+  .check_geoscale(x)
+  lt <- S7::prop(x, "leaftable")
+  atoms <- as.character(lt$region)
+  args <- list(...)
+  if (length(args) == 1L && is.null(names(args)) && is.data.frame(args[[1L]])) {
+    df <- as.data.frame(args[[1L]], stringsAsFactors = FALSE)
+    key <- intersect(c("region", S7::prop(x, "geoframes")), names(df))
+    if (!length(key)) {
+      .stop(paste0("the `data.frame` must carry the atom column (`region` or ",
+                   "the atom geoframe)"))
+    }
+    key <- key[1L]
+    num <- names(df)[vapply(df, is.numeric, logical(1))]
+    if (!length(num)) .stop("the `data.frame` has no numeric weight column")
+    args <- lapply(num, function(cn)
+      stats::setNames(df[[cn]], as.character(df[[key]])))
+    names(args) <- num
+  }
+  if (!length(args)) .stop("no weight given")
+  if (is.null(names(args)) || any(!nzchar(names(args)))) {
+    .stop("every weight must be named: geoscale_add_weight(x, population = )")
+  }
+  have <- geoscale_weights(x)
+  clash <- intersect(names(args), have)
+  if (length(clash) && !isTRUE(overwrite)) {
+    .stop(paste0("weight(s) already declared: %s. Pass `overwrite = TRUE` to ",
+                 "replace them"), paste(clash, collapse = ", "))
+  }
+  reserved <- setdiff(names(lt), c(have, "geometry"))
+  bad <- intersect(names(args), reserved)
+  if (length(bad)) {
+    .stop("`%s` is a column of the leaftable already and is not a weight",
+          bad[1L])
+  }
+  for (w in names(args)) {
+    v <- args[[w]]
+    if (!is.numeric(v)) .stop("weight `%s` must be numeric", w)
+    if (!is.null(names(v))) {
+      miss <- setdiff(atoms, names(v))
+      if (length(miss)) {
+        .stop("weight `%s` has no value for %d atom(s): %s", w, length(miss),
+              .preview(miss))
+      }
+      v <- unname(v[atoms])
+    } else if (length(v) == 1L) {
+      v <- rep(v, length(atoms))
+    } else if (length(v) != length(atoms)) {
+      .stop(paste0("weight `%s` has %d values for %d atoms; name it by atom ",
+                   "code or give one value per leaftable row"),
+            w, length(v), length(atoms))
+    }
+    v <- as.numeric(v)
+    # checked here so the message names the weight, rather than coming back
+    # from the class validator twice over
+    if (any(!is.finite(v) & !is.na(v))) {
+      .stop("weight `%s` must be finite", w)
+    }
+    if (any(v < 0, na.rm = TRUE)) .stop("weight `%s` must be >= 0", w)
+    if (!isTRUE(sum(v, na.rm = TRUE) > 0)) {
+      .stop("weight `%s` sums to zero", w)
+    }
+    lt[[w]] <- v
+  }
+  meta <- S7::prop(x, "meta")
+  meta$weights <- union(have, names(args))
+  if (!is.null(default)) {
+    if (length(default) != 1L || !default %in% meta$weights) {
+      .stop("`default` must be one of the declared weights: %s",
+            paste(meta$weights, collapse = ", "))
+    }
+    meta$default_weight <- default
+  }
+  S7::prop(x, "leaftable") <- lt
+  S7::prop(x, "meta") <- meta
+  x
+}

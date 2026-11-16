@@ -2,6 +2,9 @@
 
 ## New features
 
+* `geoscale_add_weight()` declares a numeric weight over the atoms of an existing GeoScale -- `population`, `gdp` or any other basis -- so a hierarchy built with only `area` can still apportion a quantity sensibly. Takes named vectors or a data.frame keyed by the atom column, sets the default weight, and refuses a weight that leaves an atom without a value.
+
+
 * `geoscale_rule_action()` reports what each of the seven rules does going up and going down, and whether a parent's value is therefore divisible between its children. Only `sum` is: a quantity splits by the weight, while a rate, a price or an invariant is replicated unchanged, and `sd` and the two share rules have no downward meaning and come back `NA` rather than guessed at. It lets a consumer decide per column what a partial selection of children does to a parent's value without asking its caller.
 
 ## Bug fixes
