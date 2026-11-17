@@ -285,7 +285,9 @@ geoscale_layout <- function(x, weight = NULL) {
 #' @section Stack (`type = "stack"`):
 #' One sheared map plane per geoframe, coarsest on top: the same atoms
 #' dissolved at each resolution, under a chosen point of view. Without
-#' `data`, each plane is coloured by its own regions.
+#' `data`, regions are coloured by their ancestor at the coarsest geoframe
+#' with two or more regions, so each child carries its parent's colour down
+#' the stack; a single-region geoframe above it is drawn in neutral grey.
 #'
 #' @section Map (`type = "map"`):
 #' A choropleth of one geoframe. Without `data`, the region outlines are
@@ -806,20 +808,30 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   steps <- rep_len(gap, nk - 1L) * pmax(fac_tb[-nk], fac_tb[-1L])
   zlev <- vapply(pos, function(p) sum(steps[seq_len(nk - 1L) >= p]),
                  numeric(1))
+  # Fill by the ancestor at the KEY frame, not by `code`: one fill scale is
+  # shared by every plane, so mapping `code` spreads all frames' codes over
+  # one ramp and alphabetical neighbours land on neighbouring colours
+  # (NORTH and NORTHEAST came out the same yellow). Keying on one frame also
+  # makes the roll-up visible: a child carries its parent's colour down the
+  # stack. The key frame is the coarsest with two or more regions; a
+  # single-region frame above it (a nation over its zones) separates
+  # nothing and is left neutral.
+  n_reg <- vapply(seq_along(gfs), function(k) {
+    length(unique(stats::na.omit(as.character(shapes[[k]][[gfs[k]]]))))
+  }, integer(1))
+  kk <- which(n_reg >= 2L)[1L]
+  if (is.na(kk)) kk <- 1L
   layers <- lapply(seq_along(gfs), function(k) {
     sk <- fac[k]
     g <- (planes[[k]] - ctr) * sk + ctr + c(0, zlev[k])
     d <- sf::st_sf(code = shapes[[k]][[gfs[k]]], gf = gfs[k], geometry = g)
-    # Fill by the ancestor at the COARSEST frame, not by `code`: one fill
-    # scale is shared by every plane, so mapping `code` spreads all frames'
-    # codes over one ramp and alphabetical neighbours land on neighbouring
-    # colours (NORTH and NORTHEAST came out the same yellow). Keying on the
-    # top frame also makes the roll-up visible: a child carries its parent's
-    # colour down the stack.
-    d$.grp <- if (k == 1L) as.character(d$code) else
-      as.character(geoscale_map(x, gfs[1], gfs[k])[[gfs[1]]][
-        match(as.character(d$code),
-              as.character(geoscale_map(x, gfs[1], gfs[k])[[gfs[k]]]))])
+    d$.grp <- if (k < kk) NA_character_ else if (k == kk) {
+      as.character(d$code)
+    } else {
+      m <- geoscale_map(x, gfs[kk], gfs[k])
+      as.character(m[[gfs[kk]]][match(as.character(d$code),
+                                       as.character(m[[gfs[k]]]))])
+    }
     if (!is.null(vals)) {
       d$.z <- vals[[k]][[z]][match(d$code, vals[[k]][[gfs[k]]])]
     }

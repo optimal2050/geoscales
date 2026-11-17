@@ -168,7 +168,9 @@ that geoframe.
 
 One sheared map plane per geoframe, coarsest on top: the same atoms
 dissolved at each resolution, under a chosen point of view. Without
-\code{data}, each plane is coloured by its own regions.
+\code{data}, regions are coloured by their ancestor at the coarsest geoframe
+with two or more regions, so each child carries its parent's colour down
+the stack; a single-region geoframe above it is drawn in neutral grey.
 }
 
 \section{Map (\code{type = "map"})}{
