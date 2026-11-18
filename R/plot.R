@@ -267,7 +267,8 @@ geoscale_layout <- function(x, weight = NULL) {
 #' dissolved at each resolution, under a chosen point of view. Without
 #' `data`, regions are coloured by their ancestor at the coarsest geoframe
 #' with two or more regions, so each child carries its parent's colour down
-#' the stack; a single-region geoframe above it is drawn in neutral grey.
+#' the stack; a single-region geoframe above it takes the next colour of the
+#' same palette.
 #'
 #' @section Map (`type = "map"`):
 #' A choropleth of one geoframe. Without `data`, the region outlines are
@@ -794,8 +795,8 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   # (NORTH and NORTHEAST came out the same yellow). Keying on one frame also
   # makes the roll-up visible: a child carries its parent's colour down the
   # stack. The key frame is the coarsest with two or more regions; a
-  # single-region frame above it (a nation over its zones) separates
-  # nothing and is left neutral.
+  # single-region frame above it (a nation over its zones) has no ancestor
+  # there and takes the next slot of the same scale, after the key groups.
   n_reg <- vapply(seq_along(gfs), function(k) {
     length(unique(stats::na.omit(as.character(shapes[[k]][[gfs[k]]]))))
   }, integer(1))
@@ -805,7 +806,9 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
     sk <- fac[k]
     g <- (planes[[k]] - ctr) * sk + ctr + c(0, zlev[k])
     d <- sf::st_sf(code = shapes[[k]][[gfs[k]]], gf = gfs[k], geometry = g)
-    d$.grp <- if (k < kk) NA_character_ else if (k == kk) {
+    d$.grp <- if (k < kk) {
+      paste0(gfs[k], ":", as.character(d$code))
+    } else if (k == kk) {
       as.character(d$code)
     } else {
       m <- geoscale_map(x, gfs[kk], gfs[k])
@@ -960,13 +963,18 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
     p <- p + if (is.null(vals)) {
       # grouping codes, not magnitudes: use the validated categorical order
       # while it covers them, and only fall back to the ramp beyond it.
-      ngrp <- length(unique(stats::na.omit(
-        unlist(lapply(layers, function(d) as.character(d$.grp))))))
-      gfill <- .geo_cat_fills(ngrp)
+      grp_of <- function(ks) sort(unique(stats::na.omit(unlist(
+        lapply(layers[ks], function(d) as.character(d$.grp))))))
+      # key groups first, so adding a plane above never moves their colours
+      grps <- grp_of(seq_along(gfs) >= kk)
+      grps <- c(grps, setdiff(grp_of(seq_along(gfs) < kk), grps))
+      gfill <- .geo_cat_fills(length(grps))
       if (!is.null(gfill)) {
-        ggplot2::scale_fill_manual(values = gfill, na.value = "grey85")
+        ggplot2::scale_fill_manual(values = gfill, limits = grps,
+                                   na.value = "grey85")
       } else {
-        ggplot2::scale_fill_viridis_d(option = palette, na.value = "grey85")
+        ggplot2::scale_fill_viridis_d(option = palette, limits = grps,
+                                      na.value = "grey85")
       }
     } else if (any(rule %in% c("share", "logshare"))) {
       .share_fill_scale(palette, log = any(rule %in% "logshare"))

@@ -13,6 +13,8 @@
 * Labels per geoframe. `attach_labels_geoscale()` adds display names for regions of any geoframe, in named variants, so a region may have alternative names while another geoframe has none; a row with `unit = NA` names the geoframe itself. `geoscale_labels()` returns the table and `geoscale_label()` looks names up, giving the code where there is no label. Subsets, prunes and zooms keep the labels of what remains, and the plots use the default variant.
 * The data link. `bind_geoscale()` records on a table's region-code columns which GeoScale and geoframe they are on; `geoscale_link()` reports it and `geoscale_id()` gives the identity it stores. `recast_geoscale()`, `recast_to_geoatoms()`, `recast_from_geoatoms()` and `join_geoscale()` take the source geoframe from the link, stop when the data is bound to another GeoScale, and bind their result. Needs nestedscales 0.3.0 or later; with an earlier version the verbs behave as before.
 
+* `gg_geoscale(type = "stack")` fills a single-region geoframe above the colouring geoframe (a nation over its zones) with the next colour of the same palette; it was neutral grey.
+
 ## Bug fixes
 
 * `geom_geoscale()` drawn at a coarser geoframe than the data's codes filled every region with `NA`; the codes are now carried up to the drawn geoframe before `fun` is applied. The code column defaults to the `geoframe`-named column, then the column named after the atom key, then `region`.

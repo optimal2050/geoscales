@@ -262,3 +262,13 @@ test_that("geom_geoscale carries finer codes up to the drawn geoframe", {
   lyr <- geom_geoscale(gs = gs, z = "v", data = x, geoframe = "atom")
   expect_equal(lyr[[1]]$data$value, c(2, 5))
 })
+
+test_that("a single-region top plane of the stack is filled from the palette", {
+  skip_if_not_installed("ggplot2")
+  gs <- .toy_gs()                       # top (1 region) over atom (2)
+  b <- ggplot2::ggplot_build(gg_geoscale(gs, type = "stack"))
+  fills <- unlist(lapply(b$data, function(d) d$fill))
+  # the two atoms keep the first two colours; the top plane takes the third
+  expect_setequal(fills, geoscales:::.GEO_CAT_FILLS[1:3])
+  expect_false("grey85" %in% fills)
+})
