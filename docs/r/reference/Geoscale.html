@@ -9,7 +9,7 @@ plus the ordered hierarchy of geoframes that groups them.'><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,15 @@ plus the ordered hierarchy of geoframes that groups them.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GeoScale</span><span class="op">(</span><span class="va">leaftable</span>, <span class="va">geoframes</span>, <span class="va">members</span>, geometry <span class="op">=</span> <span class="cn">NULL</span>, meta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GeoScale</span><span class="op">(</span></span>
+<span>  <span class="va">leaftable</span>,</span>
+<span>  <span class="va">geoframes</span>,</span>
+<span>  <span class="va">members</span>,</span>
+<span>  geometry <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  meta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  key <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  labels <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,8 +73,9 @@ plus the ordered hierarchy of geoframes that groups them.</p>
 
 
 <dl><dt id="arg-leaftable">leaftable<a class="anchor" aria-label="anchor" href="#arg-leaftable"></a></dt>
-<dd><p><code>data.frame</code> with a unique <code>region</code> key column, one column
-per geoframe in <code>geoframes</code>, and one or more numeric weight columns.</p></dd>
+<dd><p><code>data.frame</code> with one column per geoframe in <code>geoframes</code>
+and one or more numeric weight columns. The finest geoframe is the atom
+key unless <code>key</code> names another column.</p></dd>
 
 
 <dt id="arg-geoframes">geoframes<a class="anchor" aria-label="anchor" href="#arg-geoframes"></a></dt>
@@ -87,7 +96,17 @@ present at geoframe <code>lvl</code>. Must equal the non-<code>NA</code> values 
 
 <dt id="arg-meta">meta<a class="anchor" aria-label="anchor" href="#arg-meta"></a></dt>
 <dd><p>Named list of attributes (<code>name</code>, <code>desc</code>, <code>weights</code>,
-<code>default_weight</code>, <code>crs</code>, <code>source</code>, <code>labels</code>).</p></dd>
+<code>default_weight</code>, <code>default_label</code>, <code>crs</code>, <code>source</code>).</p></dd>
+
+
+<dt id="arg-key">key<a class="anchor" aria-label="anchor" href="#arg-key"></a></dt>
+<dd><p>Name of the atom key column: unique and complete. <code>NULL</code>
+(default) is the finest geoframe.</p></dd>
+
+
+<dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
+<dd><p>Optional table of display names, see
+<code><a href="geoscale_labels.html">attach_labels_geoscale()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

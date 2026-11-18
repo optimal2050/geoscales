@@ -15,7 +15,7 @@ equivalent, so ggplot(gs) + geom_*() pipelines work directly."><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,21 +111,21 @@ plus any weight columns.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">geoscale_leaftable</span><span class="op">(</span><span class="fu"><a href="geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   country state zone atom km2 pop region</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       N    N1   N1   A1 100  10     A1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       N    N1   N1   A2 200  90     A2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       N    N2   ZB   A3 300  30     A3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       N    N2   ZB   A4 400  70     A4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       S    S1   ZB   A5 500  50     A5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       S    S1   ZC   A6 600  50     A6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   country state zone atom km2 pop</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       N    N1   N1   A1 100  10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       N    N1   N1   A2 200  90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       N    N2   ZB   A3 300  30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       N    N2   ZB   A4 400  70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       S    S1   ZB   A5 500  50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       S    S1   ZC   A6 600  50</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   country state zone atom km2 pop region</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       N    N1   N1   A1 100  10     A1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       N    N1   N1   A2 200  90     A2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       N    N2   ZB   A3 300  30     A3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       N    N2   ZB   A4 400  70     A4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       S    S1   ZB   A5 500  50     A5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       S    S1   ZC   A6 600  50     A6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   country state zone atom km2 pop</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       N    N1   N1   A1 100  10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       N    N1   N1   A2 200  90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       N    N2   ZB   A3 300  30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       N    N2   ZB   A4 400  70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       S    S1   ZB   A5 500  50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       S    S1   ZC   A6 600  50</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

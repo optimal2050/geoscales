@@ -63,10 +63,10 @@ pulls a source like Natural Earth — see
 gs@geoframes                 # the hierarchy, coarsest first
 #> [1] "country" "state"   "atom"
 head(geoscale_leaftable(gs), 3)        # one row per atom
-#>   country state atom km2 region
-#> 1       N    N1   A1 100     A1
-#> 2       N    N1   A2 200     A2
-#> 3       N    N2   A3 300     A3
+#>   country state atom km2
+#> 1       N    N1   A1 100
+#> 2       N    N1   A2 200
+#> 3       N    N2   A3 300
 geoscale_regions(gs, "state")
 #> [1] "N1" "N2" "S1"
 geoscale_share(gs, "state", weight = "km2", within = "country")
@@ -128,15 +128,17 @@ tibble(state = c("N1", "N2", "S1"), v = 1:3) |>
 
 ### 5. Visualize
 
-[`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
-(also [`plot()`](https://rspatial.github.io/terra/reference/plot.html))
-draws the hierarchy itself — no geometry needed (and with `data =`/`z =`
-its bands fill with a value recast to every geoframe — see the
-visualization article):
+[`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md)
+(also
+[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html);
+[`plot()`](https://rspatial.github.io/terra/reference/plot.html) draws
+it) shows the hierarchy itself — no geometry needed (and with
+`data =`/`z =` its bands fill with a value recast to every geoframe —
+see the visualization article):
 
 ``` r
 
-geoscale_autoplot(gs)
+gg_geoscale(gs)
 ```
 
 ![](geoscales_files/figure-html/unnamed-chunk-6-1.png)
@@ -334,7 +336,7 @@ iceland$wind |>
 
 or hand the atom-level values straight to the stack view, which recasts
 them onto every plane itself (`data`/`z`) and labels a chosen geoframe
-(`labels`). `palette = NULL` leaves the fill scale to the caller — here
+(`labels`). `palette = NA` leaves the fill scale to the caller — here
 the Global Wind Atlas palette from
 [energypal](https://github.com/optimal2050/energypal), whose colours sit
 on the atlas’s absolute breaks (`limits` only windows the legend);
@@ -346,12 +348,12 @@ cluster plane. This is the front-page figure:
 
 ``` r
 
-geoscale_autoplot(iceland$gs, type = "stack", view = "perspective",
-                  direction = "down", data = iceland$wind, z = "wind",
-                  labels = "landshluti", palette = NULL, gap = .275,
-                  colour = c("grey35", "grey35", NA),  # no cluster borders
-                  frame = TRUE, connectors = FALSE,
-                  frame_fill = ggplot2::alpha("#6FA8DC", 0.15)) +
+gg_geoscale(iceland$gs, type = "stack", view = "perspective",
+            direction = "down", data = iceland$wind, z = "wind",
+            labels = "landshluti", palette = NA, gap = .275,
+            colour = c("grey35", "grey35", NA),  # no cluster borders
+            frame = TRUE, connectors = FALSE,
+            frame_fill = ggplot2::alpha("#6FA8DC", 0.15)) +
   energypal::scale_fill_energy_b(limits = c(6.5, 11.5)) +
   ggplot2::labs(fill = "m/s at 100m")
 ```

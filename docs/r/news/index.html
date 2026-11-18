@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,66 @@
       <small>Source: <a href="https://github.com/optimal2050/geoscales/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="geoscales-development-version">geoscales (development version)<a class="anchor" aria-label="anchor" href="#geoscales-development-version"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<ul><li>The leaftable has no <code>region</code> column any more. The atom key is the finest geoframe’s own column, or the column named by <code>key=</code> when the atoms are finer than the finest geoframe; <code><a href="../reference/geoscale_key.html">geoscale_key()</a></code> returns its name. The atom column in the result of <code><a href="../reference/recast_to_geoatoms.html">recast_to_geoatoms()</a></code> carries that name, and <code><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms()</a></code> expects it. <code>region</code> is no longer a reserved name and may be used for a geoframe at any depth. Saved objects must be rebuilt.</li>
+<li>
+<code><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable()</a></code> no longer falls back to a <code>region</code> column for the key: when the finest geoframe does not identify the atoms, <code>key=</code> must be given.</li>
+<li>
+<code>meta$labels</code> (the name of one per-atom leaftable column) is replaced by the label table below. <code>labels=</code> in <code><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable()</a></code> now takes that table.</li>
+<li>The first argument of <code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code>, <code><a href="../reference/recast_to_geoatoms.html">recast_to_geoatoms()</a></code>, <code><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms()</a></code>, <code><a href="../reference/recast_pairs.html">recast_pairs()</a></code> and <code><a href="../reference/join_geoscale.html">join_geoscale()</a></code> is <code>data</code> (was <code>x</code>).</li>
+<li>
+<code>weight=</code> always names a weight of the GeoScale. The data column to weight by in <code><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms()</a></code> and <code><a href="../reference/recast_pairs.html">recast_pairs()</a></code> is <code>data_weight=</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>Labels per geoframe. <code><a href="../reference/geoscale_labels.html">attach_labels_geoscale()</a></code> adds display names for regions of any geoframe, in named variants, so a region may have alternative names while another geoframe has none; a row with <code>unit = NA</code> names the geoframe itself. <code><a href="../reference/geoscale_labels.html">geoscale_labels()</a></code> returns the table and <code><a href="../reference/geoscale_labels.html">geoscale_label()</a></code> looks names up, giving the code where there is no label. Subsets, prunes and zooms keep the labels of what remains, and the plots use the default variant.</li>
+<li>The data link. <code><a href="../reference/bind_geoscale.html">bind_geoscale()</a></code> records on a table’s region-code columns which GeoScale and geoframe they are on; <code><a href="../reference/bind_geoscale.html">geoscale_link()</a></code> reports it and <code><a href="../reference/bind_geoscale.html">geoscale_id()</a></code> gives the identity it stores. <code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code>, <code><a href="../reference/recast_to_geoatoms.html">recast_to_geoatoms()</a></code>, <code><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms()</a></code> and <code><a href="../reference/join_geoscale.html">join_geoscale()</a></code> take the source geoframe from the link, stop when the data is bound to another GeoScale, and bind their result. Needs nestedscales 0.3.0 or later; with an earlier version the verbs behave as before.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> drawn at a coarser geoframe than the data’s codes filled every region with <code>NA</code>; the codes are now carried up to the drawn geoframe before <code>fun</code> is applied. The code column defaults to the <code>geoframe</code>-named column, then the column named after the atom key, then <code>region</code>.</li>
+<li>
+<code><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale()</a></code>, <code><a href="../reference/add_area_geoscale.html">add_area_geoscale()</a></code>, <code><a href="../reference/ne_geoscale.html">ne_geoscale()</a></code> and <code><a href="../reference/geoscale_from_provider.html">geoscale_from_provider()</a></code> rebuilt the object from its core parts and dropped its attributes and aliases; they now update it in place.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.3" id="geoscales-073">geoscales 0.7.3<a class="anchor" aria-label="anchor" href="#geoscales-073"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-7-3">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-3"></a></h3>
+<ul><li><p><code><a href="../reference/geoscale_add_weight.html">geoscale_add_weight()</a></code> declares a numeric weight over the atoms of an existing GeoScale – <code>population</code>, <code>gdp</code> or any other basis – so a hierarchy built with only <code>area</code> can still apportion a quantity sensibly. Takes named vectors or a data.frame keyed by the atom column, sets the default weight, and refuses a weight that leaves an atom without a value.</p></li>
+<li><p><code><a href="../reference/geoscale_rule_action.html">geoscale_rule_action()</a></code> reports what each of the seven rules does going up and going down, and whether a parent’s value is therefore divisible between its children. Only <code>sum</code> is: a quantity splits by the weight, while a rate, a price or an invariant is replicated unchanged, and <code>sd</code> and the two share rules have no downward meaning and come back <code>NA</code> rather than guessed at. It lets a consumer decide per column what a partial selection of children does to a parent’s value without asking its caller.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-7-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-7-3"></a></h3>
+<ul><li>
+<code><a href="../reference/prune_geoscale.html">prune_geoscale()</a></code> gave each code another code’s geometry when the pruned leaftable was not already in nested order. The dissolve now happens before construction and the result is passed to <code><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable()</a></code>, which permutes geometry with the rows it re-orders; <code><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale()</a></code> binds positionally and cannot.</li>
+<li>A map with a categorical <code>z</code> fell through to ggplot2’s <code>hue_pal()</code>, which put neighbouring hues on unrelated regions. <code>gg_geoscale(type = "map")</code> now picks a qualitative scale for a discrete fill, and a discrete viridis above six levels, where no qualitative set clears the contrast floors.</li>
+<li>The stack fills by the ancestor at the coarsest geoframe rather than by the code of each plane, so a child carries its parent’s colour down the stack instead of every frame’s codes sharing one ramp.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.2" id="geoscales-072">geoscales 0.7.2<a class="anchor" aria-label="anchor" href="#geoscales-072"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-7-2">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-7-2"></a></h3>
+<ul><li>
+<code><a href="../reference/gg_geoscale.html">gg_geoscale()</a></code> replaces <code>geoscale_autoplot()</code> and <code>geoscale_plot()</code>: one function, <code>type = c("icicle", "stack", "map")</code>. The old names are gone. <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> returns the same figure; <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> now draws it and returns it invisibly, like base <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code>.</li>
+<li>The value column is <code>z</code> for every figure (the map’s <code>fill=</code> is gone) and is required whenever <code>data</code> is given. <code>labels=</code> replaces <code>label=</code>. The map’s <code>title</code>, <code>subtitle</code> and <code>fill_label</code> are gone: add <code>+ labs(title =, subtitle =, fill =)</code>.</li>
+<li>
+<code>palette = NULL</code> is each figure’s default scale; <code>palette = NA</code> adds none. The stack’s bring-your-own-scale spelling was <code>NULL</code>.</li>
+<li>
+<code>...</code> goes to the figure’s drawing layer. An argument that belongs to another <code>type</code> is an error. <code>precision</code> applies to the map as well as the stack.</li>
+<li>The first argument of the plotting function and of <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> is <code>object</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-7-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-2"></a></h3>
+<ul><li>
+<code><a href="../reference/geoscale_adjacent.html">geoscale_adjacent()</a></code> builds the neighbour matrix of a geoframe from attached geometry: which of its codes border which. <code>contiguity</code> chooses between <code>"queen"</code> (contact of any dimension, so features meeting at one corner are neighbours) and <code>"rook"</code> (a shared border of non-zero length), <code>within</code> cuts every edge that crosses a coarser geoframe, and <code>isolated = "nearest"</code> joins an island to its closest permitted neighbour. This is what <code>nestedscales::cluster_contiguous(adjacency =)</code> consumes.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.1" id="geoscales-071">geoscales 0.7.1<a class="anchor" aria-label="anchor" href="#geoscales-071"></a></h2>
 <div class="section level3">
@@ -124,7 +184,7 @@
 <li><p><code>na_rm = TRUE</code> in <code><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms()</a></code> and <code><a href="../reference/recast_pairs.html">recast_pairs()</a></code> reads an <code>NA</code> as “this member says nothing” instead of letting it make the whole group <code>NA</code>. Only an all-<code>NA</code> group stays <code>NA</code>, and a weighted mean drops the weight of each <code>NA</code> member so the divisor still matches.</p></li>
 <li><p><code>rule</code> and <code>weight</code> accept a named vector, one entry per value column. One slot of a model can hold an extensive and an intensive quantity side by side, which previously took two calls.</p></li>
 <li><p><code><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary()</a></code> output now prints with its formatted view from user code: the local <code>print</code> binding S7 leaves in the namespace had captured the <code>S3method()</code> registration of <code>print.summary_Geoscale</code>, so the method was invisible outside the package. Registered against base’s <code>print</code> in <code>.onLoad</code> (same fix in timescales).</p></li>
-<li><p>Icicle labels no longer overprint: <code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code> now draws labels widest-rectangle-first with <code>check_overlap = TRUE</code> (matching the timescales icicle), so narrow regions lose their label instead of smearing the band.</p></li>
+<li><p>Icicle labels no longer overprint: <code>geoscale_autoplot()</code> now draws labels widest-rectangle-first with <code>check_overlap = TRUE</code> (matching the timescales icicle), so narrow regions lose their label instead of smearing the band.</p></li>
 <li><p><code>Remotes:</code> added to DESCRIPTION so CI and <code>pak</code> users can resolve the GitHub-only timescales Import and energypal Suggests from GitHub (the packages are not on CRAN/r-universe yet). Drop the field at CRAN submission time.</p></li>
 </ul></div>
 <div class="section level3">
@@ -164,7 +224,7 @@
 <div class="section level3">
 <h3 id="new-features-0-4-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-2"></a></h3>
 <ul><li>
-<code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> and <code><a href="../reference/geom_geoscale.html">theme_geoscale()</a></code>: composable ggplot2 choropleth layer and map theme, mirroring <code><a href="https://optimal2050.github.io/timescales/r/reference/geom_calendar.html" class="external-link">timescales::geom_calendar()</a></code>’s design (column-name arguments, one standard <code><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf()</a></code> layer, solid white background for dark-mode pages). <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> on a Geoscale now dispatches to <code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code>.</li>
+<code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> and <code><a href="../reference/geom_geoscale.html">theme_geoscale()</a></code>: composable ggplot2 choropleth layer and map theme, mirroring <code><a href="https://optimal2050.github.io/timescales/r/reference/geom_calendar.html" class="external-link">timescales::geom_calendar()</a></code>’s design (column-name arguments, one standard <code><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf()</a></code> layer, solid white background for dark-mode pages). <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> on a Geoscale now dispatches to <code>geoscale_autoplot()</code>.</li>
 <li>
 <code>get_geo_map()</code> and <code>list_geo_maps()</code> complete the crosswalk registry; <code>register_geo_map()</code>/<code>clear_geo_maps()</code> gain examples.</li>
 <li>
@@ -219,7 +279,7 @@
 <code>Geoscale</code>: an S7 class holding <code>@leaftable</code> (one row per atom), <code>@geoframes</code> (ordered coarsest first), <code>@members</code>, optional <code>@geometry</code>, and <code>@meta</code>; geoframes are partitions of atoms, not a tree, so cross-cutting region systems are first-class.</li>
 <li>Construction layers: <code><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable()</a></code>, <code><a href="../reference/geoscale_build.html">geoscale_build()</a></code> (ragged parent-child crosswalks), <code><a href="../reference/geoscale_from_provider.html">geoscale_from_provider()</a></code>; plus <code><a href="../reference/geoscale_example.html">geoscale_example()</a></code>.</li>
 <li>Navigation and subsetting: <code><a href="../reference/geoscale_geoframes.html">geoscale_geoframes()</a></code>, <code><a href="../reference/geoscale_regions.html">geoscale_regions()</a></code>, <code><a href="../reference/geoscale_rank.html">geoscale_rank()</a></code>, <code><a href="../reference/geoscale_family.html">geoscale_family()</a></code>, <code><a href="../reference/geoscale_nests.html">geoscale_nests()</a></code>, <code><a href="../reference/geoscale_ancestry.html">geoscale_ancestry()</a></code> (atom-mediated, never a transitive closure), <code><a href="../reference/geoscale_navigate.html">geoscale_children()</a></code> / <code>_parents()</code> / <code>_descendants()</code> / <code>_ancestors()</code>, <code><a href="../reference/geoscale_share.html">geoscale_share()</a></code>, <code><a href="../reference/filter_geoscale.html">filter_geoscale()</a></code> / <code>gs[geoframe, region]</code>, <code><a href="../reference/prune_geoscale.html">prune_geoscale()</a></code>. A <code>geoframe</code> argument is required throughout – codes are not unique across geoframes.</li>
-<li>Geometry and plotting (<code>sf</code> and ggplot2 in Suggests): <code><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale()</a></code>, <code><a href="../reference/geoscale_geometry.html">geoscale_geometry()</a></code> (dissolve), <code><a href="../reference/add_area_geoscale.html">add_area_geoscale()</a></code>, <code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code> (icicle, no geometry needed), <code><a href="../reference/geoscale_plot.html">geoscale_plot()</a></code> (choropleth), <code><a href="../reference/geoscale_layout.html">geoscale_layout()</a></code>.</li>
+<li>Geometry and plotting (<code>sf</code> and ggplot2 in Suggests): <code><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale()</a></code>, <code><a href="../reference/geoscale_geometry.html">geoscale_geometry()</a></code> (dissolve), <code><a href="../reference/add_area_geoscale.html">add_area_geoscale()</a></code>, <code>geoscale_autoplot()</code> (icicle, no geometry needed), <code>geoscale_plot()</code> (choropleth), <code><a href="../reference/geoscale_layout.html">geoscale_layout()</a></code>.</li>
 <li>Providers: <code>register_geo_provider()</code> / <code>get_geo_provider()</code> / <code>list_geo_providers()</code>; Natural Earth via <code><a href="../reference/ne_source.html">ne_source()</a></code> / <code><a href="../reference/ne_geoscale.html">ne_geoscale()</a></code> with source and scale recorded in <code>meta</code>. The package ships no maps and selects no boundaries; known Natural Earth pitfalls (<code>iso_a3 == -99</code>, unreliable areas at 1:110m) are handled.</li>
 </ul></div>
 </div>

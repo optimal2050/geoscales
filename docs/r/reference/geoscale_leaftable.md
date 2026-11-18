@@ -60,19 +60,19 @@ weight columns.
 
 ``` r
 head(geoscale_leaftable(geoscale_example()))
-#>   country state zone atom km2 pop region
-#> 1       N    N1   N1   A1 100  10     A1
-#> 2       N    N1   N1   A2 200  90     A2
-#> 3       N    N2   ZB   A3 300  30     A3
-#> 4       N    N2   ZB   A4 400  70     A4
-#> 5       S    S1   ZB   A5 500  50     A5
-#> 6       S    S1   ZC   A6 600  50     A6
+#>   country state zone atom km2 pop
+#> 1       N    N1   N1   A1 100  10
+#> 2       N    N1   N1   A2 200  90
+#> 3       N    N2   ZB   A3 300  30
+#> 4       N    N2   ZB   A4 400  70
+#> 5       S    S1   ZB   A5 500  50
+#> 6       S    S1   ZC   A6 600  50
 head(as.data.frame(geoscale_example()))
-#>   country state zone atom km2 pop region
-#> 1       N    N1   N1   A1 100  10     A1
-#> 2       N    N1   N1   A2 200  90     A2
-#> 3       N    N2   ZB   A3 300  30     A3
-#> 4       N    N2   ZB   A4 400  70     A4
-#> 5       S    S1   ZB   A5 500  50     A5
-#> 6       S    S1   ZC   A6 600  50     A6
+#>   country state zone atom km2 pop
+#> 1       N    N1   N1   A1 100  10
+#> 2       N    N1   N1   A2 200  90
+#> 3       N    N2   ZB   A3 300  30
+#> 4       N    N2   ZB   A4 400  70
+#> 5       S    S1   ZB   A5 500  50
+#> 6       S    S1   ZC   A6 600  50
 ```

@@ -26,7 +26,7 @@ A `data.frame` with columns `parent_geoframe`, `parent`,
 Computed **atom-mediated**, directly from `@leaftable` — deliberately
 not as a transitive closure of
 [`geoscale_family()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_family.md).
-`timeslices` can use a closure because time geoframes genuinely nest;
+`timescales` can use a closure because timeframes genuinely nest;
 spatial geoframes cross-cut, and a closure then manufactures false
 relationships. In the example GeoScale, zone `ZB` straddles both
 countries, so closing `country -> state -> zone -> atom` would wrongly

@@ -30,7 +30,8 @@ geoframe name among the data's columns (as in
 \code{\link[=recast_geoscale]{recast_geoscale()}}), or the atom geoframe when \code{z = NULL}.}
 
 \item{region}{Name of the region-code column of the data. Defaults to
-the \code{geoframe}-named column when present, else \code{"region"}.}
+the \code{geoframe}-named column when present, else the column named after
+the atom key, else \code{"region"}.}
 
 \item{fun}{Aggregator collapsing multiple observations per region
 into one value. Default \code{mean}.}

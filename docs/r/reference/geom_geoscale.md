@@ -2,9 +2,7 @@
 
 Composable choropleth layers that put region-keyed data on a map inside
 a normal `ggplot()` pipeline (the assembled-figure counterparts are
-[`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md)
-and
-[`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)):
+[`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md)):
 
 ## Usage
 
@@ -47,7 +45,8 @@ theme_geoscale(...)
 - region:
 
   Name of the region-code column of the data. Defaults to the
-  `geoframe`-named column when present, else `"region"`.
+  `geoframe`-named column when present, else the column named after the
+  atom key, else `"region"`.
 
 - fun:
 

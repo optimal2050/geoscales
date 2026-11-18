@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,12 +89,17 @@
 <div class="section level2">
 <h2 id="the-geoscale-object">The GeoScale object<a class="anchor" aria-label="anchor" href="#the-geoscale-object"></a>
 </h2>
-<p>A <code>GeoScale</code> is an S7 object with five properties:</p>
+<p>A <code>GeoScale</code> is an S7 object, a subclass of
+<code>nestedscales</code>’ <code>NestedScale</code>.
+<code><a href="https://rconsortium.github.io/S7/reference/prop_names.html" class="external-link">S7::prop_names()</a></code> lists its properties,
+<code>gs@geoframes</code> or <code>S7::prop(gs, "geoframes")</code>
+reads one, and <code>str(gs)</code> prints them with their size and
+purpose (with <code>nestedscales</code> 0.3.0 or later).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop_names.html" class="external-link">prop_names</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "leaftable"  "frames"     "members"    "key"        "meta"      </span></span>
-<span><span class="co">#&gt; [6] "attributes" "aliases"    "geoframes"  "geometry"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] "leaftable"  "frames"     "members"    "key"        "meta"      </span></span>
+<span><span class="co">#&gt;  [6] "attributes" "aliases"    "labels"     "geoframes"  "geometry"</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -110,19 +115,31 @@
 <tr class="odd">
 <td><code>@leaftable</code></td>
 <td><code>data.frame</code></td>
-<td>one row per <strong>atom</strong>: one column per geoframe, the
-unique <code>region</code> key, weight columns</td>
+<td>one row per <strong>atom</strong>: one column per geoframe, and the
+weight columns</td>
 </tr>
 <tr class="even">
 <td><code>@geoframes</code></td>
 <td><code>character</code></td>
-<td>the hierarchy, ordered coarsest first</td>
+<td>the hierarchy, ordered coarsest first (the same value as
+<code>@frames</code>)</td>
 </tr>
 <tr class="odd">
 <td><code>@members</code></td>
 <td>named <code>list</code>
 </td>
 <td>the ordered code vocabulary at each geoframe</td>
+</tr>
+<tr class="even">
+<td><code>@key</code></td>
+<td><code>character</code></td>
+<td>the name of the column that identifies the atoms: the finest
+geoframe, unless another was named</td>
+</tr>
+<tr class="odd">
+<td><code>@labels</code></td>
+<td><code>data.frame</code></td>
+<td>display names by <code>(frame, unit, variant)</code>; sparse</td>
 </tr>
 <tr class="even">
 <td><code>@geometry</code></td>
@@ -136,34 +153,48 @@ unique <code>region</code> key, weight columns</td>
 <td><code>list</code></td>
 <td>
 <code>name</code>, <code>desc</code>, <code>weights</code>,
-<code>default_weight</code>, <code>crs</code>, <code>source</code>,
-<code>labels</code>
+<code>default_weight</code>, <code>default_label</code>,
+<code>crs</code>, <code>source</code>
 </td>
+</tr>
+<tr class="even">
+<td>
+<code>@attributes</code>, <code>@aliases</code>
+</td>
+<td><code>data.frame</code></td>
+<td>inherited from <code>NestedScale</code>: member values and
+alternative spellings</td>
 </tr>
 </tbody>
 </table>
-<p>Everything else — parent/child tables, ancestry, shares, dissolved
-shapes — is derived on demand; nothing is cached on the object.</p>
+<p>The object is a <strong>definition</strong>: the regions, the
+geoframes that group them and the weights that size them. It holds no
+data. Data stays in ordinary tables, tied to the object by the
+region-code columns; <code><a href="../reference/bind_geoscale.html">bind_geoscale()</a></code> records that tie on
+the columns themselves. Everything else — parent/child tables, ancestry,
+shares, dissolved shapes — is derived on demand; nothing is cached on
+the object.</p>
 </div>
 <div class="section level2">
 <h2 id="the-leaftable">The leaftable<a class="anchor" aria-label="anchor" href="#the-leaftable"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   country state zone atom  km2 pop region</span></span>
-<span><span class="co">#&gt; 1       N    N1   N1   A1  100  10     A1</span></span>
-<span><span class="co">#&gt; 2       N    N1   N1   A2  200  90     A2</span></span>
-<span><span class="co">#&gt; 3       N    N2   ZB   A3  300  30     A3</span></span>
-<span><span class="co">#&gt; 4       N    N2   ZB   A4  400  70     A4</span></span>
-<span><span class="co">#&gt; 5       S    S1   ZB   A5  500  50     A5</span></span>
-<span><span class="co">#&gt; 6       S    S1   ZC   A6  600  50     A6</span></span>
-<span><span class="co">#&gt; 7    &lt;NA&gt;  &lt;NA&gt; &lt;NA&gt;  ROW 1000   0    ROW</span></span></code></pre></div>
-<p>Each row is one atom. The <code>region</code> column is the
-<strong>authored node ID</strong> (unique, non-missing); geoframe
-columns may hold <code>NA</code> — an atom with no code at a coarser
-geoframe (a rest-of-world row, offshore areas) simply does not
-participate at that resolution, and <code>na_action=</code> decides what
-recasts do about it.</p>
+<span><span class="co">#&gt;   country state zone atom  km2 pop</span></span>
+<span><span class="co">#&gt; 1       N    N1   N1   A1  100  10</span></span>
+<span><span class="co">#&gt; 2       N    N1   N1   A2  200  90</span></span>
+<span><span class="co">#&gt; 3       N    N2   ZB   A3  300  30</span></span>
+<span><span class="co">#&gt; 4       N    N2   ZB   A4  400  70</span></span>
+<span><span class="co">#&gt; 5       S    S1   ZB   A5  500  50</span></span>
+<span><span class="co">#&gt; 6       S    S1   ZC   A6  600  50</span></span>
+<span><span class="co">#&gt; 7    &lt;NA&gt;  &lt;NA&gt; &lt;NA&gt;  ROW 1000   0</span></span></code></pre></div>
+<p>Each row is one atom. The finest geoframe (<code>atom</code> here) is
+the <strong>authored node ID</strong> (unique, non-missing) and the atom
+key, <code>geoscale_key(gs)</code>; there is no separate key column.
+Coarser geoframe columns may hold <code>NA</code> — an atom with no code
+at a coarser geoframe (a rest-of-world row, offshore areas) simply does
+not participate at that resolution, and <code>na_action=</code> decides
+what recasts do about it.</p>
 </div>
 <div class="section level2">
 <h2 id="geoframes-members-ranks">Geoframes, members, ranks<a class="anchor" aria-label="anchor" href="#geoframes-members-ranks"></a>
@@ -237,15 +268,47 @@ geoframes; <code><a href="../reference/geoscale_from_leaftable.html">geoscale_fr
 <code>name=</code>.</p>
 </div>
 <div class="section level2">
+<h2 id="labels">Labels<a class="anchor" aria-label="anchor" href="#labels"></a>
+</h2>
+<p>Display names are declared per geoframe and per region, in named
+variants. The table is sparse: here the countries get a name and an
+alternative one, while states and zones have none and are shown by their
+codes.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gs_named</span> <span class="op">&lt;-</span> <span class="va">gs</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/geoscale_labels.html">attach_labels_geoscale</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>geoframe <span class="op">=</span> <span class="st">"country"</span>, region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>,</span>
+<span>               label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Northland"</span>, <span class="st">"Southland"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    variant <span class="op">=</span> <span class="st">"name"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/geoscale_labels.html">attach_labels_geoscale</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>geoframe <span class="op">=</span> <span class="st">"country"</span>, region <span class="op">=</span> <span class="st">"N"</span>, label <span class="op">=</span> <span class="st">"Nordland"</span><span class="op">)</span>,</span>
+<span>    variant <span class="op">=</span> <span class="st">"de"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/geoscale_labels.html">geoscale_labels</a></span><span class="op">(</span><span class="va">gs_named</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     frame unit variant     label</span></span>
+<span><span class="co">#&gt; 1 country    N    name Northland</span></span>
+<span><span class="co">#&gt; 2 country    S    name Southland</span></span>
+<span><span class="co">#&gt; 3 country    N      de  Nordland</span></span>
+<span><span class="fu"><a href="../reference/geoscale_labels.html">geoscale_label</a></span><span class="op">(</span><span class="va">gs_named</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, <span class="st">"country"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Northland" "Southland"</span></span>
+<span><span class="fu"><a href="../reference/geoscale_labels.html">geoscale_label</a></span><span class="op">(</span><span class="va">gs_named</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, <span class="st">"country"</span>, variant <span class="op">=</span> <span class="st">"de"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Nordland" "S"</span></span>
+<span><span class="fu"><a href="../reference/geoscale_labels.html">geoscale_label</a></span><span class="op">(</span><span class="va">gs_named</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"ZB"</span><span class="op">)</span>, <span class="st">"zone"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "N1" "ZB"</span></span></code></pre></div>
+<p>Subsets keep the labels of the regions that remain, and the plots use
+the default variant.</p>
+</div>
+<div class="section level2">
 <h2 id="what-the-validator-guarantees">What the validator guarantees<a class="anchor" aria-label="anchor" href="#what-the-validator-guarantees"></a>
 </h2>
 <p>Construction (any layer: <code><a href="../reference/geoscale_from_provider.html">geoscale_from_provider()</a></code>,
 <code><a href="../reference/geoscale_build.html">geoscale_build()</a></code>, <code><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable()</a></code>)
 enforces:</p>
 <ul>
-<li>
-<code>region</code> present, character, unique, no missing/empty
+<li>the atom key column present, character, unique, no missing/empty
 values;</li>
+<li>every label row naming a geoframe and a region that exist;</li>
 <li>every geoframe present as a leaftable column; members exactly the
 non-<code>NA</code> values of that column, in a stable order;</li>
 <li>weights numeric, finite, non-negative, with a positive sum;
@@ -266,7 +329,7 @@ way anything global changes:</p>
 <p><strong>Rules</strong> map value-column names to their aggregation
 rule (there is no fallback — unregistered columns without
 <code>rule=</code> error):</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">GEOSCALE_RULES</span></span>
 <span><span class="co">#&gt; [1] "sum"           "weighted_mean" "mean"          "copy"         </span></span>
 <span><span class="co">#&gt; [5] "sd"            "share"         "logshare"</span></span>
@@ -286,7 +349,7 @@ rule (there is no fallback — unregistered columns without
 <p><strong>Maps</strong> hold exact crosswalks that short-circuit the
 atom-layer derivation in <code><a href="../reference/geoscale_map.html">geoscale_map()</a></code> — for hand-audited
 concordances:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fake</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"N1"</span>, zone <span class="op">=</span> <span class="st">"ZC"</span>, n_from <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>                   n_overlap <span class="op">=</span> <span class="fl">1L</span>, w <span class="op">=</span> <span class="fl">1</span>, w_from <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/register_geoscale_map.html">register_geoscale_map</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span>, <span class="va">fake</span><span class="op">)</span></span>
@@ -300,7 +363,7 @@ concordances:</p>
 <p><strong>Providers</strong> are named map sources (<code>fetch</code>
 functions returning a wide <code>sf</code>/<code>data.frame</code>); the
 package ships one:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/list_geoscale_providers.html">list_geoscale_providers</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           name                                          desc</span></span>
 <span><span class="co">#&gt; 1 naturalearth Natural Earth admin-0/admin-1 (rnaturalearth)</span></span>

@@ -250,3 +250,15 @@ test_that("icicle data fill recasts values onto every band", {
                                  z = "v"),
                "keyed by the atom geoframe")
 })
+
+test_that("geom_geoscale carries finer codes up to the drawn geoframe", {
+  skip_if_not_installed("ggplot2")
+  gs <- .toy_gs()
+  # atom codes in a column named `region`, drawn one geoframe up
+  x <- data.frame(region = c("a", "b"), v = c(2, 5))
+  lyr <- geom_geoscale(gs = gs, z = "v", data = x, geoframe = "top", fun = sum)
+  expect_equal(lyr[[1]]$data$value, 7)
+  # and at their own geoframe, found through the `region` column
+  lyr <- geom_geoscale(gs = gs, z = "v", data = x, geoframe = "atom")
+  expect_equal(lyr[[1]]$data$value, c(2, 5))
+})

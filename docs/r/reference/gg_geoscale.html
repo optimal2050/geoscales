@@ -13,7 +13,7 @@ returns the same ggplot; plot() draws it and returns it invisibly."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,7 +154,8 @@ Icicle: <code>TRUE</code> (default) draws the region names on the rectangles,
 <code>FALSE</code> none. Stack: a character vector of geoframes whose regions get
 their names on the plane (<code>TRUE</code> = all; default none). Map: <code>TRUE</code>
 draws the region names (default none). Names are the display names of
-the <code>@meta$labels</code> column where unambiguous, else the codes.</p></dd>
+the region's label where it has one (see <code><a href="geoscale_labels.html">geoscale_labels()</a></code>), else
+the code.</p></dd>
 
 
 <dt id="arg-fill">fill<a class="anchor" aria-label="anchor" href="#arg-fill"></a></dt>
@@ -275,7 +276,9 @@ that geoframe.</p>
 
 <p>One sheared map plane per geoframe, coarsest on top: the same atoms
 dissolved at each resolution, under a chosen point of view. Without
-<code>data</code>, each plane is coloured by its own regions.</p>
+<code>data</code>, regions are coloured by their ancestor at the coarsest geoframe
+with two or more regions, so each child carries its parent's colour down
+the stack; a single-region geoframe above it is drawn in neutral grey.</p>
     </div>
     <div class="section level2">
     <h2 id="map-type-map-">Map (<code>type = "map"</code>)<a class="anchor" aria-label="anchor" href="#map-type-map-"></a></h2>

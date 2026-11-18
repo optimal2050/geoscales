@@ -56,11 +56,11 @@ ggplot2 path.
 gs <- energyRt::topia$geoscales$honeycomb
 gs
 
-x <- tibble(region = geoscale_regions(gs, "region"),
-            capacity = c(5, 3, 8, 2, 6, 4, 7, 1, 9, 2, 5))
+x <- tibble(province = geoscale_regions(gs, "province"),
+            capacity = c(5, 3, 8, 2, 6, 4, 7, 1, 9, 2, 5, 3))
 
 ggplot(x) +
-  geom_geoscale(gs = gs, z = "capacity", geoframe = "region") +
+  geom_geoscale(gs = gs, z = "capacity", geoframe = "province") +
   scale_fill_viridis_c(option = "G") +
   labs(title = "Capacity by region", fill = "GW") +
   theme_geoscale()
@@ -95,7 +95,7 @@ use `weighted_mean`):
 
 ```{r recast-explicit, eval = has_topia}
 x |>
-  recast_geoscale(gs, source = "region", target = "zone", rule = "sum") |>
+  recast_geoscale(gs, source = "province", target = "zone", rule = "sum") |>
   ggplot() +
   geom_geoscale(gs = gs, z = "capacity", geoframe = "zone") +
   scale_fill_viridis_c(option = "G") +
@@ -142,8 +142,8 @@ value recast to that geoframe (atoms keep their own values, coarser
 bands get the weighted mean):
 
 ```{r structure-data, eval = has_topia, fig.height = 2.6}
-cap <- data.frame(region = geoscale_regions(gs, "region"),
-                  mw = c(40, 15, 75, 30, 60, 22, 8, 55, 34, 12, 48))
+cap <- data.frame(province = geoscale_regions(gs, "province"),
+                  mw = c(40, 15, 75, 30, 60, 22, 8, 55, 34, 12, 48, 26))
 gg_geoscale(gs, data = cap, z = "mw") +
   labs(fill = "MW")
 ```
@@ -183,7 +183,7 @@ And `type = "map"` is the one-call choropleth over the same
 machinery:
 
 ```{r one-call, eval = has_topia}
-gg_geoscale(gs, type = "map", data = x, geoframe = "region",
+gg_geoscale(gs, type = "map", data = x, geoframe = "province",
             z = "capacity", palette = "G")
 ```
 

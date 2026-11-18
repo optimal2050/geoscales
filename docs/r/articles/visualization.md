@@ -5,7 +5,7 @@
 | kind | functions | use when |
 |----|----|----|
 | composable layers | [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md), [`theme_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md) | a choropleth as one layer among others in a custom [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html) |
-| assembled figures | [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md) (structure icicle; also [`plot()`](https://rspatial.github.io/terra/reference/plot.html)), [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md) (one-call choropleth) | a finished figure in one call |
+| assembled figures | [`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md) with `type =` `"icicle"`, `"stack"` or `"map"`; [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html) returns it, [`plot()`](https://rspatial.github.io/terra/reference/plot.html) draws it | a finished figure in one call |
 | layout / geometry workers | [`geoscale_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.md), [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md) | the plain frames behind the figures |
 
 This article needs maps, so it runs on two fixtures that stay out of the
@@ -36,21 +36,22 @@ normal ggplot2 path.
 gs <- energyRt::topia$geoscales$honeycomb
 gs
 #> GeoScale: topia_honeycomb 
-#> Description: TOPIA reference regions (honeycomb layout), nested nation -> zone -> region 
+#> Description: TOPIA reference provinces (honeycomb layout), nested nation -> zone -> province 
 #> Geoframes (3, coarsest first):
 #>   - nation (1)
-#>     - zone (3)
-#>       - region (11)
-#> Atoms: 11
+#>     - zone (5)
+#>       - province (12)
+#> Atoms: 12
 #> Weights: area (default: area)
+#> Labels: province [name] (default: name)
 #> CRS: NA
-#> Geometry: attached (11 features)
+#> Geometry: attached (12 features)
 
-x <- tibble(region = geoscale_regions(gs, "region"),
-            capacity = c(5, 3, 8, 2, 6, 4, 7, 1, 9, 2, 5))
+x <- tibble(province = geoscale_regions(gs, "province"),
+            capacity = c(5, 3, 8, 2, 6, 4, 7, 1, 9, 2, 5, 3))
 
 ggplot(x) +
-  geom_geoscale(gs = gs, z = "capacity", geoframe = "region") +
+  geom_geoscale(gs = gs, z = "capacity", geoframe = "province") +
   scale_fill_viridis_c(option = "G") +
   labs(title = "Capacity by region", fill = "GW") +
   theme_geoscale()
@@ -95,7 +96,7 @@ first and draw the result — the explicit route makes the rule visible
 ``` r
 
 x |>
-  recast_geoscale(gs, source = "region", target = "zone", rule = "sum") |>
+  recast_geoscale(gs, source = "province", target = "zone", rule = "sum") |>
   ggplot() +
   geom_geoscale(gs = gs, z = "capacity", geoframe = "zone") +
   scale_fill_viridis_c(option = "G") +
@@ -134,9 +135,11 @@ ggplot(shapes) +
 ## Structure figures
 
 The assembled counterparts need no geometry at all.
-[`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
-(also [`plot()`](https://rspatial.github.io/terra/reference/plot.html))
-draws the hierarchy as an icicle; its plain-data frame is
+[`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md)
+(also
+[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html);
+[`plot()`](https://rspatial.github.io/terra/reference/plot.html) draws
+it) draws the hierarchy as an icicle; its plain-data frame is
 [`geoscale_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.md):
 
 ``` r
@@ -149,11 +152,11 @@ plot(gs)
 ``` r
 
 head(geoscale_layout(gs), 4)
-#>   geoframe  region rank      xmin      xmax ymin ymax   weight     share
-#> 1   nation   TOPIA    1 0.0000000 1.0000000    2  2.9 62.21484 1.0000000
-#> 2     zone    WEST    2 0.0000000 0.1818182    1  1.9 11.31179 0.1818182
-#> 3     zone CENTRAL    2 0.1818182 0.7272727    1  1.9 33.93537 0.5454545
-#> 4     zone    EAST    2 0.7272727 1.0000000    1  1.9 16.96768 0.2727273
+#>   geoframe region rank       xmin       xmax ymin ymax    weight      share
+#> 1   nation  TOPIA    1 0.00000000 1.00000000    2  2.9 67.894341 1.00000000
+#> 2     zone     Z1    2 0.00000000 0.08333333    1  1.9  5.657862 0.08333333
+#> 3     zone     Z2    2 0.08333333 0.25000000    1  1.9 11.315723 0.16666667
+#> 4     zone     Z3    2 0.25000000 0.50000000    1  1.9 16.973585 0.25000000
 ```
 
 The icicle carries data too — `data =`/`z =` fill every band with the
@@ -162,9 +165,9 @@ bands get the weighted mean):
 
 ``` r
 
-cap <- data.frame(region = geoscale_regions(gs, "region"),
-                  mw = c(40, 15, 75, 30, 60, 22, 8, 55, 34, 12, 48))
-geoscale_autoplot(gs, data = cap, z = "mw", label = TRUE) +
+cap <- data.frame(province = geoscale_regions(gs, "province"),
+                  mw = c(40, 15, 75, 30, 60, 22, 8, 55, 34, 12, 48, 26))
+gg_geoscale(gs, data = cap, z = "mw") +
   labs(fill = "MW")
 ```
 
@@ -175,7 +178,7 @@ the same atoms dissolved at every geoframe, stacked:
 
 ``` r
 
-geoscale_autoplot(gs, type = "stack")
+gg_geoscale(gs, type = "stack")
 ```
 
 ![](visualization_files/figure-html/structure-stack-1.png)
@@ -198,7 +201,7 @@ views <- c("top-down", "military", "isometric",
            "oblique", "perspective", "pyramid")
 views |>
   lapply(function(vw)
-    geoscale_autoplot(gs, type = "stack", view = vw) +
+    gg_geoscale(gs, type = "stack", view = vw) +
       labs(title = vw) +
       theme(plot.title = element_text(size = 9, hjust = 0.5))) |>
   patchwork::wrap_plots(ncol = 3)
@@ -206,14 +209,12 @@ views |>
 
 ![](visualization_files/figure-html/stack-views-1.png)
 
-And
-[`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md)
-is the one-call choropleth over the same machinery:
+And `type = "map"` is the one-call choropleth over the same machinery:
 
 ``` r
 
-geoscale_plot(gs, x, geoframe = "region", fill = "capacity",
-              palette = "G")
+gg_geoscale(gs, type = "map", data = x, geoframe = "province",
+            z = "capacity", palette = "G")
 ```
 
 ![](visualization_files/figure-html/one-call-1.png)
@@ -259,7 +260,7 @@ object’s default weight. Drawn straight from the leaftable:
 
 lt <- geoscale_leaftable(isl)
 
-ggplot(tibble(unit = lt$region, km2 = lt$km2)) +
+ggplot(tibble(unit = lt$unit, km2 = lt$km2)) +
   geom_geoscale(gs = isl, z = "km2", geoframe = "unit",
                 colour = "white", linewidth = 0.3) +
   scale_fill_viridis_c(option = "G", trans = "sqrt") +
@@ -307,8 +308,8 @@ for (gf in c("cluster", "landshluti", "country")) {
   d <- if (gf == "cluster") iw$wind else
     recast_geoscale(iw$wind, iw$gs, source = "cluster", target = gf,
                     rule = "weighted_mean", weight = "km2")
-  print(geoscale_plot(iw$gs, d, geoframe = gf, fill = "wind",
-                      palette = "G") +
+  print(gg_geoscale(iw$gs, type = "map", data = d, geoframe = gf,
+                    z = "wind", palette = "G") +
           labs(title = paste("Iceland mean wind speed at:", gf),
                fill = "m/s"))
 }

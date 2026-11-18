@@ -6,7 +6,7 @@ matched on shared atom region keys). Handles both aggregation (fine to
 coarse) and disaggregation (coarse to fine) with a single rule per value
 column; geoframes that cross-cut work too, because the route always goes
 through the atom layer. The route is evaluated as one dplyr pipeline
-against the geoscale_map() crosswalk, so x may live in any
+against the geoscale_map() crosswalk, so data may live in any
 supported backend (see below). A crosswalk registered with
 register_geoscale_map() short-circuits the derivation."><meta property="og:description" content="The central conversion verb: takes a table keyed by region code at
 geoframe source and returns one keyed at target – a geoframe name of the
@@ -15,7 +15,7 @@ matched on shared atom region keys). Handles both aggregation (fine to
 coarse) and disaggregation (coarse to fine) with a single rule per value
 column; geoframes that cross-cut work too, because the route always goes
 through the atom layer. The route is evaluated as one dplyr pipeline
-against the geoscale_map() crosswalk, so x may live in any
+against the geoscale_map() crosswalk, so data may live in any
 supported backend (see below). A crosswalk registered with
 register_geoscale_map() short-circuits the derivation."><meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -25,7 +25,7 @@ register_geoscale_map() short-circuits the derivation."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,7 @@ matched on shared atom <code>region</code> keys). Handles both aggregation (fine
 coarse) and disaggregation (coarse to fine) with a single rule per value
 column; geoframes that cross-cut work too, because the route always goes
 through the atom layer. The route is evaluated as one dplyr pipeline
-against the <code><a href="geoscale_map.html">geoscale_map()</a></code> crosswalk, so <code>x</code> may live in any
+against the <code><a href="geoscale_map.html">geoscale_map()</a></code> crosswalk, so <code>data</code> may live in any
 supported backend (see below). A crosswalk registered with
 <code><a href="register_geoscale_map.html">register_geoscale_map()</a></code> short-circuits the derivation.</p>
     </div>
@@ -82,7 +82,7 @@ supported backend (see below). A crosswalk registered with
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">recast_geoscale</span><span class="op">(</span></span>
-<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">data</span>,</span>
 <span>  <span class="va">gs</span>,</span>
 <span>  source <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">target</span>,</span>
@@ -102,31 +102,31 @@ supported backend (see below). A crosswalk registered with
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>The data to recast, in any supported backend, with a column
 named by <code>key</code> plus one or more numeric value columns; other columns
 are preserved as identifiers.</p></dd>
 
 
 <dt id="arg-gs">gs<a class="anchor" aria-label="anchor" href="#arg-gs"></a></dt>
-<dd><p>The <code><a href="GeoScale.html">GeoScale</a></code> the codes in <code>x</code> belong to.</p></dd>
+<dd><p>The <code><a href="GeoScale.html">GeoScale</a></code> the codes in <code>data</code> belong to.</p></dd>
 
 
 <dt id="arg-source">source<a class="anchor" aria-label="anchor" href="#arg-source"></a></dt>
 <dd><p>Geoframe name the codes belong to. <code>NULL</code> (default) is
 inferred: <code>key</code> when it is a geoframe name, else the single geoframe
-name appearing among <code>x</code>'s columns.</p></dd>
+name appearing among <code>data</code>'s columns.</p></dd>
 
 
 <dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>
 <dd><p>Target geoframe name of <code>gs</code>, or another (named) <code><a href="GeoScale.html">GeoScale</a></code>
 – then the target is that object's atom layer, matched on the atom
-<code>region</code> keys the two objects share.</p></dd>
+codes the two objects share.</p></dd>
 
 
 <dt id="arg-key">key<a class="anchor" aria-label="anchor" href="#arg-key"></a></dt>
-<dd><p>Name of the region-code column in <code>x</code>. Defaults to <code>source</code>
-when that column exists, otherwise <code>"region"</code>.</p></dd>
+<dd><p>Name of the region-code column in <code>data</code>. Defaults to <code>source</code>
+when that column exists, otherwise the GeoScale's atom key.</p></dd>
 
 
 <dt id="arg-values">values<a class="anchor" aria-label="anchor" href="#arg-values"></a></dt>
@@ -183,7 +183,7 @@ types are preserved.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Columns of <code>x</code> that are neither the key nor a value column are treated
+    <p>Columns of <code>data</code> that are neither the key nor a value column are treated
 as identifiers (panel columns – a year, a technology) and preserved as
 grouping columns, so panel data recasts correctly in one call; this is
 what makes mixed pipelines like
@@ -218,7 +218,7 @@ the observed values themselves are the weights.</p>
     <h2 id="backends">Backends<a class="anchor" aria-label="anchor" href="#backends"></a></h2>
 
 
-<p><code>x</code> may be a <code>data.frame</code>, tibble, <code>data.table</code>, <code>dtplyr</code> lazy table,
+<p><code>data</code> may be a <code>data.frame</code>, tibble, <code>data.table</code>, <code>dtplyr</code> lazy table,
 or an arrow Dataset/Table/query. The result comes back in the input's
 class; lazy inputs (arrow, dtplyr) return the uncollected query unless
 <code>collect = TRUE</code>. Lazy results contain the observed target regions

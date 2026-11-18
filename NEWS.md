@@ -15,6 +15,7 @@
 
 ## Bug fixes
 
+* `geom_geoscale()` drawn at a coarser geoframe than the data's codes filled every region with `NA`; the codes are now carried up to the drawn geoframe before `fun` is applied. The code column defaults to the `geoframe`-named column, then the column named after the atom key, then `region`.
 * `attach_geometry_geoscale()`, `add_area_geoscale()`, `ne_geoscale()` and `geoscale_from_provider()` rebuilt the object from its core parts and dropped its attributes and aliases; they now update it in place.
 
 # geoscales 0.7.3

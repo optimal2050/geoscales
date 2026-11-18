@@ -21,8 +21,19 @@ A nested spatial partition: a flat table of weighted leaf regions
 - [`geoscale_rank()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_rank.md)
   : Geoframe rank
 
+- [`geoscale_key()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_key.md)
+  : The atom key of a GeoScale
+
 - [`geoscale_weights()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_weights.md)
   : Weight columns of a GeoScale
+
+- [`geoscale_add_weight()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_add_weight.md)
+  : Add a weight column to a GeoScale
+
+- [`attach_labels_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
+  [`geoscale_labels()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
+  [`geoscale_label()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
+  : Labels of regions and geoframes
 
 - [`summary(`*`<GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/summary.GeoScale.md)
   [`summary(`*`<geoscales::GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/summary.GeoScale.md)
@@ -77,6 +88,10 @@ geoframe ranks and cross-cutting geoframes need no special handling.
   : Clear the registered spatial crosswalks
 - [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
   : Attach a GeoScale to region-keyed data
+- [`bind_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
+  [`geoscale_link()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
+  [`geoscale_id()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
+  : Bind a table to a GeoScale
 - [`GEOSCALE_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEOSCALE_RULES.md)
   : Supported aggregation rules
 - [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md)
@@ -85,6 +100,8 @@ geoframe ranks and cross-cutting geoframes need no special handling.
   : Look up a registered rule
 - [`list_geoscale_rules()`](https://optimal2050.github.io/geoscales/r/reference/list_geoscale_rules.md)
   : List registered rules
+- [`geoscale_rule_action()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_rule_action.md)
+  : What a rule does in each direction
 - [`clear_geoscale_rules()`](https://optimal2050.github.io/geoscales/r/reference/clear_geoscale_rules.md)
   : Clear the rule registry
 
@@ -109,6 +126,8 @@ geoframe.
   : Ancestry between all geoframe pairs
 - [`geoscale_nests()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_nests.md)
   : Do two geoframes nest?
+- [`geoscale_adjacent()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_adjacent.md)
+  : Adjacency between the features of a geoframe
 - [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md)
   : Subset a GeoScale by region
 - [`geoscale_coverage()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.md)
@@ -136,21 +155,17 @@ Optional, and backed by ‘sf’. The core is geometry-free.
 ## Visualization
 
 Composable choropleth layers, the structure icicle, and their plain-data
-workers.
-[`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
+workers. The icicle of
+[`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md)
 needs no map.
 
 - [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
   [`theme_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.md)
   : GeoScale layers for ggplot2
-- [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
-  [`autoplot(`*`<GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.md)
+- [`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md)
+  [`autoplot(`*`<GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md)
+  [`plot(`*`<GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md)
   : Plot a GeoScale
-- [`plot(`*`<GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/plot.GeoScale.md)
-  [`plot(`*`<geoscales::GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/plot.GeoScale.md)
-  : Plot a GeoScale
-- [`geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.md)
-  : Map data onto a GeoScale
 - [`geoscale_layout()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.md)
   : Icicle layout for a GeoScale
 

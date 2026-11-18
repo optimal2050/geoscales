@@ -30,7 +30,7 @@ at once.
   bookkeeping.
 - [`geom_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geom_geoscale.html)
   and
-  [`geoscale_autoplot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_autoplot.html)
+  [`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.html)
   draw any geoframe: choropleths, icicles, and axonometric stacks.
 
 geoscales is the spatial-domain package of the
@@ -102,7 +102,7 @@ iceland <- geoscale_from_leaftable(
 ) |>
   attach_geometry_geoscale(ne, by = "iso_3166_2", geoframe = "unit")
 
-geoscale_autoplot(iceland, type = "stack", view = "top-down", gap = .35)
+gg_geoscale(iceland, type = "stack", view = "top-down", gap = .35)
 ```
 
 ![](reference/figures/README-demo-stack-iceland-1.png)

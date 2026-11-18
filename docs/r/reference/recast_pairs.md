@@ -10,7 +10,7 @@ aggregated by rule.
 
 ``` r
 recast_pairs(
-  x,
+  data,
   gs,
   target,
   source = NULL,
@@ -18,7 +18,7 @@ recast_pairs(
   dst = "dst",
   values = NULL,
   rule = NULL,
-  weight = NULL,
+  data_weight = NULL,
   na_rm = FALSE,
   directed = TRUE,
   drop_internal = TRUE,
@@ -30,7 +30,7 @@ recast_pairs(
 
 ## Arguments
 
-- x:
+- data:
 
   The data: a data.frame, tibble, data.table, or arrow
   table/dataset/query with two endpoint columns.
@@ -65,9 +65,9 @@ recast_pairs(
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md):
   one name for all value columns, or a named vector per column.
 
-- weight:
+- data_weight:
 
-  Name of a column of `x` to weight by, for `weighted_mean`. `NULL`
+  Name of a column of `data` to weight by, for `weighted_mean`. `NULL`
   (default) uses a `weight` column if present; without one the weights
   are equal and `weighted_mean` is a plain mean.
 

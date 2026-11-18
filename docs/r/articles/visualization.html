@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,9 +113,9 @@
 <tr class="even">
 <td>assembled figures</td>
 <td>
-<code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code> (structure icicle; also
-<code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code>), <code><a href="../reference/geoscale_plot.html">geoscale_plot()</a></code> (one-call
-choropleth)</td>
+<code><a href="../reference/gg_geoscale.html">gg_geoscale()</a></code> with <code>type =</code>
+<code>"icicle"</code>, <code>"stack"</code> or <code>"map"</code>;
+<code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> returns it, <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> draws it</td>
 <td>a finished figure in one call</td>
 </tr>
 <tr class="odd">
@@ -155,21 +155,22 @@ normal ggplot2 path.</p>
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu">energyRt</span><span class="fu">::</span><span class="va"><a href="https://energyRt.org/reference/topia.html" class="external-link">topia</a></span><span class="op">$</span><span class="va">geoscales</span><span class="op">$</span><span class="va">honeycomb</span></span>
 <span><span class="va">gs</span></span>
 <span><span class="co">#&gt; GeoScale: topia_honeycomb </span></span>
-<span><span class="co">#&gt; Description: TOPIA reference regions (honeycomb layout), nested nation -&gt; zone -&gt; region </span></span>
+<span><span class="co">#&gt; Description: TOPIA reference provinces (honeycomb layout), nested nation -&gt; zone -&gt; province </span></span>
 <span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
 <span><span class="co">#&gt;   - nation (1)</span></span>
-<span><span class="co">#&gt;     - zone (3)</span></span>
-<span><span class="co">#&gt;       - region (11)</span></span>
-<span><span class="co">#&gt; Atoms: 11</span></span>
+<span><span class="co">#&gt;     - zone (5)</span></span>
+<span><span class="co">#&gt;       - province (12)</span></span>
+<span><span class="co">#&gt; Atoms: 12</span></span>
 <span><span class="co">#&gt; Weights: area (default: area)</span></span>
+<span><span class="co">#&gt; Labels: province [name] (default: name)</span></span>
 <span><span class="co">#&gt; CRS: NA</span></span>
-<span><span class="co">#&gt; Geometry: attached (11 features)</span></span>
+<span><span class="co">#&gt; Geometry: attached (12 features)</span></span>
 <span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>region <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"region"</span><span class="op">)</span>,</span>
-<span>            capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">3</span>, <span class="fl">8</span>, <span class="fl">2</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">7</span>, <span class="fl">1</span>, <span class="fl">9</span>, <span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>province <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"province"</span><span class="op">)</span>,</span>
+<span>            capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">3</span>, <span class="fl">8</span>, <span class="fl">2</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">7</span>, <span class="fl">1</span>, <span class="fl">9</span>, <span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">gs</span>, z <span class="op">=</span> <span class="st">"capacity"</span>, geoframe <span class="op">=</span> <span class="st">"region"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">gs</span>, z <span class="op">=</span> <span class="st">"capacity"</span>, geoframe <span class="op">=</span> <span class="st">"province"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Capacity by region"</span>, fill <span class="op">=</span> <span class="st">"GW"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/geom_geoscale.html">theme_geoscale</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -200,7 +201,7 @@ result — the explicit route makes the rule visible (and lets intensive
 quantities use <code>weighted_mean</code>):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"region"</span>, target <span class="op">=</span> <span class="st">"zone"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"province"</span>, target <span class="op">=</span> <span class="st">"zone"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">gs</span>, z <span class="op">=</span> <span class="st">"capacity"</span>, geoframe <span class="op">=</span> <span class="st">"zone"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -235,33 +236,33 @@ small <code>|&gt;</code> chain over
 <h2 id="structure-figures">Structure figures<a class="anchor" aria-label="anchor" href="#structure-figures"></a>
 </h2>
 <p>The assembled counterparts need no geometry at all.
-<code><a href="../reference/geoscale_autoplot.html">geoscale_autoplot()</a></code> (also <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code>) draws the
-hierarchy as an icicle; its plain-data frame is
-<code><a href="../reference/geoscale_layout.html">geoscale_layout()</a></code>:</p>
+<code><a href="../reference/gg_geoscale.html">gg_geoscale()</a></code> (also <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>;
+<code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> draws it) draws the hierarchy as an icicle; its
+plain-data frame is <code><a href="../reference/geoscale_layout.html">geoscale_layout()</a></code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/structure-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_layout.html">geoscale_layout</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   geoframe  region rank      xmin      xmax ymin ymax   weight     share</span></span>
-<span><span class="co">#&gt; 1   nation   TOPIA    1 0.0000000 1.0000000    2  2.9 62.21484 1.0000000</span></span>
-<span><span class="co">#&gt; 2     zone    WEST    2 0.0000000 0.1818182    1  1.9 11.31179 0.1818182</span></span>
-<span><span class="co">#&gt; 3     zone CENTRAL    2 0.1818182 0.7272727    1  1.9 33.93537 0.5454545</span></span>
-<span><span class="co">#&gt; 4     zone    EAST    2 0.7272727 1.0000000    1  1.9 16.96768 0.2727273</span></span></code></pre></div>
+<span><span class="co">#&gt;   geoframe region rank       xmin       xmax ymin ymax    weight      share</span></span>
+<span><span class="co">#&gt; 1   nation  TOPIA    1 0.00000000 1.00000000    2  2.9 67.894341 1.00000000</span></span>
+<span><span class="co">#&gt; 2     zone     Z1    2 0.00000000 0.08333333    1  1.9  5.657862 0.08333333</span></span>
+<span><span class="co">#&gt; 3     zone     Z2    2 0.08333333 0.25000000    1  1.9 11.315723 0.16666667</span></span>
+<span><span class="co">#&gt; 4     zone     Z3    2 0.25000000 0.50000000    1  1.9 16.973585 0.25000000</span></span></code></pre></div>
 <p>The icicle carries data too — <code>data =</code>/<code>z =</code>
 fill every band with the value recast to that geoframe (atoms keep their
 own values, coarser bands get the weighted mean):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>region <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"region"</span><span class="op">)</span>,</span>
-<span>                  mw <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">15</span>, <span class="fl">75</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">22</span>, <span class="fl">8</span>, <span class="fl">55</span>, <span class="fl">34</span>, <span class="fl">12</span>, <span class="fl">48</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/geoscale_autoplot.html">geoscale_autoplot</a></span><span class="op">(</span><span class="va">gs</span>, data <span class="op">=</span> <span class="va">cap</span>, z <span class="op">=</span> <span class="st">"mw"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>province <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"province"</span><span class="op">)</span>,</span>
+<span>                  mw <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">15</span>, <span class="fl">75</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">22</span>, <span class="fl">8</span>, <span class="fl">55</span>, <span class="fl">34</span>, <span class="fl">12</span>, <span class="fl">48</span>, <span class="fl">26</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, data <span class="op">=</span> <span class="va">cap</span>, z <span class="op">=</span> <span class="st">"mw"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"MW"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/structure-data-1.png" class="r-plt" alt="" width="672"></p>
 <p>With geometry attached, <code>type = "stack"</code> draws the
 layer-stack view — the same atoms dissolved at every geoframe,
 stacked:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_autoplot.html">geoscale_autoplot</a></span><span class="op">(</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/structure-stack-1.png" class="r-plt" alt="" width="672"></p>
 <div class="section level3">
 <h3 id="points-of-view">Points of view<a class="anchor" aria-label="anchor" href="#points-of-view"></a>
@@ -283,16 +284,16 @@ stack, and <code>gap</code> defaults to planes almost touching:</p>
 <span>           <span class="st">"oblique"</span>, <span class="st">"perspective"</span>, <span class="st">"pyramid"</span><span class="op">)</span></span>
 <span><span class="va">views</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">vw</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="../reference/geoscale_autoplot.html">geoscale_autoplot</a></span><span class="op">(</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="va">vw</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="va">vw</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="va">vw</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">9</span>, hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots</a></span><span class="op">(</span>ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/stack-views-1.png" class="r-plt" alt="" width="960"></p>
-<p>And <code><a href="../reference/geoscale_plot.html">geoscale_plot()</a></code> is the one-call choropleth over the
+<p>And <code>type = "map"</code> is the one-call choropleth over the
 same machinery:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_plot.html">geoscale_plot</a></span><span class="op">(</span><span class="va">gs</span>, <span class="va">x</span>, geoframe <span class="op">=</span> <span class="st">"region"</span>, fill <span class="op">=</span> <span class="st">"capacity"</span>,</span>
-<span>              palette <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"map"</span>, data <span class="op">=</span> <span class="va">x</span>, geoframe <span class="op">=</span> <span class="st">"province"</span>,</span>
+<span>            z <span class="op">=</span> <span class="st">"capacity"</span>, palette <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/one-call-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 </div>
@@ -333,7 +334,7 @@ from the leaftable:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">isl</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>unit <span class="op">=</span> <span class="va">lt</span><span class="op">$</span><span class="va">region</span>, km2 <span class="op">=</span> <span class="va">lt</span><span class="op">$</span><span class="va">km2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>unit <span class="op">=</span> <span class="va">lt</span><span class="op">$</span><span class="va">unit</span>, km2 <span class="op">=</span> <span class="va">lt</span><span class="op">$</span><span class="va">km2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">isl</span>, z <span class="op">=</span> <span class="st">"km2"</span>, geoframe <span class="op">=</span> <span class="st">"unit"</span>,</span>
 <span>                colour <span class="op">=</span> <span class="st">"white"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span>, trans <span class="op">=</span> <span class="st">"sqrt"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -373,8 +374,8 @@ visualization vignette</a>:</p>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">gf</span> <span class="op">==</span> <span class="st">"cluster"</span><span class="op">)</span> <span class="va">iw</span><span class="op">$</span><span class="va">wind</span> <span class="kw">else</span></span>
 <span>    <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">iw</span><span class="op">$</span><span class="va">wind</span>, <span class="va">iw</span><span class="op">$</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cluster"</span>, target <span class="op">=</span> <span class="va">gf</span>,</span>
 <span>                    rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_plot.html">geoscale_plot</a></span><span class="op">(</span><span class="va">iw</span><span class="op">$</span><span class="va">gs</span>, <span class="va">d</span>, geoframe <span class="op">=</span> <span class="va">gf</span>, fill <span class="op">=</span> <span class="st">"wind"</span>,</span>
-<span>                      palette <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">iw</span><span class="op">$</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"map"</span>, data <span class="op">=</span> <span class="va">d</span>, geoframe <span class="op">=</span> <span class="va">gf</span>,</span>
+<span>                    z <span class="op">=</span> <span class="st">"wind"</span>, palette <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>          <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Iceland mean wind speed at:"</span>, <span class="va">gf</span><span class="op">)</span>,</span>
 <span>               fill <span class="op">=</span> <span class="st">"m/s"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>

@@ -10,7 +10,7 @@ disaggregation (coarse to fine) with a single rule per value column;
 geoframes that cross-cut work too, because the route always goes through
 the atom layer. The route is evaluated as one dplyr pipeline against the
 [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
-crosswalk, so `x` may live in any supported backend (see below). A
+crosswalk, so `data` may live in any supported backend (see below). A
 crosswalk registered with
 [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
 short-circuits the derivation.
@@ -19,7 +19,7 @@ short-circuits the derivation.
 
 ``` r
 recast_geoscale(
-  x,
+  data,
   gs,
   source = NULL,
   target,
@@ -37,7 +37,7 @@ recast_geoscale(
 
 ## Arguments
 
-- x:
+- data:
 
   The data to recast, in any supported backend, with a column named by
   `key` plus one or more numeric value columns; other columns are
@@ -47,25 +47,25 @@ recast_geoscale(
 
   The
   [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
-  the codes in `x` belong to.
+  the codes in `data` belong to.
 
 - source:
 
   Geoframe name the codes belong to. `NULL` (default) is inferred: `key`
   when it is a geoframe name, else the single geoframe name appearing
-  among `x`'s columns.
+  among `data`'s columns.
 
 - target:
 
   Target geoframe name of `gs`, or another (named)
   [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   – then the target is that object's atom layer, matched on the atom
-  `region` keys the two objects share.
+  codes the two objects share.
 
 - key:
 
-  Name of the region-code column in `x`. Defaults to `source` when that
-  column exists, otherwise `"region"`.
+  Name of the region-code column in `data`. Defaults to `source` when
+  that column exists, otherwise the GeoScale's atom key.
 
 - values:
 
@@ -124,10 +124,10 @@ Identifier column types are preserved.
 
 ## Details
 
-Columns of `x` that are neither the key nor a value column are treated
-as identifiers (panel columns – a year, a technology) and preserved as
-grouping columns, so panel data recasts correctly in one call; this is
-what makes mixed pipelines like
+Columns of `data` that are neither the key nor a value column are
+treated as identifiers (panel columns – a year, a technology) and
+preserved as grouping columns, so panel data recasts correctly in one
+call; this is what makes mixed pipelines like
 `x |> recast_calendar(...) |> recast_geoscale(...)` work. Columns named
 like `gs`'s geoframes are treated as region attributes and dropped.
 
@@ -166,8 +166,8 @@ observed values themselves are the weights.
 
 ## Backends
 
-`x` may be a `data.frame`, tibble, `data.table`, `dtplyr` lazy table, or
-an arrow Dataset/Table/query. The result comes back in the input's
+`data` may be a `data.frame`, tibble, `data.table`, `dtplyr` lazy table,
+or an arrow Dataset/Table/query. The result comes back in the input's
 class; lazy inputs (arrow, dtplyr) return the uncollected query unless
 `collect = TRUE`. Lazy results contain the observed target regions only
 – the full-vocabulary completion (and its `NA` rows) applies when the

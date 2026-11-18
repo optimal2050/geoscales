@@ -2,47 +2,61 @@
 
 ## The GeoScale object
 
-A `GeoScale` is an S7 object with five properties:
+A `GeoScale` is an S7 object, a subclass of `nestedscales`’
+`NestedScale`.
+[`S7::prop_names()`](https://rconsortium.github.io/S7/reference/prop_names.html)
+lists its properties, `gs@geoframes` or `S7::prop(gs, "geoframes")`
+reads one, and `str(gs)` prints them with their size and purpose (with
+`nestedscales` 0.3.0 or later).
 
 ``` r
 
 gs <- geoscale_example()
 S7::prop_names(gs)
-#> [1] "leaftable"  "frames"     "members"    "key"        "meta"      
-#> [6] "attributes" "aliases"    "geoframes"  "geometry"
+#>  [1] "leaftable"  "frames"     "members"    "key"        "meta"      
+#>  [6] "attributes" "aliases"    "labels"     "geoframes"  "geometry"
 ```
 
 | property | type | holds |
 |----|----|----|
-| `@leaftable` | `data.frame` | one row per **atom**: one column per geoframe, the unique `region` key, weight columns |
-| `@geoframes` | `character` | the hierarchy, ordered coarsest first |
+| `@leaftable` | `data.frame` | one row per **atom**: one column per geoframe, and the weight columns |
+| `@geoframes` | `character` | the hierarchy, ordered coarsest first (the same value as `@frames`) |
 | `@members` | named `list` | the ordered code vocabulary at each geoframe |
+| `@key` | `character` | the name of the column that identifies the atoms: the finest geoframe, unless another was named |
+| `@labels` | `data.frame` | display names by `(frame, unit, variant)`; sparse |
 | `@geometry` | `sfc` or `NULL` | optional atom polygons, aligned to leaftable rows |
-| `@meta` | `list` | `name`, `desc`, `weights`, `default_weight`, `crs`, `source`, `labels` |
+| `@meta` | `list` | `name`, `desc`, `weights`, `default_weight`, `default_label`, `crs`, `source` |
+| `@attributes`, `@aliases` | `data.frame` | inherited from `NestedScale`: member values and alternative spellings |
 
-Everything else — parent/child tables, ancestry, shares, dissolved
-shapes — is derived on demand; nothing is cached on the object.
+The object is a **definition**: the regions, the geoframes that group
+them and the weights that size them. It holds no data. Data stays in
+ordinary tables, tied to the object by the region-code columns;
+[`bind_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
+records that tie on the columns themselves. Everything else —
+parent/child tables, ancestry, shares, dissolved shapes — is derived on
+demand; nothing is cached on the object.
 
 ## The leaftable
 
 ``` r
 
 geoscale_leaftable(gs)
-#>   country state zone atom  km2 pop region
-#> 1       N    N1   N1   A1  100  10     A1
-#> 2       N    N1   N1   A2  200  90     A2
-#> 3       N    N2   ZB   A3  300  30     A3
-#> 4       N    N2   ZB   A4  400  70     A4
-#> 5       S    S1   ZB   A5  500  50     A5
-#> 6       S    S1   ZC   A6  600  50     A6
-#> 7    <NA>  <NA> <NA>  ROW 1000   0    ROW
+#>   country state zone atom  km2 pop
+#> 1       N    N1   N1   A1  100  10
+#> 2       N    N1   N1   A2  200  90
+#> 3       N    N2   ZB   A3  300  30
+#> 4       N    N2   ZB   A4  400  70
+#> 5       S    S1   ZB   A5  500  50
+#> 6       S    S1   ZC   A6  600  50
+#> 7    <NA>  <NA> <NA>  ROW 1000   0
 ```
 
-Each row is one atom. The `region` column is the **authored node ID**
-(unique, non-missing); geoframe columns may hold `NA` — an atom with no
-code at a coarser geoframe (a rest-of-world row, offshore areas) simply
-does not participate at that resolution, and `na_action=` decides what
-recasts do about it.
+Each row is one atom. The finest geoframe (`atom` here) is the
+**authored node ID** (unique, non-missing) and the atom key,
+`geoscale_key(gs)`; there is no separate key column. Coarser geoframe
+columns may hold `NA` — an atom with no code at a coarser geoframe (a
+rest-of-world row, offshore areas) simply does not participate at that
+resolution, and `na_action=` decides what recasts do about it.
 
 ## Geoframes, members, ranks
 
@@ -128,6 +142,41 @@ derives a default name from the geoframes;
 [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md)
 takes `name=`.
 
+## Labels
+
+Display names are declared per geoframe and per region, in named
+variants. The table is sparse: here the countries get a name and an
+alternative one, while states and zones have none and are shown by their
+codes.
+
+``` r
+
+gs_named <- gs |>
+  attach_labels_geoscale(
+    data.frame(geoframe = "country", region = c("N", "S"),
+               label = c("Northland", "Southland")),
+    variant = "name"
+  ) |>
+  attach_labels_geoscale(
+    data.frame(geoframe = "country", region = "N", label = "Nordland"),
+    variant = "de"
+  )
+geoscale_labels(gs_named)
+#>     frame unit variant     label
+#> 1 country    N    name Northland
+#> 2 country    S    name Southland
+#> 3 country    N      de  Nordland
+geoscale_label(gs_named, c("N", "S"), "country")
+#> [1] "Northland" "Southland"
+geoscale_label(gs_named, c("N", "S"), "country", variant = "de")
+#> [1] "Nordland" "S"
+geoscale_label(gs_named, c("N1", "ZB"), "zone")
+#> [1] "N1" "ZB"
+```
+
+Subsets keep the labels of the regions that remain, and the plots use
+the default variant.
+
 ## What the validator guarantees
 
 Construction (any layer:
@@ -136,7 +185,9 @@ Construction (any layer:
 [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md))
 enforces:
 
-- `region` present, character, unique, no missing/empty values;
+- the atom key column present, character, unique, no missing/empty
+  values;
+- every label row naming a geoframe and a region that exist;
 - every geoframe present as a leaftable column; members exactly the
   non-`NA` values of that column, in a stable order;
 - weights numeric, finite, non-negative, with a positive sum;

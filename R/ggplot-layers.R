@@ -46,7 +46,8 @@
 #'   geoframe name among the data's columns (as in
 #'   [`recast_geoscale()`]), or the atom geoframe when `z = NULL`.
 #' @param region Name of the region-code column of the data. Defaults to
-#'   the `geoframe`-named column when present, else `"region"`.
+#'   the `geoframe`-named column when present, else the column named after
+#'   the atom key, else `"region"`.
 #' @param fun Aggregator collapsing multiple observations per region
 #'   into one value. Default `mean`.
 #' @param data A `data.frame`; `NULL` (default) uses the plot data.
@@ -105,10 +106,12 @@ geom_geoscale <- function(gs, z = NULL,
     d <- as.data.frame(d)
     gf <- geoframe %||% .geo_infer_from(gs, d, region)
     .check_geoframe(gs, gf, "geoframe")
-    key <- region %||% (if (gf %in% names(d)) gf else S7::prop(gs, "key"))
+    akey <- S7::prop(gs, "key")
+    key <- region %||% c(intersect(c(gf, akey, "region"), names(d)), akey)[1L]
     .check_layer_cols(d, c(key, z))
     shp <- geoscale_geometry(gs, gf, precision = precision)
-    agg <- vapply(split(d[[z]], as.character(d[[key]])), fun, numeric(1))
+    codes <- .layer_codes(gs, as.character(d[[key]]), gf)
+    agg <- vapply(split(d[[z]], codes), fun, numeric(1))
     shp$value <- unname(agg[shp[[gf]]])
     shp
   }
@@ -118,6 +121,33 @@ geom_geoscale <- function(gs, z = NULL,
     inherit.aes = FALSE,
     ...
   )
+}
+
+#' Codes of the data, carried up to the geoframe being drawn
+#'
+#' Codes that are members of `geoframe` pass through. Codes of a finer
+#' geoframe that nests in it are replaced by their parent, so `fun`
+#' aggregates the children of each drawn region.
+#' @noRd
+.layer_codes <- function(gs, codes, geoframe) {
+  lt <- S7::prop(gs, "leaftable")
+  known <- unique(as.character(lt[[geoframe]]))
+  seen <- unique(codes[!is.na(codes)])
+  if (all(seen %in% known)) return(codes)
+  frames <- unique(c(S7::prop(gs, "key"), rev(S7::prop(gs, "geoframes"))))
+  for (f in setdiff(frames, geoframe)) {
+    if (!all(seen %in% as.character(lt[[f]]))) next
+    map <- unique(data.frame(from = as.character(lt[[f]]),
+                             to = as.character(lt[[geoframe]]),
+                             stringsAsFactors = FALSE))
+    map <- map[!is.na(map$from), , drop = FALSE]
+    if (anyDuplicated(map$from)) {
+      .stop("geoframe `%s` does not nest in `%s`; recast the data first",
+            f, geoframe)
+    }
+    return(map$to[match(codes, map$from)])
+  }
+  codes
 }
 
 #' @rdname geom_geoscale

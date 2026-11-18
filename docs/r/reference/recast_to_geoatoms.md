@@ -13,7 +13,7 @@ across two different GeoScales that share atom keys.
 
 ``` r
 recast_to_geoatoms(
-  x,
+  data,
   gs,
   source = NULL,
   key = NULL,
@@ -26,13 +26,14 @@ recast_to_geoatoms(
 )
 
 recast_from_geoatoms(
-  x,
+  data,
   gs,
   target,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
+  data_weight = NULL,
   na_rm = FALSE,
   na_action = c("drop", "error", "keep"),
   collect = NULL,
@@ -42,10 +43,10 @@ recast_from_geoatoms(
 
 ## Arguments
 
-- x:
+- data:
 
   The data: for `recast_to_geoatoms()` keyed by region code at geoframe
-  `source`; for `recast_from_geoatoms()` keyed by atom `region` IDs.
+  `source`; for `recast_from_geoatoms()` keyed by atom codes.
 
 - gs:
 
@@ -63,7 +64,8 @@ recast_from_geoatoms(
 - key:
 
   The key column. `to_geoatoms`: defaults to `source` when that column
-  exists, otherwise `"region"`. `from_geoatoms`: default `"region"`.
+  exists, otherwise the GeoScale's atom key. `from_geoatoms`: the
+  GeoScale's atom key.
 
 - values, rule:
 
@@ -72,12 +74,9 @@ recast_from_geoatoms(
 
 - weight:
 
-  `to_geoatoms`: a declared weight column of `gs`, as in
+  A declared weight column of `gs`, as in
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md).
-  `from_geoatoms`: the name of a column of `x` to weight by, so the
-  weight may vary by identifier – a capacity-weighted efficiency differs
-  by year and vintage. `NULL` (default) uses a `weight` column of `x` if
-  present, else the GeoScale's declared weight.
+  `from_geoatoms` uses it only when `data` carries no weight of its own.
 
 - attach_weight:
 
@@ -95,6 +94,13 @@ recast_from_geoatoms(
 
   `from_geoatoms` only: target geoframe name.
 
+- data_weight:
+
+  `from_geoatoms` only: the name of a column of `data` to weight by, so
+  the weight may vary by identifier – a capacity-weighted efficiency
+  differs by year and vintage. `NULL` (default) uses a `weight` column
+  of `data` if present, else the scale weight `weight`.
+
 - na_rm:
 
   `from_geoatoms` only: read an `NA` value as "this member says nothing"
@@ -111,10 +117,12 @@ recast_from_geoatoms(
 ## Value
 
 `recast_to_geoatoms()`: one row per (atom x identifier combination) with
-columns `region`, identifiers, values (and `weight`).
-`recast_from_geoatoms()`: one row per (region x identifier combination)
-with columns `target`-named region, identifiers, values. Both in the
-input's class; lazy in, lazy out.
+the atom column (named after the GeoScale's atom key, see
+[`geoscale_key()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_key.md)),
+identifiers, values (and `weight`). `recast_from_geoatoms()`: one row
+per (region x identifier combination) with columns `target`-named
+region, identifiers, values. Both in the input's class; lazy in, lazy
+out.
 
 ## Details
 
@@ -142,13 +150,13 @@ y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
 a <- recast_to_geoatoms(y, gs, source = "country", rule = "sum",
                         weight = "km2")
 a
-#>   region  capacity weight
-#> 1     A1  1.000000    100
-#> 2     A2  2.000000    200
-#> 3     A3  3.000000    300
-#> 4     A4  4.000000    400
-#> 5     A5  9.090909    500
-#> 6     A6 10.909091    600
+#>   atom  capacity weight
+#> 1   A1  1.000000    100
+#> 2   A2  2.000000    200
+#> 3   A3  3.000000    300
+#> 4   A4  4.000000    400
+#> 5   A5  9.090909    500
+#> 6   A6 10.909091    600
 sum(a$capacity)  # 30 -- totals conserve
 #> [1] 30
 

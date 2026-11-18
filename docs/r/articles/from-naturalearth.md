@@ -157,11 +157,6 @@ g
 #> Geometry: attached (9 features)
 ```
 
-No geoframe is called `region` here:
-[`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md)
-uses that name for the internal atom key, so it is reserved for the
-finest geoframe.
-
 The Capital Region is the one that has two units under it:
 
 ``` r
@@ -265,7 +260,7 @@ nrow(shp)
 
 ``` r
 
-geoscale_plot(g, geoframe = "landshluti")
+gg_geoscale(g, type = "map", geoframe = "landshluti")
 ```
 
 ![](from-naturalearth_files/figure-html/unnamed-chunk-17-1.png)

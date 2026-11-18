@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -151,7 +151,7 @@ through <code>|&gt;</code>, and every verb accepts a
 arrow input (see <a href="#backends">Backends</a>).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">atoms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span><span class="op">$</span><span class="va">region</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span><span class="op">$</span><span class="va">country</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">atoms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span><span class="op">$</span><span class="va">atom</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span><span class="op">$</span><span class="va">country</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>atom <span class="op">=</span> <span class="va">atoms</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -287,11 +287,11 @@ rules act on the atom rows directly:</p>
 <span>  <span class="fu"><a href="../reference/recast_to_geoatoms.html">recast_to_geoatoms</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">a</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
-<span><span class="co">#&gt;   region capacity weight</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> A1            1    100</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> A2            2    200</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> A3            3    300</span></span>
+<span><span class="co">#&gt;   atom  capacity weight</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> A1           1    100</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> A2           2    200</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> A3           3    300</span></span>
 <span><span class="va">a</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms</a></span><span class="op">(</span><span class="va">gs</span>, target <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   state capacity</span></span>
@@ -299,10 +299,10 @@ rules act on the atom rows directly:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1           3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2           7</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1          20</span></span></code></pre></div>
-<p>Because the atom rows are keyed by atom <code>region</code> IDs, the
-halves also convert <strong>across two different GeoScales that share
-atom keys</strong> (reg32 to NUTS style conversions) — and the fused
-verb accepts another GeoScale as <code>target</code>, targeting its atom
+<p>Because the atom rows are keyed by atom codes, the halves also
+convert <strong>across two different GeoScales that share atom
+keys</strong> (reg32 to NUTS style conversions) — and the fused verb
+accepts another GeoScale as <code>target</code>, targeting its atom
 layer:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lf</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>band <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>, atom <span class="op">=</span> <span class="va">atoms</span>,</span>

@@ -6,15 +6,24 @@ A nested spatial partition: a flat table of weighted leaf regions
 ## Usage
 
 ``` r
-GeoScale(leaftable, geoframes, members, geometry = NULL, meta = list())
+GeoScale(
+  leaftable,
+  geoframes,
+  members,
+  geometry = NULL,
+  meta = list(),
+  key = NULL,
+  labels = NULL
+)
 ```
 
 ## Arguments
 
 - leaftable:
 
-  `data.frame` with a unique `region` key column, one column per
-  geoframe in `geoframes`, and one or more numeric weight columns.
+  `data.frame` with one column per geoframe in `geoframes` and one or
+  more numeric weight columns. The finest geoframe is the atom key
+  unless `key` names another column.
 
 - geoframes:
 
@@ -35,7 +44,17 @@ GeoScale(leaftable, geoframes, members, geometry = NULL, meta = list())
 - meta:
 
   Named list of attributes (`name`, `desc`, `weights`, `default_weight`,
-  `crs`, `source`, `labels`).
+  `default_label`, `crs`, `source`).
+
+- key:
+
+  Name of the atom key column: unique and complete. `NULL` (default) is
+  the finest geoframe.
+
+- labels:
+
+  Optional table of display names, see
+  [`attach_labels_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md).
 
 ## Value
 

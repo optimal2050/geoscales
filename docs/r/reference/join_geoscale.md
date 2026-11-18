@@ -12,7 +12,7 @@ a direct crosswalk between those objects. The spatial mirror of
 
 ``` r
 join_geoscale(
-  x,
+  data,
   gs,
   key = NULL,
   geoframe = NULL,
@@ -26,7 +26,7 @@ join_geoscale(
 
 ## Arguments
 
-- x:
+- data:
 
   The dataset, in any supported backend (see
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)'s
@@ -39,13 +39,13 @@ join_geoscale(
 
 - key:
 
-  Name of the code column in `x`. `NULL` (default) auto-detects as
+  Name of the code column in `data`. `NULL` (default) auto-detects as
   described above.
 
 - geoframe:
 
   Geoframe the codes belong to. Inferred when exactly one of the
-  object's geoframe names is a column of `x`.
+  object's geoframe names is a column of `data`.
 
 - geoframes:
 
@@ -76,8 +76,8 @@ join_geoscale(
 
 ## Value
 
-`x` with the new column(s) appended, in the input's class (lazy in, lazy
-out).
+`data` with the new column(s) appended, in the input's class (lazy in,
+lazy out).
 
 ## Details
 

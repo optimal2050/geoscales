@@ -20,7 +20,7 @@ accepts a `data.frame`, tibble, `data.table`, dtplyr, or arrow input
 ``` r
 
 gs <- geoscale_example()
-atoms <- geoscale_leaftable(gs)$region[!is.na(geoscale_leaftable(gs)$country)]
+atoms <- geoscale_leaftable(gs)$atom[!is.na(geoscale_leaftable(gs)$country)]
 cap <- tibble(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
 ```
 
@@ -145,11 +145,11 @@ a <- tibble(country = c("N", "S"), capacity = c(10, 20)) |>
   recast_to_geoatoms(gs, source = "country", rule = "sum", weight = "km2")
 head(a, 3)
 #> # A tibble: 3 × 3
-#>   region capacity weight
-#>   <chr>     <dbl>  <dbl>
-#> 1 A1            1    100
-#> 2 A2            2    200
-#> 3 A3            3    300
+#>   atom  capacity weight
+#>   <chr>    <dbl>  <dbl>
+#> 1 A1           1    100
+#> 2 A2           2    200
+#> 3 A3           3    300
 a |> recast_from_geoatoms(gs, target = "state", rule = "sum")
 #> # A tibble: 3 × 2
 #>   state capacity
@@ -159,10 +159,10 @@ a |> recast_from_geoatoms(gs, target = "state", rule = "sum")
 #> 3 S1          20
 ```
 
-Because the atom rows are keyed by atom `region` IDs, the halves also
-convert **across two different GeoScales that share atom keys** (reg32
-to NUTS style conversions) — and the fused verb accepts another GeoScale
-as `target`, targeting its atom layer:
+Because the atom rows are keyed by atom codes, the halves also convert
+**across two different GeoScales that share atom keys** (reg32 to NUTS
+style conversions) — and the fused verb accepts another GeoScale as
+`target`, targeting its atom layer:
 
 ``` r
 

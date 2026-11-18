@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -147,10 +147,10 @@ source like Natural Earth — see
 <code class="sourceCode R"><span><span class="va">gs</span><span class="op">@</span><span class="va">geoframes</span>                 <span class="co"># the hierarchy, coarsest first</span></span>
 <span><span class="co">#&gt; [1] "country" "state"   "atom"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>        <span class="co"># one row per atom</span></span>
-<span><span class="co">#&gt;   country state atom km2 region</span></span>
-<span><span class="co">#&gt; 1       N    N1   A1 100     A1</span></span>
-<span><span class="co">#&gt; 2       N    N1   A2 200     A2</span></span>
-<span><span class="co">#&gt; 3       N    N2   A3 300     A3</span></span>
+<span><span class="co">#&gt;   country state atom km2</span></span>
+<span><span class="co">#&gt; 1       N    N1   A1 100</span></span>
+<span><span class="co">#&gt; 2       N    N1   A2 200</span></span>
+<span><span class="co">#&gt; 3       N    N2   A3 300</span></span>
 <span><span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "N1" "N2" "S1"</span></span>
 <span><span class="fu"><a href="../reference/geoscale_share.html">geoscale_share</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, weight <span class="op">=</span> <span class="st">"km2"</span>, within <span class="op">=</span> <span class="st">"country"</span><span class="op">)</span></span>

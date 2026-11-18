@@ -81,6 +81,7 @@ reference:
       - geoscale_rank
       - geoscale_key
       - geoscale_weights
+      - geoscale_add_weight
       - geoscale_labels
       - summary.GeoScale
       - "[.GeoScale"
@@ -114,6 +115,7 @@ reference:
       - register_geoscale_rule
       - get_geoscale_rule
       - list_geoscale_rules
+      - geoscale_rule_action
       - clear_geoscale_rules
 
   - title: Navigation and subsetting

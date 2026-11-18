@@ -57,9 +57,9 @@ geoscale_ancestors(
 
 - target:
 
-  Target geoframe. For `geoscale_children()`/`geoscale_parents()` this
-  defaults to the adjacent geoframe; for the transitive versions, `NULL`
-  means all geoframes below/above.
+  Target geoframe. For `geoscale_children()` and `geoscale_parents()`
+  this defaults to the adjacent geoframe; for the transitive versions,
+  `NULL` means all geoframes below/above.
 
 - to:
 

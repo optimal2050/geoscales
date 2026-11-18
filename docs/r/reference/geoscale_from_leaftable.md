@@ -15,6 +15,7 @@ geoscale_from_leaftable(
   default_weight = NULL,
   members = NULL,
   geometry = NULL,
+  labels = NULL,
   name = "",
   desc = "",
   row_order = c("nested", "given"),
@@ -36,9 +37,10 @@ geoscale_from_leaftable(
 
 - key:
 
-  Name of the column holding the unique atom key. Defaults to `"region"`
-  if present, otherwise the finest geoframe (the last entry of
-  `geoframes`), which is copied into a `region` column.
+  Name of the column holding the unique atom key. Defaults to the finest
+  geoframe (the last entry of `geoframes`), which must then be complete
+  and unique. Name another column when the atoms are finer than the
+  finest geoframe.
 
 - weights:
 
@@ -58,6 +60,12 @@ geoscale_from_leaftable(
 - geometry:
 
   Optional `sfc` with one geometry per row of `leaftable`.
+
+- labels:
+
+  Optional table of display names with columns `frame`, `unit`, `label`
+  and optionally `variant`; see
+  [`attach_labels_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md).
 
 - name, desc:
 
