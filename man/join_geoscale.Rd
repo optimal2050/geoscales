@@ -5,7 +5,7 @@
 \title{Attach a GeoScale to region-keyed data}
 \usage{
 join_geoscale(
-  x,
+  data,
   gs,
   key = NULL,
   geoframe = NULL,
@@ -17,16 +17,16 @@ join_geoscale(
 )
 }
 \arguments{
-\item{x}{The dataset, in any supported backend (see
+\item{data}{The dataset, in any supported backend (see
 \code{\link[=recast_geoscale]{recast_geoscale()}}'s Backends section).}
 
 \item{gs}{A named \code{\link{GeoScale}}.}
 
-\item{key}{Name of the code column in \code{x}. \code{NULL} (default)
+\item{key}{Name of the code column in \code{data}. \code{NULL} (default)
 auto-detects as described above.}
 
 \item{geoframe}{Geoframe the codes belong to. Inferred when exactly one
-of the object's geoframe names is a column of \code{x}.}
+of the object's geoframe names is a column of \code{data}.}
 
 \item{geoframes}{Coarser geoframes to attach as \code{"<name>.<geoframe>"}
 membership columns (default: none). \code{TRUE} attaches all geoframes
@@ -48,7 +48,7 @@ them as dictionary/character columns.)}
 query (default).}
 }
 \value{
-\code{x} with the new column(s) appended, in the input's class
+\code{data} with the new column(s) appended, in the input's class
 (lazy in, lazy out).
 }
 \description{

@@ -16,7 +16,7 @@
 #' cross-join every target region with every other, which is quadratic in the
 #' region count and almost entirely empty.
 #'
-#' @param x The data: a data.frame, tibble, data.table, or arrow
+#' @param data The data: a data.frame, tibble, data.table, or arrow
 #'   table/dataset/query with two endpoint columns.
 #' @param gs The [`GeoScale`] the endpoints are keyed in.
 #' @param target Target geoframe name, coarser than `source`.
@@ -28,7 +28,7 @@
 #'   column that is not an endpoint, the weight, or a geoframe.
 #' @param rule Aggregation rule, as in [`recast_geoscale()`]: one name for all
 #'   value columns, or a named vector per column.
-#' @param weight Name of a column of `x` to weight by, for `weighted_mean`.
+#' @param data_weight Name of a column of `data` to weight by, for `weighted_mean`.
 #'   `NULL` (default) uses a `weight` column if present; without one the
 #'   weights are equal and `weighted_mean` is a plain mean.
 #' @param na_rm Read an `NA` value as "this pair says nothing" rather than as
@@ -57,9 +57,9 @@
 #' # A1-A2 is internal to state N1 and is dropped; the other two survive
 #' recast_pairs(lines, gs, target = "state", rule = "sum")
 #' @export
-recast_pairs <- function(x, gs, target, source = NULL,
+recast_pairs <- function(data, gs, target, source = NULL,
                          src = "src", dst = "dst",
-                         values = NULL, rule = NULL, weight = NULL,
+                         values = NULL, rule = NULL, data_weight = NULL,
                          na_rm = FALSE, directed = TRUE,
                          drop_internal = TRUE, collect = NULL,
                          to = lifecycle::deprecated(),
@@ -75,12 +75,12 @@ recast_pairs <- function(x, gs, target, source = NULL,
   to <- target
   from <- source
   .check_geoscale(gs, "gs")
-  backend <- .gs_backend(x)
+  backend <- .gs_backend(data)
   if (is.na(backend)) {
-    .stop(paste0("`x` must be a data.frame, tibble, data.table, or an ",
+    .stop(paste0("`data` must be a data.frame, tibble, data.table, or an ",
                  "arrow table/dataset/query"))
   }
-  schema <- .gs_schema(x)
+  schema <- .gs_schema(data)
   .check_gs_cols(schema)
   .check_geoframe(gs, to, "target")
   if (is.null(from)) from <- geoscale_geoframes(gs, finest = TRUE)
@@ -93,20 +93,20 @@ recast_pairs <- function(x, gs, target, source = NULL,
   if (identical(src, dst)) .stop("`src` and `dst` must differ")
   for (nm in c(src, dst)) {
     if (!nm %in% names(schema)) {
-      .stop("`x` has no column named `%s`; pass `src=` / `dst=`", nm)
+      .stop("`data` has no column named `%s`; pass `src=` / `dst=`", nm)
     }
   }
 
   geoframes_all <- S7::prop(gs, "geoframes")
   wt_col <- "weight"
-  if (!is.null(weight)) {
-    if (!is.character(weight) || length(weight) != 1L) {
-      .stop("`weight` must be a single column name of `x`")
+  if (!is.null(data_weight)) {
+    if (!is.character(data_weight) || length(data_weight) != 1L) {
+      .stop("`data_weight` must be a single column name of `data`")
     }
-    if (!weight %in% names(schema)) {
-      .stop("`x` has no column named `%s` to weight by", weight)
+    if (!data_weight %in% names(schema)) {
+      .stop("`data` has no column named `%s` to weight by", data_weight)
     }
-    wt_col <- weight
+    wt_col <- data_weight
   }
   drop_cols <- c(src, dst, wt_col, geoframes_all)
   values <- .geo_values_for(schema, src, drop_cols, values)
@@ -127,7 +127,7 @@ recast_pairs <- function(x, gs, target, source = NULL,
   look <- look[!is.na(look$.gs_from), , drop = FALSE]
 
   ends <- .gs_pull(dplyr::distinct(dplyr::select(
-    .gs_lazy(x, backend), dplyr::all_of(c(src, dst)))))
+    .gs_lazy(data, backend), dplyr::all_of(c(src, dst)))))
   ends <- unique(stats::na.omit(c(as.character(ends[[src]]),
                                   as.character(ends[[dst]]))))
   unknown <- setdiff(ends, look$.gs_from)
@@ -137,13 +137,13 @@ recast_pairs <- function(x, gs, target, source = NULL,
           length(unknown), from, .preview(unknown))
   }
   if (length(intersect(ends, look$.gs_from)) == 0L) {
-    .stop(paste0("no endpoint of `x` matched geoframe `%s`; check `from=`, ",
+    .stop(paste0("no endpoint of `data` matched geoframe `%s`; check `from=`, ",
                  "`src=` and `dst=`"), from)
   }
 
   ls <- stats::setNames(look, c(src, ".gs_src"))
   ld <- stats::setNames(look, c(dst, ".gs_dst"))
-  out <- .gs_lazy(x, backend) |>
+  out <- .gs_lazy(data, backend) |>
     dplyr::inner_join(ls, by = src, na_matches = "na") |>
     dplyr::inner_join(ld, by = dst, na_matches = "na")
 

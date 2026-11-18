@@ -5,10 +5,10 @@ test_that("rows sort by geoframe, coarsest first, unassigned last", {
                    atom = c("b1", "x", "a1", "b2"),
                    km2 = c(1, 2, 3, 4))
   gs <- geoscale_from_leaftable(df, geoframes = c("country", "atom"))
-  expect_identical(geoscale_leaftable(gs)$region, c("b1", "b2", "a1", "x"))
+  expect_identical(geoscale_leaftable(gs)$atom,c("b1", "b2", "a1", "x"))
   given <- geoscale_from_leaftable(df, geoframes = c("country", "atom"),
                                    row_order = "given")
-  expect_identical(geoscale_leaftable(given)$region, df$atom)
+  expect_identical(geoscale_leaftable(given)$atom,df$atom)
 })
 
 test_that("geometry follows the sorted rows", {
@@ -18,6 +18,6 @@ test_that("geometry follows the sorted rows", {
   gs <- geoscale_from_leaftable(df, geoframes = c("country", "atom"),
                                 geometry = g)
   xy <- sf::st_coordinates(S7::prop(gs, "geometry"))
-  expect_identical(geoscale_leaftable(gs)$region, c("b1", "a1"))
+  expect_identical(geoscale_leaftable(gs)$atom,c("b1", "a1"))
   expect_equal(xy[, "X"], c(2, 1))
 })

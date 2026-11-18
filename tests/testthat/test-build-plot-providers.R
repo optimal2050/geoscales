@@ -140,13 +140,15 @@ test_that("the map honours palette and takes titles through labs()", {
   expect_null(q$labels$title)
 })
 
-test_that("labels are used only where they are unambiguous", {
+test_that("labels are used where a geoframe declares them", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("sf")
-  # `@meta$labels` names a per-atom column. A zone made of Alpha and Beta has
-  # no name of its own, so labelling it "Alpha" would invent one -- the code
-  # must survive instead.
-  gsl <- .plot_fixture(labels = "name")
+  # Labels are declared per geoframe: the units have names, the zones and the
+  # top do not, so those are shown by their codes.
+  gsl <- .plot_fixture(labels = data.frame(
+    geoframe = "unit", region = c("u1", "u2", "u3", "u4"),
+    label = c("Alpha", "Beta", "Gamma", "Delta")
+  ))
   txt <- function(p) ggplot2::ggplot_build(p)$data[[2]]$label
 
   expect_equal(txt(gg_geoscale(gsl, type = "map", geoframe = "unit",

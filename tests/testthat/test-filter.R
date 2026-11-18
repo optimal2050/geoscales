@@ -165,7 +165,7 @@ test_that("prune_geoscale dissolves geometry when attached", {
   expect_equal(length(g), nrow(S7::prop(p, "leaftable")))
   # N1 = union of two unit squares = area 2
   lt <- S7::prop(p, "leaftable")
-  a <- as.numeric(sf::st_area(g[lt$region == "N1"]))
+  a <- as.numeric(sf::st_area(g[lt$state == "N1"]))
   expect_equal(a, 2)
   # opt-out drops it
   p0 <- prune_geoscale(gs, "state", keep_geometry = FALSE)
@@ -218,6 +218,6 @@ test_that("drop_empty_geoframes drops all-NA frames from a filtered sample", {
                             drop_empty_geoframes = TRUE)
   expect_true(length(geoscale_geoframes(f_drop)) <=
                 length(geoscale_geoframes(f_keep)))
-  expect_identical(geoscale_leaftable(f_drop)$region,
-                   geoscale_leaftable(f_keep)$region)
+  expect_identical(geoscale_leaftable(f_drop)$atom,
+                   geoscale_leaftable(f_keep)$atom)
 })

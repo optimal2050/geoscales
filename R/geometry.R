@@ -46,7 +46,7 @@ attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL) {
   .check_geoframe(x, geoframe)
 
   if (inherits(geom, "sf")) {
-    by <- by %||% if (geoframe %in% names(geom)) geoframe else "region"
+    by <- by %||% if (geoframe %in% names(geom)) geoframe else S7::prop(x, "key")
     if (!by %in% names(geom)) {
       .stop("`geom` has no column `%s`; pass `by=`", by)
     }
@@ -74,8 +74,7 @@ attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL) {
 
   meta <- S7::prop(x, "meta")
   meta$crs <- sf::st_crs(out)$input
-  GeoScale(leaftable = leaves, geoframes = lv, members = S7::prop(x, "members"),
-           geometry = out, meta = meta)
+  S7::set_props(x, geometry = out, meta = meta)
 }
 
 #' Geometry dissolved to a geoframe
@@ -194,8 +193,7 @@ add_area_geoscale <- function(x, name = "km2", crs = "ESRI:54034") {
   meta$weights <- union(meta$weights %||% character(), name)
   meta$default_weight <- meta$default_weight %||% name
 
-  GeoScale(leaftable = leaves, geoframes = S7::prop(x, "geoframes"),
-           members = S7::prop(x, "members"), geometry = geom, meta = meta)
+  S7::set_props(x, leaftable = leaves, geometry = geom, meta = meta)
 }
 
 #' Map coordinates to the regions that contain them

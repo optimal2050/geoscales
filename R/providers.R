@@ -157,12 +157,7 @@ geoscale_from_provider <- function(provider = "naturalearth",
     name = name, desc = desc, source = src_name
   )
   if (!is.null(geom)) {
-    gs <- GeoScale(
-      leaftable = S7::prop(gs, "leaftable"),
-      geoframes = S7::prop(gs, "geoframes"),
-      members = S7::prop(gs, "members"), geometry = geom,
-      meta = S7::prop(gs, "meta")
-    )
+    gs <- S7::set_props(gs, geometry = geom)
   }
   gs
 }

@@ -92,7 +92,7 @@ zoom_geoscale <- function(x, focus, geoframes = NULL, name = "zoom",
   }
 
   lt <- x@leaftable
-  atoms <- as.character(lt[["region"]])
+  atoms <- as.character(lt[[x@key]])
   focus <- unique(as.character(focus))
   if (!length(focus)) {
     .stop("`focus` is empty; a zoom with no focus area is `prune_geoscale()`")
@@ -125,7 +125,7 @@ zoom_geoscale <- function(x, focus, geoframes = NULL, name = "zoom",
   cut[fill] <- coarsest[fill]
 
   ordered <- c(geoframes[1], name, atom_frame)
-  carried <- setdiff(names(lt), frames)          # region + weights + extras
+  carried <- setdiff(names(lt), frames)          # weights + extras
   new_lt <- lt[, carried, drop = FALSE]
   new_lt[[geoframes[1]]] <- lt[[geoframes[1]]]
   new_lt[[name]] <- cut
@@ -134,10 +134,12 @@ zoom_geoscale <- function(x, focus, geoframes = NULL, name = "zoom",
   out <- geoscale_from_leaftable(
     leaftable = new_lt,
     geoframes = ordered,
-    key = "region",
+    key = x@key,
     weights = x@meta$weights,
     default_weight = x@meta$default_weight,
     geometry = x@geometry,
+    labels = .trim_labels(.label_table(x), c(geoframes[1], atom_frame),
+                          x@members),
     name = if (nzchar(x@meta$name %||% "")) {
       paste0(x@meta$name, "@", name)
     } else {

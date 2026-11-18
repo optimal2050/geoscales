@@ -1,3 +1,22 @@
+# geoscales (development version)
+
+## Breaking changes
+
+* The leaftable has no `region` column any more. The atom key is the finest geoframe's own column, or the column named by `key=` when the atoms are finer than the finest geoframe; `geoscale_key()` returns its name. The atom column in the result of `recast_to_geoatoms()` carries that name, and `recast_from_geoatoms()` expects it. `region` is no longer a reserved name and may be used for a geoframe at any depth. Saved objects must be rebuilt.
+* `geoscale_from_leaftable()` no longer falls back to a `region` column for the key: when the finest geoframe does not identify the atoms, `key=` must be given.
+* `meta$labels` (the name of one per-atom leaftable column) is replaced by the label table below. `labels=` in `geoscale_from_leaftable()` now takes that table.
+* The first argument of `recast_geoscale()`, `recast_to_geoatoms()`, `recast_from_geoatoms()`, `recast_pairs()` and `join_geoscale()` is `data` (was `x`).
+* `weight=` always names a weight of the GeoScale. The data column to weight by in `recast_from_geoatoms()` and `recast_pairs()` is `data_weight=`.
+
+## New features
+
+* Labels per geoframe. `attach_labels_geoscale()` adds display names for regions of any geoframe, in named variants, so a region may have alternative names while another geoframe has none; a row with `unit = NA` names the geoframe itself. `geoscale_labels()` returns the table and `geoscale_label()` looks names up, giving the code where there is no label. Subsets, prunes and zooms keep the labels of what remains, and the plots use the default variant.
+* The data link. `bind_geoscale()` records on a table's region-code columns which GeoScale and geoframe they are on; `geoscale_link()` reports it and `geoscale_id()` gives the identity it stores. `recast_geoscale()`, `recast_to_geoatoms()`, `recast_from_geoatoms()` and `join_geoscale()` take the source geoframe from the link, stop when the data is bound to another GeoScale, and bind their result. Needs nestedscales 0.3.0 or later; with an earlier version the verbs behave as before.
+
+## Bug fixes
+
+* `attach_geometry_geoscale()`, `add_area_geoscale()`, `ne_geoscale()` and `geoscale_from_provider()` rebuilt the object from its core parts and dropped its attributes and aliases; they now update it in place.
+
 # geoscales 0.7.3
 
 ## New features

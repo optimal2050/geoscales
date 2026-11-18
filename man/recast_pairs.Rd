@@ -5,7 +5,7 @@
 \title{Recast data keyed by a pair of regions}
 \usage{
 recast_pairs(
-  x,
+  data,
   gs,
   target,
   source = NULL,
@@ -13,7 +13,7 @@ recast_pairs(
   dst = "dst",
   values = NULL,
   rule = NULL,
-  weight = NULL,
+  data_weight = NULL,
   na_rm = FALSE,
   directed = TRUE,
   drop_internal = TRUE,
@@ -23,7 +23,7 @@ recast_pairs(
 )
 }
 \arguments{
-\item{x}{The data: a data.frame, tibble, data.table, or arrow
+\item{data}{The data: a data.frame, tibble, data.table, or arrow
 table/dataset/query with two endpoint columns.}
 
 \item{gs}{The \code{\link{GeoScale}} the endpoints are keyed in.}
@@ -41,7 +41,7 @@ column that is not an endpoint, the weight, or a geoframe.}
 \item{rule}{Aggregation rule, as in \code{\link[=recast_geoscale]{recast_geoscale()}}: one name for all
 value columns, or a named vector per column.}
 
-\item{weight}{Name of a column of \code{x} to weight by, for \code{weighted_mean}.
+\item{data_weight}{Name of a column of \code{data} to weight by, for \code{weighted_mean}.
 \code{NULL} (default) uses a \code{weight} column if present; without one the
 weights are equal and \code{weighted_mean} is a plain mean.}
 

@@ -71,7 +71,7 @@ test_that("cross-object map matches atoms on shared region keys", {
   gs_c <- geoscale_from_leaftable(lf2, geoframes = c("g", "atom"),
                                   name = "other")
   expect_error(suppressWarnings(geoscale_map_between(gs, gs_c)),
-               "share no `region` keys")
+               "share no `atom` keys")
 })
 
 test_that("map registry accessors round-trip", {

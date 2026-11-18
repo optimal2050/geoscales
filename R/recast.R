@@ -203,11 +203,11 @@
 #' coarse) and disaggregation (coarse to fine) with a single rule per value
 #' column; geoframes that cross-cut work too, because the route always goes
 #' through the atom layer. The route is evaluated as one dplyr pipeline
-#' against the [`geoscale_map()`] crosswalk, so `x` may live in any
+#' against the [`geoscale_map()`] crosswalk, so `data` may live in any
 #' supported backend (see below). A crosswalk registered with
 #' [`register_geoscale_map()`] short-circuits the derivation.
 #'
-#' Columns of `x` that are neither the key nor a value column are treated
+#' Columns of `data` that are neither the key nor a value column are treated
 #' as identifiers (panel columns -- a year, a technology) and preserved as
 #' grouping columns, so panel data recasts correctly in one call; this is
 #' what makes mixed pipelines like
@@ -220,26 +220,26 @@
 #' `recast_from_geoatoms(recast_to_geoatoms(x, gs, from), gs, to)`.
 #'
 #' @section Backends:
-#' `x` may be a `data.frame`, tibble, `data.table`, `dtplyr` lazy table,
+#' `data` may be a `data.frame`, tibble, `data.table`, `dtplyr` lazy table,
 #' or an arrow Dataset/Table/query. The result comes back in the input's
 #' class; lazy inputs (arrow, dtplyr) return the uncollected query unless
 #' `collect = TRUE`. Lazy results contain the observed target regions
 #' only -- the full-vocabulary completion (and its `NA` rows) applies when
 #' the result is materialised.
 #'
-#' @param x The data to recast, in any supported backend, with a column
+#' @param data The data to recast, in any supported backend, with a column
 #'   named by `key` plus one or more numeric value columns; other columns
 #'   are preserved as identifiers.
-#' @param gs The [`GeoScale`] the codes in `x` belong to.
+#' @param gs The [`GeoScale`] the codes in `data` belong to.
 #' @param from,to Deprecated names of `source` and `target`.
 #' @param source Geoframe name the codes belong to. `NULL` (default) is
 #'   inferred: `key` when it is a geoframe name, else the single geoframe
-#'   name appearing among `x`'s columns.
+#'   name appearing among `data`'s columns.
 #' @param target Target geoframe name of `gs`, or another (named) [`GeoScale`]
 #'   -- then the target is that object's atom layer, matched on the atom
-#'   `region` keys the two objects share.
-#' @param key Name of the region-code column in `x`. Defaults to `source`
-#'   when that column exists, otherwise `"region"`.
+#'   codes the two objects share.
+#' @param key Name of the region-code column in `data`. Defaults to `source`
+#'   when that column exists, otherwise the GeoScale's atom key.
 #' @param values Character vector of value columns to convert. Default: all
 #'   numeric columns other than the key and `gs`'s geoframe columns.
 #'   Numeric identifiers (e.g. `year`) must be excluded explicitly.
@@ -315,7 +315,7 @@
 #' # Share within parent: result stays at the atoms, sums to 1 per country
 #' recast_geoscale(x, gs, source = "atom", target = "country", rule = "share")
 #' @export
-recast_geoscale <- function(x, gs, source = NULL, target,
+recast_geoscale <- function(data, gs, source = NULL, target,
                             key = NULL,
                             values = NULL,
                             rule = NULL,
@@ -337,6 +337,10 @@ recast_geoscale <- function(x, gs, source = NULL, target,
   to <- target
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
+  link <- .geo_link_enter(data, gs, key = key, source = from)
+  data <- link$data
+  key <- link$key
+  from <- link$source
   # Across two GeoScales the route runs through this package's own halves,
   # whose result holds the observed target regions only.
   if (S7::S7_inherits(to, GeoScale)) {
@@ -344,17 +348,21 @@ recast_geoscale <- function(x, gs, source = NULL, target,
       .stop(paste0("rule \"share\" needs a parent geoframe of the same ",
                    "GeoScale; it cannot recast across objects"))
     }
-    g <- recast_to_geoatoms(x, gs, source = from, key = key, values = values,
+    g <- recast_to_geoatoms(data, gs, source = from, key = key, values = values,
                             rule = rule, weight = weight, collect = collect)
-    return(recast_from_geoatoms(g, to,
-                                target = geoscale_geoframes(to, finest = TRUE),
+    finest <- geoscale_geoframes(to, finest = TRUE)
+    out <- recast_from_geoatoms(g, to,
+                                target = finest,
+                                key = S7::prop(gs, "key"),
                                 values = values, rule = rule,
-                                na_action = na_action, collect = collect))
+                                na_action = na_action, collect = collect)
+    return(.geo_link_exit(out, link, .geo_bound(to, finest)))
   }
-  nestedscales::recast_scale(x, gs, source = from, target = to, key = key,
-                            values = values, rule = rule, weight = weight,
-                            na_action = na_action, parent = parent,
-                            collect = collect)
+  out <- nestedscales::recast_scale(data, gs, source = from, target = to,
+                                    key = key, values = values, rule = rule,
+                                    weight = weight, na_action = na_action,
+                                    parent = parent, collect = collect)
+  .geo_link_exit(out, link, .geo_bound(gs, to))
 }
 
 #' rule "share" is only meaningful in recast_geoscale(), whose output key
@@ -399,9 +407,8 @@ recast_geoscale <- function(x, gs, source = NULL, target,
 #' [`recast_geoscale()`]'s Backends section); the geoscale side of every
 #' join is a small in-memory frame.
 #'
-#' @param x The data: for `recast_to_geoatoms()` keyed by region code at
-#'   geoframe `source`; for `recast_from_geoatoms()` keyed by atom `region`
-#'   IDs.
+#' @param data The data: for `recast_to_geoatoms()` keyed by region code at
+#'   geoframe `source`; for `recast_from_geoatoms()` keyed by atom codes.
 #' @param gs The [`GeoScale`] the data is keyed in (`to_geoatoms`) or
 #'   aggregated into (`from_geoatoms`).
 #' @param from,to Deprecated names of `source` and `target`.
@@ -409,14 +416,16 @@ recast_geoscale <- function(x, gs, source = NULL, target,
 #'   `NULL` (default) is inferred as in [`recast_geoscale()`].
 #' @param target `from_geoatoms` only: target geoframe name.
 #' @param key The key column. `to_geoatoms`: defaults to `source` when that
-#'   column exists, otherwise `"region"`. `from_geoatoms`: default
-#'   `"region"`.
+#'   column exists, otherwise the GeoScale's atom key. `from_geoatoms`: the
+#'   GeoScale's atom key.
 #' @param values,rule As in [`recast_geoscale()`].
-#' @param weight `to_geoatoms`: a declared weight column of `gs`, as in
-#'   [`recast_geoscale()`]. `from_geoatoms`: the name of a column of `x` to
+#' @param weight A declared weight column of `gs`, as in
+#'   [`recast_geoscale()`]. `from_geoatoms` uses it only when `data` carries
+#'   no weight of its own.
+#' @param data_weight `from_geoatoms` only: the name of a column of `data` to
 #'   weight by, so the weight may vary by identifier -- a capacity-weighted
 #'   efficiency differs by year and vintage. `NULL` (default) uses a `weight`
-#'   column of `x` if present, else the GeoScale's declared weight.
+#'   column of `data` if present, else the scale weight `weight`.
 #' @param attach_weight `to_geoatoms` only: attach the `weight` column
 #'   (default `TRUE`).
 #' @param na_rm `from_geoatoms` only: read an `NA` value as "this member says
@@ -430,8 +439,8 @@ recast_geoscale <- function(x, gs, source = NULL, target,
 #'   query (default).
 #'
 #' @return `recast_to_geoatoms()`: one row per (atom x identifier
-#'   combination) with columns `region`, identifiers, values (and
-#'   `weight`). `recast_from_geoatoms()`: one row per (region x identifier
+#'   combination) with the atom column (named after the GeoScale's atom
+#'   key, see [`geoscale_key()`]), identifiers, values (and `weight`). `recast_from_geoatoms()`: one row per (region x identifier
 #'   combination) with columns `target`-named region, identifiers, values.
 #'   Both in the input's class; lazy in, lazy out.
 #'
@@ -445,7 +454,7 @@ recast_geoscale <- function(x, gs, source = NULL, target,
 #'
 #' recast_from_geoatoms(a, gs, target = "state", rule = "sum")
 #' @export
-recast_to_geoatoms <- function(x, gs, source = NULL,
+recast_to_geoatoms <- function(data, gs, source = NULL,
                                key = NULL, values = NULL, rule = NULL,
                                weight = NULL, attach_weight = TRUE,
                                collect = NULL,
@@ -456,25 +465,30 @@ recast_to_geoatoms <- function(x, gs, source = NULL,
   }
   from <- source
   .check_geoscale(gs, "gs")
-  backend <- .gs_backend(x)
+  link <- .geo_link_enter(data, gs, key = key, source = from)
+  data <- link$data
+  key <- link$key
+  from <- link$source
+  backend <- .gs_backend(data)
   if (is.na(backend)) {
-    .stop(paste0("`x` must be a data.frame, tibble, data.table, or an ",
+    .stop(paste0("`data` must be a data.frame, tibble, data.table, or an ",
                  "arrow table/dataset/query"))
   }
-  schema <- .gs_schema(x)
+  schema <- .gs_schema(data)
   .check_gs_cols(schema)
 
   if (is.null(from)) from <- .geo_infer_from(gs, schema, key)
   .check_geoframe(gs, from, "source")
-  if (is.null(key)) key <- if (from %in% names(schema)) from else "region"
+  akey <- S7::prop(gs, "key")
+  if (is.null(key)) key <- if (from %in% names(schema)) from else akey
   if (!key %in% names(schema)) {
-    .stop("`x` has no column named `%s`; pass `key=`", key)
+    .stop("`data` has no column named `%s`; pass `key=`", key)
   }
   if (isTRUE(attach_weight) && "weight" %in% names(schema)) {
-    .stop("`x` already has a `weight` column; rename it first")
+    .stop("`data` already has a `weight` column; rename it first")
   }
-  if (key != "region" && "region" %in% names(schema)) {
-    .stop("`x` already has a `region` column; rename it first")
+  if (key != akey && akey %in% names(schema)) {
+    .stop("`data` already has a `%s` column; rename it first", akey)
   }
 
   geoframes_all <- S7::prop(gs, "geoframes")
@@ -494,7 +508,7 @@ recast_to_geoatoms <- function(x, gs, source = NULL,
 
   # Unknown-key warning (eager, small)
   src_keys <- .gs_pull(
-    dplyr::distinct(dplyr::select(.gs_lazy(x, backend),
+    dplyr::distinct(dplyr::select(.gs_lazy(data, backend),
                                   dplyr::all_of(key))))[[key]]
   src_keys <- unique(stats::na.omit(as.character(src_keys)))
   known <- unique(stats::na.omit(as.character(leaves[[from]])))
@@ -507,7 +521,7 @@ recast_to_geoatoms <- function(x, gs, source = NULL,
   # The in-memory atom frame, with per-region weight shares
   atoms <- data.frame(
     k = as.character(leaves[[from]]),
-    region = leaves$region,
+    .gs_atom = leaves[[akey]],
     .gs_w = if (is.null(wcol)) 1 else as.numeric(leaves[[wcol]]),
     stringsAsFactors = FALSE
   )
@@ -520,7 +534,7 @@ recast_to_geoatoms <- function(x, gs, source = NULL,
   atoms$.gs_w <- NULL
   names(atoms)[names(atoms) == "k"] <- key
 
-  xq <- .gs_lazy(x, backend)
+  xq <- .gs_lazy(data, backend)
   out <- dplyr::inner_join(
     xq, atoms,
     by = key,
@@ -535,16 +549,21 @@ recast_to_geoatoms <- function(x, gs, source = NULL,
       dplyr::all_of(sum_cols), ~ .x * .gs_f))
   }
 
-  keep <- c("region", id_cols, values, if (isTRUE(attach_weight)) "weight")
+  # The atom column takes the key's name; when the source IS the atom level
+  # that is the name of the column it replaces.
+  keep <- c(".gs_atom", id_cols, values, if (isTRUE(attach_weight)) "weight")
   out <- dplyr::select(out, dplyr::all_of(keep))
-  .gs_restore(out, backend, collect = collect)
+  out <- dplyr::rename(out, !!rlang::sym(akey) := !!rlang::sym(".gs_atom"))
+  .geo_link_exit(.gs_restore(out, backend, collect = collect), link,
+                 .geo_bound(gs, akey))
 }
 
 #' @rdname recast_to_geoatoms
 #' @export
-recast_from_geoatoms <- function(x, gs, target,
+recast_from_geoatoms <- function(data, gs, target,
                                  key = NULL, values = NULL, rule = NULL,
-                                 weight = NULL, na_rm = FALSE,
+                                 weight = NULL, data_weight = NULL,
+                                 na_rm = FALSE,
                                  na_action = c("drop", "error", "keep"),
                                  collect = NULL,
                                  to = lifecycle::deprecated()) {
@@ -555,33 +574,38 @@ recast_from_geoatoms <- function(x, gs, target,
   to <- target
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
-  backend <- .gs_backend(x)
+  link <- .geo_link_enter(data, gs, key = key, infer = FALSE)
+  data <- link$data
+  backend <- .gs_backend(data)
   if (is.na(backend)) {
-    .stop(paste0("`x` must be a data.frame, tibble, data.table, or an ",
+    .stop(paste0("`data` must be a data.frame, tibble, data.table, or an ",
                  "arrow table/dataset/query"))
   }
   .check_geoframe(gs, to, "target")
-  schema <- .gs_schema(x)
+  schema <- .gs_schema(data)
   .check_gs_cols(schema)
-  if (is.null(key)) key <- "region"
+  akey <- S7::prop(gs, "key")
+  if (is.null(key)) key <- akey
   if (!key %in% names(schema)) {
-    .stop("`x` has no column named `%s`; pass `key=`", key)
+    .stop("`data` has no column named `%s`; pass `key=`", key)
   }
 
-  geoframes_all <- S7::prop(gs, "geoframes")
+  # The key column holds atoms here, whatever geoframe shares its name.
+  geoframes_all <- setdiff(S7::prop(gs, "geoframes"), key)
 
-  # `weight` names a column of `x`, so the weight may vary by any id column --
-  # a capacity-weighted efficiency differs by year and vintage. Without it the
-  # conventional `weight` column is used, else the GeoScale's declared weight.
+  # `data_weight` names a column of `data`, so the weight may vary by any id
+  # column -- a capacity-weighted efficiency differs by year and vintage.
+  # Without it the conventional `weight` column is used, else the scale
+  # weight `weight` (the GeoScale's declared weight when `NULL`).
   wt_col <- "weight"
-  if (!is.null(weight)) {
-    if (!is.character(weight) || length(weight) != 1L) {
-      .stop("`weight` must be a single column name of `x`")
+  if (!is.null(data_weight)) {
+    if (!is.character(data_weight) || length(data_weight) != 1L) {
+      .stop("`data_weight` must be a single column name of `data`")
     }
-    if (!weight %in% names(schema)) {
-      .stop("`x` has no column named `%s` to weight by", weight)
+    if (!data_weight %in% names(schema)) {
+      .stop("`data` has no column named `%s` to weight by", data_weight)
     }
-    wt_col <- weight
+    wt_col <- data_weight
   }
   values <- .geo_values_for(schema, key, c(geoframes_all, wt_col), values)
   id_cols <- setdiff(names(schema),
@@ -592,12 +616,12 @@ recast_from_geoatoms <- function(x, gs, target,
 
   leaves <- S7::prop(gs, "leaftable")
   atoms <- data.frame(
-    k = leaves$region,
+    k = leaves[[akey]],
     .gs_to = as.character(leaves[[to]]),
     stringsAsFactors = FALSE
   )
   if (!has_weight) {
-    wcol <- .map_weight(gs, NULL)
+    wcol <- .map_weight(gs, weight)
     atoms[[wt_col]] <- if (is.null(wcol)) 1 else as.numeric(leaves[[wcol]])
     atoms[[wt_col]][is.na(atoms[[wt_col]])] <- 0
   }
@@ -605,19 +629,19 @@ recast_from_geoatoms <- function(x, gs, target,
 
   # Unknown-key warning (eager, small)
   src_keys <- .gs_pull(
-    dplyr::distinct(dplyr::select(.gs_lazy(x, backend),
+    dplyr::distinct(dplyr::select(.gs_lazy(data, backend),
                                   dplyr::all_of(key))))[[key]]
   src_keys <- unique(stats::na.omit(as.character(src_keys)))
-  unknown <- setdiff(src_keys, leaves$region)
+  unknown <- setdiff(src_keys, leaves[[akey]])
   if (length(unknown) > 0L) {
     .warn("%d code(s) in `x$%s` are not atoms of the GeoScale: %s",
           length(unknown), key, .preview(unknown))
   }
-  if (length(intersect(src_keys, leaves$region)) == 0L) {
-    .stop("no rows of `x` matched the GeoScale's atoms; check `key=`")
+  if (length(intersect(src_keys, leaves[[akey]])) == 0L) {
+    .stop("no rows of `data` matched the GeoScale's atoms; check `key=`")
   }
 
-  xq <- .gs_lazy(x, backend)
+  xq <- .gs_lazy(data, backend)
   joined <- dplyr::left_join(xq, atoms, by = key, na_matches = "na")
 
   # Coverage accounting (eager, aggregate only)
@@ -627,12 +651,12 @@ recast_from_geoatoms <- function(x, gs, target,
                        n_na = sum(as.integer(is.na(.gs_to)))))
   if (cover$n_na[1] > 0L) {
     if (na_action == "error") {
-      .stop(paste0("%d row(s) of `x` fall on atoms with no code at ",
+      .stop(paste0("%d row(s) of `data` fall on atoms with no code at ",
                    "geoframe `%s`; use na_action = \"drop\" or \"keep\""),
             cover$n_na[1], to)
     }
     if (na_action == "drop") {
-      .warn(paste0("%d row(s) of `x` fall on atoms with no code at ",
+      .warn(paste0("%d row(s) of `data` fall on atoms with no code at ",
                    "geoframe `%s` and were dropped; use na_action = ",
                    "\"keep\" to conserve totals"), cover$n_na[1], to)
       joined <- dplyr::filter(joined, !is.na(.gs_to))
@@ -662,7 +686,8 @@ recast_from_geoatoms <- function(x, gs, target,
   res <- res[order(match(res[[to]], S7::prop(gs, "members")[[to]]),
                    na.last = TRUE), , drop = FALSE]
   rownames(res) <- NULL
-  .gs_restore(res, backend, collect = collect)
+  .geo_link_exit(.gs_restore(res, backend, collect = collect), link,
+                 .geo_bound(gs, to))
 }
 
 # -- the shared recast() generic ----------------------------------------------

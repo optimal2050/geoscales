@@ -5,7 +5,7 @@
 \title{Recast values from one spatial resolution to another}
 \usage{
 recast_geoscale(
-  x,
+  data,
   gs,
   source = NULL,
   target,
@@ -21,22 +21,22 @@ recast_geoscale(
 )
 }
 \arguments{
-\item{x}{The data to recast, in any supported backend, with a column
+\item{data}{The data to recast, in any supported backend, with a column
 named by \code{key} plus one or more numeric value columns; other columns
 are preserved as identifiers.}
 
-\item{gs}{The \code{\link{GeoScale}} the codes in \code{x} belong to.}
+\item{gs}{The \code{\link{GeoScale}} the codes in \code{data} belong to.}
 
 \item{source}{Geoframe name the codes belong to. \code{NULL} (default) is
 inferred: \code{key} when it is a geoframe name, else the single geoframe
-name appearing among \code{x}'s columns.}
+name appearing among \code{data}'s columns.}
 
 \item{target}{Target geoframe name of \code{gs}, or another (named) \code{\link{GeoScale}}
 -- then the target is that object's atom layer, matched on the atom
-\code{region} keys the two objects share.}
+codes the two objects share.}
 
-\item{key}{Name of the region-code column in \code{x}. Defaults to \code{source}
-when that column exists, otherwise \code{"region"}.}
+\item{key}{Name of the region-code column in \code{data}. Defaults to \code{source}
+when that column exists, otherwise the GeoScale's atom key.}
 
 \item{values}{Character vector of value columns to convert. Default: all
 numeric columns other than the key and \code{gs}'s geoframe columns.
@@ -83,12 +83,12 @@ matched on shared atom \code{region} keys). Handles both aggregation (fine to
 coarse) and disaggregation (coarse to fine) with a single rule per value
 column; geoframes that cross-cut work too, because the route always goes
 through the atom layer. The route is evaluated as one dplyr pipeline
-against the \code{\link[=geoscale_map]{geoscale_map()}} crosswalk, so \code{x} may live in any
+against the \code{\link[=geoscale_map]{geoscale_map()}} crosswalk, so \code{data} may live in any
 supported backend (see below). A crosswalk registered with
 \code{\link[=register_geoscale_map]{register_geoscale_map()}} short-circuits the derivation.
 }
 \details{
-Columns of \code{x} that are neither the key nor a value column are treated
+Columns of \code{data} that are neither the key nor a value column are treated
 as identifiers (panel columns -- a year, a technology) and preserved as
 grouping columns, so panel data recasts correctly in one call; this is
 what makes mixed pipelines like
@@ -125,7 +125,7 @@ the observed values themselves are the weights.
 }
 \section{Backends}{
 
-\code{x} may be a \code{data.frame}, tibble, \code{data.table}, \code{dtplyr} lazy table,
+\code{data} may be a \code{data.frame}, tibble, \code{data.table}, \code{dtplyr} lazy table,
 or an arrow Dataset/Table/query. The result comes back in the input's
 class; lazy inputs (arrow, dtplyr) return the uncollected query unless
 \code{collect = TRUE}. Lazy results contain the observed target regions

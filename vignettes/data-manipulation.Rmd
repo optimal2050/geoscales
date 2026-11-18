@@ -34,7 +34,7 @@ tidyverse style — data flows through `|>`, and every verb accepts a
 
 ```{r}
 gs <- geoscale_example()
-atoms <- geoscale_leaftable(gs)$region[!is.na(geoscale_leaftable(gs)$country)]
+atoms <- geoscale_leaftable(gs)$atom[!is.na(geoscale_leaftable(gs)$country)]
 cap <- tibble(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
 ```
 
@@ -133,7 +133,7 @@ head(a, 3)
 a |> recast_from_geoatoms(gs, target = "state", rule = "sum")
 ```
 
-Because the atom rows are keyed by atom `region` IDs, the halves also
+Because the atom rows are keyed by atom codes, the halves also
 convert **across two different GeoScales that share atom keys** (reg32
 to NUTS style conversions) — and the fused verb accepts another
 GeoScale as `target`, targeting its atom layer:

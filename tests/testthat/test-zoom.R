@@ -6,7 +6,7 @@ test_that("the cut telescopes outward from the focus", {
   z <- zoom_geoscale(gs, focus = "A1",
                      geoframes = c("country", "state"))
   lt <- z@leaftable
-  cut <- stats::setNames(lt$zoom, lt$region)
+  cut <- stats::setNames(lt$zoom, lt$atom)
 
   expect_equal(unname(cut["A1"]), "A1")        # focus kept whole
   expect_equal(unname(cut["A2"]), "N1_rest")   # rest of its state
@@ -39,7 +39,7 @@ test_that("every atom survives and weights are preserved exactly", {
   gs <- geoscale_example()
   z <- zoom_geoscale(gs, focus = "A1",
                      geoframes = c("country", "state"))
-  expect_setequal(z@leaftable$region, gs@leaftable$region)
+  expect_setequal(z@leaftable$atom, gs@leaftable$atom)
   for (w in gs@meta$weights) {
     expect_equal(sum(z@leaftable[[w]]), sum(gs@leaftable[[w]]))
   }
@@ -52,8 +52,8 @@ test_that("an atom with no code in the coarsest geoframe keeps NA", {
   z <- zoom_geoscale(gs, focus = "A1",
                      geoframes = c("country", "state"))
   lt <- z@leaftable
-  expect_true(is.na(lt$zoom[lt$region == "ROW"]))
-  expect_true(is.na(lt$country[lt$region == "ROW"]))
+  expect_true(is.na(lt$zoom[lt$atom == "ROW"]))
+  expect_true(is.na(lt$country[lt$atom == "ROW"]))
 })
 
 test_that("a deeper focus produces a longer telescope", {
@@ -68,7 +68,7 @@ test_that("a deeper focus produces a longer telescope", {
 
 test_that("focusing every atom is a no-op partition", {
   gs <- geoscale_example()
-  atoms <- gs@leaftable$region
+  atoms <- gs@leaftable$atom
   z <- zoom_geoscale(gs, focus = atoms, geoframes = "country")
   expect_setequal(stats::na.omit(z@leaftable$zoom), atoms)
 })

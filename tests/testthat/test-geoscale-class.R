@@ -23,29 +23,41 @@ test_that("blank codes are normalised to NA", {
                    km2 = c(1, 2, 3))
   gs <- geoscale_from_leaftable(df, geoframes = c("top", "unit"))
   lt <- S7::prop(gs, "leaftable")
-  expect_true(is.na(lt$top[lt$region == "b"]))
+  expect_true(is.na(lt$top[lt$unit == "b"]))
+  expect_false("region" %in% names(lt))
+  expect_equal(geoscale_key(gs), "unit")
   expect_equal(geoscale_regions(gs, "top"), "T")
 })
 
-test_that("'region' is allowed as the finest geoframe name only", {
-  # Downstream models call their finest spatial unit "region" (energyRt does),
-  # and there the geoframe column IS the atom key column, so nothing collides.
+test_that("'region' is an ordinary geoframe name at any depth", {
   ok <- geoscale_from_leaftable(
     data.frame(zone = c("N", "N", "S"), region = c("R1", "R2", "R3"),
                km2 = c(1, 2, 3)),
     geoframes = c("zone", "region")
   )
   expect_equal(geoscale_geoframes(ok, finest = TRUE), "region")
+  expect_equal(geoscale_key(ok), "region")
   expect_equal(geoscale_children(ok, "zone", "N"), c("R1", "R2"))
 
-  # As a coarser geoframe it would clash with the key column.
-  expect_error(
-    geoscale_from_leaftable(
-      data.frame(region = c("A", "B"), leaf = c("x", "y")),
-      geoframes = c("region", "leaf")
-    ),
-    "reserved names"
+  coarse <- geoscale_from_leaftable(
+    data.frame(region = c("A", "A", "B"), leaf = c("x", "y", "z")),
+    geoframes = c("region", "leaf")
   )
+  expect_equal(geoscale_key(coarse), "leaf")
+  expect_equal(geoscale_children(coarse, "region", "A"), c("x", "y"))
+})
+
+test_that("the key is the finest geoframe unless another column is named", {
+  df <- data.frame(zone = c("N", "N", "S"), id = c("a", "b", "c"),
+                   km2 = c(1, 2, 3))
+  # the finest geoframe does not identify the atoms: a key must be named
+  expect_error(geoscale_from_leaftable(df, geoframes = "zone"), "key=")
+  gs <- geoscale_from_leaftable(df, geoframes = "zone", key = "id")
+  expect_equal(geoscale_key(gs), "id")
+  expect_named(geoscale_leaftable(gs), c("zone", "id", "km2"))
+  a <- recast_to_geoatoms(data.frame(zone = c("N", "S"), cap = c(4, 2)), gs,
+                          rule = "sum", weight = "km2")
+  expect_named(a, c("id", "cap", "weight"))
 })
 
 test_that("geoscale_geoframes reports the hierarchy", {
@@ -57,6 +69,9 @@ test_that("geoscale_geoframes reports the hierarchy", {
 test_that("the validator rejects a duplicate atom key", {
   bad <- data.frame(top = c("T", "T"), atom = c("A", "A"), km2 = c(1, 2))
   expect_error(geoscale_from_leaftable(bad, geoframes = c("top", "atom")),
+               "does not identify the atoms")
+  expect_error(geoscale_from_leaftable(bad, geoframes = c("top", "atom"),
+                                       key = "atom"),
                "must be unique")
 })
 

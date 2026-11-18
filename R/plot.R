@@ -18,39 +18,18 @@
 
 # Human-readable names for the regions of one geoframe.
 #
-# `@meta$labels` names a column of `leaves` holding a display name (energyRt's
-# UTOPIA geoscale sets `labels = "name"`, giving "Oswestia" for "R1").
+# Read from the label table (see R/labels.R), in the default variant. Labels
+# are declared per geoframe, so a geoframe with none is shown by its codes.
 #
-# The column is per-atom, so a label is only used where it is UNAMBIGUOUS for
-# the region: every atom in the group must carry the same value. At the atom
-# geoframe that is always true; at a coarser geoframe a zone made of Oswestia
-# and Antidia has no name of its own, and labelling it "Oswestia" would be a
-# fabrication -- so the code is kept instead.
-#
-# Returns a named character vector (code -> label) covering only the
-# unambiguous codes, or NULL when the geoscale declares no labels.
+# Returns a named character vector (code -> label) covering the labelled
+# codes, or NULL when the geoframe has no labels.
 #' @noRd
 .region_labels <- function(x, geoframe) {
-  meta <- S7::prop(x, "meta")
-  col  <- meta$labels
-  if (is.null(col) || length(col) != 1L || is.na(col) || !nzchar(col)) {
-    return(NULL)
-  }
-  leaves <- S7::prop(x, "leaftable")
-  if (!col %in% names(leaves) || !geoframe %in% names(leaves)) return(NULL)
-
-  code <- as.character(leaves[[geoframe]])
-  lab  <- as.character(leaves[[col]])
-  keep <- !is.na(code) & !is.na(lab)
-  if (!any(keep)) return(NULL)
-  code <- code[keep]
-  lab <- lab[keep]
-
-  by_code <- split(lab, code)
-  uniq <- vapply(by_code, function(v) length(unique(v)) == 1L, logical(1))
-  if (!any(uniq)) return(NULL)
-  stats::setNames(vapply(by_code[uniq], function(v) v[1], character(1)),
-                  names(by_code)[uniq])
+  lb <- .label_table(x)
+  lb <- lb[lb$frame == geoframe & !is.na(lb$unit) &
+             lb$variant == .label_variant(x), , drop = FALSE]
+  if (nrow(lb) == 0L) return(NULL)
+  stats::setNames(lb$label, lb$unit)
 }
 
 # Apply the label lookup to a vector of codes, leaving unmatched codes alone.
@@ -222,7 +201,8 @@ geoscale_layout <- function(x, weight = NULL) {
 #'   `FALSE` none. Stack: a character vector of geoframes whose regions get
 #'   their names on the plane (`TRUE` = all; default none). Map: `TRUE`
 #'   draws the region names (default none). Names are the display names of
-#'   the `@meta$labels` column where unambiguous, else the codes.
+#'   the region's label where it has one (see [`geoscale_labels()`]), else
+#'   the code.
 #' @param fill Icicle: what to colour by without `data`, `"geoframe"`
 #'   (default) or `"region"`.
 #' @param geoframe Map: the geoframe to draw. Defaults to the atom geoframe.

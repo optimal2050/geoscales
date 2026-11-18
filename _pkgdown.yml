@@ -79,7 +79,9 @@ reference:
       - geoscale_geoframes
       - geoscale_regions
       - geoscale_rank
+      - geoscale_key
       - geoscale_weights
+      - geoscale_labels
       - summary.GeoScale
       - "[.GeoScale"
 
@@ -107,6 +109,7 @@ reference:
       - register_geoscale_map
       - clear_geoscale_maps
       - join_geoscale
+      - bind_geoscale
       - GEOSCALE_RULES
       - register_geoscale_rule
       - get_geoscale_rule

@@ -105,7 +105,7 @@ geom_geoscale <- function(gs, z = NULL,
     d <- as.data.frame(d)
     gf <- geoframe %||% .geo_infer_from(gs, d, region)
     .check_geoframe(gs, gf, "geoframe")
-    key <- region %||% (if (gf %in% names(d)) gf else "region")
+    key <- region %||% (if (gf %in% names(d)) gf else S7::prop(gs, "key"))
     .check_layer_cols(d, c(key, z))
     shp <- geoscale_geometry(gs, gf, precision = precision)
     agg <- vapply(split(d[[z]], as.character(d[[key]])), fun, numeric(1))

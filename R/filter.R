@@ -346,7 +346,6 @@ prune_geoscale <- function(x, geoframe,
     totals <- tapply(leaves[[w]], key, sum, na.rm = TRUE)
     out[[w]] <- as.numeric(totals[key[idx]])
   }
-  out$region <- as.character(out[[geoframe]])
   rownames(out) <- NULL
 
   # meta: preserve EVERYTHING, then adjust identity and coverage
@@ -381,10 +380,12 @@ prune_geoscale <- function(x, geoframe,
   }
 
   gs <- geoscale_from_leaftable(
-    out, geoframes = keep_lv, key = "region",
+    out, geoframes = keep_lv, key = geoframe,
     weights = wts, default_weight = meta$default_weight,
     name = new_meta$name, desc = meta$desc,
-    geometry = new_geom
+    geometry = new_geom,
+    labels = .trim_labels(.label_table(x), keep_lv,
+                          S7::prop(x, "members")[keep_lv])
   )
   full_meta <- utils::modifyList(new_meta, S7::prop(gs, "meta")[
     c("weights", "default_weight")])

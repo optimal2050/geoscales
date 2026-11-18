@@ -6,7 +6,7 @@
 \title{Recast region data down to the atom layer, and back}
 \usage{
 recast_to_geoatoms(
-  x,
+  data,
   gs,
   source = NULL,
   key = NULL,
@@ -19,13 +19,14 @@ recast_to_geoatoms(
 )
 
 recast_from_geoatoms(
-  x,
+  data,
   gs,
   target,
   key = NULL,
   values = NULL,
   rule = NULL,
   weight = NULL,
+  data_weight = NULL,
   na_rm = FALSE,
   na_action = c("drop", "error", "keep"),
   collect = NULL,
@@ -33,9 +34,8 @@ recast_from_geoatoms(
 )
 }
 \arguments{
-\item{x}{The data: for \code{recast_to_geoatoms()} keyed by region code at
-geoframe \code{source}; for \code{recast_from_geoatoms()} keyed by atom \code{region}
-IDs.}
+\item{data}{The data: for \code{recast_to_geoatoms()} keyed by region code at
+geoframe \code{source}; for \code{recast_from_geoatoms()} keyed by atom codes.}
 
 \item{gs}{The \code{\link{GeoScale}} the data is keyed in (\code{to_geoatoms}) or
 aggregated into (\code{from_geoatoms}).}
@@ -44,16 +44,14 @@ aggregated into (\code{from_geoatoms}).}
 \code{NULL} (default) is inferred as in \code{\link[=recast_geoscale]{recast_geoscale()}}.}
 
 \item{key}{The key column. \code{to_geoatoms}: defaults to \code{source} when that
-column exists, otherwise \code{"region"}. \code{from_geoatoms}: default
-\code{"region"}.}
+column exists, otherwise the GeoScale's atom key. \code{from_geoatoms}: the
+GeoScale's atom key.}
 
 \item{values, rule}{As in \code{\link[=recast_geoscale]{recast_geoscale()}}.}
 
-\item{weight}{\code{to_geoatoms}: a declared weight column of \code{gs}, as in
-\code{\link[=recast_geoscale]{recast_geoscale()}}. \code{from_geoatoms}: the name of a column of \code{x} to
-weight by, so the weight may vary by identifier -- a capacity-weighted
-efficiency differs by year and vintage. \code{NULL} (default) uses a \code{weight}
-column of \code{x} if present, else the GeoScale's declared weight.}
+\item{weight}{A declared weight column of \code{gs}, as in
+\code{\link[=recast_geoscale]{recast_geoscale()}}. \code{from_geoatoms} uses it only when \code{data} carries
+no weight of its own.}
 
 \item{attach_weight}{\code{to_geoatoms} only: attach the \code{weight} column
 (default \code{TRUE}).}
@@ -64,6 +62,11 @@ query (default).}
 \item{from, to}{Deprecated names of \code{source} and \code{target}.}
 
 \item{target}{\code{from_geoatoms} only: target geoframe name.}
+
+\item{data_weight}{\code{from_geoatoms} only: the name of a column of \code{data} to
+weight by, so the weight may vary by identifier -- a capacity-weighted
+efficiency differs by year and vintage. \code{NULL} (default) uses a \code{weight}
+column of \code{data} if present, else the scale weight \code{weight}.}
 
 \item{na_rm}{\code{from_geoatoms} only: read an \code{NA} value as "this member says
 nothing" rather than as an unknown that makes the whole group \code{NA}
@@ -76,8 +79,8 @@ no code at \code{target} -- \code{"drop"} (default, warning), \code{"error"}, or
 }
 \value{
 \code{recast_to_geoatoms()}: one row per (atom x identifier
-combination) with columns \code{region}, identifiers, values (and
-\code{weight}). \code{recast_from_geoatoms()}: one row per (region x identifier
+combination) with the atom column (named after the GeoScale's atom
+key, see \code{\link[=geoscale_key]{geoscale_key()}}), identifiers, values (and \code{weight}). \code{recast_from_geoatoms()}: one row per (region x identifier
 combination) with columns \code{target}-named region, identifiers, values.
 Both in the input's class; lazy in, lazy out.
 }

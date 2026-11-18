@@ -35,7 +35,6 @@ GOLDEN_DIR <- file.path("specs", "golden")
 
 spec_structures <- function() {
   ex <- geoscales::geoscale_leaftable(geoscales::geoscale_example())
-  ex$region <- NULL                     # the key column is re-derived
   bands <- data.frame(band = rep(c("X", "Y"), 3),
                       atom = paste0("A", 1:6),
                       km2 = c(100, 200, 300, 400, 500, 600))
@@ -148,7 +147,7 @@ spec_cases <- function() {
          params = list(from = "country", rule = "sum", weight = "km2")),
     list(id = "008-from-atoms-sum", structure = "example",
          op = "from_atoms",
-         input = data.frame(region = paste0("A", 1:6),
+         input = data.frame(atom = paste0("A", 1:6),
                             cap = as.numeric(1:6)),
          params = list(to = "state", rule = "sum",
                        values = list("cap"))),

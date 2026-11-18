@@ -168,10 +168,7 @@ ne_geoscale <- function(scale = 110,
   meta <- S7::prop(gs, "meta")
   meta$source <- "naturalearth"
   meta$scale  <- scale
-  GeoScale(leaftable = S7::prop(gs, "leaftable"),
-           geoframes = S7::prop(gs, "geoframes"),
-           members = S7::prop(gs, "members"),
-           geometry = S7::prop(gs, "geometry"), meta = meta)
+  S7::set_props(gs, meta = meta)
 }
 
 # Register at load time --------------------------------------------------------

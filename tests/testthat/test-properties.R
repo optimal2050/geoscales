@@ -205,13 +205,13 @@ test_that("values auto-detection and from_geoatoms na_action", {
   base <- recast_to_geoatoms(
     data.frame(country = c("N", "S"), cap = c(120, 60)),
     gs, source = "country", rule = "sum", weight = "km2")
-  base1 <- base[base$region != "A1", ]
+  base1 <- base[base$atom != "A1", ]
   for (na in c("drop", "keep")) {
     got <- as.data.frame(
       recast_from_geoatoms(base1, gs, target = "state", rule = "sum",
                            values = "cap", na_action = na))
     expect_false(anyNA(got$cap))
     expect_equal(got$cap[got$state == "N1"],
-                 base$cap[base$region == "A2"], tolerance = 1e-9)
+                 base$cap[base$atom == "A2"], tolerance = 1e-9)
   }
 })

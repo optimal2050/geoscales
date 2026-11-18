@@ -23,9 +23,10 @@
 #'   `geoframes`, and optionally numeric weight columns.
 #' @param geoframes Ordered character vector of geoframe names, **coarsest
 #'   first**. Each must be a column of `leaftable`.
-#' @param key Name of the column holding the unique atom key. Defaults to
-#'   `"region"` if present, otherwise the finest geoframe (the last entry of
-#'   `geoframes`), which is copied into a `region` column.
+#' @param key Name of the column holding the unique atom key. Defaults to the
+#'   finest geoframe (the last entry of `geoframes`), which must then be
+#'   complete and unique. Name another column when the atoms are finer than
+#'   the finest geoframe.
 #' @param weights Character vector naming the weight columns. Defaults to all
 #'   numeric columns that are neither geoframes nor reserved names.
 #' @param default_weight The weight used when a caller does not name one.
@@ -33,6 +34,9 @@
 #' @param members Optional named list giving the ordered code vocabulary per
 #'   geoframe. Derived from `leaftable` when `NULL` (first-appearance order).
 #' @param geometry Optional `sfc` with one geometry per row of `leaftable`.
+#' @param labels Optional table of display names with columns `frame`,
+#'   `unit`, `label` and optionally `variant`; see
+#'   [`attach_labels_geoscale()`].
 #' @param row_order `"nested"` (default) sorts the rows by geoframe, coarsest
 #'   first, each in its member order (unassigned codes last; `geometry`
 #'   follows); `"given"` keeps the rows as supplied.
@@ -57,6 +61,7 @@ geoscale_from_leaftable <- function(leaftable,
                                  default_weight = NULL,
                                  members = NULL,
                                  geometry = NULL,
+                                 labels = NULL,
                                  name = "",
                                  desc = "",
                                  row_order = c("nested", "given"),
@@ -88,29 +93,27 @@ geoscale_from_leaftable <- function(leaftable,
   }
 
   # Atom key ------------------------------------------------------------------
+  finest <- geoframes[length(geoframes)]
   if (is.null(key)) {
-    key <- if ("region" %in% names(leaftable)) {
-      "region"
-    } else {
-      geoframes[length(geoframes)]
+    key <- finest
+    if (anyNA(leaftable[[key]]) || anyDuplicated(leaftable[[key]])) {
+      .stop(paste0("the finest geoframe \"%s\" does not identify the atoms ",
+                   "(it has missing or repeated codes); name the column that ",
+                   "does with `key=`"), key)
     }
   }
-  if (!key %in% names(leaftable)) {
+  if (length(key) != 1L || is.na(key) || !key %in% names(leaftable)) {
     .stop("`key` column \"%s\" not found in `leaftable`", key)
   }
-  if (key != "region") {
-    leaftable$region <- as.character(leaftable[[key]])
-  } else {
-    leaftable$region <- as.character(leaftable$region)
-  }
-  if (anyNA(leaftable$region) || any(!nzchar(leaftable$region))) {
+  leaftable[[key]] <- as.character(leaftable[[key]])
+  if (anyNA(leaftable[[key]]) || any(!nzchar(leaftable[[key]]))) {
     .stop(paste0("the atom key column \"%s\" has missing or empty values; ",
                  "every atom needs an identifier"), key)
   }
 
   # Weights -------------------------------------------------------------------
   if (is.null(weights)) {
-    cand <- setdiff(names(leaftable), c(geoframes, .RESERVED_COLS, "region"))
+    cand <- setdiff(names(leaftable), c(geoframes, .RESERVED_COLS, key))
     weights <- cand[vapply(leaftable[cand], is.numeric, logical(1))]
   }
   weights <- as.character(weights)
@@ -169,7 +172,9 @@ geoscale_from_leaftable <- function(leaftable,
     geoframes = geoframes,
     members   = members,
     geometry  = geometry,
-    meta      = meta
+    meta      = meta,
+    key       = key,
+    labels    = .as_labels(labels)
   )
 }
 

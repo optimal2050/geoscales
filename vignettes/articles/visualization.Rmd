@@ -217,7 +217,7 @@ the leaftable:
 ```{r iceland-area, eval = has_ne}
 lt <- geoscale_leaftable(isl)
 
-ggplot(tibble(unit = lt$region, km2 = lt$km2)) +
+ggplot(tibble(unit = lt$unit, km2 = lt$km2)) +
   geom_geoscale(gs = isl, z = "km2", geoframe = "unit",
                 colour = "white", linewidth = 0.3) +
   scale_fill_viridis_c(option = "G", trans = "sqrt") +

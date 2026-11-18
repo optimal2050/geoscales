@@ -34,7 +34,7 @@ test_that("recast_to_geoatoms honours the backend contract", {
       recast_to_geoatoms(d, gs, source = "country", rule = "sum",
                          weight = "km2", collect = collect)
     },
-    key_cols = c("atom", "region"), value_cols = "cap")
+    key_cols = "atom", value_cols = "cap")
   expect_backend_rejects(function(d, collect = NULL) {
     recast_to_geoatoms(d, gs, source = "country", rule = "sum")
   })

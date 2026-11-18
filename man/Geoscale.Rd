@@ -4,11 +4,20 @@
 \alias{GeoScale}
 \title{GeoScale (S7 class)}
 \usage{
-GeoScale(leaftable, geoframes, members, geometry = NULL, meta = list())
+GeoScale(
+  leaftable,
+  geoframes,
+  members,
+  geometry = NULL,
+  meta = list(),
+  key = NULL,
+  labels = NULL
+)
 }
 \arguments{
-\item{leaftable}{\code{data.frame} with a unique \code{region} key column, one column
-per geoframe in \code{geoframes}, and one or more numeric weight columns.}
+\item{leaftable}{\code{data.frame} with one column per geoframe in \code{geoframes}
+and one or more numeric weight columns. The finest geoframe is the atom
+key unless \code{key} names another column.}
 
 \item{geoframes}{Ordered character vector of geoframe names (coarsest
 first); each name must appear as a column in \code{leaftable}.}
@@ -21,7 +30,13 @@ present at geoframe \code{lvl}. Must equal the non-\code{NA} values of
 \code{leaftable}, in the same order.}
 
 \item{meta}{Named list of attributes (\code{name}, \code{desc}, \code{weights},
-\code{default_weight}, \code{crs}, \code{source}, \code{labels}).}
+\code{default_weight}, \code{default_label}, \code{crs}, \code{source}).}
+
+\item{key}{Name of the atom key column: unique and complete. \code{NULL}
+(default) is the finest geoframe.}
+
+\item{labels}{Optional table of display names, see
+\code{\link[=attach_labels_geoscale]{attach_labels_geoscale()}}.}
 }
 \value{
 A \code{GeoScale} object.

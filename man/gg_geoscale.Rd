@@ -78,7 +78,8 @@ Icicle: \code{TRUE} (default) draws the region names on the rectangles,
 \code{FALSE} none. Stack: a character vector of geoframes whose regions get
 their names on the plane (\code{TRUE} = all; default none). Map: \code{TRUE}
 draws the region names (default none). Names are the display names of
-the \verb{@meta$labels} column where unambiguous, else the codes.}
+the region's label where it has one (see \code{\link[=geoscale_labels]{geoscale_labels()}}), else
+the code.}
 
 \item{fill}{Icicle: what to colour by without \code{data}, \code{"geoframe"}
 (default) or \code{"region"}.}

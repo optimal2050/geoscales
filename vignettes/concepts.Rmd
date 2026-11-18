@@ -118,7 +118,7 @@ the word "levels".
 |---|---|---|---|---|
 | frame | a named axis of resolution; the ordered frames form the hierarchy, coarsest first, with an implicit root | `@timeframes` | `@geoframes` | `commodity@timeframe` / `@geoframe` |
 | members | the per-frame units — bare ordered labels, unique within their frame (`"h00"`; region codes); the components node IDs are made from | `@members[[tf]]` | `@members[[gf]]` | derived |
-| node ID | identity of a cell at any frame. The ID rule: time COMPOSES (members `_`-joined, coarsest to finest: `"d015_h00"`); space AUTHORS (the member is the ID, in its geoframe) | `leaftable$timeslice` | `leaftable$region` | `@timeframes[[f]]` entries |
+| node ID | identity of a cell at any frame. The ID rule: time COMPOSES (members `_`-joined, coarsest to finest: `"d015_h00"`); space AUTHORS (the member is the ID, in its geoframe) | `leaftable$timeslice` | the finest geoframe's column (`geoscale_key()`) | `@timeframes[[f]]` entries |
 | leaftable | the leaf enumeration: one row per finest node — bare members per frame, plus the leaf ID and weights | `@leaftable` | `@leaftable` | `calendar@timetable` (legacy name; the bridge maps 1:1) |
 | nodes at frame f | the leaf IDs of the object pruned at f (`prune_calendar()` / `prune_geoscale()`) | derived | derived | stored (cached view) |
 | share / weight | `share` = fraction of the whole; sums to coverage; aggregates by SUM (universal). Weight conventions are documented side by side; energyRt's share-weighted-mean parent rule is the solver-facing one | `share`, `weight` columns | named weight columns, share derived | `timeslice_share` |

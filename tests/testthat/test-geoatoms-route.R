@@ -7,19 +7,19 @@ test_that("to_geoatoms splits extensive values by the weight and attaches it", {
   y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
   a <- recast_to_geoatoms(y, gs, source = "country", rule = "sum",
                           weight = "km2")
-  expect_named(a, c("region", "capacity", "weight"))
+  expect_named(a, c("atom", "capacity", "weight"))
   expect_equal(sum(a$capacity), 30, tolerance = 1e-12)
   # N (km2 100..400 of A1..A4): proportional split
-  expect_equal(a$capacity[a$region == "A1"], 1, tolerance = 1e-12)
-  expect_equal(a$capacity[a$region == "A4"], 4, tolerance = 1e-12)
-  expect_equal(a$weight[a$region == "A4"], 400)
+  expect_equal(a$capacity[a$atom =="A1"], 1, tolerance = 1e-12)
+  expect_equal(a$capacity[a$atom =="A4"], 4, tolerance = 1e-12)
+  expect_equal(a$weight[a$atom =="A4"], 400)
 
   # intensive values are repeated, not split
   z <- data.frame(country = c("N", "S"), eff = c(0.4, 0.6))
   az <- recast_to_geoatoms(z, gs, source = "country",
                            rule = "weighted_mean", weight = "km2")
-  expect_equal(az$eff[az$region == "A1"], 0.4)
-  expect_equal(az$eff[az$region == "A6"], 0.6)
+  expect_equal(az$eff[az$atom =="A1"], 0.4)
+  expect_equal(az$eff[az$atom =="A6"], 0.6)
 })
 
 test_that("from_geoatoms aggregates atoms up, using the carried weight", {

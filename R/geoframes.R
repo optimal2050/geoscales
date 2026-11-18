@@ -48,4 +48,4 @@ is_valid_geoframe <- function(x) {
 #' geoframe names.
 #'
 #' @noRd
-.RESERVED_COLS <- c("region", "share", ".weight", ".order")
+.RESERVED_COLS <- c("share", ".weight", ".order")

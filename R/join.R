@@ -30,13 +30,13 @@
 #' Codes are validated against the geoframe (unknown codes warn).
 #' Existing columns are never overwritten; the join errors instead.
 #'
-#' @param x The dataset, in any supported backend (see
+#' @param data The dataset, in any supported backend (see
 #'   [`recast_geoscale()`]'s Backends section).
 #' @param gs A named [`GeoScale`].
-#' @param key Name of the code column in `x`. `NULL` (default)
+#' @param key Name of the code column in `data`. `NULL` (default)
 #'   auto-detects as described above.
 #' @param geoframe Geoframe the codes belong to. Inferred when exactly one
-#'   of the object's geoframe names is a column of `x`.
+#'   of the object's geoframe names is a column of `data`.
 #' @param geoframes Coarser geoframes to attach as `"<name>.<geoframe>"`
 #'   membership columns (default: none). `TRUE` attaches all geoframes
 #'   coarser than `geoframe`.
@@ -52,7 +52,7 @@
 #' @param collect For lazy inputs: materialise (`TRUE`) or return the
 #'   query (default).
 #'
-#' @return `x` with the new column(s) appended, in the input's class
+#' @return `data` with the new column(s) appended, in the input's class
 #'   (lazy in, lazy out).
 #'
 #' @examples
@@ -61,21 +61,26 @@
 #' join_geoscale(x, gs, geoframes = TRUE)
 #' join_geoscale(x, gs, meta = TRUE)
 #' @export
-join_geoscale <- function(x, gs, key = NULL, geoframe = NULL,
+join_geoscale <- function(data, gs, key = NULL, geoframe = NULL,
                           geoframes = NULL, meta = FALSE, weight = NULL,
                           as_factor = TRUE, collect = NULL) {
   .check_geoscale(gs, "gs")
+  # The link, when the data carries one, names the column and its geoframe;
+  # `data` itself goes on bound, so the join binds what it attaches.
+  link <- .geo_link_enter(data, gs, key = key, source = geoframe)
+  key <- link$key
+  geoframe <- link$source
   if (is.null(geoframe)) {
-    hit <- intersect(geoscale_geoframes(gs), names(.gs_schema(x)))
+    hit <- intersect(geoscale_geoframes(gs), names(.gs_schema(data)))
     if (length(hit) != 1L) {
-      .stop(paste0("cannot infer the code geoframe from `x`'s columns ",
+      .stop(paste0("cannot infer the code geoframe from `data`'s columns ",
                    "(found: %s); pass `geoframe=`"),
             if (length(hit) == 0L) "none" else .preview(hit))
     }
     geoframe <- hit
   }
   .check_geoframe(gs, geoframe, "geoframe")
-  nestedscales::join_scale(x, gs, key = key, frame = geoframe,
+  nestedscales::join_scale(data, gs, key = key, frame = geoframe,
                           attach = geoframes, meta = meta, weight = weight,
                           as_factor = as_factor, collect = collect)
 }

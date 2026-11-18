@@ -12,6 +12,7 @@ geoscale_from_leaftable(
   default_weight = NULL,
   members = NULL,
   geometry = NULL,
+  labels = NULL,
   name = "",
   desc = "",
   row_order = c("nested", "given"),
@@ -25,9 +26,10 @@ geoscale_from_leaftable(
 \item{geoframes}{Ordered character vector of geoframe names, \strong{coarsest
 first}. Each must be a column of \code{leaftable}.}
 
-\item{key}{Name of the column holding the unique atom key. Defaults to
-\code{"region"} if present, otherwise the finest geoframe (the last entry of
-\code{geoframes}), which is copied into a \code{region} column.}
+\item{key}{Name of the column holding the unique atom key. Defaults to the
+finest geoframe (the last entry of \code{geoframes}), which must then be
+complete and unique. Name another column when the atoms are finer than
+the finest geoframe.}
 
 \item{weights}{Character vector naming the weight columns. Defaults to all
 numeric columns that are neither geoframes nor reserved names.}
@@ -39,6 +41,10 @@ Defaults to the first entry of \code{weights}.}
 geoframe. Derived from \code{leaftable} when \code{NULL} (first-appearance order).}
 
 \item{geometry}{Optional \code{sfc} with one geometry per row of \code{leaftable}.}
+
+\item{labels}{Optional table of display names with columns \code{frame},
+\code{unit}, \code{label} and optionally \code{variant}; see
+\code{\link[=attach_labels_geoscale]{attach_labels_geoscale()}}.}
 
 \item{name, desc}{Short name and description.}
 

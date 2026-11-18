@@ -1,4 +1,4 @@
-atoms <- function(x) as.character(S7::prop(x, "leaftable")$region)
+atoms <- function(x) as.character(S7::prop(x, "leaftable")[[geoscale_key(x)]])
 
 test_that("a weight is declared over the atoms and can become the default", {
   gs <- geoscale_example()
@@ -27,7 +27,7 @@ test_that("a data.frame keyed by the atom column carries several weights", {
   gs <- geoscale_example()
   a <- atoms(gs)
   g2 <- geoscale_add_weight(
-    gs, data.frame(region = a, gdp = seq_along(a), pop2 = seq_along(a) * 2))
+    gs, data.frame(atom = a, gdp = seq_along(a), pop2 = seq_along(a) * 2))
   expect_true(all(c("gdp", "pop2") %in% geoscale_weights(g2)))
 })
 
