@@ -49,6 +49,7 @@
   looks names up, giving the code where there is no label. Subsets,
   prunes and zooms keep the labels of what remains, and the plots use
   the default variant.
+
 - The data link.
   [`bind_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
   records on a table’s region-code columns which GeoScale and geoframe
@@ -65,6 +66,10 @@
   take the source geoframe from the link, stop when the data is bound to
   another GeoScale, and bind their result. Needs nestedscales 0.3.0 or
   later; with an earlier version the verbs behave as before.
+
+- `gg_geoscale(type = "stack")` fills a single-region geoframe above the
+  colouring geoframe (a nation over its zones) with the next colour of
+  the same palette; it was neutral grey.
 
 ### Bug fixes
 
