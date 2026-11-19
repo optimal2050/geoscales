@@ -140,6 +140,7 @@ zoom_geoscale <- function(x, focus, geoframes = NULL, name = "zoom",
     geometry = x@geometry,
     labels = .trim_labels(.label_table(x), c(geoframes[1], atom_frame),
                           x@members),
+    hidden = .trim_hidden(.hidden(x), ordered),
     name = if (nzchar(x@meta$name %||% "")) {
       paste0(x@meta$name, "@", name)
     } else {

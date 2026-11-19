@@ -57,6 +57,9 @@
 #'
 #' @param x A [`GeoScale`].
 #' @param weight Weight column. `NULL` uses the default.
+#' @param geoframes The geoframes to lay out: `NULL` (default) those not
+#'   hidden (see [`hide_geoframes_geoscale()`]), `TRUE` all, or a character
+#'   vector of names.
 #'
 #' @return A `data.frame` with columns `geoframe`, `region`, `rank`, `xmin`,
 #'   `xmax`, `ymin`, `ymax`, `weight`, `share`.
@@ -64,10 +67,13 @@
 #' @examples
 #' head(geoscale_layout(geoscale_example()))
 #' @export
-geoscale_layout <- function(x, weight = NULL) {
+geoscale_layout <- function(x, weight = NULL, geoframes = NULL) {
   .check_geoscale(x)
   weight <- .resolve_weight(x, weight)
-  lv     <- S7::prop(x, "geoframes")
+  all_lv <- S7::prop(x, "geoframes")
+  drawn  <- .drawn_geoframes(x, geoframes)
+  # every geoframe orders the atoms, drawn or not, so a band keeps its place
+  lv     <- all_lv
   leaves <- S7::prop(x, "leaftable")
   members <- S7::prop(x, "members")
 
@@ -83,6 +89,7 @@ geoscale_layout <- function(x, weight = NULL) {
 
   ends   <- cumsum(w)
   starts <- ends - w
+  lv     <- drawn
   n_lv   <- length(lv)
 
   parts <- lapply(seq_along(lv), function(i) {
@@ -95,7 +102,7 @@ geoscale_layout <- function(x, weight = NULL) {
     data.frame(
       geoframe  = lv[i],
       region = r$values[keep],
-      rank   = i,
+      rank   = match(lv[i], all_lv),
       xmin   = starts[start_i][keep] / total,
       xmax   = ends[end_i][keep] / total,
       ymin   = n_lv - i,
@@ -117,8 +124,10 @@ geoscale_layout <- function(x, weight = NULL) {
 # Arguments each figure type accepts, besides `object`, `type` and `...`.
 # Anything listed for another type only is refused, never ignored.
 .GG_GEOSCALE_ARGS <- list(
-  icicle = c("data", "z", "palette", "labels", "rule", "weight", "fill"),
+  icicle = c("data", "z", "palette", "labels", "rule", "weight", "fill",
+             "geoframes", "key"),
   stack  = c("data", "z", "palette", "labels", "rule", "weight", "precision",
+             "geoframes", "key",
              "view", "angle", "ratio", "shear", "depth", "gap", "rotate",
              "direction", "colour", "linewidth", "frame", "frame_fill",
              "connectors", "outline", "outline_colour", "outline_linewidth"),
@@ -179,9 +188,11 @@ geoscale_layout <- function(x, weight = NULL) {
 #' @param data,z Colour the figure by a value instead of by structure.
 #'   `data` is a data.frame with the value column named by `z`; `z` is
 #'   required whenever `data` is given. The icicle and the stack take
-#'   `data` keyed by the atom geoframe and recast the value up to every
-#'   coarser geoframe (see `rule`), so the whole figure shares one
-#'   continuous fill scale; the map takes `data` keyed by `geoframe`.
+#'   `data` keyed by any geoframe (see `key`) and recast the value up to
+#'   every coarser geoframe it nests in (see `rule`), so those bands or
+#'   planes share one continuous fill scale. A geoframe finer than the
+#'   data, or cutting across it, has no value and is outlined without a
+#'   fill. The map takes `data` keyed by `geoframe`.
 #'   Legend title via `labs(fill = )`.
 #' @param rule Icicle and stack, with `data`: the rule that recasts `z`
 #'   from the atoms to each coarser geoframe (`"weighted_mean"` default;
@@ -205,7 +216,16 @@ geoscale_layout <- function(x, weight = NULL) {
 #'   the code.
 #' @param fill Icicle: what to colour by without `data`, `"geoframe"`
 #'   (default) or `"region"`.
-#' @param geoframe Map: the geoframe to draw. Defaults to the atom geoframe.
+#' @param geoframe Map: the geoframe to draw. Defaults to the finest
+#'   geoframe that is not hidden.
+#' @param geoframes Icicle and stack: the geoframes to draw. `NULL`
+#'   (default) draws those not hidden with [`hide_geoframes_geoscale()`],
+#'   `TRUE` draws all, and a character vector draws exactly the named ones,
+#'   hidden or not.
+#' @param key Icicle and stack: the geoframe `data` is keyed by, i.e. the
+#'   name of its code column. `NULL` (default) takes the geoframe a bound
+#'   column is on (see [`bind_geoscale()`]), else the finest geoframe that
+#'   is a column of `data`.
 #' @param precision Stack and map: GEOS precision for the dissolve,
 #'   forwarded to [`geoscale_geometry()`]. Default `0` = off.
 #' @param view Stack: a predefined point of view -- `"oblique"` (the
@@ -317,6 +337,7 @@ gg_geoscale <- function(object,
                         frame = NULL, frame_fill = NA, connectors = FALSE,
                         outline = NULL, outline_colour = "grey20",
                         outline_linewidth = 0.6,
+                        geoframes = NULL, key = NULL,
                         ...) {
   .check_geoscale(object)
   .need_ggplot("gg_geoscale()")
@@ -329,7 +350,8 @@ gg_geoscale <- function(object,
   switch(type,
     icicle = .gg_geoscale_icicle(
       object, data = data, z = z, rule = rule, weight = weight,
-      palette = palette, labels = labels, fill = fill, ...),
+      palette = palette, labels = labels, fill = fill,
+      geoframes = geoframes, key = key, ...),
     stack = .gg_geoscale_stack(
       object, view = view, angle = angle, ratio = ratio, shear = shear,
       depth = depth, gap = gap, rotate = rotate, direction = direction,
@@ -338,7 +360,8 @@ gg_geoscale <- function(object,
       colour = colour, linewidth = linewidth, frame = frame,
       frame_fill = frame_fill, connectors = connectors, outline = outline,
       outline_colour = outline_colour,
-      outline_linewidth = outline_linewidth, ...),
+      outline_linewidth = outline_linewidth,
+      geoframes = geoframes, key = key, ...),
     map = .gg_geoscale_map(
       object, data = data, z = z, geoframe = geoframe, palette = palette,
       labels = labels, precision = precision, ...)
@@ -350,21 +373,28 @@ gg_geoscale <- function(object,
 .gg_geoscale_icicle <- function(object, data = NULL, z = NULL,
                                 rule = "weighted_mean", weight = NULL,
                                 palette = "H", labels = NULL,
-                                fill = c("geoframe", "region"), ...) {
+                                fill = c("geoframe", "region"),
+                                geoframes = NULL, key = NULL, ...) {
   fill <- match.arg(fill)
   draw_labels <- is.null(labels) || isTRUE(labels)
   dots <- list(...)
-  d <- geoscale_layout(object, weight = weight)
-  lv <- S7::prop(object, "geoframes")
+  lv <- .drawn_geoframes(object, geoframes)
+  d <- geoscale_layout(object, weight = weight, geoframes = lv)
   nm <- S7::prop(object, "meta")$name
   vals <- NULL
+  d$.valued <- TRUE
   if (!is.null(data)) {
     # data fill: each band's rectangles carry the value recast to that
-    # geoframe (widths still encode weight shares); overrides `fill`
-    vals <- .geoscale_frame_values(object, lv, data, z, rule, weight)
+    # geoframe (widths still encode weight shares); overrides `fill`. A band
+    # the data does not reach is outlined and left unfilled.
+    vals <- .geoscale_frame_values(object, lv, data, z, rule, weight, key)
     d$.fill <- NA_real_
     for (gf in lv) {
       i <- d$geoframe == gf
+      if (is.null(vals[[gf]])) {
+        d$.valued[i] <- FALSE
+        next
+      }
       d$.fill[i] <- vals[[gf]][[z]][match(d$region[i], vals[[gf]][[gf]])]
     }
   } else {
@@ -383,7 +413,15 @@ gg_geoscale <- function(object,
     .gg_layer(ggplot2::geom_rect,
               ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin,
                            ymax = ymax, fill = .fill),
-              list(colour = "white", linewidth = 0.3), dots) +
+              list(colour = "white", linewidth = 0.3), dots,
+              data = d[d$.valued, , drop = FALSE])
+  if (!all(d$.valued)) {
+    p <- p + ggplot2::geom_rect(
+      data = d[!d$.valued, , drop = FALSE],
+      ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+      fill = NA, colour = "grey35", linewidth = 0.3)
+  }
+  p <- p +
     ggplot2::scale_y_continuous(breaks = rev(seq_along(lv)) - 0.55,
                                 labels = lv) +
     ggplot2::labs(x = "share of weight", y = NULL, fill = fill,
@@ -413,7 +451,7 @@ gg_geoscale <- function(object,
       rng <- range(td$.fill, finite = TRUE)
       f01 <- if (diff(rng) > 0) (td$.fill - rng[1]) / diff(rng) else 0.5
       f01[!is.finite(f01)] <- 0
-      lab_col <- ifelse(f01 < 0.5, "white", "grey15")
+      lab_col <- ifelse(f01 < 0.5 & td$.valued, "white", "grey15")
     }
     p <- p + ggplot2::geom_text(
       data = td,
@@ -428,32 +466,67 @@ gg_geoscale <- function(object,
   p
 }
 
-#' Per-geoframe recast of an atom-keyed value table
+#' The geoframe a plot's `data` is keyed by
+#'
+#' `key` names it. Otherwise it is the geoframe a bound code column is on,
+#' else the finest geoframe of the object that is a column of `data`.
+#' @noRd
+.plot_source <- function(x, data, key = NULL) {
+  lv <- S7::prop(x, "geoframes")
+  if (!is.null(key)) {
+    .check_geoframe(x, key, "key")
+    if (!key %in% names(data)) .stop("`data` has no column `%s`", key)
+    return(key)
+  }
+  ln <- geoscale_link(data)
+  ln <- ln[ln$frame %in% lv & ln$column == ln$frame, , drop = FALSE]
+  if (nrow(ln) == 1L) return(ln$frame[[1L]])
+  have <- lv[lv %in% names(data)]
+  if (length(have) == 0L) {
+    .stop(paste0("`data` must be keyed by a geoframe: a column named as one ",
+                 "of %s"), paste(lv, collapse = ", "))
+  }
+  have[length(have)]
+}
+
+#' Can a plane at `gf` be valued from data keyed at `src`?
+#'
+#' At `src` itself, and at any coarser geoframe `src` nests in. A finer
+#' geoframe, or one that cuts across `src`, has no value of its own.
+#' @noRd
+.plot_reaches <- function(x, src, gf) {
+  if (identical(gf, src)) return(TRUE)
+  lv <- S7::prop(x, "geoframes")
+  match(gf, lv) < match(src, lv) && .geo_nests(x, src, gf)
+}
+
+#' Per-geoframe values of a table keyed by one geoframe
 #'
 #' The shared engine behind the data fills of both geoscale figures
-#' (icicle bands and stack planes): recast `data[[z]]` from the atom
-#' geoframe to every geoframe in `gfs` with [`recast_geoscale()`].
-#' Returns NULL when `data` is NULL; a named list of data.frames
-#' (one per geoframe, keyed by that geoframe's codes) otherwise.
+#' (icicle bands and stack planes): `data[[z]]` at the geoframe it is keyed
+#' by, and recast with [`recast_geoscale()`] to every coarser geoframe of
+#' `gfs` it nests in. Returns NULL when `data` is NULL; otherwise a named
+#' list with one data.frame per geoframe (keyed by that geoframe's codes),
+#' or NULL for a geoframe the data does not reach.
 #' @noRd
-.geoscale_frame_values <- function(x, gfs, data, z, rule, weight) {
+.geoscale_frame_values <- function(x, gfs, data, z, rule, weight,
+                                   key = NULL) {
   if (is.null(data)) return(NULL)
-  atom_gf <- gfs[length(gfs)]
   if (is.null(z) || !z %in% names(data)) {
     .stop("`z` must name a value column of `data`")
   }
-  if (!atom_gf %in% names(data)) {
-    .stop(paste0("`data` must be keyed by the atom geoframe ",
-                 "(column `%s`); recast coarser data down first"),
-          atom_gf)
-  }
+  data <- as.data.frame(data)
+  src <- .plot_source(x, data, key)
+  d <- data.frame(as.character(data[[src]]), data[[z]],
+                  stringsAsFactors = FALSE)
+  names(d) <- c(src, z)
   if (any(rule %in% c("share", "logshare"))) {
-    return(.geoscale_frame_shares(x, gfs, data, z))
+    return(.geoscale_frame_shares(x, gfs, d, z, src))
   }
   vals <- lapply(gfs, function(gf) {
-    if (gf == atom_gf) return(data[, c(atom_gf, z)])
-    recast_geoscale(data[, c(atom_gf, z)], x,
-                    source = atom_gf, target = gf,
+    if (!.plot_reaches(x, src, gf)) return(NULL)
+    if (gf == src) return(d)
+    recast_geoscale(d, x, source = src, target = gf,
                     values = z, rule = rule, weight = weight)
   })
   stats::setNames(vals, gfs)
@@ -504,14 +577,14 @@ gg_geoscale <- function(object,
 #' the whole figure reads on one 0..1 scale. Values sum-aggregate from
 #' the atoms to each plane first; `weight` plays no part, as in the rule.
 #' @noRd
-.geoscale_frame_shares <- function(x, gfs, data, z) {
-  atom_gf <- gfs[length(gfs)]
+.geoscale_frame_shares <- function(x, gfs, data, z, src) {
   vals <- lapply(seq_along(gfs), function(i) {
     gf <- gfs[[i]]
-    s <- if (gf == atom_gf) {
-      data[, c(atom_gf, z)]
+    if (!.plot_reaches(x, src, gf)) return(NULL)
+    s <- if (gf == src) {
+      data[, c(src, z)]
     } else {
-      recast_geoscale(data[, c(atom_gf, z)], x, source = atom_gf, target = gf,
+      recast_geoscale(data[, c(src, z)], x, source = src, target = gf,
                       values = z, rule = "sum")
     }
     for (j in rev(seq_len(i - 1L))) {
@@ -587,12 +660,20 @@ plot.GeoScale <- function(x, ...) {
                              ...) {
   .need_sf("gg_geoscale(type = \"map\")")
   dots <- list(...)
-  lv <- S7::prop(object, "geoframes")
-  geoframe <- geoframe %||% lv[length(lv)]
+  geoframe <- geoframe %||%
+    geoscale_geoframes(object, finest = TRUE, visible = TRUE)
 
   shp <- geoscale_geometry(object, geoframe = geoframe, precision = precision)
   if (!is.null(data)) {
-    if (!geoframe %in% names(data)) .stop("`data` has no column `%s`", geoframe)
+    if (!geoframe %in% names(data)) {
+      other <- intersect(S7::prop(object, "geoframes"), names(data))
+      if (length(other) > 0L) {
+        .stop(paste0("`data` is keyed by `%s`, not by the geoframe drawn ",
+                     "(`%s`); pass `geoframe = \"%s\"` or recast the data"),
+              other[length(other)], geoframe, other[length(other)])
+      }
+      .stop("`data` has no column `%s`", geoframe)
+    }
     if (!z %in% names(data)) .stop("`z` must name a column of `data`")
     shp <- merge(shp, data[, c(geoframe, z)], by = geoframe, all.x = TRUE)
     shp$.fill <- shp[[z]]
@@ -720,7 +801,8 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
                                frame = NULL, frame_fill = NA,
                                connectors = FALSE,
                                outline = NULL, outline_colour = "grey20",
-                               outline_linewidth = 0.6, ...) {
+                               outline_linewidth = 0.6,
+                               geoframes = NULL, key = NULL, ...) {
   .need_sf("gg_geoscale(type = \"stack\")")
   dots <- list(...)
   if (is.null(S7::prop(x, "geometry"))) {
@@ -730,18 +812,21 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   }
   v <- .stack_view(view, angle, ratio, shear, depth)
   direction <- match.arg(direction)
-  gfs <- S7::prop(x, "geoframes")
+  all_gfs <- S7::prop(x, "geoframes")
+  gfs <- .drawn_geoframes(x, geoframes)
 
-  # value fill: `data` is keyed at the atoms; every coarser plane gets
-  # the value recast up so one continuous scale spans the whole stack
-  vals <- .geoscale_frame_values(x, gfs, data, z, rule, weight)
+  # value fill: the plane `data` is keyed at and every coarser plane it
+  # nests in get the value, so one continuous scale spans them; a plane the
+  # data does not reach is outlined and left unfilled
+  vals <- .geoscale_frame_values(x, gfs, data, z, rule, weight, key)
   # `labels`: TRUE = every plane, FALSE/NULL = none, else geoframes
   if (isTRUE(labels)) labels <- gfs
   if (isFALSE(labels)) labels <- NULL
   if (!is.null(labels)) {
     bad <- setdiff(labels, gfs)
     if (length(bad)) {
-      .stop("`labels` must name geoframes of the geoscale (unknown: %s)",
+      .stop(paste0("`labels` must name geoframes drawn in the stack ",
+                   "(unknown or not drawn: %s)"),
             paste(bad, collapse = ", "))
     }
   }
@@ -815,7 +900,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
       as.character(m[[gfs[kk]]][match(as.character(d$code),
                                        as.character(m[[gfs[k]]]))])
     }
-    if (!is.null(vals)) {
+    if (!is.null(vals) && !is.null(vals[[k]])) {
       d$.z <- vals[[k]][[z]][match(d$code, vals[[k]][[gfs[k]]])]
     }
     d
@@ -850,7 +935,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   # A plane shows only the outlines of geoframes coarser than its own.
   outlines <- vector("list", nk)
   if (!is.null(outline)) {
-    bad <- setdiff(outline, gfs)
+    bad <- setdiff(outline, all_gfs)
     if (length(bad)) {
       .stop("`outline` must name geoframes of the geoscale (unknown: %s)",
             paste(bad, collapse = ", "))
@@ -861,7 +946,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
     o_col <- rep_len(outline_colour, length(outline))
     o_lwd <- rep_len(outline_linewidth, length(outline))
     for (k in seq_len(nk)) {
-      coarser <- which(match(outline, gfs) < k)
+      coarser <- which(match(outline, all_gfs) < match(gfs[k], all_gfs))
       outlines[[k]] <- lapply(coarser, function(i) {
         g <- norm_by(o_shapes[[i]], sf::st_geometry(shapes[[k]])) * M
         list(geometry = (g - ctr) * fac[k] + ctr + c(0, zlev[k]),
@@ -923,6 +1008,10 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
       p + .gg_layer(ggplot2::geom_sf, ggplot2::aes(fill = .grp),
                     list(colour = col_k[k], linewidth = lwd_k[k],
                          show.legend = FALSE),
+                    dots, data = layers[[k]])
+    } else if (is.null(vals[[k]])) {
+      p + .gg_layer(ggplot2::geom_sf, NULL,
+                    list(fill = NA, colour = col_k[k], linewidth = lwd_k[k]),
                     dots, data = layers[[k]])
     } else {
       p + .gg_layer(ggplot2::geom_sf, ggplot2::aes(fill = .z),

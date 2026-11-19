@@ -74,10 +74,14 @@ GeoScale <- S7::new_class(
     # Declared here as well as in `nestedscales` (which has it from 0.3.0),
     # so the class is the same whichever version it is installed against.
     labels     = S7::new_property(S7::class_any,
-                                  default = quote(.empty_labels()))
+                                  default = quote(.empty_labels())),
+    # Geoframes the plots leave out. Nothing else reads it. `class_any` so
+    # an object saved without the property still validates.
+    hidden     = S7::new_property(S7::class_any, default = character())
   ),
   constructor = function(leaftable, geoframes, members, geometry = NULL,
-                         meta = list(), key = NULL, labels = NULL) {
+                         meta = list(), key = NULL, labels = NULL,
+                         hidden = character()) {
     S7::new_object(
       nestedscales::scale_class()(
         leaftable = leaftable,
@@ -87,7 +91,8 @@ GeoScale <- S7::new_class(
         meta      = meta
       ),
       geometry = geometry,
-      labels   = labels %||% .empty_labels()
+      labels   = labels %||% .empty_labels(),
+      hidden   = hidden %||% character()
     )
   },
   validator = function(self) {
@@ -233,6 +238,12 @@ GeoScale <- S7::new_class(
       }
     }
 
+    # hidden ------------------------------------------------------------------
+    hidden <- attr(self, "hidden", exact = TRUE)
+    if (length(hidden) > 0L) {
+      errs <- c(errs, .check_hidden(hidden, geoframes))
+    }
+
     # geometry ----------------------------------------------------------------
     if (!is.null(geometry) && length(geometry) != nrow(leaftable)) {
       errs <- c(errs, sprintf(
@@ -303,6 +314,12 @@ S7::method(.payload_slice_generic, GeoScale) <- function(x, i, ...) {
   x <- S7::set_props(x, labels = .trim_labels(
     .label_table(x), S7::prop(x, "geoframes"), S7::prop(x, "members")
   ), .check = FALSE)
+  # an object saved under an earlier class definition has no such property
+  if ("hidden" %in% S7::prop_names(x)) {
+    x <- S7::set_props(
+      x, hidden = .trim_hidden(.hidden(x), S7::prop(x, "geoframes")),
+      .check = FALSE)
+  }
   x
 }
 
@@ -333,7 +350,11 @@ geoscale_rank <- function(x, geoframe) {
 #' geoframe — the finest regions, which every other geoframe groups.
 #'
 #' @param x A [`GeoScale`].
-#' @param finest Return only the finest (atom) geoframe.
+#' @param finest Return only the finest (atom) geoframe; with
+#'   `visible = TRUE`, the finest visible one.
+#' @param visible `NULL` (default) returns every geoframe. `TRUE` returns
+#'   those shown in plots, `FALSE` those hidden from them (see
+#'   [`hide_geoframes_geoscale()`]).
 #'
 #' @return A character vector of geoframe names, or a single name when
 #'   `finest = TRUE`.
@@ -343,9 +364,13 @@ geoscale_rank <- function(x, geoframe) {
 #' geoscale_geoframes(gs)
 #' geoscale_geoframes(gs, finest = TRUE)
 #' @export
-geoscale_geoframes <- function(x, finest = FALSE) {
+geoscale_geoframes <- function(x, finest = FALSE, visible = NULL) {
   .check_geoscale(x)
   lv <- S7::prop(x, "geoframes")
+  if (!is.null(visible)) {
+    hid <- lv %in% .hidden(x)
+    lv <- lv[if (isTRUE(visible)) !hid else hid]
+  }
   if (isTRUE(finest)) lv[length(lv)] else lv
 }
 
@@ -498,6 +523,10 @@ print.GeoScale <- function(x, ...) {
     cat("Labels: ", paste(per, collapse = ", "),
         " (default: ", .label_variant(x), ")\n", sep = "")
   }
+  hid <- .hidden(x)
+  if (length(hid) > 0L) {
+    cat("Hidden in plots: ", paste(hid, collapse = ", "), "\n", sep = "")
+  }
   if (!is.null(meta$source)) cat("Source: ", meta$source, "\n", sep = "")
   if (!is.null(meta$crs)) cat("CRS: ", format(meta$crs), "\n", sep = "")
   if (!is.null(S7::prop(x, "geometry"))) {
@@ -564,6 +593,7 @@ summary.GeoScale <- function(object, ...) {
     geoframes = vapply(S7::prop(object, "members"), length, integer(1)),
     unassigned = vapply(gf, function(l) sum(is.na(lt[[l]])), integer(1)),
     n_atoms = nrow(lt),
+    hidden = .hidden(object),
     weights = wts,
     weight_totals = if (length(wts)) {
       colSums(as.data.frame(lt)[, wts, drop = FALSE], na.rm = TRUE)

@@ -11,7 +11,8 @@ GeoScale(
   geometry = NULL,
   meta = list(),
   key = NULL,
-  labels = NULL
+  labels = NULL,
+  hidden = character()
 )
 }
 \arguments{

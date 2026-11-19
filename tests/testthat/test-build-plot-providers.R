@@ -110,7 +110,7 @@ test_that("the map draws outlines and a filled choropleth", {
 
   expect_error(gg_geoscale(gs, type = "map", data = d, geoframe = "zone",
                            z = "x"),
-               "no column")
+               "keyed by `unit`")
   expect_error(gg_geoscale(gs, type = "map", data = d, geoframe = "unit",
                            z = "nope"),
                "`z` must name")

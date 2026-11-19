@@ -385,7 +385,8 @@ prune_geoscale <- function(x, geoframe,
     name = new_meta$name, desc = meta$desc,
     geometry = new_geom,
     labels = .trim_labels(.label_table(x), keep_lv,
-                          S7::prop(x, "members")[keep_lv])
+                          S7::prop(x, "members")[keep_lv]),
+    hidden = .trim_hidden(.hidden(x), keep_lv)
   )
   full_meta <- utils::modifyList(new_meta, S7::prop(gs, "meta")[
     c("weights", "default_weight")])

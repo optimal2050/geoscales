@@ -4,12 +4,16 @@
 \alias{geoscale_layout}
 \title{Icicle layout for a GeoScale}
 \usage{
-geoscale_layout(x, weight = NULL)
+geoscale_layout(x, weight = NULL, geoframes = NULL)
 }
 \arguments{
 \item{x}{A \code{\link{GeoScale}}.}
 
 \item{weight}{Weight column. \code{NULL} uses the default.}
+
+\item{geoframes}{The geoframes to lay out: \code{NULL} (default) those not
+hidden (see \code{\link[=hide_geoframes_geoscale]{hide_geoframes_geoscale()}}), \code{TRUE} all, or a character
+vector of names.}
 }
 \value{
 A \code{data.frame} with columns \code{geoframe}, \code{region}, \code{rank}, \code{xmin},

@@ -187,6 +187,32 @@ gg_geoscale(gs, type = "map", data = x, geoframe = "province",
             z = "capacity", palette = "G")
 ```
 
+### Geoframes for calculation only
+
+A geoframe may be needed for the arithmetic without being something to
+show. `hide_geoframes_geoscale()` marks it, and the figures leave it out;
+recasts, joins and navigation still use it. `geoframes = TRUE` draws
+everything for one figure.
+
+```{r hidden, eval = has_topia, fig.height = 4}
+gs_h <- hide_geoframes_geoscale(gs, "province")
+geoscale_geoframes(gs_h, visible = TRUE)
+gg_geoscale(gs_h, type = "stack", view = "isometric")
+```
+
+### Data above the atoms
+
+`data` may be keyed by any geoframe. Its own plane and every coarser one
+it nests in are coloured; finer planes are outlined, since no value was
+given for them.
+
+```{r coarse-data, eval = has_topia, fig.height = 5}
+zones <- data.frame(zone = geoscale_regions(gs, "zone"),
+                    gw = c(5, 11, 12, 19, 8))
+gg_geoscale(gs, type = "stack", view = "isometric",
+            data = zones, z = "gw", rule = "sum")
+```
+
 ## A real map: Iceland, with data attached
 
 The same workflow on real boundaries. Natural Earth's admin-1 layer

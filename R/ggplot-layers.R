@@ -94,7 +94,7 @@ geom_geoscale <- function(gs, z = NULL,
   }
 
   if (is.null(z)) {
-    gf <- geoframe %||% geoscale_geoframes(gs, finest = TRUE)
+    gf <- geoframe %||% geoscale_geoframes(gs, finest = TRUE, visible = TRUE)
     .check_geoframe(gs, gf, "geoframe")
     return(ggplot2::geom_sf(data = geoscale_geometry(gs, gf,
                                                      precision = precision),

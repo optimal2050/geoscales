@@ -9,7 +9,7 @@ test_that("summary() returns the classed quantitative view", {
   s <- summary(gs)
   expect_s3_class(s, "summary_GeoScale")
   expect_named(s, c("name", "desc", "geoframes", "unassigned", "n_atoms",
-                    "weights", "weight_totals", "default_weight",
+                    "hidden", "weights", "weight_totals", "default_weight",
                     "coverage", "sampled", "parent_name", "nesting",
                     "geometry", "source"))
   expect_identical(s$n_atoms, 7L)

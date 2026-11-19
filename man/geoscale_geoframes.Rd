@@ -5,14 +5,19 @@
 \alias{names.GeoScale}
 \title{Geoframes of a GeoScale}
 \usage{
-geoscale_geoframes(x, finest = FALSE)
+geoscale_geoframes(x, finest = FALSE, visible = NULL)
 
 \method{names}{GeoScale}(x)
 }
 \arguments{
 \item{x}{A \code{\link{GeoScale}}.}
 
-\item{finest}{Return only the finest (atom) geoframe.}
+\item{finest}{Return only the finest (atom) geoframe; with
+\code{visible = TRUE}, the finest visible one.}
+
+\item{visible}{\code{NULL} (default) returns every geoframe. \code{TRUE} returns
+those shown in plots, \code{FALSE} those hidden from them (see
+\code{\link[=hide_geoframes_geoscale]{hide_geoframes_geoscale()}}).}
 }
 \value{
 A character vector of geoframe names, or a single name when

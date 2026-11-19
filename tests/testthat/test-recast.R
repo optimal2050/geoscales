@@ -240,7 +240,8 @@ test_that("rule share resolves from the registry", {
 test_that("the stack data fill computes shares per plane on the fly", {
   vals <- suppressWarnings(.geoscale_frame_shares(
     gs, geoscale_geoframes(gs),
-    data.frame(atom = cap$atom, capacity = cap$capacity), "capacity"))
+    data.frame(atom = cap$atom, capacity = cap$capacity), "capacity",
+    "atom"))
   lt <- as.data.frame(geoscale_leaftable(gs))
   # coarsest plane (country): shares of the grand total
   expect_equal(sum(vals$country$capacity, na.rm = TRUE), 1,

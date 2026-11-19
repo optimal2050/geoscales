@@ -83,6 +83,7 @@ reference:
       - geoscale_weights
       - geoscale_add_weight
       - geoscale_labels
+      - hide_geoframes_geoscale
       - summary.GeoScale
       - "[.GeoScale"
 

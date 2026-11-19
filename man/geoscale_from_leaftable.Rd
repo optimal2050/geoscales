@@ -13,6 +13,7 @@ geoscale_from_leaftable(
   members = NULL,
   geometry = NULL,
   labels = NULL,
+  hidden = NULL,
   name = "",
   desc = "",
   row_order = c("nested", "given"),
@@ -45,6 +46,9 @@ geoframe. Derived from \code{leaftable} when \code{NULL} (first-appearance order
 \item{labels}{Optional table of display names with columns \code{frame},
 \code{unit}, \code{label} and optionally \code{variant}; see
 \code{\link[=attach_labels_geoscale]{attach_labels_geoscale()}}.}
+
+\item{hidden}{Optional names of geoframes to leave out of plots; see
+\code{\link[=hide_geoframes_geoscale]{hide_geoframes_geoscale()}}.}
 
 \item{name, desc}{Short name and description.}
 

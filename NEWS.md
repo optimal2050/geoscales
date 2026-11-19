@@ -12,7 +12,8 @@
 
 * Labels per geoframe. `attach_labels_geoscale()` adds display names for regions of any geoframe, in named variants, so a region may have alternative names while another geoframe has none; a row with `unit = NA` names the geoframe itself. `geoscale_labels()` returns the table and `geoscale_label()` looks names up, giving the code where there is no label. Subsets, prunes and zooms keep the labels of what remains, and the plots use the default variant.
 * The data link. `bind_geoscale()` records on a table's region-code columns which GeoScale and geoframe they are on; `geoscale_link()` reports it and `geoscale_id()` gives the identity it stores. `recast_geoscale()`, `recast_to_geoatoms()`, `recast_from_geoatoms()` and `join_geoscale()` take the source geoframe from the link, stop when the data is bound to another GeoScale, and bind their result. Needs nestedscales 0.3.0 or later; with an earlier version the verbs behave as before.
-
+* Geoframes hidden from plots. `hide_geoframes_geoscale()` marks geoframes that exist for calculation only, and `gg_geoscale()`, `autoplot()` and `plot()` leave them out; `show_geoframes_geoscale()` reverses it and `geoscale_geoframes(visible = )` lists either set. Recasts, joins, navigation and bound data are unaffected. `gg_geoscale(geoframes = )` chooses the geoframes of one figure, hidden or not.
+* `gg_geoscale(data = )` on the icicle and the stack takes data keyed by any geoframe, named by `key=` or found from the columns. The value is recast up from that geoframe to every coarser one it nests in; finer geoframes are outlined without a fill.
 * `gg_geoscale(type = "stack")` fills a single-region geoframe above the colouring geoframe (a nation over its zones) with the next colour of the same palette; it was neutral grey.
 
 ## Bug fixes

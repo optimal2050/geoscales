@@ -195,9 +195,18 @@ test_that("stack value fill recasts atom data onto every plane", {
 
   expect_error(gg_geoscale(gs, type = "stack", data = x),
                "`z` must name")
+  # data keyed above the atoms fills its own plane and leaves the finer
+  # one outlined, without a fill
+  pc <- gg_geoscale(gs, type = "stack", z = "v",
+                    data = data.frame(top = "T", v = 4))
+  sf_l <- Filter(function(l) inherits(l$geom, "GeomSf"), pc$layers)
+  has_z <- vapply(sf_l, function(l) ".z" %in% names(l$data), logical(1))
+  expect_equal(sum(has_z), 1L)
+  expect_equal(sf_l[[which(has_z)]]$data$.z, 4)
+  expect_true(is.na(sf_l[[which(!has_z)]]$aes_params$fill))
   expect_error(gg_geoscale(gs, type = "stack", z = "v",
-                                 data = data.frame(top = "T", v = 1)),
-               "keyed by the atom geoframe")
+                           data = data.frame(nope = "T", v = 1)),
+               "keyed by a geoframe")
 })
 
 test_that("stack frames, connectors and border styling render", {
@@ -246,9 +255,15 @@ test_that("icicle data fill recasts values onto every band", {
   # atom band keeps values; top band = km2-weighted mean (1*1+9*3)/4 = 7
   expect_equal(sort(d$.fill[d$geoframe == "atom"]), c(1, 9))
   expect_equal(d$.fill[d$geoframe == "top"], 7)
-  expect_error(gg_geoscale(gs, data = data.frame(top = "T", v = 1),
-                                 z = "v"),
-               "keyed by the atom geoframe")
+  # data keyed above the atoms: its band is filled, the finer one is not
+  pc <- gg_geoscale(gs, data = data.frame(top = "T", v = 4), z = "v")
+  dc <- pc$data
+  expect_equal(dc$.fill[dc$geoframe == "top"], 4)
+  expect_true(all(is.na(dc$.fill[dc$geoframe == "atom"])))
+  expect_false(any(dc$.valued[dc$geoframe == "atom"]))
+  expect_error(gg_geoscale(gs, data = data.frame(nope = "T", v = 1),
+                           z = "v"),
+               "keyed by a geoframe")
 })
 
 test_that("geom_geoscale carries finer codes up to the drawn geoframe", {
@@ -271,4 +286,16 @@ test_that("a single-region top plane of the stack is filled from the palette", {
   # the two atoms keep the first two colours; the top plane takes the third
   expect_setequal(fills, geoscales:::.GEO_CAT_FILLS[1:3])
   expect_false("grey85" %in% fills)
+})
+
+test_that("the stack leaves hidden geoframes out unless asked", {
+  skip_if_not_installed("ggplot2")
+  gs <- hide_geoframes_geoscale(.toy_gs(), "atom")
+  n_sf <- function(p) {
+    sum(vapply(p$layers, function(l) inherits(l$geom, "GeomSf"), logical(1)))
+  }
+  expect_equal(n_sf(gg_geoscale(gs, type = "stack")), 1L)
+  expect_equal(n_sf(gg_geoscale(gs, type = "stack", geoframes = TRUE)), 2L)
+  # a hidden geoframe may still be asked for by name
+  expect_equal(n_sf(gg_geoscale(gs, type = "stack", geoframes = "atom")), 1L)
 })

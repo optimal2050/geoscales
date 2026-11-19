@@ -34,6 +34,8 @@ gg_geoscale(
   outline = NULL,
   outline_colour = "grey20",
   outline_linewidth = 0.6,
+  geoframes = NULL,
+  key = NULL,
   ...
 )
 
@@ -52,9 +54,11 @@ error, not ignored.}
 \item{data, z}{Colour the figure by a value instead of by structure.
 \code{data} is a data.frame with the value column named by \code{z}; \code{z} is
 required whenever \code{data} is given. The icicle and the stack take
-\code{data} keyed by the atom geoframe and recast the value up to every
-coarser geoframe (see \code{rule}), so the whole figure shares one
-continuous fill scale; the map takes \code{data} keyed by \code{geoframe}.
+\code{data} keyed by any geoframe (see \code{key}) and recast the value up to
+every coarser geoframe it nests in (see \code{rule}), so those bands or
+planes share one continuous fill scale. A geoframe finer than the
+data, or cutting across it, has no value and is outlined without a
+fill. The map takes \code{data} keyed by \code{geoframe}.
 Legend title via \code{labs(fill = )}.}
 
 \item{rule}{Icicle and stack, with \code{data}: the rule that recasts \code{z}
@@ -84,7 +88,8 @@ the code.}
 \item{fill}{Icicle: what to colour by without \code{data}, \code{"geoframe"}
 (default) or \code{"region"}.}
 
-\item{geoframe}{Map: the geoframe to draw. Defaults to the atom geoframe.}
+\item{geoframe}{Map: the geoframe to draw. Defaults to the finest
+geoframe that is not hidden.}
 
 \item{precision}{Stack and map: GEOS precision for the dissolve,
 forwarded to \code{\link[=geoscale_geometry]{geoscale_geometry()}}. Default \code{0} = off.}
@@ -141,6 +146,16 @@ resolution (\code{outline = "zone"} marks the zones on the region plane).
 \item{outline_colour, outline_linewidth}{Stack: colour and width of the
 \code{outline} borders, recycled over \code{outline}. Defaults \code{"grey20"} and
 \code{0.6}.}
+
+\item{geoframes}{Icicle and stack: the geoframes to draw. \code{NULL}
+(default) draws those not hidden with \code{\link[=hide_geoframes_geoscale]{hide_geoframes_geoscale()}},
+\code{TRUE} draws all, and a character vector draws exactly the named ones,
+hidden or not.}
+
+\item{key}{Icicle and stack: the geoframe \code{data} is keyed by, i.e. the
+name of its code column. \code{NULL} (default) takes the geoframe a bound
+column is on (see \code{\link[=bind_geoscale]{bind_geoscale()}}), else the finest geoframe that
+is a column of \code{data}.}
 
 \item{...}{Fixed aesthetics for the figure's main layer: the icicle's
 \code{geom_rect()}, the stack's and the map's \code{geom_sf()} (e.g.

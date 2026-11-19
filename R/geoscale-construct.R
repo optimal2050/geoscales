@@ -37,6 +37,8 @@
 #' @param labels Optional table of display names with columns `frame`,
 #'   `unit`, `label` and optionally `variant`; see
 #'   [`attach_labels_geoscale()`].
+#' @param hidden Optional names of geoframes to leave out of plots; see
+#'   [`hide_geoframes_geoscale()`].
 #' @param row_order `"nested"` (default) sorts the rows by geoframe, coarsest
 #'   first, each in its member order (unassigned codes last; `geometry`
 #'   follows); `"given"` keeps the rows as supplied.
@@ -62,6 +64,7 @@ geoscale_from_leaftable <- function(leaftable,
                                  members = NULL,
                                  geometry = NULL,
                                  labels = NULL,
+                                 hidden = NULL,
                                  name = "",
                                  desc = "",
                                  row_order = c("nested", "given"),
@@ -174,7 +177,8 @@ geoscale_from_leaftable <- function(leaftable,
     geometry  = geometry,
     meta      = meta,
     key       = key,
-    labels    = .as_labels(labels)
+    labels    = .as_labels(labels),
+    hidden    = .as_hidden(hidden)
   )
 }
 
