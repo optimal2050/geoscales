@@ -4,7 +4,13 @@
 \alias{attach_geometry_geoscale}
 \title{Attach geometry to a GeoScale}
 \usage{
-attach_geometry_geoscale(x, geom, by = NULL, geoframe = NULL)
+attach_geometry_geoscale(
+  x,
+  geom,
+  by = NULL,
+  geoframe = NULL,
+  positional = FALSE
+)
 }
 \arguments{
 \item{x}{A \code{\link{GeoScale}}.}
@@ -17,6 +23,12 @@ atom geoframe, then \code{"region"}.}
 
 \item{geoframe}{Geoframe that \code{geom}'s codes refer to. Defaults to the atom
 geoframe. When coarser, each atom inherits its parent's geometry.}
+
+\item{positional}{Acknowledge a by-position bind. An \code{sfc} carries no codes,
+so nothing can check its order; when the constructor re-sorted the
+leaftable (\code{meta$row_permuted}) the caller's order is no longer the
+object's and the bind is refused. Set \code{TRUE} when the \code{sfc} is known to be
+in \verb{@leaftable} order. Ignored for an \code{sf}, which is matched on \code{by}.}
 }
 \value{
 A \code{\link{GeoScale}} with \verb{@geometry} populated.

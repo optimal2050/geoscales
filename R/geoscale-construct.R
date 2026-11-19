@@ -151,8 +151,13 @@ geoscale_from_leaftable <- function(leaftable,
           .preview(inverted))
   }
 
+  # Whether the sort actually moved anything. `attach_geometry_geoscale()`
+  # reads this to refuse a later by-position bind, which would key geometry to
+  # the caller's row order while the object carries another.
+  row_permuted <- FALSE
   if (row_order == "nested") {
     ord <- .nested_row_order(leaftable, geoframes, members)
+    row_permuted <- !identical(as.integer(ord), seq_len(nrow(leaftable)))
     leaftable <- leaftable[ord, , drop = FALSE]
     rownames(leaftable) <- NULL
     if (!is.null(geometry) && length(geometry) == length(ord)) {
@@ -165,7 +170,8 @@ geoscale_from_leaftable <- function(leaftable,
       name           = name,
       desc           = desc,
       weights        = weights,
-      default_weight = default_weight
+      default_weight = default_weight,
+      row_permuted   = row_permuted
     ),
     list(...)
   )

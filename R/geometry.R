@@ -29,6 +29,11 @@
 #'   atom geoframe, then `"region"`.
 #' @param geoframe Geoframe that `geom`'s codes refer to. Defaults to the atom
 #'   geoframe. When coarser, each atom inherits its parent's geometry.
+#' @param positional Acknowledge a by-position bind. An `sfc` carries no codes,
+#'   so nothing can check its order; when the constructor re-sorted the
+#'   leaftable (`meta$row_permuted`) the caller's order is no longer the
+#'   object's and the bind is refused. Set `TRUE` when the `sfc` is known to be
+#'   in `@leaftable` order. Ignored for an `sf`, which is matched on `by`.
 #'
 #' @return A [`GeoScale`] with `@geometry` populated.
 #'
@@ -37,7 +42,8 @@
 #' gs <- attach_geometry_geoscale(gs, sf_polygons, by = "adm0_a3")
 #' }
 #' @export
-attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL) {
+attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL,
+                                     positional = FALSE) {
   .check_geoscale(x)
   .need_sf("attach_geometry_geoscale()")
   leaves <- S7::prop(x, "leaftable")
@@ -66,6 +72,18 @@ attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL) {
       .stop(paste0("`geom` has %d geometries but `leaves` has %d rows; ",
                    "supply an `sf` object to match on codes instead"),
             length(geom), nrow(leaves))
+    }
+    # An `sfc` carries no codes, so this bind is by POSITION and nothing here
+    # can verify it. When the constructor re-sorted the leaftable, the caller's
+    # original row order is no longer the object's, and binding positionally
+    # mis-keys every row -- refuse rather than ship a silently wrong map.
+    if (!isTRUE(positional) && isTRUE(S7::prop(x, "meta")$row_permuted)) {
+      .stop(paste0("`geom` is an `sfc`, which binds by position, but the ",
+                   "leaftable was re-sorted when this GeoScale was built, so ",
+                   "position no longer tracks the order `geom` is in. Supply ",
+                   "an `sf` with `by=` naming its code column, or pass ",
+                   "`positional = TRUE` if the `sfc` is already in ",
+                   "`@leaftable` row order."))
     }
     out <- geom
   } else {
