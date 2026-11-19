@@ -14,9 +14,11 @@
   # `S7::method(print, ...) <-` leaves a local `print` binding in this
   # namespace, so the NAMESPACE `S3method(print, summary_GeoScale)` entry
   # registers against that shim instead of base's print — invisible to
-  # dispatch from user code. Register the plain-S3 class explicitly.
+  # dispatch from user code. Register the plain-S3 classes explicitly.
   registerS3method("print", "summary_GeoScale", print.summary_GeoScale,
                    envir = baseenv())
+  registerS3method("print", "geoscale_geometry_check",
+                   print.geoscale_geometry_check, envir = baseenv())
 
   .register_builtin_providers()
 
