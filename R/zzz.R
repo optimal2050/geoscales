@@ -21,6 +21,7 @@
                    print.geoscale_geometry_check, envir = baseenv())
 
   .register_builtin_providers()
+  .register_geoscale_parts()
 
   # ggplot2 is in Suggests, so its `autoplot` generic cannot be imported at
   # build time. Register the method only when ggplot2 is actually present.
