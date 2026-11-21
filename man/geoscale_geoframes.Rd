@@ -12,7 +12,7 @@ geoscale_geoframes(x, finest = FALSE, visible = NULL)
 \arguments{
 \item{x}{A \code{\link{GeoScale}}.}
 
-\item{finest}{Return only the finest (atom) geoframe; with
+\item{finest}{Return only the finest (leaf) geoframe; with
 \code{visible = TRUE}, the finest visible one.}
 
 \item{visible}{\code{NULL} (default) returns every geoframe. \code{TRUE} returns
@@ -24,7 +24,7 @@ A character vector of geoframe names, or a single name when
 \code{finest = TRUE}.
 }
 \description{
-The hierarchy names, ordered coarsest first. The last entry is the atom
+The hierarchy names, ordered coarsest first. The last entry is the leaf
 geoframe — the finest regions, which every other geoframe groups.
 }
 \examples{

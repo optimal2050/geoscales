@@ -17,9 +17,9 @@ geoscale_build(
 \item{...}{Additional arguments passed to \code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}}.}
 
 \item{geoframes}{Ordered character vector of geoframe names, coarsest
-first. The last entry is the atom geoframe.}
+first. The last entry is the leaf geoframe.}
 
-\item{weights}{Optional \code{data.frame} keyed by the atom geoframe, carrying one
+\item{weights}{Optional \code{data.frame} keyed by the leaf geoframe, carrying one
 or more numeric weight columns.}
 
 \item{name, desc}{Short name and description.}
@@ -46,9 +46,9 @@ geoscale_build(
   data.frame(country = c("N", "N", "S"),
              state   = c("N1", "N2", "S1")),
   data.frame(state = c("N1", "N1", "N2", "S1"),
-             atom  = c("A1", "A2", "A3", "A4")),
-  geoframes  = c("country", "state", "atom"),
-  weights = data.frame(atom = c("A1", "A2", "A3", "A4"),
+             cell  = c("A1", "A2", "A3", "A4")),
+  geoframes  = c("country", "state", "cell"),
+  weights = data.frame(cell = c("A1", "A2", "A3", "A4"),
                        km2  = c(10, 20, 30, 40))
 )
 }

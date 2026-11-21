@@ -75,5 +75,5 @@ gs <- geoscale_example()
 geoscale_children(gs, "country", "N")
 geoscale_parents(gs, "state", "N1", target = "country")
 geoscale_descendants(gs, "country", "N")
-geoscale_ancestors(gs, "atom", "A5")
+geoscale_ancestors(gs, "cell", "A5")
 }

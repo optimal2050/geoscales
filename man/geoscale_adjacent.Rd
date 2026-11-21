@@ -17,7 +17,7 @@ geoscale_adjacent(
 \item{x}{A \code{\link{GeoScale}} with geometry attached (see
 \code{\link[=attach_geometry_geoscale]{attach_geometry_geoscale()}}).}
 
-\item{geoframe}{Geoframe whose features are compared. Defaults to the atom
+\item{geoframe}{Geoframe whose features are compared. Defaults to the leaf
 geoframe. Geometry is dissolved to it first, so any geoframe works.}
 
 \item{within}{Optional coarser geoframe whose boundaries cut edges: two

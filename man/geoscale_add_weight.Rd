@@ -10,8 +10,8 @@ geoscale_add_weight(x, ..., default = NULL, overwrite = FALSE)
 \item{x}{A \code{\link{GeoScale}}.}
 
 \item{...}{Named weights, one per argument: either a numeric vector named
-by atom code, or an unnamed numeric in leaftable row order. A single
-unnamed \code{data.frame} may be given instead, keyed by the atom column with
+by leaf code, or an unnamed numeric in leaftable row order. A single
+unnamed \code{data.frame} may be given instead, keyed by the leaf column with
 one or more numeric weight columns.}
 
 \item{default}{Optional name of the weight to make the default, which
@@ -25,7 +25,7 @@ The \code{GeoScale}, with the weights declared in \code{meta$weights} and the
 columns in its leaftable.
 }
 \description{
-Declares one or more numeric weights over the atoms of an existing
+Declares one or more numeric weights over the leaves of an existing
 \code{GeoScale}. A weight is what a quantity is divided by when a value declared
 at a parent has to be shared out between its children, so a hierarchy that
 ships with only \code{area} cannot apportion a demand or a fleet sensibly; this

@@ -25,8 +25,8 @@ A geoframe can be needed for calculation without being something to show:
 grid cells that carry the weights, or clusters used to build a crosswalk.
 \code{hide_geoframes_geoscale()} marks such geoframes, and
 \code{\link[=gg_geoscale]{gg_geoscale()}}, \code{autoplot()} and \code{plot()} then leave them out unless
-asked. Nothing else changes: recasts, joins, navigation and bound data use
-every geoframe as before, and the identity of the object
+asked. Nothing else changes: recasts, joins and navigation use every
+geoframe as before, and the identity of the object
 (\code{\link[=geoscale_id]{geoscale_id()}}) is the same.
 }
 \details{
@@ -34,12 +34,12 @@ every geoframe as before, and the identity of the object
 all of them. At least one geoframe always stays visible.
 }
 \examples{
-gs <- hide_geoframes_geoscale(geoscale_example(), "atom")
+gs <- hide_geoframes_geoscale(geoscale_example(), "cell")
 gs
 geoscale_geoframes(gs, visible = TRUE)
 geoscale_geoframes(gs, visible = FALSE)
 # calculations still reach the hidden geoframe
-geoscale_regions(gs, "atom")
+geoscale_regions(gs, "cell")
 geoscale_geoframes(show_geoframes_geoscale(gs), visible = FALSE)
 }
 \seealso{

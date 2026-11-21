@@ -1,4 +1,4 @@
-# geoscale_map() -- the crosswalk through the atom layer ----------------------
+# geoscale_map() -- the crosswalk through the leaf layer ----------------------
 
 gs <- geoscale_example()
 
@@ -6,7 +6,7 @@ test_that("within-object map carries counts, weights and from-totals", {
   m <- geoscale_map(gs, "country", "state", weight = "km2")
   expect_named(m, c("country", "state", "n_from", "n_overlap", "w",
                     "w_from"))
-  # N: atoms A1..A4 (km2 100+200+300+400); N1 = A1,A2
+  # N: leaves A1..A4 (km2 100+200+300+400); N1 = A1,A2
   expect_equal(m$w[m$country == "N" & m$state == "N1"], 300)
   expect_equal(m$w_from[m$country == "N" & m$state == "N1"], 1000)
   expect_equal(m$n_from[m$country == "N" & m$state == "N1"], 4L)
@@ -24,11 +24,11 @@ test_that("cross-cutting geoframes produce partial overlaps", {
   expect_equal(unique(m$w_from[m$state == "S1"]), 1100)
 })
 
-test_that("atoms uncovered by `to` appear as NA target rows", {
-  m <- geoscale_map(gs, "atom", "country")
-  expect_true(any(is.na(m$country[m$atom == "ROW"])))
+test_that("leaves uncovered by `to` appear as NA target rows", {
+  m <- geoscale_map(gs, "cell", "country")
+  expect_true(any(is.na(m$country[m$cell == "ROW"])))
   # ROW's weight still counts toward its own from-total
-  expect_equal(m$w_from[m$atom == "ROW"], 1000)
+  expect_equal(m$w_from[m$cell == "ROW"], 1000)
 })
 
 test_that("same geoframe or unnamed pairs error clearly", {
@@ -51,27 +51,27 @@ test_that("registered maps short-circuit the derivation", {
     "missing column")
 })
 
-test_that("cross-object map matches atoms on shared region keys", {
+test_that("cross-object map matches leaves on shared codes", {
   lf <- data.frame(band = rep(c("X", "Y"), 3),
-                   atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+                   cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
                    km2 = c(100, 200, 300, 400, 500, 600))
-  gs_b <- geoscale_from_leaftable(lf, geoframes = c("band", "atom"),
+  gs_b <- geoscale_from_leaftable(lf, geoframes = c("band", "cell"),
                                   name = "bands")
   m <- suppressWarnings(geoscale_map_between(gs, gs_b))
   expect_named(m, c("example", "bands", "n_from", "n_overlap", "w",
                     "w_from"))
-  # shared atoms map 1:1; ROW has no counterpart -> NA target + warning
+  # shared leaves map 1:1; ROW has no counterpart -> NA target + warning
   expect_warning(m2 <- geoscale_map_between(gs, gs_b), "no counterpart")
   expect_true(is.na(m2$bands[m2$example == "ROW"]))
   expect_equal(m2$bands[m2$example == "A1"], "A1")
 
-  # same name or no shared keys error
+  # same name or no shared codes error
   expect_error(geoscale_map_between(gs, gs), "same name")
-  lf2 <- data.frame(g = "G", atom = c("Z1", "Z2"))
-  gs_c <- geoscale_from_leaftable(lf2, geoframes = c("g", "atom"),
+  lf2 <- data.frame(g = "G", cell = c("Z1", "Z2"))
+  gs_c <- geoscale_from_leaftable(lf2, geoframes = c("g", "cell"),
                                   name = "other")
   expect_error(suppressWarnings(geoscale_map_between(gs, gs_c)),
-               "share no `atom` keys")
+               "share no `cell` codes")
 })
 
 test_that("map registry accessors round-trip", {

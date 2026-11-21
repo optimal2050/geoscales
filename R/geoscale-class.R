@@ -3,11 +3,11 @@
 # =============================================================================
 # A `GeoScale` is a nested spatial partition:
 #
-#   * `leaftable`   — flat enumeration of leaf regions ("atoms"), with one
+#   * `leaftable`   — flat enumeration of leaf regions ("leaves"), with one
 #                  column per geoframe in the hierarchy and one or more
-#                  named weight columns (km2, pop, ...). The atom key is the
-#                  finest geoframe's own column unless `key` names another
-#   * `labels`   — display names by (frame, unit, variant); sparse
+#                  named weight columns (km2, pop, ...). The leaf column is the
+#                  finest geoframe's own column unless `leaf` names another
+#   * `labels`   — display names by (frame, member, variant); sparse
 #   * `geoframes`   — ordered character vector naming the hierarchy, COARSEST
 #                  first (e.g. `c("reg1", "reg7", "reg32", "reg46")`)
 #   * `members`  — named list giving the full ordered code vocabulary at each
@@ -34,7 +34,7 @@
 
 #' GeoScale (S7 class)
 #'
-#' A nested spatial partition: a flat table of weighted leaf regions ("atoms")
+#' A nested spatial partition: a flat table of weighted leaf regions ("leaves")
 #' plus the ordered hierarchy of geoframes that groups them.
 #'
 #' Construct with [`geoscale_from_leaftable()`] (the general escape hatch),
@@ -42,8 +42,8 @@
 #' [`geoscale_from_provider()`] (from a data source such as Natural Earth).
 #'
 #' @param leaftable `data.frame` with one column per geoframe in `geoframes`
-#'   and one or more numeric weight columns. The finest geoframe is the atom
-#'   key unless `key` names another column.
+#'   and one or more numeric weight columns. The finest geoframe is the leaf
+#'   column unless `leaf` names another column.
 #' @param geoframes Ordered character vector of geoframe names (coarsest
 #'   first); each name must appear as a column in `leaftable`.
 #' @param members Named list; `members[[lvl]]` is the full ordered set of codes
@@ -53,7 +53,7 @@
 #'   `leaftable`, in the same order.
 #' @param meta Named list of attributes (`name`, `desc`, `weights`,
 #'   `default_weight`, `default_label`, `crs`, `source`).
-#' @param key Name of the atom key column: unique and complete. `NULL`
+#' @param leaf Name of the leaf column: unique and complete. `NULL`
 #'   (default) is the finest geoframe.
 #' @param labels Optional table of display names, see
 #'   [`attach_labels_geoscale()`].
@@ -71,23 +71,23 @@ GeoScale <- S7::new_class(
     # no-ops on NULL: S7 writes each dynamic property once at construction.
     geoframes  = nestedscales::scale_alias_property("frames"),
     geometry   = S7::new_property(S7::class_any, default = NULL),
-    # Declared here as well as in `nestedscales` (which has it from 0.3.0),
-    # so the class is the same whichever version it is installed against.
-    labels     = S7::new_property(S7::class_any,
+    # Declared here as well as in `nestedscales`: the table and its checks
+    # are those of R/labels.R.
+    labels    = S7::new_property(S7::class_any,
                                   default = quote(.empty_labels())),
     # Geoframes the plots leave out. Nothing else reads it. `class_any` so
     # an object saved without the property still validates.
     hidden     = S7::new_property(S7::class_any, default = character())
   ),
   constructor = function(leaftable, geoframes, members, geometry = NULL,
-                         meta = list(), key = NULL, labels = NULL,
+                         meta = list(), leaf = NULL, labels = NULL,
                          hidden = character()) {
     S7::new_object(
       nestedscales::scale_class()(
         leaftable = leaftable,
         frames    = geoframes,
         members   = members,
-        key       = key %||% geoframes[length(geoframes)],
+        leaf      = leaf %||% geoframes[length(geoframes)],
         meta      = meta
       ),
       geometry = geometry,
@@ -103,7 +103,7 @@ GeoScale <- S7::new_class(
     members  <- S7::prop(self, "members")
     geometry <- S7::prop(self, "geometry")
     meta     <- S7::prop(self, "meta")
-    key      <- S7::prop(self, "key")
+    leaf     <- .leaf_col(self)
 
     # leaftable ---------------------------------------------------------------
     if (!is.data.frame(leaftable)) {
@@ -112,9 +112,9 @@ GeoScale <- S7::new_class(
     if (nrow(leaftable) == 0L) {
       errs <- c(errs, "`leaftable` must have at least one row")
     }
-    if (!key %in% names(leaftable)) {
+    if (!leaf %in% names(leaftable)) {
       errs <- c(errs, sprintf(
-        "`leaftable` must have a `%s` column (the atom key)", key))
+        "`leaftable` must have a `%s` column (the leaf column)", leaf))
     }
 
     # geoframes ---------------------------------------------------------------
@@ -128,13 +128,12 @@ GeoScale <- S7::new_class(
         errs <- c(errs, sprintf(
           "`geoframes` contains invalid names: %s", .preview(bad)))
       }
-      # The key is normally the FINEST geoframe: there the geoframe column
-      # *is* the atom key column. As a coarser geoframe it could not be
-      # unique per atom.
+      # The leaf column is normally the FINEST geoframe's own column. A
+      # coarser geoframe could not be unique per leaf.
       clash <- intersect(geoframes, .RESERVED_COLS)
-      if (key %in% geoframes &&
-          !identical(geoframes[length(geoframes)], key)) {
-        clash <- c(clash, key)
+      if (leaf %in% geoframes &&
+          !identical(geoframes[length(geoframes)], leaf)) {
+        clash <- c(clash, leaf)
       }
       if (length(clash) > 0L) {
         errs <- c(errs, sprintf(
@@ -147,19 +146,19 @@ GeoScale <- S7::new_class(
       }
     }
 
-    # atom key ----------------------------------------------------------------
-    if (key %in% names(leaftable)) {
-      rid <- leaftable[[key]]
+    # leaf column -------------------------------------------------------------
+    if (leaf %in% names(leaftable)) {
+      rid <- leaftable[[leaf]]
       if (!is.character(rid) || anyNA(rid) || any(!nzchar(rid))) {
         errs <- c(errs, sprintf(
-          "`leaftable$%s` must be a non-empty character vector", key))
+          "`leaftable$%s` must be a non-empty character vector", leaf))
       } else if (anyDuplicated(rid)) {
         dup <- unique(rid[duplicated(rid)])
         errs <- c(errs, sprintf(
           paste0("`leaftable$%s` must be unique; duplicated: %s. ",
                  "Parallel dimensions (e.g. onshore/offshore) belong in ",
                  "separate GeoScale objects."),
-          key, .preview(dup)))
+          leaf, .preview(dup)))
       }
     }
 
@@ -190,10 +189,10 @@ GeoScale <- S7::new_class(
       }
     }
 
-    # NOTE: geoframes are *partitions of the atoms*, not necessarily a strict
+    # NOTE: geoframes are *partitions of the leaves*, not necessarily a strict
     # tree. Real hierarchies cross-cut: IDEEA's `reg32` code "APY" merges
     # Andhra Pradesh with part of Puducherry, so the `reg35` code "PY" has two
-    # parents. That is precisely why the atom layer exists and why
+    # parents. That is precisely why the leaf layer exists and why
     # `recast_geoscale()` always routes through it. Use `geoscale_nests()` to
     # test whether a given pair of geoframes happens to nest cleanly.
 
@@ -297,12 +296,12 @@ GeoScale <- S7::new_class(
                                                  "scale_vocab", "x")
 S7::method(.scale_vocab_generic, GeoScale) <- function(x, ...) {
   list(object = "GeoScale", frame = "geoframe", frames = "geoframes",
-       unit = "region", units = "regions", atoms = "geoatoms",
+       member = "region", members = "regions", leaves = "geoleaves",
        register_rule = "register_geoscale_rule()",
        register_map = "register_geoscale_map_between()")
 }
 
-# The geometry is per atom, in leaftable row order: when the shared engine
+# The geometry is per leaf, in leaftable row order: when the shared engine
 # keeps a subset of rows, it keeps the same subset of shapes.
 .payload_slice_generic <- S7::new_external_generic("nestedscales",
                                                    "scale_payload_slice", "x")
@@ -337,7 +336,7 @@ S7::method(.payload_slice_generic, GeoScale) <- function(x, i, ...) {
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' geoscale_rank(gs, c("zone", "atom"))
+#' geoscale_rank(gs, c("zone", "cell"))
 #' @export
 geoscale_rank <- function(x, geoframe) {
   .check_geoscale(x)
@@ -346,11 +345,11 @@ geoscale_rank <- function(x, geoframe) {
 
 #' Geoframes of a GeoScale
 #'
-#' The hierarchy names, ordered coarsest first. The last entry is the atom
+#' The hierarchy names, ordered coarsest first. The last entry is the leaf
 #' geoframe — the finest regions, which every other geoframe groups.
 #'
 #' @param x A [`GeoScale`].
-#' @param finest Return only the finest (atom) geoframe; with
+#' @param finest Return only the finest (leaf) geoframe; with
 #'   `visible = TRUE`, the finest visible one.
 #' @param visible `NULL` (default) returns every geoframe. `TRUE` returns
 #'   those shown in plots, `FALSE` those hidden from them (see
@@ -376,7 +375,7 @@ geoscale_geoframes <- function(x, finest = FALSE, visible = NULL) {
 
 #' The leaftable of a GeoScale
 #'
-#' The one-row-per-atom table the geoscale is built on, as a plain
+#' The one-row-per-leaf table the geoscale is built on, as a plain
 #' `data.frame` — the exported accessor to prefer over reaching for
 #' `x@leaftable` (the twin of `timescales::calendar_leaftable()`).
 #' `as.data.frame()` and `ggplot2::fortify()` on a GeoScale are
@@ -387,7 +386,7 @@ geoscale_geoframes <- function(x, finest = FALSE, visible = NULL) {
 #' @param model A [`GeoScale`] (the `fortify()` generic's argument name).
 #' @param data Ignored (S3 signature compatibility).
 #' @param ... Ignored.
-#' @return A `data.frame`: one row per atom, with the geoframe columns
+#' @return A `data.frame`: one row per leaf, with the geoframe columns
 #'   plus any weight columns.
 #' @examples
 #' head(geoscale_leaftable(geoscale_example()))
@@ -475,7 +474,7 @@ geoscale_weights <- function(x) {
 # Format / print ---------------------------------------------------------------
 
 S7::method(format, GeoScale) <- function(x, ...) {
-  sprintf("<GeoScale[%s] atoms=%d>",
+  sprintf("<GeoScale[%s] leaves=%d>",
           paste(S7::prop(x, "geoframes"), collapse = "/"),
           nrow(S7::prop(x, "leaftable")))
 }
@@ -500,12 +499,18 @@ print.GeoScale <- function(x, ...) {
     n_code <- length(mb[[l]])
     n_na <- sum(is.na(lf[[l]]))
     cat("  ", strrep("  ", i - 1L), "- ", l, " (", n_code, ")",
-        if (n_na > 0L) sprintf("  [%d atom(s) unassigned]", n_na) else "",
+        if (n_na > 0L) {
+          sprintf("  [%d leaf region(s) unassigned]", n_na)
+        } else {
+          ""
+        },
         "\n", sep = "")
   }
-  key <- S7::prop(x, "key")
-  cat("Atoms: ", nrow(lf),
-      if (!identical(key, lv[length(lv)])) paste0(" (key: ", key, ")"),
+  leaf <- .leaf_col(x)
+  cat("Leaves: ", nrow(lf),
+      if (!identical(leaf, lv[length(lv)])) {
+        paste0(" (leaf column: ", leaf, ")")
+      },
       "\n", sep = "")
 
   wts <- geoscale_weights(x)
@@ -558,7 +563,7 @@ S7::method(print, GeoScale) <- print.GeoScale
 #' @param ... Ignored.
 #' @return `summary()` returns a list of class `"summary_GeoScale"`:
 #'   `name`, `desc`, `geoframes` (named member counts), `unassigned`
-#'   (named NA-atom counts), `n_atoms`, `weights`, `weight_totals`,
+#'   (named NA-leaf counts), `n_leaves`, `weights`, `weight_totals`,
 #'   `default_weight`, `coverage` (see [geoscale_coverage()]),
 #'   `sampled`, `parent_name`, `nesting` (adjacent-pair table with
 #'   offender counts, see [geoscale_nests()]), `geometry` (attached /
@@ -592,7 +597,7 @@ summary.GeoScale <- function(object, ...) {
     desc = meta[["desc"]] %||% "",
     geoframes = vapply(S7::prop(object, "members"), length, integer(1)),
     unassigned = vapply(gf, function(l) sum(is.na(lt[[l]])), integer(1)),
-    n_atoms = nrow(lt),
+    n_leaves = nrow(lt),
     hidden = .hidden(object),
     weights = wts,
     weight_totals = if (length(wts)) {
@@ -630,7 +635,7 @@ print.summary_GeoScale <- function(x, ...) {
   cat("  geoframes:      ",
       paste(sprintf("%s (%d)", names(x$geoframes), x$geoframes),
             collapse = " / "), "\n", sep = "")
-  cat("  atoms:          ", x$n_atoms, "\n", sep = "")
+  cat("  leaves:         ", x$n_leaves, "\n", sep = "")
   if (any(x$unassigned > 0)) {
     ua <- x$unassigned[x$unassigned > 0]
     cat("  unassigned:     ",
@@ -694,7 +699,7 @@ S7::method(names, GeoScale) <- names.GeoScale
 
 #' Add a weight column to a GeoScale
 #'
-#' Declares one or more numeric weights over the atoms of an existing
+#' Declares one or more numeric weights over the leaves of an existing
 #' `GeoScale`. A weight is what a quantity is divided by when a value declared
 #' at a parent has to be shared out between its children, so a hierarchy that
 #' ships with only `area` cannot apportion a demand or a fleet sensibly; this
@@ -703,8 +708,8 @@ S7::method(names, GeoScale) <- names.GeoScale
 #'
 #' @param x A [`GeoScale`].
 #' @param ... Named weights, one per argument: either a numeric vector named
-#'   by atom code, or an unnamed numeric in leaftable row order. A single
-#'   unnamed `data.frame` may be given instead, keyed by the atom column with
+#'   by leaf code, or an unnamed numeric in leaftable row order. A single
+#'   unnamed `data.frame` may be given instead, keyed by the leaf column with
 #'   one or more numeric weight columns.
 #' @param default Optional name of the weight to make the default, which
 #'   must be one of the weights the result declares.
@@ -724,14 +729,14 @@ S7::method(names, GeoScale) <- names.GeoScale
 geoscale_add_weight <- function(x, ..., default = NULL, overwrite = FALSE) {
   .check_geoscale(x)
   lt <- S7::prop(x, "leaftable")
-  akey <- S7::prop(x, "key")
-  atoms <- as.character(lt[[akey]])
+  lcol <- .leaf_col(x)
+  leaves <- as.character(lt[[lcol]])
   args <- list(...)
   if (length(args) == 1L && is.null(names(args)) && is.data.frame(args[[1L]])) {
     df <- as.data.frame(args[[1L]], stringsAsFactors = FALSE)
-    key <- intersect(akey, names(df))
+    key <- intersect(lcol, names(df))
     if (!length(key)) {
-      .stop("the `data.frame` must carry the atom column `%s`", akey)
+      .stop("the `data.frame` must carry the leaf column `%s`", lcol)
     }
     key <- key[1L]
     num <- names(df)[vapply(df, is.numeric, logical(1))]
@@ -760,18 +765,18 @@ geoscale_add_weight <- function(x, ..., default = NULL, overwrite = FALSE) {
     v <- args[[w]]
     if (!is.numeric(v)) .stop("weight `%s` must be numeric", w)
     if (!is.null(names(v))) {
-      miss <- setdiff(atoms, names(v))
+      miss <- setdiff(leaves, names(v))
       if (length(miss)) {
-        .stop("weight `%s` has no value for %d atom(s): %s", w, length(miss),
-              .preview(miss))
+        .stop("weight `%s` has no value for %d leaf code(s): %s", w,
+              length(miss), .preview(miss))
       }
-      v <- unname(v[atoms])
+      v <- unname(v[leaves])
     } else if (length(v) == 1L) {
-      v <- rep(v, length(atoms))
-    } else if (length(v) != length(atoms)) {
-      .stop(paste0("weight `%s` has %d values for %d atoms; name it by atom ",
+      v <- rep(v, length(leaves))
+    } else if (length(v) != length(leaves)) {
+      .stop(paste0("weight `%s` has %d values for %d leaves; name it by leaf ",
                    "code or give one value per leaftable row"),
-            w, length(v), length(atoms))
+            w, length(v), length(leaves))
     }
     v <- as.numeric(v)
     # checked here so the message names the weight, rather than coming back

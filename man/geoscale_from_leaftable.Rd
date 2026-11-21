@@ -7,7 +7,7 @@
 geoscale_from_leaftable(
   leaftable,
   geoframes,
-  key = NULL,
+  leaf = NULL,
   weights = NULL,
   default_weight = NULL,
   members = NULL,
@@ -21,15 +21,16 @@ geoscale_from_leaftable(
 )
 }
 \arguments{
-\item{leaftable}{\code{data.frame} with one row per atom, one column per name in
+\item{leaftable}{\code{data.frame} with one row per leaf, one column per name in
 \code{geoframes}, and optionally numeric weight columns.}
 
 \item{geoframes}{Ordered character vector of geoframe names, \strong{coarsest
 first}. Each must be a column of \code{leaftable}.}
 
-\item{key}{Name of the column holding the unique atom key. Defaults to the
+\item{leaf}{Name of the leaf column, the column that identifies the
+leaves. Defaults to the
 finest geoframe (the last entry of \code{geoframes}), which must then be
-complete and unique. Name another column when the atoms are finer than
+complete and unique. Name another column when the leaves are finer than
 the finest geoframe.}
 
 \item{weights}{Character vector naming the weight columns. Defaults to all
@@ -43,8 +44,8 @@ geoframe. Derived from \code{leaftable} when \code{NULL} (first-appearance order
 
 \item{geometry}{Optional \code{sfc} with one geometry per row of \code{leaftable}.}
 
-\item{labels}{Optional table of display names with columns \code{frame},
-\code{unit}, \code{label} and optionally \code{variant}; see
+\item{labels}{Optional table of display names with columns \code{geoframe},
+\code{region}, \code{label} and optionally \code{variant}; see
 \code{\link[=attach_labels_geoscale]{attach_labels_geoscale()}}.}
 
 \item{hidden}{Optional names of geoframes to leave out of plots; see
@@ -62,20 +63,20 @@ follows); \code{"given"} keeps the rows as supplied.}
 A \code{\link{GeoScale}}.
 }
 \description{
-The general constructor. Takes a wide \code{data.frame} with one row per atom
+The general constructor. Takes a wide \code{data.frame} with one row per leaf
 (the finest region) and one column per geoframe, and returns a \code{\link{GeoScale}}.
 }
 \details{
 Blank strings (\code{""}) in geoframe columns are normalised to \code{NA}, meaning
-"this atom has no code at this geoframe" — partial coverage is normal in
+"this leaf has no code at this geoframe" — partial coverage is normal in
 real region tables.
 }
 \examples{
 df <- data.frame(
   country = c("C1", "C1", "C1", "C2"),
   zone    = c("Z1", "Z1", "Z2", "Z3"),
-  atom    = c("A1", "A2", "A3", "A4"),
+  cell    = c("A1", "A2", "A3", "A4"),
   km2     = c(100, 200, 300, 400)
 )
-geoscale_from_leaftable(df, geoframes = c("country", "zone", "atom"))
+geoscale_from_leaftable(df, geoframes = c("country", "zone", "cell"))
 }

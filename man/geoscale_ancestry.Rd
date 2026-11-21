@@ -14,17 +14,17 @@ A \code{data.frame} with columns \code{parent_geoframe}, \code{parent},
 \code{child_geoframe}, \code{child}.
 }
 \description{
-Every \verb{(coarser, finer)} code pair that shares at least one atom, for all
+Every \verb{(coarser, finer)} code pair that shares at least one leaf, for all
 geoframe pairs.
 }
 \details{
-Computed \strong{atom-mediated}, directly from \verb{@leaftable} — deliberately not
+Computed \strong{leaf-mediated}, directly from \verb{@leaftable} — deliberately not
 as a transitive closure of \code{\link[=geoscale_family]{geoscale_family()}}. \code{timescales} can use a
 closure because timeframes genuinely nest; spatial geoframes cross-cut, and
 a closure then manufactures false relationships. In the example GeoScale,
 zone \code{ZB}
-straddles both countries, so closing \code{country -> state -> zone -> atom}
-would wrongly report country \code{N} as an ancestor of atom \code{A5}, which lies in
+straddles both countries, so closing \code{country -> state -> zone -> cell}
+would wrongly report country \code{N} as an ancestor of leaf \code{A5}, which lies in
 country \code{S}.
 
 For geoframes that do not nest this relation is \emph{overlap}, not containment —

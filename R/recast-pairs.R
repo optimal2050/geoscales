@@ -21,7 +21,7 @@
 #' @param gs The [`GeoScale`] the endpoints are keyed in.
 #' @param target Target geoframe name, coarser than `source`.
 #' @param source Geoframe the endpoint codes belong to. `NULL` (default) is the
-#'   finest (atom) geoframe.
+#'   finest (leaf) geoframe.
 #' @param from,to Deprecated names of `source` and `target`.
 #' @param src,dst The endpoint columns. Default `"src"` and `"dst"`.
 #' @param values Value columns to aggregate. `NULL` (default) is every numeric
@@ -45,7 +45,7 @@
 #'   columns keeping their input names and holding target-geoframe codes. In the
 #'   input's class; lazy in, lazy out.
 #'
-#' @seealso [`recast_geoscale()`], [`recast_from_geoatoms()`]
+#' @seealso [`recast_geoscale()`], [`recast_from_geoleaves()`]
 #'
 #' @examples
 #' gs <- geoscale_example()
@@ -75,6 +75,7 @@ recast_pairs <- function(data, gs, target, source = NULL,
   to <- target
   from <- source
   .check_geoscale(gs, "gs")
+  data <- .geo_plain_codes(data)
   backend <- .gs_backend(data)
   if (is.na(backend)) {
     .stop(paste0("`data` must be a data.frame, tibble, data.table, or an ",

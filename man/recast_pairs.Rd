@@ -31,7 +31,7 @@ table/dataset/query with two endpoint columns.}
 \item{target}{Target geoframe name, coarser than \code{source}.}
 
 \item{source}{Geoframe the endpoint codes belong to. \code{NULL} (default) is the
-finest (atom) geoframe.}
+finest (leaf) geoframe.}
 
 \item{src, dst}{The endpoint columns. Default \code{"src"} and \code{"dst"}.}
 
@@ -94,5 +94,5 @@ lines <- data.frame(
 recast_pairs(lines, gs, target = "state", rule = "sum")
 }
 \seealso{
-\code{\link[=recast_geoscale]{recast_geoscale()}}, \code{\link[=recast_from_geoatoms]{recast_from_geoatoms()}}
+\code{\link[=recast_geoscale]{recast_geoscale()}}, \code{\link[=recast_from_geoleaves]{recast_from_geoleaves()}}
 }

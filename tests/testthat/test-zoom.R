@@ -6,7 +6,7 @@ test_that("the cut telescopes outward from the focus", {
   z <- zoom_geoscale(gs, focus = "A1",
                      geoframes = c("country", "state"))
   lt <- z@leaftable
-  cut <- stats::setNames(lt$zoom, lt$atom)
+  cut <- stats::setNames(lt$zoom, lt$cell)
 
   expect_equal(unname(cut["A1"]), "A1")        # focus kept whole
   expect_equal(unname(cut["A2"]), "N1_rest")   # rest of its state
@@ -15,11 +15,11 @@ test_that("the cut telescopes outward from the focus", {
   expect_equal(unname(cut["A6"]), "S")
 })
 
-test_that("the geoframes are the coarsest, the cut, and the atom layer", {
+test_that("the geoframes are the coarsest, the cut, and the leaf layer", {
   gs <- geoscale_example()
   z <- zoom_geoscale(gs, focus = "A1",
                      geoframes = c("country", "state"))
-  expect_equal(geoscale_geoframes(z), c("country", "zoom", "atom"))
+  expect_equal(geoscale_geoframes(z), c("country", "zoom", "cell"))
   # The geoframe the cut was carved from must be GONE: "rest of N1" spans
   # states,
   # so keeping `state` beside `zoom` would be a non-nesting hierarchy that
@@ -32,28 +32,28 @@ test_that("the cut nests in both directions", {
   z <- zoom_geoscale(gs, focus = c("A1", "A3"),
                      geoframes = c("country", "state"))
   expect_true(isTRUE(geoscale_nests(z, "country", "zoom")))
-  expect_true(isTRUE(geoscale_nests(z, "zoom", "atom")))
+  expect_true(isTRUE(geoscale_nests(z, "zoom", "cell")))
 })
 
-test_that("every atom survives and weights are preserved exactly", {
+test_that("every leaf survives and weights are preserved exactly", {
   gs <- geoscale_example()
   z <- zoom_geoscale(gs, focus = "A1",
                      geoframes = c("country", "state"))
-  expect_setequal(z@leaftable$atom, gs@leaftable$atom)
+  expect_setequal(z@leaftable$cell, gs@leaftable$cell)
   for (w in gs@meta$weights) {
     expect_equal(sum(z@leaftable[[w]]), sum(gs@leaftable[[w]]))
   }
 })
 
-test_that("an atom with no code in the coarsest geoframe keeps NA", {
-  # Matches prune_geoscale(): such an atom has no place in the coarse
+test_that("a leaf with no code in the coarsest geoframe keeps NA", {
+  # Matches prune_geoscale(): such a leaf has no place in the coarse
   # partition, the loss shows in coverage, and it is not invented.
   gs <- geoscale_example()
   z <- zoom_geoscale(gs, focus = "A1",
                      geoframes = c("country", "state"))
   lt <- z@leaftable
-  expect_true(is.na(lt$zoom[lt$atom == "ROW"]))
-  expect_true(is.na(lt$country[lt$atom == "ROW"]))
+  expect_true(is.na(lt$zoom[lt$cell == "ROW"]))
+  expect_true(is.na(lt$country[lt$cell == "ROW"]))
 })
 
 test_that("a deeper focus produces a longer telescope", {
@@ -66,23 +66,23 @@ test_that("a deeper focus produces a longer telescope", {
              length(geoscale_regions(z2, "zoom")))
 })
 
-test_that("focusing every atom is a no-op partition", {
+test_that("focusing every leaf is a no-op partition", {
   gs <- geoscale_example()
-  atoms <- gs@leaftable$atom
-  z <- zoom_geoscale(gs, focus = atoms, geoframes = "country")
-  expect_setequal(stats::na.omit(z@leaftable$zoom), atoms)
+  leaves <- gs@leaftable$cell
+  z <- zoom_geoscale(gs, focus = leaves, geoframes = "country")
+  expect_setequal(stats::na.omit(z@leaftable$zoom), leaves)
 })
 
 test_that("bad input is refused with a message that says what to do", {
   gs <- geoscale_example()
   expect_error(zoom_geoscale(gs, focus = "N", geoframes = "country"),
-               "names atoms")
+               "names leaves")
   expect_error(zoom_geoscale(gs, focus = character(0)), "prune_geoscale")
   expect_error(zoom_geoscale(gs, focus = "A1", geoframes = "nope"),
                "unknown geoframe")
   expect_error(zoom_geoscale(gs, focus = "A1",
-                             geoframes = c("country", "atom")),
-               "atom geoframe")
+                             geoframes = c("country", "cell")),
+               "leaf geoframe")
   expect_error(zoom_geoscale(gs, focus = "A1", geoframes = "country",
                              name = "country"),
                "already a geoframe")

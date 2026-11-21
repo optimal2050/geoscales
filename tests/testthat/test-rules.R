@@ -50,11 +50,11 @@ test_that("recast_geoscale infers rules per column from the registry", {
 
   gs <- geoscale_example()
   mix <- data.frame(
-    atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+    cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
     capacity = c(1, 2, 3, 4, 5, 6),
     eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6)
   )
-  out <- recast_geoscale(mix, gs, "atom", "state")
+  out <- recast_geoscale(mix, gs, "cell", "state")
 
   # capacity summed, eff population-weighted, in the same call
   expect_equal(out$capacity[out$state == "N1"], 3, tolerance = 1e-9)
@@ -67,11 +67,11 @@ test_that("an explicit rule overrides the registry", {
   register_geoscale_rule("capacity", "sum")
 
   gs <- geoscale_example()
-  x <- data.frame(atom = c("A1", "A2"), capacity = c(1, 3))
+  x <- data.frame(cell = c("A1", "A2"), capacity = c(1, 3))
   # A1/A2 cover only state N1; the other states' missing-source warning
   # is expected here
   expect_warning(
-    out <- recast_geoscale(x, gs, "atom", "state", rule = "mean"),
+    out <- recast_geoscale(x, gs, "cell", "state", rule = "mean"),
     "missing from")
   expect_equal(out$capacity[out$state == "N1"], 2, tolerance = 1e-9)
 })
@@ -80,12 +80,12 @@ test_that("unregistered columns error: no rule fallback", {
   clear_geoscale_rules()
   on.exit(clear_geoscale_rules(), add = TRUE)
   gs <- geoscale_example()
-  x <- data.frame(atom = c("A1", "A2"), whatever = c(1, 3))
-  expect_error(recast_geoscale(x, gs, "atom", "state"),
+  x <- data.frame(cell = c("A1", "A2"), whatever = c(1, 3))
+  expect_error(recast_geoscale(x, gs, "cell", "state"),
                "no aggregation rule.*whatever.*register_geoscale_rule")
   # registering the column (or passing rule=) resolves it
   register_geoscale_rule("whatever", "sum")
-  out <- suppressWarnings(recast_geoscale(x, gs, "atom", "state"))
+  out <- suppressWarnings(recast_geoscale(x, gs, "cell", "state"))
   expect_equal(out$whatever[out$state == "N1"], 4, tolerance = 1e-9)
 })
 

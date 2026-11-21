@@ -7,15 +7,15 @@
 # both dimensions. `recast_geoscale()` is the explicit worker.
 #
 # Aggregation and disaggregation are ONE operation. Every conversion routes
-# through the atom layer, which is already materialised in `@leaftable` (so,
+# through the leaf layer, which is already materialised in `@leaftable` (so,
 # unlike `timescales`, there is no `expand_calendar()` step). The route is
 # collapsed into a small crosswalk table by geoscale_map() (R/map.R), so the
 # converters are single dplyr pipelines that run unchanged over data.frame /
 # tibble / data.table / arrow inputs (see R/backend.R for the format
-# contract). The public halves of the route are recast_to_geoatoms() /
-# recast_from_geoatoms(); their composition equals recast_geoscale(), and
-# recasting to ANOTHER GeoScale's atoms (matched on shared `region` keys) is
-# `recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b, to)`.
+# contract). The public halves of the route are recast_to_geoleaves() /
+# recast_from_geoleaves(); their composition equals recast_geoscale(), and
+# recasting to ANOTHER GeoScale's leaves (matched on shared codes) is
+# `recast_from_geoleaves(recast_to_geoleaves(x, gs_a), gs_b, to)`.
 #
 # Direction falls out of the crosswalk automatically: coarse -> fine is the
 # weight-share split doing the work, fine -> coarse is the aggregation.
@@ -198,11 +198,11 @@
 #'
 #' The central conversion verb: takes a table keyed by region code at
 #' geoframe `source` and returns one keyed at `target` -- a geoframe name of the
-#' same [`GeoScale`], or ANOTHER GeoScale (whose atom layer is the target,
-#' matched on shared atom `region` keys). Handles both aggregation (fine to
+#' same [`GeoScale`], or ANOTHER GeoScale (whose leaf layer is the target,
+#' matched on shared leaf codes). Handles both aggregation (fine to
 #' coarse) and disaggregation (coarse to fine) with a single rule per value
 #' column; geoframes that cross-cut work too, because the route always goes
-#' through the atom layer. The route is evaluated as one dplyr pipeline
+#' through the leaf layer. The route is evaluated as one dplyr pipeline
 #' against the [`geoscale_map()`] crosswalk, so `data` may live in any
 #' supported backend (see below). A crosswalk registered with
 #' [`register_geoscale_map()`] short-circuits the derivation.
@@ -214,10 +214,10 @@
 #' `x |> recast_calendar(...) |> recast_geoscale(...)` work. Columns named
 #' like `gs`'s geoframes are treated as region attributes and dropped.
 #'
-#' The public halves of the route are [`recast_to_geoatoms()`] and
-#' [`recast_from_geoatoms()`]; `recast_geoscale(x, gs, from, to)` is
+#' The public halves of the route are [`recast_to_geoleaves()`] and
+#' [`recast_from_geoleaves()`]; `recast_geoscale(x, gs, from, to)` is
 #' equivalent to
-#' `recast_from_geoatoms(recast_to_geoatoms(x, gs, from), gs, to)`.
+#' `recast_from_geoleaves(recast_to_geoleaves(x, gs, from), gs, to)`.
 #'
 #' @section Backends:
 #' `data` may be a `data.frame`, tibble, `data.table`, `dtplyr` lazy table,
@@ -236,10 +236,10 @@
 #'   inferred: `key` when it is a geoframe name, else the single geoframe
 #'   name appearing among `data`'s columns.
 #' @param target Target geoframe name of `gs`, or another (named) [`GeoScale`]
-#'   -- then the target is that object's atom layer, matched on the atom
+#'   -- then the target is that object's leaf layer, matched on the leaf
 #'   codes the two objects share.
 #' @param key Name of the region-code column in `data`. Defaults to `source`
-#'   when that column exists, otherwise the GeoScale's atom key.
+#'   when that column exists, otherwise the GeoScale's leaf column.
 #' @param values Character vector of value columns to convert. Default: all
 #'   numeric columns other than the key and `gs`'s geoframe columns.
 #'   Numeric identifiers (e.g. `year`) must be excluded explicitly.
@@ -251,9 +251,9 @@
 #' @param weight Weight column used by `sum` (splitting), `weighted_mean`
 #'   and the attached shares. `NULL` uses each column's registered weight,
 #'   falling back to the object's default weight; when the object declares
-#'   no weights at all, atoms weigh 1 (an equal split, with a warning when
+#'   no weights at all, leaves weigh 1 (an equal split, with a warning when
 #'   that choice is material, i.e. when disaggregating).
-#' @param na_action What to do with atoms that have no code at `source` or
+#' @param na_action What to do with leaves that have no code at `source` or
 #'   `target`: `"drop"` (default, with a warning -- the affected source share
 #'   is genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA`
 #'   region row so totals conserve).
@@ -271,9 +271,9 @@
 #'
 #' @details
 #' Rules (see [`GEOSCALE_RULES`]): `"sum"` splits each source value across its
-#' region's atoms proportionally to the weight before summing up, so totals
-#' are conserved. `"weighted_mean"` weights by the atom weights;  `"mean"`
-#' is the plain atom-count mean -- the two differ exactly when atom weights
+#' region's leaves proportionally to the weight before summing up, so totals
+#' are conserved. `"weighted_mean"` weights by the leaf weights;  `"mean"`
+#' is the plain leaf-count mean -- the two differ exactly when leaf weights
 #' differ. `"copy"` requires a constant value per target region; `"sd"` is
 #' aggregation-only.
 #'
@@ -297,9 +297,9 @@
 #' gs <- geoscale_example()
 #'
 #' # Extensive quantity, fine -> coarse: totals are preserved
-#' x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+#' x <- data.frame(cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
 #'                 capacity = c(1, 2, 3, 4, 5, 6))
-#' recast_geoscale(x, gs, source = "atom", target = "country", rule = "sum")
+#' recast_geoscale(x, gs, source = "cell", target = "country", rule = "sum")
 #'
 #' # Coarse -> fine: split proportionally to area
 #' y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
@@ -307,13 +307,13 @@
 #'                 rule = "sum", weight = "km2")
 #'
 #' # Intensive quantity: weighted mean going up, copied going down
-#' z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+#' z <- data.frame(cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
 #'                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-#' recast_geoscale(z, gs, source = "atom", target = "state",
+#' recast_geoscale(z, gs, source = "cell", target = "state",
 #'                 rule = "weighted_mean")
 #'
-#' # Share within parent: result stays at the atoms, sums to 1 per country
-#' recast_geoscale(x, gs, source = "atom", target = "country", rule = "share")
+#' # Share within parent: result stays at the leaves, sums to 1 per country
+#' recast_geoscale(x, gs, source = "cell", target = "country", rule = "share")
 #' @export
 recast_geoscale <- function(data, gs, source = NULL, target,
                             key = NULL,
@@ -337,10 +337,7 @@ recast_geoscale <- function(data, gs, source = NULL, target,
   to <- target
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
-  link <- .geo_link_enter(data, gs, key = key, source = from)
-  data <- link$data
-  key <- link$key
-  from <- link$source
+  data <- .geo_plain_codes(data)
   # Across two GeoScales the route runs through this package's own halves,
   # whose result holds the observed target regions only.
   if (S7::S7_inherits(to, GeoScale)) {
@@ -348,21 +345,21 @@ recast_geoscale <- function(data, gs, source = NULL, target,
       .stop(paste0("rule \"share\" needs a parent geoframe of the same ",
                    "GeoScale; it cannot recast across objects"))
     }
-    g <- recast_to_geoatoms(data, gs, source = from, key = key, values = values,
-                            rule = rule, weight = weight, collect = collect)
+    g <- recast_to_geoleaves(data, gs, source = from, key = key,
+                             values = values, rule = rule, weight = weight,
+                             collect = collect)
     finest <- geoscale_geoframes(to, finest = TRUE)
-    out <- recast_from_geoatoms(g, to,
-                                target = finest,
-                                key = S7::prop(gs, "key"),
-                                values = values, rule = rule,
-                                na_action = na_action, collect = collect)
-    return(.geo_link_exit(out, link, .geo_bound(to, finest)))
+    out <- recast_from_geoleaves(g, to,
+                                 target = finest,
+                                 key = .leaf_col(gs),
+                                 values = values, rule = rule,
+                                 na_action = na_action, collect = collect)
+    return(out)
   }
-  out <- nestedscales::recast_scale(data, gs, source = from, target = to,
-                                    key = key, values = values, rule = rule,
-                                    weight = weight, na_action = na_action,
-                                    parent = parent, collect = collect)
-  .geo_link_exit(out, link, .geo_bound(gs, to))
+  nestedscales::recast_scale(data, gs, source = from, target = to,
+                             key = key, values = values, rule = rule,
+                             weight = weight, na_action = na_action,
+                             parent = parent, collect = collect)
 }
 
 #' rule "share" is only meaningful in recast_geoscale(), whose output key
@@ -379,96 +376,94 @@ recast_geoscale <- function(data, gs, source = NULL, target,
 }
 
 # -----------------------------------------------------------------------------
-# recast_to_geoatoms() / recast_from_geoatoms()
+# recast_to_geoleaves() / recast_from_geoleaves()
 # -----------------------------------------------------------------------------
 
-#' Recast region data down to the atom layer, and back
+#' Recast region data down to the leaf layer, and back
 #'
-#' The two public halves of the `from -> atoms -> to` route:
-#' `recast_to_geoatoms()` projects region-keyed data DOWN to the atom layer
-#' (one row per atom), and `recast_from_geoatoms()` aggregates atom-keyed
+#' The two public halves of the `from -> leaves -> to` route:
+#' `recast_to_geoleaves()` projects region-keyed data DOWN to the leaf layer
+#' (one row per leaf), and `recast_from_geoleaves()` aggregates leaf-keyed
 #' data UP into a geoframe's regions. Their composition is
-#' [`recast_geoscale()`], and because the atom rows are keyed by the atom
-#' `region` IDs, `recast_from_geoatoms(recast_to_geoatoms(x, gs_a), gs_b,
-#' to)` recasts across two different GeoScales that share atom keys.
+#' [`recast_geoscale()`], and because the leaf rows are keyed by the leaf
+#' codes, `recast_from_geoleaves(recast_to_geoleaves(x, gs_a), gs_b,
+#' to)` recasts across two different GeoScales that share leaf codes.
 #'
 #' Going down, extensive columns (rule `"sum"`) are split across a region's
-#' atoms proportionally to the chosen weight so totals conserve; intensive
-#' columns are repeated. A `weight` column (the atom's weight) is attached
+#' leaves proportionally to the chosen weight so totals conserve; intensive
+#' columns are repeated. A `weight` column (the leaf's weight) is attached
 #' by default so that the return trip's `"weighted_mean"` reproduces the
 #' source weighting exactly; pass `attach_weight = FALSE` to omit it.
 #'
-#' Going up, rules act on the atom rows directly: `"sum"` sums, `"mean"`
+#' Going up, rules act on the leaf rows directly: `"sum"` sums, `"mean"`
 #' averages, `"weighted_mean"` uses the `weight` column when present (else
 #' the target object's chosen weight), `"copy"` requires constancy, `"sd"`
-#' is the standard deviation over the atoms.
+#' is the standard deviation over the leaves.
 #'
 #' Both ends run as dplyr pipelines and accept any supported backend (see
 #' [`recast_geoscale()`]'s Backends section); the geoscale side of every
 #' join is a small in-memory frame.
 #'
-#' @param data The data: for `recast_to_geoatoms()` keyed by region code at
-#'   geoframe `source`; for `recast_from_geoatoms()` keyed by atom codes.
-#' @param gs The [`GeoScale`] the data is keyed in (`to_geoatoms`) or
-#'   aggregated into (`from_geoatoms`).
+#' @param data The data: for `recast_to_geoleaves()` keyed by region code at
+#'   geoframe `source`; for `recast_from_geoleaves()` keyed by leaf codes.
+#' @param gs The [`GeoScale`] the data is keyed in (`to_geoleaves`) or
+#'   aggregated into (`from_geoleaves`).
 #' @param from,to Deprecated names of `source` and `target`.
-#' @param source `to_geoatoms` only: geoframe name the codes belong to.
+#' @param source `to_geoleaves` only: geoframe name the codes belong to.
 #'   `NULL` (default) is inferred as in [`recast_geoscale()`].
-#' @param target `from_geoatoms` only: target geoframe name.
-#' @param key The key column. `to_geoatoms`: defaults to `source` when that
-#'   column exists, otherwise the GeoScale's atom key. `from_geoatoms`: the
-#'   GeoScale's atom key.
+#' @param target `from_geoleaves` only: target geoframe name.
+#' @param key The key column. `to_geoleaves`: defaults to `source` when that
+#'   column exists, otherwise the GeoScale's leaf column. `from_geoleaves`: the
+#'   GeoScale's leaf column.
 #' @param values,rule As in [`recast_geoscale()`].
 #' @param weight A declared weight column of `gs`, as in
-#'   [`recast_geoscale()`]. `from_geoatoms` uses it only when `data` carries
+#'   [`recast_geoscale()`]. `from_geoleaves` uses it only when `data` carries
 #'   no weight of its own.
-#' @param data_weight `from_geoatoms` only: the name of a column of `data` to
+#' @param data_weight `from_geoleaves` only: the name of a column of `data` to
 #'   weight by, so the weight may vary by identifier -- a capacity-weighted
 #'   efficiency differs by year and vintage. `NULL` (default) uses a `weight`
 #'   column of `data` if present, else the scale weight `weight`.
-#' @param attach_weight `to_geoatoms` only: attach the `weight` column
+#' @param attach_weight `to_geoleaves` only: attach the `weight` column
 #'   (default `TRUE`).
-#' @param na_rm `from_geoatoms` only: read an `NA` value as "this member says
+#' @param na_rm `from_geoleaves` only: read an `NA` value as "this member says
 #'   nothing" rather than as an unknown that makes the whole group `NA`
 #'   (default `FALSE`). Only an all-`NA` group stays `NA`; a weighted mean
 #'   drops the weight of each `NA` member so the divisor still matches.
-#' @param na_action `from_geoatoms` only: what to do with atoms that have
+#' @param na_action `from_geoleaves` only: what to do with leaves that have
 #'   no code at `target` -- `"drop"` (default, warning), `"error"`, or
 #'   `"keep"` (an `NA` region row).
 #' @param collect For lazy inputs: materialise (`TRUE`) or return the
 #'   query (default).
 #'
-#' @return `recast_to_geoatoms()`: one row per (atom x identifier
-#'   combination) with the atom column (named after the GeoScale's atom
-#'   key, see [`geoscale_key()`]), identifiers, values (and `weight`). `recast_from_geoatoms()`: one row per (region x identifier
+#' @return `recast_to_geoleaves()`: one row per (leaf x identifier
+#'   combination) with the leaf column (under its own name in the GeoScale,
+#'   see [`geoscale_leaf_column()`]), identifiers, values (and `weight`).
+#'   `recast_from_geoleaves()`: one row per (region x identifier
 #'   combination) with columns `target`-named region, identifiers, values.
 #'   Both in the input's class; lazy in, lazy out.
 #'
 #' @examples
 #' gs <- geoscale_example()
 #' y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
-#' a <- recast_to_geoatoms(y, gs, source = "country", rule = "sum",
-#'                         weight = "km2")
+#' a <- recast_to_geoleaves(y, gs, source = "country", rule = "sum",
+#'                          weight = "km2")
 #' a
 #' sum(a$capacity)  # 30 -- totals conserve
 #'
-#' recast_from_geoatoms(a, gs, target = "state", rule = "sum")
+#' recast_from_geoleaves(a, gs, target = "state", rule = "sum")
 #' @export
-recast_to_geoatoms <- function(data, gs, source = NULL,
+recast_to_geoleaves <- function(data, gs, source = NULL,
                                key = NULL, values = NULL, rule = NULL,
                                weight = NULL, attach_weight = TRUE,
                                collect = NULL,
                                from = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
-    .arg_renamed("recast_to_geoatoms", "from", "source", !missing(source))
+    .arg_renamed("recast_to_geoleaves", "from", "source", !missing(source))
     source <- from
   }
   from <- source
   .check_geoscale(gs, "gs")
-  link <- .geo_link_enter(data, gs, key = key, source = from)
-  data <- link$data
-  key <- link$key
-  from <- link$source
+  data <- .geo_plain_codes(data)
   backend <- .gs_backend(data)
   if (is.na(backend)) {
     .stop(paste0("`data` must be a data.frame, tibble, data.table, or an ",
@@ -479,23 +474,23 @@ recast_to_geoatoms <- function(data, gs, source = NULL,
 
   if (is.null(from)) from <- .geo_infer_from(gs, schema, key)
   .check_geoframe(gs, from, "source")
-  akey <- S7::prop(gs, "key")
-  if (is.null(key)) key <- if (from %in% names(schema)) from else akey
+  lcol <- .leaf_col(gs)
+  if (is.null(key)) key <- if (from %in% names(schema)) from else lcol
   if (!key %in% names(schema)) {
     .stop("`data` has no column named `%s`; pass `key=`", key)
   }
   if (isTRUE(attach_weight) && "weight" %in% names(schema)) {
     .stop("`data` already has a `weight` column; rename it first")
   }
-  if (key != akey && akey %in% names(schema)) {
-    .stop("`data` already has a `%s` column; rename it first", akey)
+  if (key != lcol && lcol %in% names(schema)) {
+    .stop("`data` already has a `%s` column; rename it first", lcol)
   }
 
   geoframes_all <- S7::prop(gs, "geoframes")
   values <- .geo_values_for(schema, key, geoframes_all, values)
   id_cols <- setdiff(names(schema), c(key, values, geoframes_all))
   rules <- .geo_rules_for(values, rule, weight)
-  .geo_no_share(rules, "recast_to_geoatoms")
+  .geo_no_share(rules, "recast_to_geoleaves")
 
   leaves <- S7::prop(gs, "leaftable")
   wt <- unique(vapply(rules, function(r) r$weight %||% "", character(1)))
@@ -518,49 +513,48 @@ recast_to_geoatoms <- function(data, gs, source = NULL,
           length(unknown), key, from, .preview(unknown))
   }
 
-  # The in-memory atom frame, with per-region weight shares
-  atoms <- data.frame(
+  # The in-memory leaf frame, with per-region weight shares
+  lrows <- data.frame(
     k = as.character(leaves[[from]]),
-    .gs_atom = leaves[[akey]],
+    .gs_leaf = leaves[[lcol]],
     .gs_w = if (is.null(wcol)) 1 else as.numeric(leaves[[wcol]]),
     stringsAsFactors = FALSE
   )
-  atoms <- atoms[!is.na(atoms$k), , drop = FALSE]
-  atoms$.gs_w[is.na(atoms$.gs_w)] <- 0
-  tot <- stats::ave(atoms$.gs_w, atoms$k, FUN = sum)
-  cnt <- stats::ave(rep(1, nrow(atoms)), atoms$k, FUN = sum)
-  atoms$.gs_f <- ifelse(tot > 0, atoms$.gs_w / tot, 1 / cnt)
-  if (isTRUE(attach_weight)) atoms$weight <- atoms$.gs_w
-  atoms$.gs_w <- NULL
-  names(atoms)[names(atoms) == "k"] <- key
+  lrows <- lrows[!is.na(lrows$k), , drop = FALSE]
+  lrows$.gs_w[is.na(lrows$.gs_w)] <- 0
+  tot <- stats::ave(lrows$.gs_w, lrows$k, FUN = sum)
+  cnt <- stats::ave(rep(1, nrow(lrows)), lrows$k, FUN = sum)
+  lrows$.gs_f <- ifelse(tot > 0, lrows$.gs_w / tot, 1 / cnt)
+  if (isTRUE(attach_weight)) lrows$weight <- lrows$.gs_w
+  lrows$.gs_w <- NULL
+  names(lrows)[names(lrows) == "k"] <- key
 
   xq <- .gs_lazy(data, backend)
   out <- dplyr::inner_join(
-    xq, atoms,
+    xq, lrows,
     by = key,
     na_matches = "na",
     relationship = "many-to-many"
   )
 
-  # Extensive columns split across the region's atoms
+  # Extensive columns split across the region's leaves
   sum_cols <- values[vapply(rules, function(r) r$rule == "sum", logical(1))]
   if (length(sum_cols) > 0L) {
     out <- dplyr::mutate(out, dplyr::across(
       dplyr::all_of(sum_cols), ~ .x * .gs_f))
   }
 
-  # The atom column takes the key's name; when the source IS the atom level
+  # The leaf column takes the key's name; when the source IS the leaf level
   # that is the name of the column it replaces.
-  keep <- c(".gs_atom", id_cols, values, if (isTRUE(attach_weight)) "weight")
+  keep <- c(".gs_leaf", id_cols, values, if (isTRUE(attach_weight)) "weight")
   out <- dplyr::select(out, dplyr::all_of(keep))
-  out <- dplyr::rename(out, !!rlang::sym(akey) := !!rlang::sym(".gs_atom"))
-  .geo_link_exit(.gs_restore(out, backend, collect = collect), link,
-                 .geo_bound(gs, akey))
+  out <- dplyr::rename(out, !!rlang::sym(lcol) := !!rlang::sym(".gs_leaf"))
+  .gs_restore(out, backend, collect = collect)
 }
 
-#' @rdname recast_to_geoatoms
+#' @rdname recast_to_geoleaves
 #' @export
-recast_from_geoatoms <- function(data, gs, target,
+recast_from_geoleaves <- function(data, gs, target,
                                  key = NULL, values = NULL, rule = NULL,
                                  weight = NULL, data_weight = NULL,
                                  na_rm = FALSE,
@@ -568,14 +562,13 @@ recast_from_geoatoms <- function(data, gs, target,
                                  collect = NULL,
                                  to = lifecycle::deprecated()) {
   if (lifecycle::is_present(to)) {
-    .arg_renamed("recast_from_geoatoms", "to", "target", !missing(target))
+    .arg_renamed("recast_from_geoleaves", "to", "target", !missing(target))
     target <- to
   }
   to <- target
   na_action <- match.arg(na_action)
   .check_geoscale(gs, "gs")
-  link <- .geo_link_enter(data, gs, key = key, infer = FALSE)
-  data <- link$data
+  data <- .geo_plain_codes(data)
   backend <- .gs_backend(data)
   if (is.na(backend)) {
     .stop(paste0("`data` must be a data.frame, tibble, data.table, or an ",
@@ -584,13 +577,13 @@ recast_from_geoatoms <- function(data, gs, target,
   .check_geoframe(gs, to, "target")
   schema <- .gs_schema(data)
   .check_gs_cols(schema)
-  akey <- S7::prop(gs, "key")
-  if (is.null(key)) key <- akey
+  lcol <- .leaf_col(gs)
+  if (is.null(key)) key <- lcol
   if (!key %in% names(schema)) {
     .stop("`data` has no column named `%s`; pass `key=`", key)
   }
 
-  # The key column holds atoms here, whatever geoframe shares its name.
+  # The key column holds leaves here, whatever geoframe shares its name.
   geoframes_all <- setdiff(S7::prop(gs, "geoframes"), key)
 
   # `data_weight` names a column of `data`, so the weight may vary by any id
@@ -611,38 +604,38 @@ recast_from_geoatoms <- function(data, gs, target,
   id_cols <- setdiff(names(schema),
                      c(key, values, wt_col, geoframes_all))
   rules <- .geo_rules_for(values, rule, NULL)
-  .geo_no_share(rules, "recast_from_geoatoms")
+  .geo_no_share(rules, "recast_from_geoleaves")
   has_weight <- wt_col %in% names(schema)
 
   leaves <- S7::prop(gs, "leaftable")
-  atoms <- data.frame(
-    k = leaves[[akey]],
+  lrows <- data.frame(
+    k = leaves[[lcol]],
     .gs_to = as.character(leaves[[to]]),
     stringsAsFactors = FALSE
   )
   if (!has_weight) {
     wcol <- .map_weight(gs, weight)
-    atoms[[wt_col]] <- if (is.null(wcol)) 1 else as.numeric(leaves[[wcol]])
-    atoms[[wt_col]][is.na(atoms[[wt_col]])] <- 0
+    lrows[[wt_col]] <- if (is.null(wcol)) 1 else as.numeric(leaves[[wcol]])
+    lrows[[wt_col]][is.na(lrows[[wt_col]])] <- 0
   }
-  names(atoms)[names(atoms) == "k"] <- key
+  names(lrows)[names(lrows) == "k"] <- key
 
   # Unknown-key warning (eager, small)
   src_keys <- .gs_pull(
     dplyr::distinct(dplyr::select(.gs_lazy(data, backend),
                                   dplyr::all_of(key))))[[key]]
   src_keys <- unique(stats::na.omit(as.character(src_keys)))
-  unknown <- setdiff(src_keys, leaves[[akey]])
+  unknown <- setdiff(src_keys, leaves[[lcol]])
   if (length(unknown) > 0L) {
-    .warn("%d code(s) in `x$%s` are not atoms of the GeoScale: %s",
+    .warn("%d code(s) in `x$%s` are not leaves of the GeoScale: %s",
           length(unknown), key, .preview(unknown))
   }
-  if (length(intersect(src_keys, leaves[[akey]])) == 0L) {
-    .stop("no rows of `data` matched the GeoScale's atoms; check `key=`")
+  if (length(intersect(src_keys, leaves[[lcol]])) == 0L) {
+    .stop("no rows of `data` matched the GeoScale's leaves; check `key=`")
   }
 
   xq <- .gs_lazy(data, backend)
-  joined <- dplyr::left_join(xq, atoms, by = key, na_matches = "na")
+  joined <- dplyr::left_join(xq, lrows, by = key, na_matches = "na")
 
   # Coverage accounting (eager, aggregate only)
   cover <- .gs_pull(
@@ -651,12 +644,12 @@ recast_from_geoatoms <- function(data, gs, target,
                        n_na = sum(as.integer(is.na(.gs_to)))))
   if (cover$n_na[1] > 0L) {
     if (na_action == "error") {
-      .stop(paste0("%d row(s) of `data` fall on atoms with no code at ",
+      .stop(paste0("%d row(s) of `data` fall on leaves with no code at ",
                    "geoframe `%s`; use na_action = \"drop\" or \"keep\""),
             cover$n_na[1], to)
     }
     if (na_action == "drop") {
-      .warn(paste0("%d row(s) of `data` fall on atoms with no code at ",
+      .warn(paste0("%d row(s) of `data` fall on leaves with no code at ",
                    "geoframe `%s` and were dropped; use na_action = ",
                    "\"keep\" to conserve totals"), cover$n_na[1], to)
       joined <- dplyr::filter(joined, !is.na(.gs_to))
@@ -665,7 +658,7 @@ recast_from_geoatoms <- function(data, gs, target,
 
   grp_cols <- c(id_cols, ".gs_to")
 
-  # Rule expressions on atom rows: n_overlap == 1 per row; weighted_mean
+  # Rule expressions on leaf rows: n_overlap == 1 per row; weighted_mean
   # uses the carried (or attached) `weight`
   exprs <- .geo_group_exprs(values, rules, wt_col, na_rm)
   copy_cols <- values[vapply(rules, function(r) r$rule == "copy",
@@ -686,8 +679,7 @@ recast_from_geoatoms <- function(data, gs, target,
   res <- res[order(match(res[[to]], S7::prop(gs, "members")[[to]]),
                    na.last = TRUE), , drop = FALSE]
   rownames(res) <- NULL
-  .geo_link_exit(.gs_restore(res, backend, collect = collect), link,
-                 .geo_bound(gs, to))
+  .gs_restore(res, backend, collect = collect)
 }
 
 # -- the shared recast() generic ----------------------------------------------

@@ -12,7 +12,7 @@ test_that("the tree names the parts of a GeoScale in its own words", {
   tr <- geoscale_tree(gs)
   expect_s3_class(tr, "scale_tree")
   top <- tr$part[tr$parent == ""]
-  expect_true(all(c("leaftable", "geoframes", "members", "key", "meta",
+  expect_true(all(c("leaftable", "geoframes", "members", "leaf", "meta",
                     "labels", "geometry", "hidden") %in% top))
   expect_false("frames" %in% top)
   mark <- function(part) tr$mark[tr$part == part & tr$parent == ""]
@@ -35,15 +35,15 @@ test_that("the mutable parts of a GeoScale keep its identity", {
   skip_if_not(.has_tree())
   gs <- geoscale_example()
   id <- geoscale_id(gs)
-  hid <- hide_geoframes_geoscale(gs, "atom")
+  hid <- hide_geoframes_geoscale(gs, "cell")
   expect_identical(geoscale_id(hid), id)
-  # `hidden` now holds the same value as `key`; both are still listed
+  # `hidden` now holds the same value as `leaf`; both are still listed
   top <- geoscale_tree(hid)
   top <- top$part[top$parent == ""]
-  expect_true(all(c("key", "hidden") %in% top))
+  expect_true(all(c("leaf", "hidden") %in% top))
   expect_identical(anyDuplicated(top), 0L)
   lt <- geoscale_leaftable(gs)
-  w <- stats::setNames(seq_len(nrow(lt)), lt[[geoscale_key(gs)]])
+  w <- stats::setNames(seq_len(nrow(lt)), lt[[geoscale_leaf_column(gs)]])
   expect_identical(
     geoscale_id(geoscale_add_weight(gs, extra = w)), id
   )

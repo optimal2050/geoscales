@@ -37,7 +37,7 @@ at once.
 
 - [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.html)
   builds a `GeoScale` — ordered geoframes, their members, and one
-  leaftable row per leaf region ("atom") with its weights (area,
+  leaftable row per leaf region with its weights (area,
   population, capacity);
   [`ne_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.html)
   builds one straight from Natural Earth, and
@@ -146,11 +146,11 @@ ne <- ne_source(geoframe = "states", country = "Iceland")
 d <- as.data.frame(ne)
 iceland <- geoscale_from_leaftable(
   data.frame(country = "ISL", landshluti = d$gn_name,
-             unit = d$iso_3166_2),
-  geoframes = c("country", "landshluti", "unit"),
-  key = "unit", name = "iceland"
+             admin1 = d$iso_3166_2),
+  geoframes = c("country", "landshluti", "admin1"),
+  leaf = "admin1", name = "iceland"
 ) |>
-  attach_geometry_geoscale(ne, by = "iso_3166_2", geoframe = "unit")
+  attach_geometry_geoscale(ne, by = "iso_3166_2", geoframe = "admin1")
 
 gg_geoscale(iceland, type = "stack", view = "top-down", gap = .35)
 ```

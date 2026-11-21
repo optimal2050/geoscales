@@ -4,7 +4,7 @@
 # A geoframe may exist for calculation only: grid cells or clusters that carry
 # the weights and the crosswalks but are not something a figure should show.
 # The object lists such geoframes in `hidden`. Only the plots read the list;
-# recasts, joins, navigation and the data link see every geoframe.
+# recasts, joins and navigation see every geoframe.
 # =========================================================================== #
 
 #' The hidden geoframes of an object, tolerating one saved without the property
@@ -76,31 +76,49 @@
   lv[lv %in% geoframes]
 }
 
-#' Write the hidden set
+#' Whether an object is in the form of an earlier class definition
+#'
+#' Such an object lacks a property of the current class (`hidden`, `leaf`),
+#' stores the name of the leaf column in the attribute `key`, or holds a
+#' label table whose code column is `unit`.
+#' @noRd
+.old_form <- function(x) {
+  !all(c("hidden", "leaf") %in% S7::prop_names(x)) ||
+    is.null(attr(x, "leaf", exact = TRUE)) ||
+    "unit" %in% names(attr(x, "labels", exact = TRUE))
+}
+
+#' Bring an object saved under an earlier class definition up to date
 #'
 #' An S7 object carries the class definition it was built with, so one saved
-#' before the property existed cannot take it. Such an object is rebuilt
-#' under the current definition, with everything it holds.
+#' before a property existed cannot take it. Such an object is rebuilt under
+#' the current definition, with everything it holds: the leaf column name
+#' moves from `key` to `leaf`, and the label, attribute and alias tables get
+#' their code column as `member`. An up-to-date object is returned as is.
 #' @noRd
-.set_hidden <- function(x, hidden) {
-  if ("hidden" %in% S7::prop_names(x)) {
-    return(S7::set_props(x, hidden = hidden))
-  }
+.upgrade_geoscale <- function(x) {
+  if (!.old_form(x)) return(x)
   out <- GeoScale(
     leaftable = S7::prop(x, "leaftable"),
     geoframes = S7::prop(x, "geoframes"),
     members   = S7::prop(x, "members"),
     geometry  = S7::prop(x, "geometry"),
     meta      = S7::prop(x, "meta"),
-    key       = S7::prop(x, "key"),
+    leaf      = .leaf_col(x),
     labels    = .label_table(x),
-    hidden    = hidden
+    hidden    = .hidden(x)
   )
-  for (p in intersect(c("attributes", "aliases"), S7::prop_names(x))) {
-    v <- S7::prop(x, p)
+  for (p in c("attributes", "aliases")) {
+    v <- .legacy_member_col(attr(x, p, exact = TRUE))
     if (!is.null(v)) S7::prop(out, p) <- v
   }
   out
+}
+
+#' Write the hidden set, on the object brought up to date
+#' @noRd
+.set_hidden <- function(x, hidden) {
+  S7::set_props(.upgrade_geoscale(x), hidden = hidden)
 }
 
 #' Hide geoframes from plots
@@ -109,8 +127,8 @@
 #' grid cells that carry the weights, or clusters used to build a crosswalk.
 #' `hide_geoframes_geoscale()` marks such geoframes, and
 #' [`gg_geoscale()`], `autoplot()` and `plot()` then leave them out unless
-#' asked. Nothing else changes: recasts, joins, navigation and bound data use
-#' every geoframe as before, and the identity of the object
+#' asked. Nothing else changes: recasts, joins and navigation use every
+#' geoframe as before, and the identity of the object
 #' ([`geoscale_id()`]) is the same.
 #'
 #' `show_geoframes_geoscale()` reverses it, for the named geoframes or for
@@ -126,12 +144,12 @@
 #'
 #' @seealso [`geoscale_geoframes()`], [`gg_geoscale()`]
 #' @examples
-#' gs <- hide_geoframes_geoscale(geoscale_example(), "atom")
+#' gs <- hide_geoframes_geoscale(geoscale_example(), "cell")
 #' gs
 #' geoscale_geoframes(gs, visible = TRUE)
 #' geoscale_geoframes(gs, visible = FALSE)
 #' # calculations still reach the hidden geoframe
-#' geoscale_regions(gs, "atom")
+#' geoscale_regions(gs, "cell")
 #' geoscale_geoframes(show_geoframes_geoscale(gs), visible = FALSE)
 #' @export
 hide_geoframes_geoscale <- function(x, geoframes) {

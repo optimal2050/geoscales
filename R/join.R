@@ -10,7 +10,7 @@
 # overwritten; the join errors instead. Runs as a dplyr join against a small
 # in-memory frame, so any supported backend works (see R/backend.R).
 #
-# Geoframes may cross-cut: a code whose atoms sit under MORE THAN ONE parent
+# Geoframes may cross-cut: a code whose leaves sit under MORE THAN ONE parent
 # at a coarser geoframe gets NA there (with a warning) -- membership is only
 # well-defined where the geoframes nest.
 # =============================================================================
@@ -41,7 +41,7 @@
 #'   membership columns (default: none). `TRUE` attaches all geoframes
 #'   coarser than `geoframe`.
 #' @param meta Attach `"<name>.share"` and `"<name>.weight"` columns
-#'   (summed atom weights of each keyed code, shares normalised over the
+#'   (summed leaf weights of each keyed code, shares normalised over the
 #'   geoframe; default `FALSE`). Skipped with a warning when the object
 #'   declares no weights.
 #' @param weight Weight column for the meta columns; `NULL` uses the
@@ -65,11 +65,7 @@ join_geoscale <- function(data, gs, key = NULL, geoframe = NULL,
                           geoframes = NULL, meta = FALSE, weight = NULL,
                           as_factor = TRUE, collect = NULL) {
   .check_geoscale(gs, "gs")
-  # The link, when the data carries one, names the column and its geoframe;
-  # `data` itself goes on bound, so the join binds what it attaches.
-  link <- .geo_link_enter(data, gs, key = key, source = geoframe)
-  key <- link$key
-  geoframe <- link$source
+  data <- .geo_plain_codes(data)
   if (is.null(geoframe)) {
     hit <- intersect(geoscale_geoframes(gs), names(.gs_schema(data)))
     if (length(hit) != 1L) {

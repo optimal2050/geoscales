@@ -23,7 +23,7 @@ regions.}
 \item{by}{Name of the code column of \code{reference}. Defaults to a column
 named as \code{geoframe}.}
 
-\item{geoframe}{The geoframe \code{reference} describes. Defaults to the atom
+\item{geoframe}{The geoframe \code{reference} describes. Defaults to the leaf
 geoframe; a coarser one compares the dissolved shapes.}
 
 \item{tolerance}{Share of area two shapes must have in common to count as
@@ -38,7 +38,7 @@ A \code{data.frame} of class \code{geoscale_geometry_check} with columns
 says whether it passed.
 }
 \description{
-The geometry of a \code{\link{GeoScale}} is one shape per atom, in the row order of
+The geometry of a \code{\link{GeoScale}} is one shape per leaf, in the row order of
 the leaftable, with no codes of its own. A shape bound to the wrong row
 gives a map in which the regions carry each other's values, and nothing
 fails. \code{check_geometry_geoscale()} looks for that.
@@ -52,11 +52,11 @@ belongs to.
 Without one the object is searched for the marks a misplacement leaves,
 which is evidence, not proof:
 \itemize{
-\item \code{shapes}: empty shapes, and one shape held by several atoms;
+\item \code{shapes}: empty shapes, and one shape held by several leaves;
 \item \code{area}: a weight that holds the areas of the shapes in another row
 order, as happens when the shapes moved after
 \code{\link[=add_area_geoscale]{add_area_geoscale()}} measured them;
-\item \code{pieces}: a grouped region whose atoms do not form one connected
+\item \code{pieces}: a grouped region whose leaves do not form one connected
 piece. Islands do this legitimately, so it is a warning;
 \item \code{order}: whether the constructor re-sorted the rows, after which a
 geometry attached by position cannot be checked.

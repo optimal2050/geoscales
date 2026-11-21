@@ -2,7 +2,7 @@
 # Geometry — optional, sf-backed
 # =============================================================================
 # The core is geometry-free: `recast_geoscale()` and everything in filter.R
-# operate on tables only. Geometry is needed for three jobs — building atoms
+# operate on tables only. Geometry is needed for three jobs — building leaves
 # from shapefiles, computing area weights, and plotting — all of which are
 # R-side
 # and optional. `sf` is therefore in Suggests, and every entry point here
@@ -26,9 +26,9 @@
 #' @param geom An `sf` object or `sfc`. When `sf` with a code column, it is
 #'   matched on `by`; when `sfc`, it must already be in `@leaftable` row order.
 #' @param by Name of the code column in `geom` to match on. Defaults to the
-#'   atom geoframe, then `"region"`.
-#' @param geoframe Geoframe that `geom`'s codes refer to. Defaults to the atom
-#'   geoframe. When coarser, each atom inherits its parent's geometry.
+#'   leaf geoframe, then `"region"`.
+#' @param geoframe Geoframe that `geom`'s codes refer to. Defaults to the leaf
+#'   geoframe. When coarser, each leaf inherits its parent's geometry.
 #' @param positional Acknowledge a by-position bind. An `sfc` carries no codes,
 #'   so nothing can check its order; when the constructor re-sorted the
 #'   leaftable (`meta$row_permuted`) the caller's order is no longer the
@@ -52,7 +52,7 @@ attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL,
   .check_geoframe(x, geoframe)
 
   if (inherits(geom, "sf")) {
-    by <- by %||% if (geoframe %in% names(geom)) geoframe else S7::prop(x, "key")
+    by <- by %||% if (geoframe %in% names(geom)) geoframe else .leaf_col(x)
     if (!by %in% names(geom)) {
       .stop("`geom` has no column `%s`; pass `by=`", by)
     }
@@ -64,7 +64,7 @@ attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL,
     }
     n_miss <- sum(is.na(idx))
     if (n_miss > 0L) {
-      .warn("%d atom(s) have no matching geometry and are empty", n_miss)
+      .warn("%d leaf region(s) have no matching geometry", n_miss)
     }
     out <- g[idx]
   } else if (inherits(geom, "sfc")) {
@@ -97,16 +97,16 @@ attach_geometry_geoscale <- function(x, geom, by = NULL, geoframe = NULL,
 
 #' Geometry dissolved to a geoframe
 #'
-#' Unions the atom geometries within each code at `geoframe`.
+#' Unions the leaf geometries within each code at `geoframe`.
 #'
 #' @param x A [`GeoScale`] with geometry attached.
-#' @param geoframe Geoframe to dissolve to. Defaults to the atom geoframe.
+#' @param geoframe Geoframe to dissolve to. Defaults to the leaf geoframe.
 #' @param precision Optional GEOS precision for snapping near-coincident
 #'   boundaries before the union (passed to [`sf::st_set_precision()`];
 #'   e.g. `1e6` snaps coordinates to a `1e-6` grid, followed by
 #'   [`sf::st_make_valid()`]). Default `0` = off — geometry is never
 #'   silently altered. Use when a constructed lattice shows phantom
-#'   internal borders after dissolve: that means adjacent atoms' shared
+#'   internal borders after dissolve: that means adjacent leaves' shared
 #'   vertices do not coincide exactly, and the honest fix is at the
 #'   source; `precision=` is the workaround.
 #'
@@ -218,7 +218,7 @@ add_area_geoscale <- function(x, name = "km2", crs = "ESRI:54034") {
 #'
 #' The spatial twin of `timescales::datetime_to_timeslice()`: raw
 #' observations enter the structure here. Each point is matched to the
-#' region at `geoframe` (the atoms by default) whose geometry contains
+#' region at `geoframe` (the leaves by default) whose geometry contains
 #' it; points outside every region return `NA`. A point exactly on a
 #' shared border is assigned to the first matching region in the
 #' object's canonical order.

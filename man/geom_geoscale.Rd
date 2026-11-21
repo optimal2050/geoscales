@@ -27,11 +27,11 @@ by; \code{NULL} draws plain boundaries.}
 
 \item{geoframe}{Geoframe to draw. \code{NULL} is inferred: the single
 geoframe name among the data's columns (as in
-\code{\link[=recast_geoscale]{recast_geoscale()}}), or the atom geoframe when \code{z = NULL}.}
+\code{\link[=recast_geoscale]{recast_geoscale()}}), or the leaf geoframe when \code{z = NULL}.}
 
 \item{region}{Name of the region-code column of the data. Defaults to
 the \code{geoframe}-named column when present, else the column named after
-the atom key, else \code{"region"}.}
+the leaf column, else \code{"region"}.}
 
 \item{fun}{Aggregator collapsing multiple observations per region
 into one value. Default \code{mean}.}
@@ -78,9 +78,9 @@ if (requireNamespace("ggplot2", quietly = TRUE) &&
   sq <- function(x0) sf::st_polygon(list(cbind(
     c(x0, x0 + 1, x0 + 1, x0, x0), c(0, 0, 1, 1, 0))))
   gs <- geoscale_from_leaftable(
-    data.frame(state = c("N", "N", "S"), atom = c("a", "b", "c"),
+    data.frame(state = c("N", "N", "S"), cell = c("a", "b", "c"),
                km2 = c(1, 2, 3)),
-    geoframes = c("state", "atom"), name = "toy"
+    geoframes = c("state", "cell"), name = "toy"
   ) |>
     attach_geometry_geoscale(sf::st_sfc(sq(0), sq(1), sq(2)))
 

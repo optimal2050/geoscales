@@ -8,11 +8,11 @@ test_that("summary() returns the classed quantitative view", {
   gs <- geoscale_example()
   s <- summary(gs)
   expect_s3_class(s, "summary_GeoScale")
-  expect_named(s, c("name", "desc", "geoframes", "unassigned", "n_atoms",
+  expect_named(s, c("name", "desc", "geoframes", "unassigned", "n_leaves",
                     "hidden", "weights", "weight_totals", "default_weight",
                     "coverage", "sampled", "parent_name", "nesting",
                     "geometry", "source"))
-  expect_identical(s$n_atoms, 7L)
+  expect_identical(s$n_leaves, 7L)
   expect_equal(s$weight_totals,
                colSums(as.data.frame(geoscale_leaftable(gs))[,
                  geoscale_weights(gs), drop = FALSE], na.rm = TRUE))
@@ -49,7 +49,7 @@ test_that("summary() reports attached geometry sf-free", {
 test_that("names() returns the geoframes, not leaftable columns", {
   gs <- geoscale_example()
   expect_identical(names(gs), geoscale_geoframes(gs))
-  expect_identical(names(gs), c("country", "state", "zone", "atom"))
+  expect_identical(names(gs), c("country", "state", "zone", "cell"))
 })
 
 test_that("as.data.frame() equals the leaftable accessor", {
@@ -62,7 +62,7 @@ test_that("fortify() feeds ggplot() directly", {
   gs <- geoscale_example()
   expect_identical(ggplot2::fortify(gs), geoscale_leaftable(gs))
   p <- ggplot2::ggplot(gs) +
-    ggplot2::geom_col(ggplot2::aes(atom, km2))
+    ggplot2::geom_col(ggplot2::aes(cell, km2))
   expect_s3_class(p, "ggplot")
   built <- ggplot2::ggplot_build(p)
   expect_identical(nrow(built$data[[1]]), 7L)

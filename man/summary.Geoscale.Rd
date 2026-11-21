@@ -22,7 +22,7 @@
 \value{
 \code{summary()} returns a list of class \code{"summary_GeoScale"}:
 \code{name}, \code{desc}, \code{geoframes} (named member counts), \code{unassigned}
-(named NA-atom counts), \code{n_atoms}, \code{weights}, \code{weight_totals},
+(named NA-leaf counts), \code{n_leaves}, \code{weights}, \code{weight_totals},
 \code{default_weight}, \code{coverage} (see \code{\link[=geoscale_coverage]{geoscale_coverage()}}),
 \code{sampled}, \code{parent_name}, \code{nesting} (adjacent-pair table with
 offender counts, see \code{\link[=geoscale_nests]{geoscale_nests()}}), \code{geometry} (attached /

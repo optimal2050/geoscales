@@ -23,7 +23,7 @@ code at the coarser geoframe. Real hierarchies often fail this: IDEEA's
 }
 \details{
 Nesting is \emph{not} required by \code{\link{GeoScale}} — \code{\link[=recast_geoscale]{recast_geoscale()}} routes
-through the atom layer and works either way. This function is a diagnostic.
+through the leaf layer and works either way. This function is a diagnostic.
 }
 \examples{
 gs <- geoscale_example()

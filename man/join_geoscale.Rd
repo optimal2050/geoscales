@@ -33,7 +33,7 @@ membership columns (default: none). \code{TRUE} attaches all geoframes
 coarser than \code{geoframe}.}
 
 \item{meta}{Attach \code{"<name>.share"} and \code{"<name>.weight"} columns
-(summed atom weights of each keyed code, shares normalised over the
+(summed leaf weights of each keyed code, shares normalised over the
 geoframe; default \code{FALSE}). Skipped with a warning when the object
 declares no weights.}
 

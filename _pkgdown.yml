@@ -72,19 +72,20 @@ reference:
   - title: The GeoScale class
     desc: >
       A nested spatial partition: a flat table of weighted leaf regions
-      ("atoms") plus the ordered geoframes that group them.
+      ("leaves") plus the ordered geoframes that group them.
     contents:
       - GeoScale
       - geoscale_example
       - geoscale_geoframes
       - geoscale_regions
       - geoscale_rank
-      - geoscale_key
+      - geoscale_leaf_column
       - geoscale_weights
       - geoscale_add_weight
       - geoscale_labels
       - hide_geoframes_geoscale
       - geoscale_tree
+      - geoscale_id
       - summary.GeoScale
       - "[.GeoScale"
 
@@ -100,11 +101,11 @@ reference:
   - title: Conversion
     desc: >
       Aggregation and disaggregation are one operation. Values are projected
-      down to atoms and aggregated up to the target, so direction follows the
+      down to leaves and aggregated up to the target, so direction follows the
       geoframe ranks and cross-cutting geoframes need no special handling.
     contents:
       - recast_geoscale
-      - recast_to_geoatoms
+      - recast_to_geoleaves
       - recast_pairs
       - recast
       - geoscale_map
@@ -112,7 +113,6 @@ reference:
       - register_geoscale_map
       - clear_geoscale_maps
       - join_geoscale
-      - bind_geoscale
       - GEOSCALE_RULES
       - register_geoscale_rule
       - get_geoscale_rule

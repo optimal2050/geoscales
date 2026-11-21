@@ -32,12 +32,12 @@ systems drawn by different hands rarely nest — converting values
 between them is where unit errors live.
 
 `geoscales` represents any such carving as a **GeoScale**: a set of
-*atoms* (the finest regions) plus ordered *geoframes* that group them —
+*leaves* (the finest regions) plus ordered *geoframes* that group them —
 the spatial companion to a `timescales::Calendar`. One object provides:
 
 - a stable schema for region codes and their weights,
 - well-defined conversions between any two resolutions — including
-  cross-cutting ones, because every conversion routes through the atom
+  cross-cutting ones, because every conversion routes through the leaf
   layer,
 - attachment of hierarchy columns to tables, and ggplot2-ready
   maps.
@@ -54,10 +54,10 @@ gs <- geoscale_from_leaftable(
   data.frame(
     country = c("N", "N", "N", "N", "S", "S"),
     state   = c("N1", "N1", "N2", "N2", "S1", "S1"),
-    atom    = c("A1", "A2", "A3", "A4", "A5", "A6"),
+    cell    = c("A1", "A2", "A3", "A4", "A5", "A6"),
     km2     = c(100, 200, 300, 400, 500, 600)
   ),
-  geoframes = c("country", "state", "atom"),
+  geoframes = c("country", "state", "cell"),
   name = "tour"
 )
 gs
@@ -71,7 +71,7 @@ Earth — see `vignette("from-naturalearth")`.)
 
 ```{r}
 gs@geoframes                 # the hierarchy, coarsest first
-head(geoscale_leaftable(gs), 3)        # one row per atom
+head(geoscale_leaftable(gs), 3)        # one row per leaf
 geoscale_regions(gs, "state")
 geoscale_share(gs, "state", weight = "km2", within = "country")
 ```
@@ -82,8 +82,8 @@ One rule per value column; aggregation and disaggregation are the same
 operation, and totals conserve under `"sum"`:
 
 ```{r}
-cap <- tibble(atom = paste0("A", 1:6), capacity = c(1, 2, 3, 4, 5, 6))
-cap |> recast_geoscale(gs, source = "atom", target = "country", rule = "sum")
+cap <- tibble(cell = paste0("A", 1:6), capacity = c(1, 2, 3, 4, 5, 6))
+cap |> recast_geoscale(gs, source = "cell", target = "country", rule = "sum")
 
 # ... and back down, split by area
 tibble(country = c("N", "S"), capacity = c(10, 20)) |>
@@ -117,7 +117,7 @@ recast to every geoframe — see the visualization article):
 gg_geoscale(gs)
 ```
 
-With geometry attached (any `sfc` aligned with the atoms),
+With geometry attached (any `sfc` aligned with the leaves),
 `geom_geoscale()` puts values on a map inside a normal `ggplot()`
 pipeline. The data must be keyed at the drawn geoframe, so finer data is
 recast up first:
@@ -129,7 +129,7 @@ gs <- attach_geometry_geoscale(gs, sf::st_sfc(
   sq(0, 1), sq(0, 0), sq(1, 1), sq(1, 0), sq(2, 1), sq(2, 0)))
 
 cap |>
-  recast_geoscale(gs, source = "atom", target = "state", rule = "sum") |>
+  recast_geoscale(gs, source = "cell", target = "state", rule = "sum") |>
   ggplot() +
   geom_geoscale(gs = gs, z = "capacity", geoframe = "state") +
   scale_fill_viridis_c() +
@@ -145,7 +145,7 @@ Iceland's onshore wind resource from the
 [Global Wind Atlas](https://globalwindatlas.info/), clustered *within*
 each administrative region into contiguous wind-speed classes. This is
 a common construction in renewable modeling: a model uses a handful of
-supply regions per admin unit, ranked by resource quality, rather than
+supply regions per admin area, ranked by resource quality, rather than
 two million raster cells.
 
 The pipeline below is complete and pasteable (packages: sf, terra,
@@ -191,7 +191,7 @@ grp <- globalwindatlas::gwa_group_locations(
 **Classes to clusters** — everything in a projected CRS (ISN93
 Lambert), where the geometry ops are robust. Two boundary rules keep
 the later dissolves exact (up-aggregation on the map is a *union* of
-atoms, and unions only merge cleanly when shared edges match to the
+leaves, and unions only merge cleanly when shared edges match to the
 last coordinate): region borders are simplified *topology-aware*
 (`rmapshaper::ms_simplify()` simplifies each shared arc once —
 `sf::st_simplify()` would treat each side independently and leave
@@ -253,7 +253,7 @@ clusters$wind <- terra::extract(
 clusters$km2 <- as.numeric(units::set_units(st_area(clusters), "km^2"))
 ```
 
-**Assemble the GeoScale** — the clusters are the atoms:
+**Assemble the GeoScale** — the clusters are the leaves:
 
 ```{r, eval = FALSE}
 gs <- geoscale_from_leaftable(
@@ -261,7 +261,7 @@ gs <- geoscale_from_leaftable(
     st_drop_geometry() |>
     transmute(country = "Iceland", landshluti = region, cluster, km2),
   geoframes = c("country", "landshluti", "cluster"),
-  key = "cluster", name = "iceland_wind"
+  leaf = "cluster", name = "iceland_wind"
 ) |>
   attach_geometry_geoscale(clusters, by = "cluster", geoframe = "cluster")
 
@@ -269,7 +269,7 @@ wind <- clusters |> st_drop_geometry() |> select(cluster, wind)
 ```
 
 The result is an ordinary three-geoframe GeoScale — the clusters are
-its atoms, so everything above applies. The repository ships it
+its leaves, so everything above applies. The repository ships it
 pre-built (`data-raw/iceland_wind.rds`, written by
 `data-raw/iceland_wind.R`), which is what renders here: recast the
 per-cluster wind speed up to the regions with an area-weighted mean,
@@ -283,7 +283,7 @@ iceland$wind |>
                   rule = "weighted_mean", weight = "km2")
 ```
 
-or hand the atom-level values straight to the stack view, which recasts
+or hand the leaf-level values straight to the stack view, which recasts
 them onto every plane itself (`data`/`z`) and labels a chosen geoframe
 (`labels`). `palette = NA` leaves the fill scale to the caller —
 here the Global Wind Atlas palette from
@@ -312,7 +312,7 @@ ESMAP.*
 
 ## Further reading
 
-- [Concepts](concepts.html) — atoms, partitions vs trees, the shared
+- [Concepts](concepts.html) — leaves, partitions vs trees, the shared
   *scales glossary.
 - [Data structures](data-structures.html) — anatomy of a `GeoScale`
   and its registries.

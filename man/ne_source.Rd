@@ -21,7 +21,7 @@ requires \code{rnaturalearthhires}, which is \strong{not on CRAN} — install it
 }
 \value{
 An \code{sf} object with two added columns: \code{feature}, the Natural Earth
-unit (\code{adm0_a3}, or \code{adm1_code} for states), and \code{country}, its admin-0
+area (\code{adm0_a3}, or \code{adm1_code} for states), and \code{country}, its admin-0
 code.
 }
 \description{
@@ -29,13 +29,13 @@ Thin wrapper over \code{rnaturalearth::ne_countries()} / \code{ne_states()} that
 normalises the country-code column.
 }
 \details{
-\code{feature} is the atom and \code{country} is a grouping of atoms on top of it. At
+\code{feature} is the leaf and \code{country} is a grouping of leaves on top of it. At
 admin-0 the two are the same code; at admin-1 (\code{geoframe = "states"})
-\code{feature} is the state and \code{country} is the admin-0 unit it belongs to.
+\code{feature} is the state and \code{country} is the admin-0 area it belongs to.
 
 Codes of \code{"-99"} mean \emph{unassigned} and are returned as \code{NA}. That is why
-\code{country} is a geoframe rather than the atom key: it may be missing,
-whereas an atom key may not.
+\code{country} is a geoframe rather than the leaf column: it may be missing,
+whereas a leaf column may not.
 }
 \examples{
 \dontrun{

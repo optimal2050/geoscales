@@ -14,7 +14,8 @@ geoscale_family(x, parent = NULL, child = NULL)
 }
 \value{
 A \code{data.frame} with columns \code{parent_geoframe}, \code{parent},
-\code{child_geoframe}, \code{child}. Atoms unassigned at either geoframe are omitted.
+\code{child_geoframe}, \code{child}. Leaves unassigned at either geoframe are
+omitted.
 }
 \description{
 Immediate parent-child table between two geoframes

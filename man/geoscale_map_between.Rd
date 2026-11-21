@@ -2,7 +2,7 @@
 % Please edit documentation in R/map.R
 \name{geoscale_map_between}
 \alias{geoscale_map_between}
-\title{Crosswalk between two GeoScales through their shared atoms}
+\title{Crosswalk between two GeoScales through their shared leaves}
 \usage{
 geoscale_map_between(
   source,
@@ -13,10 +13,10 @@ geoscale_map_between(
 )
 }
 \arguments{
-\item{source, target}{Two named \code{\link{GeoScale}} objects whose atom keys overlap.}
+\item{source, target}{Two named \code{\link{GeoScale}} objects whose leaf codes overlap.}
 
 \item{weight}{Weight column of \code{source} for \code{w}; \code{NULL} uses its default
-weight, or weight 1 per atom when it declares none.}
+weight, or weight 1 per leaf when it declares none.}
 
 \item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
@@ -25,24 +25,24 @@ A \code{data.frame} with columns \verb{<from name>}, \verb{<to name>}, \code{n_f
 \code{n_overlap}, \code{w}, \code{w_from}.
 }
 \description{
-The counterpart of \code{\link[=geoscale_map]{geoscale_map()}} for two GeoScales: atoms are matched
-on their \code{region} keys, so a region of \code{source} overlaps a region of \code{target}
-where they contain the same atoms. Same columns as \code{\link[=geoscale_map]{geoscale_map()}}, with
-the two label columns named after the GeoScales. Atoms of \code{source} absent
+The counterpart of \code{\link[=geoscale_map]{geoscale_map()}} for two GeoScales: leaves are matched
+on their codes, so a region of \code{source} overlaps a region of \code{target}
+where they contain the same leaves. Same columns as \code{\link[=geoscale_map]{geoscale_map()}}, with
+the two label columns named after the GeoScales. Leaves of \code{source} absent
 from \code{target} get an \code{NA} target (with a warning). A crosswalk registered
 with \code{\link[=register_geoscale_map_between]{register_geoscale_map_between()}} is returned as-is instead of being
 derived.
 }
 \examples{
 gs <- geoscale_example()
-# another hierarchy over the same atoms (ROW has no counterpart: NA target)
+# another hierarchy over the same leaves (ROW has no counterpart: NA target)
 bands <- geoscale_from_leaftable(
   data.frame(
     band = rep(c("X", "Y"), 3),
-    atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+    cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
     km2 = c(100, 200, 300, 400, 500, 600)
   ),
-  geoframes = c("band", "atom"), name = "bands"
+  geoframes = c("band", "cell"), name = "bands"
 )
 geoscale_map_between(gs, bands)
 }

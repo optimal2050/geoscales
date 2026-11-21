@@ -67,7 +67,7 @@ test_that("a zero-weight group falls back to a plain mean", {
 })
 
 test_that("a finer target is refused", {
-  expect_error(recast_pairs(lines, gs, target = "atom", source = "state"),
+  expect_error(recast_pairs(lines, gs, target = "cell", source = "state"),
                "aggregate only")
 })
 
@@ -87,35 +87,37 @@ test_that("missing endpoint columns are named in the error", {
                "must differ")
 })
 
-test_that("recast_from_geoatoms weights by a named column of x", {
-  d <- data.frame(atom =c("A1", "A2", "A3", "A4"),
+test_that("recast_from_geoleaves weights by a named column of x", {
+  d <- data.frame(cell =c("A1", "A2", "A3", "A4"),
                   eff = c(0.9, 0.5, 0.8, 0.4),
                   cap = c(100, 0, 100, 0))
-  out <- recast_from_geoatoms(d, gs, target = "state", rule = "weighted_mean",
-                              data_weight = "cap", values = "eff")
+  out <- recast_from_geoleaves(d, gs, target = "state", rule = "weighted_mean",
+                               data_weight = "cap", values = "eff")
   # N1 takes A1's value because A2 carries no capacity, not the 0.7 mean
   expect_equal(out$eff[out$state == "N1"], 0.9, tolerance = 1e-9)
   expect_equal(out$eff[out$state == "N2"], 0.8, tolerance = 1e-9)
 })
 
 test_that("a named weight column that x lacks is an error", {
-  d <- data.frame(atom ="A1", eff = 0.9)
-  expect_error(recast_from_geoatoms(d, gs, target = "state", data_weight = "cap"),
+  d <- data.frame(cell ="A1", eff = 0.9)
+  expect_error(recast_from_geoleaves(d, gs, target = "state",
+                                     data_weight = "cap"),
                "no column named")
 })
 
 test_that("na_rm reads NA as silence, not as an unknown", {
-  d <- data.frame(atom =c("A1", "A2", "A3", "A4"),
+  d <- data.frame(cell =c("A1", "A2", "A3", "A4"),
                   cap = c(100, NA, NA, NA),
                   eff = c(0.9, NA, NA, NA),
                   w = c(10, 20, 0, 0))
   rl <- c(cap = "sum", eff = "weighted_mean")
-  poisoned <- recast_from_geoatoms(d, gs, target = "state",
-                                   values = c("cap", "eff"), rule = rl,
-                                   data_weight = "w")
+  poisoned <- recast_from_geoleaves(d, gs, target = "state",
+                                    values = c("cap", "eff"), rule = rl,
+                                    data_weight = "w")
   expect_true(is.na(poisoned$cap[poisoned$state == "N1"]))
 
-  out <- recast_from_geoatoms(d, gs, target = "state", values = c("cap", "eff"),
+  out <- recast_from_geoleaves(d, gs, target = "state",
+                               values = c("cap", "eff"),
                               rule = rl, data_weight = "w", na_rm = TRUE)
   expect_equal(out$cap[out$state == "N1"], 100)
   # A2's weight is dropped with its NA, so the divisor is A1's 10 alone
@@ -125,9 +127,10 @@ test_that("na_rm reads NA as silence, not as an unknown", {
 })
 
 test_that("rule accepts a named vector, one per column", {
-  d <- data.frame(atom =c("A1", "A2"), cap = c(10, 20), eff = c(0.4, 0.8),
+  d <- data.frame(cell =c("A1", "A2"), cap = c(10, 20), eff = c(0.4, 0.8),
                   w = c(1, 3))
-  out <- recast_from_geoatoms(d, gs, target = "state", values = c("cap", "eff"),
+  out <- recast_from_geoleaves(d, gs, target = "state",
+                               values = c("cap", "eff"),
                               rule = c(cap = "sum", eff = "weighted_mean"),
                               data_weight = "w")
   expect_equal(out$cap, 30)
@@ -135,9 +138,9 @@ test_that("rule accepts a named vector, one per column", {
 })
 
 test_that("an unnamed rule vector longer than one is refused", {
-  d <- data.frame(atom =c("A1", "A2"), cap = c(10, 20), eff = c(0.4, 0.8))
+  d <- data.frame(cell =c("A1", "A2"), cap = c(10, 20), eff = c(0.4, 0.8))
   expect_error(
-    recast_from_geoatoms(d, gs, target = "state", values = c("cap", "eff"),
-                         rule = c("sum", "weighted_mean")),
+    recast_from_geoleaves(d, gs, target = "state", values = c("cap", "eff"),
+                          rule = c("sum", "weighted_mean")),
     "NAMED vector")
 })

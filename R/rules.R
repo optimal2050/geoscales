@@ -22,8 +22,8 @@
 #'   \item{`mean`}{Up: unweighted mean. Down: copy unchanged.}
 #'   \item{`copy`}{Up: the common value, erroring if it is not constant.
 #'     Down: copy unchanged. For region-invariant scalars.}
-#'   \item{`sd`}{Up: standard deviation over the atoms (aggregation only;
-#'     going down it degenerates to `NA` for single-atom groups).}
+#'   \item{`sd`}{Up: standard deviation over the leaves (aggregation only;
+#'     going down it degenerates to `NA` for single-leaf groups).}
 #'   \item{`share`}{Share within parent: each source region's value divided
 #'     by the total over its parent group. Unlike every other rule the
 #'     result stays keyed at the **source** geoframe -- the recast target

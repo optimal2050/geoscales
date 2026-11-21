@@ -11,7 +11,7 @@ test_that("navigation requires an explicit geoframe", {
 test_that("children and parents step one geoframe", {
   expect_equal(geoscale_children(gs, "country", "N"), c("N1", "N2"))
   expect_equal(geoscale_parents(gs, "state", "N1", target = "country"), "N")
-  expect_error(geoscale_children(gs, "atom", "A1"), "finest geoframe")
+  expect_error(geoscale_children(gs, "cell", "A1"), "finest geoframe")
   expect_error(geoscale_parents(gs, "country", "N"), "coarsest geoframe")
 })
 
@@ -19,10 +19,10 @@ test_that("descendants and ancestors are geoframe-tagged", {
   d <- geoscale_descendants(gs, "country", "N")
   expect_named(d, c("geoframe", "region"))
   # A5 belongs to country S and must not appear
-  expect_false("A5" %in% d$region[d$geoframe == "atom"])
-  expect_setequal(d$region[d$geoframe == "atom"], c("A1", "A2", "A3", "A4"))
+  expect_false("A5" %in% d$region[d$geoframe == "cell"])
+  expect_setequal(d$region[d$geoframe == "cell"], c("A1", "A2", "A3", "A4"))
 
-  a <- geoscale_ancestors(gs, "atom", "A5")
+  a <- geoscale_ancestors(gs, "cell", "A5")
   expect_equal(a$region[a$geoframe == "country"], "S")
 })
 
@@ -33,9 +33,9 @@ test_that("geoscale_nests detects cross-cutting geoframes", {
   expect_equal(attr(z, "offenders"), "ZB")
 })
 
-test_that("ancestry is atom-mediated, not a transitive closure", {
+test_that("ancestry is leaf-mediated, not a transitive closure", {
   anc <- geoscale_ancestry(gs)
-  ca <- anc[anc$parent_geoframe == "country" & anc$child_geoframe == "atom", ]
+  ca <- anc[anc$parent_geoframe == "country" & anc$child_geoframe == "cell", ]
   # A closure through the straddling zone ZB would wrongly give N -> A5
   expect_setequal(ca$child[ca$parent == "N"], c("A1", "A2", "A3", "A4"))
   expect_setequal(ca$child[ca$parent == "S"], c("A5", "A6"))
@@ -89,7 +89,7 @@ test_that("filter_geoscale book-keeps the sample", {
   m <- S7::prop(n, "meta")
   expect_equal(m$name, "example[country:N]")
   expect_equal(m$parent_name, "example")
-  # km2: N atoms 100+200+300+400 of 3100; pop: 200 of 300
+  # km2: N leaves 100+200+300+400 of 3100; pop: 200 of 300
   expect_equal(m$coverage[["km2"]], 1000 / 3100)
   expect_equal(m$coverage[["pop"]], 200 / 300)
   expect_equal(m$parent_totals[["km2"]], 3100)
@@ -109,8 +109,8 @@ test_that("filter-of-filter composes against the root parent", {
 
 test_that("a no-op filter is a true no-op", {
   gs <- geoscale_example()
-  all_countries <- geoscale_regions(gs, "atom")
-  same <- filter_geoscale(gs, "atom", all_countries)
+  all_countries <- geoscale_regions(gs, "cell")
+  same <- filter_geoscale(gs, "cell", all_countries)
   m <- S7::prop(same, "meta")
   expect_equal(m$name, "example")
   expect_null(m$coverage)
@@ -163,7 +163,7 @@ test_that("prune_geoscale dissolves geometry when attached", {
   g <- S7::prop(p, "geometry")
   expect_false(is.null(g))
   expect_equal(length(g), nrow(S7::prop(p, "leaftable")))
-  # N1 = union of two unit squares = area 2
+  # N1 = union of two 1 x 1 squares = area 2
   lt <- S7::prop(p, "leaftable")
   a <- as.numeric(sf::st_area(g[lt$state == "N1"]))
   expect_equal(a, 2)
@@ -184,9 +184,9 @@ test_that("prune_geoscale keeps each code's own geometry when rows re-sort", {
   lt <- data.frame(
     country = c("N", "S", "N", "S", "N", "S"),
     state   = c("N1", "S1", "N2", "S2", "N3", "S3"),
-    atom    = paste0("A", 1:6), km2 = 1, stringsAsFactors = FALSE)
+    cell    = paste0("A", 1:6), km2 = 1, stringsAsFactors = FALSE)
   gs <- geoscale_from_leaftable(
-    lt, geoframes = c("country", "state", "atom"), name = "interleaved",
+    lt, geoframes = c("country", "state", "cell"), name = "interleaved",
     row_order = "given",
     geometry = sf::st_sfc(sq(0), sq(1), sq(2), sq(3), sq(4), sq(5),
                           crs = 4326))
@@ -195,7 +195,7 @@ test_that("prune_geoscale keeps each code's own geometry when rows re-sort", {
   got <- stats::setNames(
     sf::st_coordinates(sf::st_centroid(sf::st_geometry(g)))[, 1], g$state)
   want <- stats::setNames(seq(0.5, 5.5, by = 1), lt$state)
-  # area alone cannot catch this: every state is one unit square.
+  # area alone cannot catch this: every state is one 1 x 1 square.
   expect_equal(got[names(want)], want, ignore_attr = TRUE)
 })
 test_that("two samples of one parent no longer collide in the map registry", {
@@ -218,6 +218,6 @@ test_that("drop_empty_geoframes drops all-NA frames from a filtered sample", {
                             drop_empty_geoframes = TRUE)
   expect_true(length(geoscale_geoframes(f_drop)) <=
                 length(geoscale_geoframes(f_keep)))
-  expect_identical(geoscale_leaftable(f_drop)$atom,
-                   geoscale_leaftable(f_keep)$atom)
+  expect_identical(geoscale_leaftable(f_drop)$cell,
+                   geoscale_leaftable(f_keep)$cell)
 })

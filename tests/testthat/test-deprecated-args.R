@@ -2,12 +2,12 @@
 
 test_that("from/to still work, with a deprecation warning", {
   gs <- geoscale_example()
-  x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+  x <- data.frame(cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
                   capacity = c(1, 2, 3, 4, 5, 6))
   rlang::local_options(lifecycle_verbosity = "warning")
-  new <- recast_geoscale(x, gs, source = "atom", target = "country",
+  new <- recast_geoscale(x, gs, source = "cell", target = "country",
                          rule = "sum")
-  old <- suppressWarnings(recast_geoscale(x, gs, from = "atom", to = "country",
+  old <- suppressWarnings(recast_geoscale(x, gs, from = "cell", to = "country",
                                           rule = "sum"))
   expect_identical(old, new)
   expect_warning(geoscale_children(gs, "country", "N", to = "state"),

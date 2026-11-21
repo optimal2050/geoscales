@@ -22,8 +22,8 @@
 #' @param ... One or more two-column `data.frame`s, each named after the pair
 #'   of geoframes it connects.
 #' @param geoframes Ordered character vector of geoframe names, coarsest
-#'   first. The last entry is the atom geoframe.
-#' @param weights Optional `data.frame` keyed by the atom geoframe, carrying one
+#'   first. The last entry is the leaf geoframe.
+#' @param weights Optional `data.frame` keyed by the leaf geoframe, carrying one
 #'   or more numeric weight columns.
 #' @param name,desc Short name and description.
 #' @param row_order Passed to [`geoscale_from_leaftable()`]: `"nested"`
@@ -37,9 +37,9 @@
 #'   data.frame(country = c("N", "N", "S"),
 #'              state   = c("N1", "N2", "S1")),
 #'   data.frame(state = c("N1", "N1", "N2", "S1"),
-#'              atom  = c("A1", "A2", "A3", "A4")),
-#'   geoframes  = c("country", "state", "atom"),
-#'   weights = data.frame(atom = c("A1", "A2", "A3", "A4"),
+#'              cell  = c("A1", "A2", "A3", "A4")),
+#'   geoframes  = c("country", "state", "cell"),
+#'   weights = data.frame(cell = c("A1", "A2", "A3", "A4"),
 #'                        km2  = c(10, 20, 30, 40))
 #' )
 #' @export
@@ -76,19 +76,19 @@ geoscale_build <- function(..., geoframes, weights = NULL,
           .preview(unknown))
   }
 
-  atom <- geoframes[length(geoframes)]
-  has_atom <- vapply(xwalks, function(d) atom %in% names(d), logical(1))
-  if (!any(has_atom)) {
-    .stop("no crosswalk mentions the atom geoframe `%s`", atom)
+  leaf <- geoframes[length(geoframes)]
+  has_leaf <- vapply(xwalks, function(d) leaf %in% names(d), logical(1))
+  if (!any(has_leaf)) {
+    .stop("no crosswalk mentions the leaf geoframe `%s`", leaf)
   }
 
-  # Seed with the crosswalks that mention the atom geoframe, then absorb the
+  # Seed with the crosswalks that mention the leaf geoframe, then absorb the
   # rest by shared columns until every geoframe is present.
   join_shared <- function(a, b) {
     merge(a, b, by = intersect(names(a), names(b)), all = TRUE, sort = FALSE)
   }
-  leaftable <- Reduce(join_shared, xwalks[has_atom])
-  pending <- xwalks[!has_atom]
+  leaftable <- Reduce(join_shared, xwalks[has_leaf])
+  pending <- xwalks[!has_leaf]
 
   while (length(pending) > 0L) {
     shared <- vapply(pending, function(d) {
@@ -96,10 +96,10 @@ geoscale_build <- function(..., geoframes, weights = NULL,
     }, logical(1))
     if (!any(shared)) {
       stuck <- unique(unlist(lapply(pending, names)))
-      .stop(paste0("cannot connect crosswalk(s) covering %s to the atom ",
+      .stop(paste0("cannot connect crosswalk(s) covering %s to the leaf ",
                    "geoframe `%s`; add a crosswalk sharing a geoframe with ",
                    "them"),
-            .preview(setdiff(stuck, names(leaftable))), atom)
+            .preview(setdiff(stuck, names(leaftable))), leaf)
     }
     i <- which(shared)[1L]
     leaftable <- merge(leaftable, pending[[i]],
@@ -115,18 +115,18 @@ geoscale_build <- function(..., geoframes, weights = NULL,
 
   if (!is.null(weights)) {
     weights <- as.data.frame(weights, stringsAsFactors = FALSE)
-    if (!atom %in% names(weights)) {
-      .stop("`weights` must have a `%s` column (the atom geoframe)", atom)
+    if (!leaf %in% names(weights)) {
+      .stop("`weights` must have a `%s` column (the leaf geoframe)", leaf)
     }
-    weights[[atom]] <- .blank_to_na(weights[[atom]])
-    leaftable <- merge(leaftable, weights, by = atom, all.x = TRUE,
+    weights[[leaf]] <- .blank_to_na(weights[[leaf]])
+    leaftable <- merge(leaftable, weights, by = leaf, all.x = TRUE,
                        sort = FALSE)
   }
 
-  dup <- unique(leaftable[[atom]][duplicated(leaftable[[atom]])])
+  dup <- unique(leaftable[[leaf]][duplicated(leaftable[[leaf]])])
   if (length(dup) > 0L) {
-    .stop(paste0("crosswalks produce %d duplicated atom(s) (%s); a geoframe ",
-                 "assigns more than one code to the same atom"),
+    .stop(paste0("crosswalks produce %d duplicated leaf code(s) (%s); a ",
+                 "geoframe assigns more than one code to the same leaf"),
           length(dup), .preview(dup))
   }
 

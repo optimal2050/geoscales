@@ -20,5 +20,5 @@ Position of a geoframe in the hierarchy: 1 is the coarsest.
 }
 \examples{
 gs <- geoscale_example()
-geoscale_rank(gs, c("zone", "atom"))
+geoscale_rank(gs, c("zone", "cell"))
 }

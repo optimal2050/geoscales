@@ -29,7 +29,7 @@
 #'
 #' @param x A [`GeoScale`] with geometry attached (see
 #'   [`attach_geometry_geoscale()`]).
-#' @param geoframe Geoframe whose features are compared. Defaults to the atom
+#' @param geoframe Geoframe whose features are compared. Defaults to the leaf
 #'   geoframe. Geometry is dissolved to it first, so any geoframe works.
 #' @param within Optional coarser geoframe whose boundaries cut edges: two
 #'   features in different `within` codes are never neighbours. `NULL`

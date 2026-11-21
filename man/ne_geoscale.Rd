@@ -34,8 +34,8 @@ Convenience wrapper: fetches Natural Earth via \code{\link[=ne_source]{ne_source
 weighted by population and GDP.
 }
 \details{
-\code{feature} is the atom: the Natural Earth unit. \code{country} sits above it as a
-grouping of atoms, so it can only ever be coarser than \code{feature}.
+\code{feature} is the leaf: the Natural Earth feature. \code{country} sits above it as
+a grouping of leaves, so it can only ever be coarser than \code{feature}.
 
 Do not derive area weights from \code{scale = 110}; see \code{\link[=add_area_geoscale]{add_area_geoscale()}}.
 }

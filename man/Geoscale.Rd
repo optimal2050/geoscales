@@ -10,15 +10,15 @@ GeoScale(
   members,
   geometry = NULL,
   meta = list(),
-  key = NULL,
+  leaf = NULL,
   labels = NULL,
   hidden = character()
 )
 }
 \arguments{
 \item{leaftable}{\code{data.frame} with one column per geoframe in \code{geoframes}
-and one or more numeric weight columns. The finest geoframe is the atom
-key unless \code{key} names another column.}
+and one or more numeric weight columns. The finest geoframe is the leaf
+column unless \code{leaf} names another column.}
 
 \item{geoframes}{Ordered character vector of geoframe names (coarsest
 first); each name must appear as a column in \code{leaftable}.}
@@ -33,7 +33,7 @@ present at geoframe \code{lvl}. Must equal the non-\code{NA} values of
 \item{meta}{Named list of attributes (\code{name}, \code{desc}, \code{weights},
 \code{default_weight}, \code{default_label}, \code{crs}, \code{source}).}
 
-\item{key}{Name of the atom key column: unique and complete. \code{NULL}
+\item{leaf}{Name of the leaf column: unique and complete. \code{NULL}
 (default) is the finest geoframe.}
 
 \item{labels}{Optional table of display names, see
@@ -43,7 +43,7 @@ present at geoframe \code{lvl}. Must equal the non-\code{NA} values of
 A \code{GeoScale} object.
 }
 \description{
-A nested spatial partition: a flat table of weighted leaf regions ("atoms")
+A nested spatial partition: a flat table of weighted leaf regions ("leaves")
 plus the ordered hierarchy of geoframes that groups them.
 }
 \details{

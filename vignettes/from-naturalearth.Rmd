@@ -89,12 +89,12 @@ back$pop[back$country == "ISL"]
 sum(back$pop) == sum(ne$pop)
 ```
 
-**Aggregation and disaggregation are one operation.** Direction follows the geoframe ranks, and `recast_geoscale()` routes through the atom
+**Aggregation and disaggregation are one operation.** Direction follows the geoframe ranks, and `recast_geoscale()` routes through the leaf
 layer either way.
 
 ## Iceland's own regions
 
-Natural Earth's admin-1 layer gives sub-country units. This needs
+Natural Earth's admin-1 layer gives sub-country areas. This needs
 `rnaturalearthhires`, which is **not on CRAN**:
 
 ```{r, eval = FALSE}
@@ -108,7 +108,7 @@ d <- as.data.frame(s)
 nrow(d)
 ```
 
-Nine units — but Iceland has eight regions. `Reykjavik` and the surrounding
+Nine admin-1 areas — but Iceland has eight regions. `Reykjavik` and the surrounding
 capital area are separate admin-1 features that belong to the same region,
 which Natural Earth records in `gn_name`. That gives a genuinely **ragged**
 hierarchy: one group with two children, seven with one.
@@ -117,36 +117,38 @@ hierarchy: one group with two children, seven with one.
 isl <- data.frame(
   country    = "ISL",
   landshluti = d$gn_name,       # Iceland's eight regions
-  unit       = d$iso_3166_2,    # the nine Natural Earth units
+  admin1     = d$iso_3166_2,    # the nine admin-1 areas
   stringsAsFactors = FALSE
 )
 
-g <- geoscale_from_leaftable(isl, geoframes = c("country", "landshluti", "unit"),
-                          key = "unit", name = "iceland")
-g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", geoframe = "unit")
+g <- geoscale_from_leaftable(
+  isl, geoframes = c("country", "landshluti", "admin1"),
+  leaf = "admin1", name = "iceland"
+)
+g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", geoframe = "admin1")
 g <- add_area_geoscale(g, name = "km2")
 g
 ```
 
-The Capital Region is the one that has two units under it:
+The Capital Region is the one that has two areas under it:
 
 ```{r, eval = has_hires}
 geoscale_children(g, "landshluti", "Hofudborgarsvadi")
-geoscale_nests(g, "landshluti", "unit")
+geoscale_nests(g, "landshluti", "admin1")
 ```
 
-### Up: units to regions to country
+### Up: areas to regions to country
 
 ```{r, eval = has_hires}
 set.seed(1)
-x <- data.frame(unit = geoscale_regions(g, "unit"),
+x <- data.frame(admin1 = geoscale_regions(g, "admin1"),
                 generation = round(runif(9, 50, 500)))
 
-recast_geoscale(x, g, source = "unit", target = "landshluti", rule = "sum")
+recast_geoscale(x, g, source = "admin1", target = "landshluti", rule = "sum")
 ```
 
 ```{r, eval = has_hires}
-recast_geoscale(x, g, source = "unit", target = "country", rule = "sum")
+recast_geoscale(x, g, source = "admin1", target = "country", rule = "sum")
 sum(x$generation)
 ```
 
@@ -155,12 +157,12 @@ sum(x$generation)
 ```{r, eval = has_hires}
 tot <- data.frame(country = "ISL", demand = 1000)
 
-dd <- recast_geoscale(tot, g, source = "country", target = "unit",
+dd <- recast_geoscale(tot, g, source = "country", target = "admin1",
                  rule = "sum", weight = "km2")
 dd[order(-dd$demand), ]
 ```
 
-The Capital Region units receive almost nothing, because they are small in
+The Capital Region areas receive almost nothing, because they are small in
 area, although they hold most of Iceland's population and would consume most
 of its electricity. **Area is rarely the right weight for demand.**
 `recast_geoscale()` therefore requires an explicit `weight =`; with a
@@ -170,16 +172,16 @@ An *intensive* quantity must not be summed at all; `weighted_mean` copies
 going down and weight-averages going up:
 
 ```{r, eval = has_hires}
-cf <- data.frame(unit = geoscale_regions(g, "unit"),
+cf <- data.frame(admin1 = geoscale_regions(g, "admin1"),
                  cf = round(runif(9, 0.2, 0.5), 3))
 
-recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
+recast_geoscale(cf, g, "admin1", "landshluti", rule = "weighted_mean", weight = "km2")
 ```
 
 ### Geometry follows the geoframes
 
-`geoscale_geometry()` dissolves the atoms up to the requested geoframe, so the
-nine units become eight regions:
+`geoscale_geometry()` dissolves the leaves up to the requested geoframe, so the
+nine areas become eight regions:
 
 ```{r, eval = has_hires}
 shp <- geoscale_geometry(g, geoframe = "landshluti")

@@ -1,7 +1,7 @@
 # =========================================================================== #
 # Is the geometry on the rows it belongs to?
 #
-# The geometry is one shape per atom, in leaftable row order, and carries no
+# The geometry is one shape per leaf, in leaftable row order, and carries no
 # codes of its own. Whether shape i is the shape of code i can be PROVED only
 # against a source that does carry codes; without one the object can still be
 # searched for the marks a misplacement leaves.
@@ -33,14 +33,14 @@
   }, numeric(1))
 }
 
-#' Empty shapes and shapes held by more than one atom
+#' Empty shapes and shapes held by more than one leaf
 #' @noRd
-.geom_check_shapes <- function(geom, codes, key) {
+.geom_check_shapes <- function(geom, codes, leaf) {
   out <- list()
   empty <- sf::st_is_empty(geom)
   for (i in which(empty)) {
     out[[length(out) + 1L]] <- .geom_finding(
-      "empty", "fail", "the shape is empty", key, codes[i])
+      "empty", "fail", "the shape is empty", leaf, codes[i])
   }
   eq <- suppressMessages(sf::st_equals(geom))
   dup <- which(lengths(eq) > 1L & !empty)
@@ -50,7 +50,7 @@
     out[[length(out) + 1L]] <- .geom_finding(
       "duplicate", "warn",
       sprintf("the same shape is held by %s",
-              paste(codes[other], collapse = ", ")), key, codes[i])
+              paste(codes[other], collapse = ", ")), leaf, codes[i])
   }
   if (length(out) == 0L) {
     return(.geom_finding("shapes", "ok",
@@ -97,11 +97,11 @@
 #' Regions whose members do not form one connected piece
 #'
 #' Reported as a warning, never a failure: an archipelago is in several
-#' pieces by nature, while atoms moved to the wrong rows make it so.
+#' pieces by nature, while leaves moved to the wrong rows make it so.
 #' @noRd
 .geom_check_pieces <- function(x, geom, leaves) {
   lv <- S7::prop(x, "geoframes")
-  key <- S7::prop(x, "key")
+  leaf <- .leaf_col(x)
   touch <- suppressMessages(sf::st_intersects(geom))
   pieces <- function(idx) {
     if (length(idx) <= 1L) return(1L)
@@ -119,16 +119,16 @@
   }
   out <- list()
   n_checked <- 0L
-  for (gf in setdiff(lv, key)) {
+  for (gf in setdiff(lv, leaf)) {
     codes <- as.character(leaves[[gf]])
-    if (!anyDuplicated(codes[!is.na(codes)])) next   # one atom per region
+    if (!anyDuplicated(codes[!is.na(codes)])) next   # one leaf per region
     for (cd in unique(codes[!is.na(codes)])) {
       n_checked <- n_checked + 1L
       k <- pieces(which(codes == cd))
       if (k > 1L) {
         out[[length(out) + 1L]] <- .geom_finding(
           "pieces", "warn",
-          sprintf("its atoms form %d separate pieces", k), gf, cd)
+          sprintf("its leaves form %d separate pieces", k), gf, cd)
       }
     }
   }
@@ -226,7 +226,7 @@
 
 #' Check that the geometry of a GeoScale is on the right regions
 #'
-#' The geometry of a [`GeoScale`] is one shape per atom, in the row order of
+#' The geometry of a [`GeoScale`] is one shape per leaf, in the row order of
 #' the leaftable, with no codes of its own. A shape bound to the wrong row
 #' gives a map in which the regions carry each other's values, and nothing
 #' fails. `check_geometry_geoscale()` looks for that.
@@ -239,11 +239,11 @@
 #' Without one the object is searched for the marks a misplacement leaves,
 #' which is evidence, not proof:
 #'
-#' * `shapes`: empty shapes, and one shape held by several atoms;
+#' * `shapes`: empty shapes, and one shape held by several leaves;
 #' * `area`: a weight that holds the areas of the shapes in another row
 #'   order, as happens when the shapes moved after
 #'   [`add_area_geoscale()`] measured them;
-#' * `pieces`: a grouped region whose atoms do not form one connected
+#' * `pieces`: a grouped region whose leaves do not form one connected
 #'   piece. Islands do this legitimately, so it is a warning;
 #' * `order`: whether the constructor re-sorted the rows, after which a
 #'   geometry attached by position cannot be checked.
@@ -254,7 +254,7 @@
 #'   regions.
 #' @param by Name of the code column of `reference`. Defaults to a column
 #'   named as `geoframe`.
-#' @param geoframe The geoframe `reference` describes. Defaults to the atom
+#' @param geoframe The geoframe `reference` describes. Defaults to the leaf
 #'   geoframe; a coarser one compares the dissolved shapes.
 #' @param tolerance Share of area two shapes must have in common to count as
 #'   the same shape, between 0 and 1. Default `0.999`.
@@ -287,16 +287,16 @@ check_geometry_geoscale <- function(x, reference = NULL, by = NULL,
     .stop("`tolerance` must be a single number in (0, 1]")
   }
   leaves <- as.data.frame(S7::prop(x, "leaftable"))
-  key <- S7::prop(x, "key")
+  leaf <- .leaf_col(x)
   lv <- S7::prop(x, "geoframes")
   geoframe <- geoframe %||% lv[length(lv)]
   .check_geoframe(x, geoframe)
-  codes <- as.character(leaves[[key]])
+  codes <- as.character(leaves[[leaf]])
   valid <- suppressWarnings(sf::st_make_valid(geom))
 
   permuted <- isTRUE(S7::prop(x, "meta")$row_permuted)
   parts <- list(
-    .geom_check_shapes(valid, codes, key),
+    .geom_check_shapes(valid, codes, leaf),
     .geom_check_area(valid, leaves, geoscale_weights(x)),
     .geom_check_pieces(x, valid, leaves),
     .geom_finding(

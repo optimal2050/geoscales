@@ -32,11 +32,11 @@ inferred: \code{key} when it is a geoframe name, else the single geoframe
 name appearing among \code{data}'s columns.}
 
 \item{target}{Target geoframe name of \code{gs}, or another (named) \code{\link{GeoScale}}
--- then the target is that object's atom layer, matched on the atom
+-- then the target is that object's leaf layer, matched on the leaf
 codes the two objects share.}
 
 \item{key}{Name of the region-code column in \code{data}. Defaults to \code{source}
-when that column exists, otherwise the GeoScale's atom key.}
+when that column exists, otherwise the GeoScale's leaf column.}
 
 \item{values}{Character vector of value columns to convert. Default: all
 numeric columns other than the key and \code{gs}'s geoframe columns.
@@ -51,10 +51,10 @@ a silent unit error).}
 \item{weight}{Weight column used by \code{sum} (splitting), \code{weighted_mean}
 and the attached shares. \code{NULL} uses each column's registered weight,
 falling back to the object's default weight; when the object declares
-no weights at all, atoms weigh 1 (an equal split, with a warning when
+no weights at all, leaves weigh 1 (an equal split, with a warning when
 that choice is material, i.e. when disaggregating).}
 
-\item{na_action}{What to do with atoms that have no code at \code{source} or
+\item{na_action}{What to do with leaves that have no code at \code{source} or
 \code{target}: \code{"drop"} (default, with a warning -- the affected source share
 is genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA}
 region row so totals conserve).}
@@ -78,11 +78,11 @@ types are preserved.
 \description{
 The central conversion verb: takes a table keyed by region code at
 geoframe \code{source} and returns one keyed at \code{target} -- a geoframe name of the
-same \code{\link{GeoScale}}, or ANOTHER GeoScale (whose atom layer is the target,
-matched on shared atom \code{region} keys). Handles both aggregation (fine to
+same \code{\link{GeoScale}}, or ANOTHER GeoScale (whose leaf layer is the target,
+matched on shared leaf codes). Handles both aggregation (fine to
 coarse) and disaggregation (coarse to fine) with a single rule per value
 column; geoframes that cross-cut work too, because the route always goes
-through the atom layer. The route is evaluated as one dplyr pipeline
+through the leaf layer. The route is evaluated as one dplyr pipeline
 against the \code{\link[=geoscale_map]{geoscale_map()}} crosswalk, so \code{data} may live in any
 supported backend (see below). A crosswalk registered with
 \code{\link[=register_geoscale_map]{register_geoscale_map()}} short-circuits the derivation.
@@ -95,15 +95,15 @@ what makes mixed pipelines like
 \code{x |> recast_calendar(...) |> recast_geoscale(...)} work. Columns named
 like \code{gs}'s geoframes are treated as region attributes and dropped.
 
-The public halves of the route are \code{\link[=recast_to_geoatoms]{recast_to_geoatoms()}} and
-\code{\link[=recast_from_geoatoms]{recast_from_geoatoms()}}; \code{recast_geoscale(x, gs, from, to)} is
+The public halves of the route are \code{\link[=recast_to_geoleaves]{recast_to_geoleaves()}} and
+\code{\link[=recast_from_geoleaves]{recast_from_geoleaves()}}; \code{recast_geoscale(x, gs, from, to)} is
 equivalent to
-\code{recast_from_geoatoms(recast_to_geoatoms(x, gs, from), gs, to)}.
+\code{recast_from_geoleaves(recast_to_geoleaves(x, gs, from), gs, to)}.
 
 Rules (see \code{\link{GEOSCALE_RULES}}): \code{"sum"} splits each source value across its
-region's atoms proportionally to the weight before summing up, so totals
-are conserved. \code{"weighted_mean"} weights by the atom weights;  \code{"mean"}
-is the plain atom-count mean -- the two differ exactly when atom weights
+region's leaves proportionally to the weight before summing up, so totals
+are conserved. \code{"weighted_mean"} weights by the leaf weights;  \code{"mean"}
+is the plain leaf-count mean -- the two differ exactly when leaf weights
 differ. \code{"copy"} requires a constant value per target region; \code{"sd"} is
 aggregation-only.
 
@@ -137,9 +137,9 @@ the result is materialised.
 gs <- geoscale_example()
 
 # Extensive quantity, fine -> coarse: totals are preserved
-x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+x <- data.frame(cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 capacity = c(1, 2, 3, 4, 5, 6))
-recast_geoscale(x, gs, source = "atom", target = "country", rule = "sum")
+recast_geoscale(x, gs, source = "cell", target = "country", rule = "sum")
 
 # Coarse -> fine: split proportionally to area
 y <- data.frame(country = c("N", "S"), capacity = c(10, 20))
@@ -147,11 +147,11 @@ recast_geoscale(y, gs, source = "country", target = "state",
                 rule = "sum", weight = "km2")
 
 # Intensive quantity: weighted mean going up, copied going down
-z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+z <- data.frame(cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-recast_geoscale(z, gs, source = "atom", target = "state",
+recast_geoscale(z, gs, source = "cell", target = "state",
                 rule = "weighted_mean")
 
-# Share within parent: result stays at the atoms, sums to 1 per country
-recast_geoscale(x, gs, source = "atom", target = "country", rule = "share")
+# Share within parent: result stays at the leaves, sums to 1 per country
+recast_geoscale(x, gs, source = "cell", target = "country", rule = "share")
 }

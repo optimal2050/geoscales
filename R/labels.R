@@ -1,40 +1,68 @@
 # =============================================================================
 # Labels -- display names for regions and geoframes, in named variants
 # =============================================================================
-# A long table keyed by (frame, unit, variant): one row per display name. It
-# is sparse -- a geoframe, or a region, without a row is shown by its code --
-# and a row with `unit = NA` names the geoframe itself.
+# A long table keyed by (frame, member, variant): one row per display name.
+# It is sparse -- a geoframe, or a region, without a row is shown by its code
+# -- and a row with `member = NA` names the geoframe itself.
 #
-# The table and its rules are those of `nestedscales` (0.3.0 on). They are
-# implemented here as well so that the package behaves the same when it is
-# installed against an earlier `nestedscales`, which has no labels.
+# The object stores the table under the column names of `nestedscales`
+# (`frame`, `member`), whose validator reads it too. The functions here take
+# and return it under the spatial names (`geoframe`, `region`).
 # =============================================================================
 
-.LABEL_COLS <- c("frame", "unit", "variant", "label")
+.LABEL_COLS <- c("frame", "member", "variant", "label")
+.LABEL_PUBLIC <- c(frame = "geoframe", member = "region")
 .DEFAULT_VARIANT <- "label"
 
 #' @noRd
 .empty_labels <- function() {
-  data.frame(frame = character(), unit = character(), variant = character(),
-             label = character(), stringsAsFactors = FALSE)
+  data.frame(frame = character(), member = character(),
+             variant = character(), label = character(),
+             stringsAsFactors = FALSE)
 }
 
+#' A member table with its code column under the current name
+#'
+#' Up to `nestedscales` 0.2.0 the code column of the label, alias and
+#' attribute tables was `unit`. A table that has `unit` and no `member` gets
+#' the column renamed; anything else is returned unchanged.
+#' @noRd
+.legacy_member_col <- function(tab) {
+  if (is.data.frame(tab) && "unit" %in% names(tab) &&
+      !"member" %in% names(tab)) {
+    names(tab)[names(tab) == "unit"] <- "member"
+  }
+  tab
+}
+
+#' The stored label table, under the current column names
+#'
+#' Read with `attr()`, not `S7::prop()`: an object saved under an earlier
+#' class definition may lack the property, or hold the table with `unit`.
 #' @noRd
 .label_table <- function(x) {
-  attr(x, "labels", exact = TRUE) %||% .empty_labels()
+  .legacy_member_col(attr(x, "labels", exact = TRUE) %||% .empty_labels())
+}
+
+#' The label table under the spatial column names
+#' @noRd
+.public_labels <- function(lb) {
+  hit <- match(names(.LABEL_PUBLIC), names(lb))
+  names(lb)[hit[!is.na(hit)]] <- .LABEL_PUBLIC[!is.na(hit)]
+  lb
 }
 
 #' @noRd
 .as_labels <- function(labels, variant = NULL) {
   if (is.null(labels)) return(.empty_labels())
   if (!is.data.frame(labels)) {
-    .stop(paste0("`labels` must be a data.frame with columns `frame`, `unit` ",
-                 "and `label`"))
+    .stop(paste0("`labels` must be a data.frame with columns `geoframe`, ",
+                 "`region` and `label`"))
   }
   labels <- as.data.frame(labels, stringsAsFactors = FALSE)
-  # the spatial words are accepted for the two key columns
+  # stored under the names of `nestedscales`, which are accepted as well
   names(labels)[names(labels) == "geoframe"] <- "frame"
-  names(labels)[names(labels) == "region"] <- "unit"
+  names(labels)[names(labels) == "region"] <- "member"
   if ("variant" %in% names(labels)) {
     if (!is.null(variant)) {
       .stop("`labels` already has a `variant` column; drop `variant=`")
@@ -49,7 +77,9 @@
   }
   missing_cols <- setdiff(.LABEL_COLS, names(labels))
   if (length(missing_cols) > 0L) {
-    .stop("`labels` is missing column(s): %s", .preview(missing_cols))
+    .stop("`labels` is missing column(s): %s",
+          .preview(names(.public_labels(
+            stats::setNames(missing_cols, missing_cols)))))
   }
   extra <- setdiff(names(labels), .LABEL_COLS)
   if (length(extra) > 0L) {
@@ -63,13 +93,14 @@
 
 #' @noRd
 .label_keys <- function(lb) {
-  paste(lb$frame, ifelse(is.na(lb$unit), "", lb$unit), lb$variant,
-        is.na(lb$unit), sep = "\r")
+  paste(lb$frame, ifelse(is.na(lb$member), "", lb$member), lb$variant,
+        is.na(lb$member), sep = "\r")
 }
 
 #' @noRd
 .check_labels_table <- function(lb, geoframes, members) {
   errs <- character()
+  lb <- .legacy_member_col(lb)
   if (!identical(names(lb), .LABEL_COLS)) {
     return(sprintf("`labels` must have exactly the columns: %s",
                    paste(.LABEL_COLS, collapse = ", ")))
@@ -80,15 +111,15 @@
     errs <- c(errs, sprintf("`labels` names geoframe(s) not in the object: %s",
                             .preview(bad_frame)))
   }
-  check <- lb$frame %in% geoframes & !is.na(lb$unit)
+  check <- lb$frame %in% geoframes & !is.na(lb$member)
   is_member <- rep(TRUE, nrow(lb))
   is_member[check] <- vapply(
-    which(check), function(i) lb$unit[[i]] %in% members[[lb$frame[[i]]]],
+    which(check), function(i) lb$member[[i]] %in% members[[lb$frame[[i]]]],
     logical(1))
   if (any(!is_member)) {
     errs <- c(errs, sprintf(
       "`labels` names (geoframe/region) pairs that are not members: %s",
-      .preview(unique(paste0(lb$frame, "/", lb$unit)[!is_member]))))
+      .preview(unique(paste0(lb$frame, "/", lb$member)[!is_member]))))
   }
   for (nm in c("variant", "label")) {
     val <- lb[[nm]]
@@ -102,7 +133,7 @@
     errs <- c(errs, sprintf(
       "`labels` has more than one label for: %s",
       .preview(unique(paste0(
-        dup$frame, "/", ifelse(is.na(dup$unit), "<geoframe>", dup$unit),
+        dup$frame, "/", ifelse(is.na(dup$member), "<geoframe>", dup$member),
         " [", dup$variant, "]")))))
   }
   errs
@@ -114,7 +145,7 @@
   if (is.null(lb) || nrow(lb) == 0L) return(.empty_labels())
   ok <- lb$frame %in% geoframes
   ok[ok] <- vapply(which(ok), function(i) {
-    is.na(lb$unit[[i]]) || lb$unit[[i]] %in% members[[lb$frame[[i]]]]
+    is.na(lb$member[[i]]) || lb$member[[i]] %in% members[[lb$frame[[i]]]]
   }, logical(1))
   lb <- lb[ok, , drop = FALSE]
   rownames(lb) <- NULL
@@ -148,7 +179,7 @@
 #' `"name"`, `"short"` or a language code -- so a region may carry several
 #' names. The table is sparse: a geoframe may label every region, some, or
 #' none, and whatever has no label is shown by its code. A row with
-#' `unit = NA` names the geoframe itself.
+#' `region = NA` names the geoframe itself.
 #'
 #' `attach_labels_geoscale()` adds rows (and may set the default variant),
 #' `geoscale_labels()` returns the table, and `geoscale_label()` looks names
@@ -157,8 +188,9 @@
 #' the default variant.
 #'
 #' @param x A [`GeoScale`].
-#' @param labels A `data.frame` with columns `frame` (or `geoframe`), `unit`
-#'   (or `region`), `label` and optionally `variant`.
+#' @param labels A `data.frame` with columns `geoframe`, `region`, `label`
+#'   and optionally `variant`. The `nestedscales` names `frame` and `member`
+#'   are accepted for the first two.
 #' @param variant For `attach_labels_geoscale()`: the variant the rows belong
 #'   to when `labels` has no `variant` column (default `"label"`). For the
 #'   readers: the variant to return; `NULL` is every variant in
@@ -173,7 +205,7 @@
 #'   for the geoframe itself.
 #'
 #' @return `attach_labels_geoscale()` the [`GeoScale`];
-#'   `geoscale_labels()` a `data.frame` with columns `frame`, `unit`,
+#'   `geoscale_labels()` a `data.frame` with columns `geoframe`, `region`,
 #'   `variant`, `label`; `geoscale_label()` a character vector as long as
 #'   `region`.
 #'
@@ -201,13 +233,14 @@ NULL
 attach_labels_geoscale <- function(x, labels, variant = NULL, default = NULL,
                                    overwrite = FALSE) {
   .check_geoscale(x)
+  x <- .upgrade_geoscale(x)
   new <- .as_labels(labels, variant = variant)
   old <- .label_table(x)
   clash <- .label_keys(old) %in% .label_keys(new)
   if (any(clash)) {
     if (!isTRUE(overwrite)) {
       .stop("label(s) already present: %s; pass overwrite = TRUE to replace",
-            .preview(unique(paste0(old$frame, "/", old$unit)[clash])))
+            .preview(unique(paste0(old$frame, "/", old$member)[clash])))
     }
     old <- old[!clash, , drop = FALSE]
   }
@@ -236,37 +269,49 @@ geoscale_labels <- function(x, geoframe = NULL, variant = NULL) {
   }
   if (!is.null(variant)) lb <- lb[lb$variant %in% variant, , drop = FALSE]
   rownames(lb) <- NULL
-  lb
+  .public_labels(lb)
 }
 
 #' @rdname geoscale_labels
 #' @export
-geoscale_label <- function(x, region, geoframe, variant = NULL) {
+geoscale_label <-function(x, region, geoframe, variant = NULL) {
   .check_geoscale(x)
   .check_geoframe(x, geoframe)
   region <- as.character(region)
   variant <- .label_variant(x, variant)
   lb <- .label_table(x)
   lb <- lb[lb$frame == geoframe & lb$variant == variant, , drop = FALSE]
-  out <- lb$label[match(region, lb$unit)]
+  out <- lb$label[match(region, lb$member)]
   miss <- is.na(out)
   out[miss] <- ifelse(is.na(region[miss]), geoframe, region[miss])
   out
 }
 
-#' The atom key of a GeoScale
+#' The leaf column of a GeoScale
 #'
-#' The name of the leaftable column that identifies the atoms. It is the
-#' finest geoframe unless the scale was built with another `key`, and it is
-#' the name the atom column carries in the results of
-#' [`recast_to_geoatoms()`].
+#' The name of the leaftable column that identifies the leaves. It is the
+#' finest geoframe unless the scale was built with another `leaf`, and it is
+#' the name the leaf column carries in the results of
+#' [`recast_to_geoleaves()`].
+#'
+#' @details An object saved by an earlier version, which stored the name as
+#' `key`, is read as well.
 #'
 #' @param x A [`GeoScale`].
 #' @return A single string.
 #' @examples
-#' geoscale_key(geoscale_example())
+#' geoscale_leaf_column(geoscale_example())
 #' @export
-geoscale_key <- function(x) {
+geoscale_leaf_column <- function(x) {
   .check_geoscale(x)
-  S7::prop(x, "key")
+  .leaf_col(x)
+}
+
+#' The name of the leaf column, whichever class definition the object has
+#'
+#' `nestedscales::scale_leaf_column()` reads the `leaf` attribute and, for an
+#' object saved while the property was `key`, that one.
+#' @noRd
+.leaf_col <- function(x) {
+  nestedscales::scale_leaf_column(x)
 }

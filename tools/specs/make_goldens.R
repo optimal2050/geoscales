@@ -35,6 +35,8 @@ GOLDEN_DIR <- file.path("specs", "golden")
 
 spec_structures <- function() {
   ex <- geoscales::geoscale_leaftable(geoscales::geoscale_example())
+  # the spec files name the finest geoframe `atom`
+  names(ex)[names(ex) == "cell"] <- "atom"
   bands <- data.frame(band = rep(c("X", "Y"), 3),
                       atom = paste0("A", 1:6),
                       km2 = c(100, 200, 300, 400, 500, 600))
@@ -76,9 +78,9 @@ run_spec_op <- function(spec, structures_dir = STRUCT_DIR) {
       x, gs, source = p$from, target = p$to, rule = p$rule,
       weight = p$weight %||% NULL,
       na_action = p$na_action %||% "drop"),
-    to_atoms = geoscales::recast_to_geoatoms(
+    to_atoms = geoscales::recast_to_geoleaves(
       x, gs, source = p$from, rule = p$rule, weight = p$weight %||% NULL),
-    from_atoms = geoscales::recast_from_geoatoms(
+    from_atoms = geoscales::recast_from_geoleaves(
       x, gs, target = p$to, rule = p$rule, values = unlist(p$values)),
     join = geoscales::join_geoscale(
       x, gs, geoframe = p$geoframe,

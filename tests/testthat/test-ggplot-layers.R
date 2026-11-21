@@ -2,9 +2,9 @@
 
 .toy_gs <- function() {
   skip_if_not_installed("sf")
-  lf <- data.frame(top = c("T", "T"), atom = c("a", "b"),
+  lf <- data.frame(top = c("T", "T"), cell = c("a", "b"),
                    km2 = c(1, 3))
-  gs <- geoscale_from_leaftable(lf, geoframes = c("top", "atom"),
+  gs <- geoscale_from_leaftable(lf, geoframes = c("top", "cell"),
                                 name = "toy")
   geom <- sf::st_sfc(
     sf::st_polygon(list(rbind(c(0, 0), c(1, 0), c(1, 1), c(0, 1),
@@ -18,7 +18,7 @@
 test_that("geom_geoscale returns one sf layer with aggregated values", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
-  x <- data.frame(atom = c("a", "a", "b"), v = c(1, 3, 10))
+  x <- data.frame(cell = c("a", "a", "b"), v = c(1, 3, 10))
   lyr <- geom_geoscale(gs = gs, z = "v", data = x, fun = mean)
   # geom_sf() returns its layer plus a CoordSf; the layer is first
   expect_s3_class(lyr[[1]], "LayerSf")
@@ -31,8 +31,8 @@ test_that("geom_geoscale returns one sf layer with aggregated values", {
   expect_equal(sort(d$fill != d$fill[1]), sort(c(FALSE, TRUE)))
   # aggregated values: a -> 2, b -> 10, joined in dissolve order
   built <- lyr[[1]]$data
-  expect_equal(built$value[built$atom == "a"], 2)
-  expect_equal(built$value[built$atom == "b"], 10)
+  expect_equal(built$value[built$cell == "a"], 2)
+  expect_equal(built$value[built$cell == "b"], 10)
 })
 
 test_that("geom_geoscale infers the geoframe and coarser frames dissolve", {
@@ -43,7 +43,7 @@ test_that("geom_geoscale infers the geoframe and coarser frames dissolve", {
   expect_equal(nrow(lyr[[1]]$data), 1L)
   expect_equal(lyr[[1]]$data$value, 5)
 
-  # z = NULL draws plain boundaries at the atom geoframe
+  # z = NULL draws plain boundaries at the leaf geoframe
   lyr0 <- geom_geoscale(gs = gs)
   expect_s3_class(lyr0[[1]], "LayerSf")
   expect_equal(nrow(lyr0[[1]]$data), 2L)
@@ -54,7 +54,7 @@ test_that("geom_geoscale validates its inputs", {
   skip_if_not_installed("sf")
   gs_nogeom <- geoscale_example()
   expect_error(geom_geoscale(gs = gs_nogeom, z = "v",
-                             data = data.frame(atom = "A1", v = 1)),
+                             data = data.frame(cell = "A1", v = 1)),
                "no geometry")
   gs <- .toy_gs()
   expect_error(geom_geoscale(gs = gs, z = "v",
@@ -92,7 +92,7 @@ test_that("gg_geoscale refuses arguments of another type and needs z", {
   expect_error(gg_geoscale(gs, type = "map", view = "cabinet"),
                "does not apply")
   expect_error(gg_geoscale(gs, geoframe = "state"), "does not apply")
-  expect_error(gg_geoscale(gs, data = data.frame(atom = "a", v = 1)), "`z`")
+  expect_error(gg_geoscale(gs, data = data.frame(cell = "a", v = 1)), "`z`")
 })
 
 test_that("the stack view draws one plane per geoframe", {
@@ -111,8 +111,8 @@ test_that("precision snapping merges eps-jittered boundaries", {
     sf::st_polygon(list(cbind(c(x0, x0 + 1, x0 + 1, x0, x0),
                               c(0, 0, 1, 1, 0))))
   }
-  lf <- data.frame(top = c("T", "T"), atom = c("a", "b"), w = c(1, 1))
-  gs <- geoscale_from_leaftable(lf, geoframes = c("top", "atom"),
+  lf <- data.frame(top = c("T", "T"), cell = c("a", "b"), w = c(1, 1))
+  gs <- geoscale_from_leaftable(lf, geoframes = c("top", "cell"),
                                 name = "jit") |>
     attach_geometry_geoscale(sf::st_sfc(sq(0), sq(1 + eps)))
   # jittered: the union keeps two parts
@@ -174,28 +174,28 @@ test_that("stack views, rotation and direction all render", {
                "unknown")
 })
 
-test_that("stack value fill recasts atom data onto every plane", {
+test_that("stack value fill recasts leaf data onto every plane", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
-  x <- data.frame(atom = c("a", "b"), v = c(1, 9))
+  x <- data.frame(cell = c("a", "b"), v = c(1, 9))
   p <- gg_geoscale(gs, type = "stack", data = x, z = "v")
   expect_s3_class(p, "ggplot")
-  # painter order is ascending z: with direction = "up" the atom plane
+  # painter order is ascending z: with direction = "up" the leaf plane
   # (bottom) draws first and keeps its values; the top geoframe gets the
   # area-weighted mean (1*1 + 9*3) / 4 = 7
-  d_atom <- ggplot2::layer_data(p, 1)
+  d_leaf <- ggplot2::layer_data(p, 1)
   d_top  <- ggplot2::layer_data(p, 2)
   fills  <- ggplot2::ggplot_build(p)$plot$layers
-  z_atom <- fills[[1]]$data$.z
+  z_leaf <- fills[[1]]$data$.z
   z_top  <- fills[[2]]$data$.z
-  expect_equal(sort(z_atom), c(1, 9))
+  expect_equal(sort(z_leaf), c(1, 9))
   expect_equal(z_top, 7)
   expect_equal(nrow(d_top), 1L)
-  expect_equal(nrow(d_atom), 2L)
+  expect_equal(nrow(d_leaf), 2L)
 
   expect_error(gg_geoscale(gs, type = "stack", data = x),
                "`z` must name")
-  # data keyed above the atoms fills its own plane and leaves the finer
+  # data keyed above the leaves fills its own plane and leaves the finer
   # one outlined, without a fill
   pc <- gg_geoscale(gs, type = "stack", z = "v",
                     data = data.frame(top = "T", v = 4))
@@ -237,7 +237,7 @@ test_that("stack frames, connectors and border styling render", {
 test_that("stack labels draw region names of the chosen geoframes", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
-  p <- gg_geoscale(gs, type = "stack", labels = "atom")
+  p <- gg_geoscale(gs, type = "stack", labels = "cell")
   lyrs <- ggplot2::ggplot_build(p)$plot$layers
   txt <- lyrs[[length(lyrs)]]$data
   expect_setequal(txt$.label, c("a", "b"))
@@ -248,19 +248,19 @@ test_that("stack labels draw region names of the chosen geoframes", {
 test_that("icicle data fill recasts values onto every band", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
-  x <- data.frame(atom = c("a", "b"), v = c(1, 9))
+  x <- data.frame(cell = c("a", "b"), v = c(1, 9))
   p <- gg_geoscale(gs, data = x, z = "v", labels = TRUE)
   expect_s3_class(p, "ggplot")
   d <- p$data
-  # atom band keeps values; top band = km2-weighted mean (1*1+9*3)/4 = 7
-  expect_equal(sort(d$.fill[d$geoframe == "atom"]), c(1, 9))
+  # leaf band keeps values; top band = km2-weighted mean (1*1+9*3)/4 = 7
+  expect_equal(sort(d$.fill[d$geoframe == "cell"]), c(1, 9))
   expect_equal(d$.fill[d$geoframe == "top"], 7)
-  # data keyed above the atoms: its band is filled, the finer one is not
+  # data keyed above the leaves: its band is filled, the finer one is not
   pc <- gg_geoscale(gs, data = data.frame(top = "T", v = 4), z = "v")
   dc <- pc$data
   expect_equal(dc$.fill[dc$geoframe == "top"], 4)
-  expect_true(all(is.na(dc$.fill[dc$geoframe == "atom"])))
-  expect_false(any(dc$.valued[dc$geoframe == "atom"]))
+  expect_true(all(is.na(dc$.fill[dc$geoframe == "cell"])))
+  expect_false(any(dc$.valued[dc$geoframe == "cell"]))
   expect_error(gg_geoscale(gs, data = data.frame(nope = "T", v = 1),
                            z = "v"),
                "keyed by a geoframe")
@@ -269,33 +269,33 @@ test_that("icicle data fill recasts values onto every band", {
 test_that("geom_geoscale carries finer codes up to the drawn geoframe", {
   skip_if_not_installed("ggplot2")
   gs <- .toy_gs()
-  # atom codes in a column named `region`, drawn one geoframe up
+  # leaf codes in a column named `region`, drawn one geoframe up
   x <- data.frame(region = c("a", "b"), v = c(2, 5))
   lyr <- geom_geoscale(gs = gs, z = "v", data = x, geoframe = "top", fun = sum)
   expect_equal(lyr[[1]]$data$value, 7)
   # and at their own geoframe, found through the `region` column
-  lyr <- geom_geoscale(gs = gs, z = "v", data = x, geoframe = "atom")
+  lyr <- geom_geoscale(gs = gs, z = "v", data = x, geoframe = "cell")
   expect_equal(lyr[[1]]$data$value, c(2, 5))
 })
 
 test_that("a single-region top plane of the stack is filled from the palette", {
   skip_if_not_installed("ggplot2")
-  gs <- .toy_gs()                       # top (1 region) over atom (2)
+  gs <- .toy_gs()                       # top (1 region) over cell (2)
   b <- ggplot2::ggplot_build(gg_geoscale(gs, type = "stack"))
   fills <- unlist(lapply(b$data, function(d) d$fill))
-  # the two atoms keep the first two colours; the top plane takes the third
+  # the two leaves keep the first two colours; the top plane takes the third
   expect_setequal(fills, geoscales:::.GEO_CAT_FILLS[1:3])
   expect_false("grey85" %in% fills)
 })
 
 test_that("the stack leaves hidden geoframes out unless asked", {
   skip_if_not_installed("ggplot2")
-  gs <- hide_geoframes_geoscale(.toy_gs(), "atom")
+  gs <- hide_geoframes_geoscale(.toy_gs(), "cell")
   n_sf <- function(p) {
     sum(vapply(p$layers, function(l) inherits(l$geom, "GeomSf"), logical(1)))
   }
   expect_equal(n_sf(gg_geoscale(gs, type = "stack")), 1L)
   expect_equal(n_sf(gg_geoscale(gs, type = "stack", geoframes = TRUE)), 2L)
   # a hidden geoframe may still be asked for by name
-  expect_equal(n_sf(gg_geoscale(gs, type = "stack", geoframes = "atom")), 1L)
+  expect_equal(n_sf(gg_geoscale(gs, type = "stack", geoframes = "cell")), 1L)
 })

@@ -2,7 +2,7 @@ test_that("the example GeoScale is well formed", {
   gs <- geoscale_example()
   expect_s3_class(gs, "geoscales::GeoScale")
   expect_equal(S7::prop(gs, "geoframes"),
-               c("country", "state", "zone", "atom"))
+               c("country", "state", "zone", "cell"))
   expect_equal(nrow(S7::prop(gs, "leaftable")), 7L)
   expect_equal(geoscale_regions(gs, "country"), c("N", "S"))
   expect_equal(geoscale_weights(gs), c("km2", "pop"))
@@ -19,13 +19,13 @@ test_that("members hold exactly the non-NA codes at each geoframe", {
 })
 
 test_that("blank codes are normalised to NA", {
-  df <- data.frame(top = c("T", "  ", "T"), unit = c("a", "b", "c"),
+  df <- data.frame(top = c("T", "  ", "T"), cell = c("a", "b", "c"),
                    km2 = c(1, 2, 3))
-  gs <- geoscale_from_leaftable(df, geoframes = c("top", "unit"))
+  gs <- geoscale_from_leaftable(df, geoframes = c("top", "cell"))
   lt <- S7::prop(gs, "leaftable")
-  expect_true(is.na(lt$top[lt$unit == "b"]))
+  expect_true(is.na(lt$top[lt$cell == "b"]))
   expect_false("region" %in% names(lt))
-  expect_equal(geoscale_key(gs), "unit")
+  expect_equal(geoscale_leaf_column(gs), "cell")
   expect_equal(geoscale_regions(gs, "top"), "T")
 })
 
@@ -36,64 +36,64 @@ test_that("'region' is an ordinary geoframe name at any depth", {
     geoframes = c("zone", "region")
   )
   expect_equal(geoscale_geoframes(ok, finest = TRUE), "region")
-  expect_equal(geoscale_key(ok), "region")
+  expect_equal(geoscale_leaf_column(ok), "region")
   expect_equal(geoscale_children(ok, "zone", "N"), c("R1", "R2"))
 
   coarse <- geoscale_from_leaftable(
     data.frame(region = c("A", "A", "B"), leaf = c("x", "y", "z")),
     geoframes = c("region", "leaf")
   )
-  expect_equal(geoscale_key(coarse), "leaf")
+  expect_equal(geoscale_leaf_column(coarse), "leaf")
   expect_equal(geoscale_children(coarse, "region", "A"), c("x", "y"))
 })
 
-test_that("the key is the finest geoframe unless another column is named", {
+test_that("the leaf column is the finest geoframe unless another is named", {
   df <- data.frame(zone = c("N", "N", "S"), id = c("a", "b", "c"),
                    km2 = c(1, 2, 3))
-  # the finest geoframe does not identify the atoms: a key must be named
-  expect_error(geoscale_from_leaftable(df, geoframes = "zone"), "key=")
-  gs <- geoscale_from_leaftable(df, geoframes = "zone", key = "id")
-  expect_equal(geoscale_key(gs), "id")
+  # the finest geoframe does not identify the leaves: `leaf` must be given
+  expect_error(geoscale_from_leaftable(df, geoframes = "zone"), "leaf=")
+  gs <- geoscale_from_leaftable(df, geoframes = "zone", leaf = "id")
+  expect_equal(geoscale_leaf_column(gs), "id")
   expect_named(geoscale_leaftable(gs), c("zone", "id", "km2"))
-  a <- recast_to_geoatoms(data.frame(zone = c("N", "S"), cap = c(4, 2)), gs,
-                          rule = "sum", weight = "km2")
+  a <- recast_to_geoleaves(data.frame(zone = c("N", "S"), cap = c(4, 2)), gs,
+                           rule = "sum", weight = "km2")
   expect_named(a, c("id", "cap", "weight"))
 })
 
 test_that("geoscale_geoframes reports the hierarchy", {
   gs <- geoscale_example()
-  expect_equal(geoscale_geoframes(gs), c("country", "state", "zone", "atom"))
-  expect_equal(geoscale_geoframes(gs, finest = TRUE), "atom")
+  expect_equal(geoscale_geoframes(gs), c("country", "state", "zone", "cell"))
+  expect_equal(geoscale_geoframes(gs, finest = TRUE), "cell")
 })
 
-test_that("the validator rejects a duplicate atom key", {
-  bad <- data.frame(top = c("T", "T"), atom = c("A", "A"), km2 = c(1, 2))
-  expect_error(geoscale_from_leaftable(bad, geoframes = c("top", "atom")),
-               "does not identify the atoms")
-  expect_error(geoscale_from_leaftable(bad, geoframes = c("top", "atom"),
-                                       key = "atom"),
+test_that("the validator rejects a duplicated leaf code", {
+  bad <- data.frame(top = c("T", "T"), cell = c("A", "A"), km2 = c(1, 2))
+  expect_error(geoscale_from_leaftable(bad, geoframes = c("top", "cell")),
+               "does not identify the leaves")
+  expect_error(geoscale_from_leaftable(bad, geoframes = c("top", "cell"),
+                                       leaf = "cell"),
                "must be unique")
 })
 
 test_that("the validator rejects a negative weight", {
-  bad <- data.frame(top = c("T", "T"), atom = c("A", "B"), km2 = c(1, -2))
-  expect_error(geoscale_from_leaftable(bad, geoframes = c("top", "atom")),
+  bad <- data.frame(top = c("T", "T"), cell = c("A", "B"), km2 = c(1, -2))
+  expect_error(geoscale_from_leaftable(bad, geoframes = c("top", "cell")),
                ">= 0")
 })
 
 test_that("a geoframe absent from leaves is rejected", {
-  df <- data.frame(top = c("T", "T"), atom = c("A", "B"))
+  df <- data.frame(top = c("T", "T"), cell = c("A", "B"))
   expect_error(
-    geoscale_from_leaftable(df, geoframes = c("top", "nope", "atom")),
+    geoscale_from_leaftable(df, geoframes = c("top", "nope", "cell")),
     "missing geoframe column")
 })
 
 test_that("members disagreeing with leaves is rejected", {
-  df <- data.frame(top = c("T", "T"), atom = c("A", "B"))
+  df <- data.frame(top = c("T", "T"), cell = c("A", "B"))
   expect_error(
-    GeoScale(leaftable = transform(df, region = df$atom),
-             geoframes = c("top", "atom"),
-             members = list(top = "T", atom = c("A", "B", "GHOST"))),
+    GeoScale(leaftable = transform(df, region = df$cell),
+             geoframes = c("top", "cell"),
+             members = list(top = "T", cell = c("A", "B", "GHOST"))),
     "exactly the non-NA values"
   )
 })

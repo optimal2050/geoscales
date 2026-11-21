@@ -19,14 +19,14 @@ draws the tree.
 Lists the parts of a \code{\link{GeoScale}} as a tree: its properties, the columns
 of the leaftable, the geometry and the hidden geoframes. Each part carries
 one of three marks, defined by the identity of the object
-(\code{\link[=geoscale_id]{geoscale_id()}}), which is computed from the key column, the geoframe
+(\code{\link[=geoscale_id]{geoscale_id()}}), which is computed from the leaf column, the geoframe
 names and the region codes:
 }
 \details{
 \itemize{
 \item \code{fixed}: the part enters the identity. Changing it gives another
-geoscale, which data bound to the first one no longer matches; the route
-is to build a new one with \code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}}.
+geoscale; the route is to build a new one with
+\code{\link[=geoscale_from_leaftable]{geoscale_from_leaftable()}}.
 \item \code{derived}: the part is computed from another one and is never set.
 \item \code{mutable}: the part can change and the geoscale stays the same one. The
 function that changes it is named where there is one.

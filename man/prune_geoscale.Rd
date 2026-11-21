@@ -9,7 +9,7 @@ prune_geoscale(x, geoframe, keep_geometry = !is.null(S7::prop(x, "geometry")))
 \arguments{
 \item{x}{A \code{\link{GeoScale}}.}
 
-\item{geoframe}{The geoframe to become the new atom layer.}
+\item{geoframe}{The geoframe to become the new leaf layer.}
 
 \item{keep_geometry}{Dissolve and keep the attached geometry.
 Default: yes, when geometry is attached (needs the sf package;
@@ -19,18 +19,18 @@ drops with a message otherwise).}
 A \code{\link{GeoScale}}.
 }
 \description{
-Returns a new \code{\link{GeoScale}} whose atom layer is \code{geoframe}, dropping every
-finer geoframe. Weights are summed over the collapsed atoms.
+Returns a new \code{\link{GeoScale}} whose leaf layer is \code{geoframe}, dropping every
+finer geoframe. Weights are summed over the collapsed leaves.
 }
 \details{
 The result is renamed \code{"name@geoframe"} (the
 \code{timescales::prune_calendar()} convention) with the parent recorded
 in \code{meta$parent_name}; every other meta field (\code{crs}, \code{source},
-\code{labels}, inherited \code{coverage}) is preserved. Atoms with no code at
+\code{labels}, inherited \code{coverage}) is preserved. Leaves with no code at
 \code{geoframe} are dropped, and that loss is reflected in
 \code{meta$coverage} (see \code{\link[=geoscale_coverage]{geoscale_coverage()}}). With geometry
-attached, the pruned atoms carry the dissolved (unioned) geometry of
-their fine atoms unless \code{keep_geometry = FALSE}.
+attached, the pruned leaves carry the dissolved (unioned) geometry of
+their fine leaves unless \code{keep_geometry = FALSE}.
 }
 \examples{
 prune_geoscale(geoscale_example(), "state")

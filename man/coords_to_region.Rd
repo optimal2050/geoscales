@@ -29,7 +29,7 @@ A character vector of region codes, one per row/point of \code{x}.
 \description{
 The spatial twin of \code{timescales::datetime_to_timeslice()}: raw
 observations enter the structure here. Each point is matched to the
-region at \code{geoframe} (the atoms by default) whose geometry contains
+region at \code{geoframe} (the leaves by default) whose geometry contains
 it; points outside every region return \code{NA}. A point exactly on a
 shared border is assigned to the first matching region in the
 object's canonical order.

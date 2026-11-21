@@ -61,7 +61,7 @@ registered map (or \code{NULL}); \code{list_geoscale_maps()} a \code{data.frame}
 registry keys.
 }
 \description{
-A registered map short-circuits the atom-layer derivation in
+A registered map short-circuits the leaf-layer derivation in
 \code{\link[=geoscale_map]{geoscale_map()}} or \code{\link[=geoscale_map_between]{geoscale_map_between()}} (and thereby
 \code{\link[=recast_geoscale]{recast_geoscale()}}) for one pair of resolutions -- for cases where the
 exact correspondence is known (hand-audited crosswalks, official

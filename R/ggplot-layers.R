@@ -44,10 +44,10 @@
 #'   by; `NULL` draws plain boundaries.
 #' @param geoframe Geoframe to draw. `NULL` is inferred: the single
 #'   geoframe name among the data's columns (as in
-#'   [`recast_geoscale()`]), or the atom geoframe when `z = NULL`.
+#'   [`recast_geoscale()`]), or the leaf geoframe when `z = NULL`.
 #' @param region Name of the region-code column of the data. Defaults to
 #'   the `geoframe`-named column when present, else the column named after
-#'   the atom key, else `"region"`.
+#'   the leaf column, else `"region"`.
 #' @param fun Aggregator collapsing multiple observations per region
 #'   into one value. Default `mean`.
 #' @param data A `data.frame`; `NULL` (default) uses the plot data.
@@ -66,9 +66,9 @@
 #'   sq <- function(x0) sf::st_polygon(list(cbind(
 #'     c(x0, x0 + 1, x0 + 1, x0, x0), c(0, 0, 1, 1, 0))))
 #'   gs <- geoscale_from_leaftable(
-#'     data.frame(state = c("N", "N", "S"), atom = c("a", "b", "c"),
+#'     data.frame(state = c("N", "N", "S"), cell = c("a", "b", "c"),
 #'                km2 = c(1, 2, 3)),
-#'     geoframes = c("state", "atom"), name = "toy"
+#'     geoframes = c("state", "cell"), name = "toy"
 #'   ) |>
 #'     attach_geometry_geoscale(sf::st_sfc(sq(0), sq(1), sq(2)))
 #'
@@ -106,8 +106,8 @@ geom_geoscale <- function(gs, z = NULL,
     d <- as.data.frame(d)
     gf <- geoframe %||% .geo_infer_from(gs, d, region)
     .check_geoframe(gs, gf, "geoframe")
-    akey <- S7::prop(gs, "key")
-    key <- region %||% c(intersect(c(gf, akey, "region"), names(d)), akey)[1L]
+    lcol <- .leaf_col(gs)
+    key <- region %||% c(intersect(c(gf, lcol, "region"), names(d)), lcol)[1L]
     .check_layer_cols(d, c(key, z))
     shp <- geoscale_geometry(gs, gf, precision = precision)
     codes <- .layer_codes(gs, as.character(d[[key]]), gf)
@@ -134,7 +134,7 @@ geom_geoscale <- function(gs, z = NULL,
   known <- unique(as.character(lt[[geoframe]]))
   seen <- unique(codes[!is.na(codes)])
   if (all(seen %in% known)) return(codes)
-  frames <- unique(c(S7::prop(gs, "key"), rev(S7::prop(gs, "geoframes"))))
+  frames <- unique(c(.leaf_col(gs), rev(S7::prop(gs, "geoframes"))))
   for (f in setdiff(frames, geoframe)) {
     if (!all(seen %in% as.character(lt[[f]]))) next
     map <- unique(data.frame(from = as.character(lt[[f]]),

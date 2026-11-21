@@ -1,6 +1,37 @@
 # =============================================================================
-# geoscale_tree() -- the parts of a GeoScale, and which of them may change
+# geoscale_id(), geoscale_tree() -- the identity of a GeoScale and its parts
 # =============================================================================
+
+#' A function of `nestedscales`, or NULL when the installed version lacks it
+#' @noRd
+.ns_fun <- function(name) {
+  get0(name, envir = asNamespace("nestedscales"), inherits = FALSE)
+}
+
+#' The identity of a GeoScale
+#'
+#' Gives the identity of a [`GeoScale`]: its name and a hash of its
+#' structure, as `"<name>@<hash>"`. The hash is computed from the geoframes
+#' and the memberships of the regions, not from weights, labels or geometry,
+#' so two objects with the same structure and different weights have the
+#' same hash, and a subset differs from the object it was taken from.
+#'
+#' @param gs A [`GeoScale`].
+#'
+#' @return A single string.
+#'
+#' @seealso [`geoscale_tree()`]
+#' @examplesIf !is.null(get0("scale_id", asNamespace("nestedscales")))
+#' gs <- geoscale_example()
+#' geoscale_id(gs)
+#' geoscale_id(filter_geoscale(gs, "country", "N"))
+#' @export
+geoscale_id <- function(gs) {
+  .check_geoscale(gs, "gs")
+  f <- .ns_fun("scale_id")
+  if (is.null(f)) .stop("geoscale_id() needs nestedscales >= 0.3.0")
+  f(gs)
+}
 
 #' The parts `GeoScale` adds, and this package's verbs for the shared ones
 #' @noRd
@@ -42,12 +73,12 @@
 #' Lists the parts of a [`GeoScale`] as a tree: its properties, the columns
 #' of the leaftable, the geometry and the hidden geoframes. Each part carries
 #' one of three marks, defined by the identity of the object
-#' ([`geoscale_id()`]), which is computed from the key column, the geoframe
+#' ([`geoscale_id()`]), which is computed from the leaf column, the geoframe
 #' names and the region codes:
 #'
 #' * `fixed`: the part enters the identity. Changing it gives another
-#'   geoscale, which data bound to the first one no longer matches; the route
-#'   is to build a new one with [`geoscale_from_leaftable()`].
+#'   geoscale; the route is to build a new one with
+#'   [`geoscale_from_leaftable()`].
 #' * `derived`: the part is computed from another one and is never set.
 #' * `mutable`: the part can change and the geoscale stays the same one. The
 #'   function that changes it is named where there is one.

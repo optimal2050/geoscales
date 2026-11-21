@@ -19,11 +19,11 @@ A character vector of region codes, in the object's canonical order.
 The required-geoframe rule applies to arguments that take region CODES
 (codes repeat across geoframes, so nothing is ever inferred from a bare
 code); \code{geoframe} here only selects the output, so it may default to the
-finest geoframe (the atoms) — the twin of
+finest geoframe (the leaves) — the twin of
 \code{timescales::calendar_timeslices(x, timeframe = NULL)}.
 }
 \examples{
 gs <- geoscale_example()
 geoscale_regions(gs, "state")
-geoscale_regions(gs)          # the atoms
+geoscale_regions(gs)          # the leaves
 }

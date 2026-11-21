@@ -38,10 +38,10 @@ test_that("membership columns respect as_factor and cross-cuts get NA", {
 
 test_that("two GeoScales coexist on one dataset", {
   gs_b <- .bands_gs()
-  x <- data.frame(atom = c("A1", "A2", "A5"), v = 1:3)
+  x <- data.frame(cell = c("A1", "A2", "A5"), v = 1:3)
   j <- join_geoscale(x, gs, geoframes = "country")
-  j <- join_geoscale(j, gs_b, geoframes = "band", geoframe = "atom",
-                     key = "atom")
+  j <- join_geoscale(j, gs_b, geoframes = "band", geoframe = "cell",
+                     key = "cell")
   expect_true(all(c("example", "example.country", "bands", "bands.band")
                   %in% names(j)))
   expect_equal(as.character(j$bands.band), c("X", "Y", "X"))
@@ -54,18 +54,18 @@ test_that("existing columns are never overwritten", {
 })
 
 test_that("an unnamed GeoScale refuses to attach", {
-  lf <- data.frame(top = "T", atom = c("a", "b"))
-  anon <- geoscale_from_leaftable(lf, geoframes = c("top", "atom"))
-  expect_error(join_geoscale(data.frame(atom = "a", v = 1), anon),
+  lf <- data.frame(top = "T", cell = c("a", "b"))
+  anon <- geoscale_from_leaftable(lf, geoframes = c("top", "cell"))
+  expect_error(join_geoscale(data.frame(cell = "a", v = 1), anon),
                "has no name")
 })
 
 test_that("meta without declared weights warns and skips", {
-  lf <- data.frame(top = c("T", "T"), atom = c("a", "b"))
-  gsw <- geoscale_from_leaftable(lf, geoframes = c("top", "atom"),
+  lf <- data.frame(top = c("T", "T"), cell = c("a", "b"))
+  gsw <- geoscale_from_leaftable(lf, geoframes = c("top", "cell"),
                                  name = "noweights")
   expect_warning(
-    j <- join_geoscale(data.frame(atom = c("a", "b"), v = 1:2), gsw,
+    j <- join_geoscale(data.frame(cell = c("a", "b"), v = 1:2), gsw,
                        meta = TRUE),
     "no weight columns")
   expect_false("noweights.weight" %in% names(j))

@@ -5,10 +5,10 @@
 
 skip_if_not_installed("sf")
 
-# the unit-squares fixture lives in helper-fixtures.R (.squares_gs)
+# the 1 x 1 squares fixture lives in helper-fixtures.R (.squares_gs)
 .sq_gs <- .squares_gs
 
-test_that("points resolve to atoms by default; outside points are NA", {
+test_that("points resolve to leaves by default; outside points are NA", {
   gs <- .sq_gs()
   pts <- data.frame(lon = c(0.5, 1.5, 2.5, 9.0), lat = c(1.5, 0.5, 0.5, 9.0))
   expect_equal(coords_to_region(pts, gs), c("A1", "A4", "A6", NA))
@@ -31,8 +31,8 @@ test_that("missing coordinate columns and no geometry error clearly", {
   expect_error(coords_to_region(data.frame(x = 1, y = 2), gs),
                "coordinate column")
   bare <- geoscale_from_leaftable(
-    data.frame(zone = "Z", atom = "A", km2 = 1),
-    geoframes = c("zone", "atom"), name = "bare")
+    data.frame(zone = "Z", cell = "A", km2 = 1),
+    geoframes = c("zone", "cell"), name = "bare")
   expect_error(coords_to_region(data.frame(lon = 0, lat = 0), bare),
                "no geometry")
 })

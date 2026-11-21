@@ -17,7 +17,7 @@
 #' The required-geoframe rule applies to arguments that take region CODES
 #' (codes repeat across geoframes, so nothing is ever inferred from a bare
 #' code); `geoframe` here only selects the output, so it may default to the
-#' finest geoframe (the atoms) — the twin of
+#' finest geoframe (the leaves) — the twin of
 #' `timescales::calendar_timeslices(x, timeframe = NULL)`.
 #'
 #' @param x A [`GeoScale`].
@@ -29,7 +29,7 @@
 #' @examples
 #' gs <- geoscale_example()
 #' geoscale_regions(gs, "state")
-#' geoscale_regions(gs)          # the atoms
+#' geoscale_regions(gs)          # the leaves
 #' @export
 geoscale_regions <- function(x, geoframe = NULL) {
   .check_geoscale(x)
@@ -45,7 +45,8 @@ geoscale_regions <- function(x, geoframe = NULL) {
 #'   `x@geoframes`.
 #'
 #' @return A `data.frame` with columns `parent_geoframe`, `parent`,
-#'   `child_geoframe`, `child`. Atoms unassigned at either geoframe are omitted.
+#'   `child_geoframe`, `child`. Leaves unassigned at either geoframe are
+#'   omitted.
 #'
 #' @examples
 #' gs <- geoscale_example()
@@ -75,7 +76,7 @@ geoscale_family <- function(x, parent = NULL, child = NULL) {
 #' `reg35` does not nest inside `reg32`.
 #'
 #' Nesting is *not* required by [`GeoScale`] — [`recast_geoscale()`] routes
-#' through the atom layer and works either way. This function is a diagnostic.
+#' through the leaf layer and works either way. This function is a diagnostic.
 #'
 #' @param x A [`GeoScale`].
 #' @param parent,child Geoframe names.
@@ -97,16 +98,16 @@ geoscale_nests <- function(x, parent, child) {
 
 #' Ancestry between all geoframe pairs
 #'
-#' Every `(coarser, finer)` code pair that shares at least one atom, for all
+#' Every `(coarser, finer)` code pair that shares at least one leaf, for all
 #' geoframe pairs.
 #'
-#' Computed **atom-mediated**, directly from `@leaftable` — deliberately not
+#' Computed **leaf-mediated**, directly from `@leaftable` — deliberately not
 #' as a transitive closure of [`geoscale_family()`]. `timescales` can use a
 #' closure because timeframes genuinely nest; spatial geoframes cross-cut, and
 #' a closure then manufactures false relationships. In the example GeoScale,
 #' zone `ZB`
-#' straddles both countries, so closing `country -> state -> zone -> atom`
-#' would wrongly report country `N` as an ancestor of atom `A5`, which lies in
+#' straddles both countries, so closing `country -> state -> zone -> cell`
+#' would wrongly report country `N` as an ancestor of leaf `A5`, which lies in
 #' country `S`.
 #'
 #' For geoframes that do not nest this relation is *overlap*, not containment —
@@ -162,7 +163,7 @@ geoscale_ancestry <- function(x) {
 #' geoscale_children(gs, "country", "N")
 #' geoscale_parents(gs, "state", "N1", target = "country")
 #' geoscale_descendants(gs, "country", "N")
-#' geoscale_ancestors(gs, "atom", "A5")
+#' geoscale_ancestors(gs, "cell", "A5")
 #' @name geoscale_navigate
 NULL
 
@@ -227,7 +228,7 @@ geoscale_ancestors <- function(x, geoframe, region, target = NULL,
   .geoframe_region_cols(nestedscales::scale_ancestors(x, geoframe, region, to))
 }
 
-# nestedscales tags related codes as `frame`/`unit`.
+# nestedscales tags related codes as `frame`/`member`.
 #' @noRd
 .geoframe_region_cols <- function(d) {
   names(d) <- c("geoframe", "region")
@@ -236,7 +237,7 @@ geoscale_ancestors <- function(x, geoframe, region, target = NULL,
 
 #' Subset a GeoScale by region
 #'
-#' Keeps only the atoms belonging to `region` at `geoframe`, and rebuilds the
+#' Keeps only the leaves belonging to `region` at `geoframe`, and rebuilds the
 #' member vocabularies accordingly. Geometry, when attached, is subset in step.
 #'
 #' A genuine subset is a SAMPLE and is book-kept as one (the spatial
@@ -248,7 +249,7 @@ geoscale_ancestors <- function(x, geoframe, region, target = NULL,
 #' records the parent, and `meta$name` is mangled to
 #' `"parent[geoframe:n]"` so a sample never impersonates its parent in
 #' the crosswalk registry or in [`join_geoscale()`] column names. A
-#' filter that keeps every atom is a true no-op. Read the fraction back
+#' filter that keeps every leaf is a true no-op. Read the fraction back
 #' with [`geoscale_coverage()`].
 #'
 #' @param x A [`GeoScale`].
@@ -299,20 +300,20 @@ filter_geoscale <- function(x, geoframe, region, drop_empty_geoframes = FALSE) {
 
 #' Collapse a GeoScale to a coarser geoframe
 #'
-#' Returns a new [`GeoScale`] whose atom layer is `geoframe`, dropping every
-#' finer geoframe. Weights are summed over the collapsed atoms.
+#' Returns a new [`GeoScale`] whose leaf layer is `geoframe`, dropping every
+#' finer geoframe. Weights are summed over the collapsed leaves.
 #'
 #' The result is renamed `"name@geoframe"` (the
 #' `timescales::prune_calendar()` convention) with the parent recorded
 #' in `meta$parent_name`; every other meta field (`crs`, `source`,
-#' `labels`, inherited `coverage`) is preserved. Atoms with no code at
+#' `labels`, inherited `coverage`) is preserved. Leaves with no code at
 #' `geoframe` are dropped, and that loss is reflected in
 #' `meta$coverage` (see [`geoscale_coverage()`]). With geometry
-#' attached, the pruned atoms carry the dissolved (unioned) geometry of
-#' their fine atoms unless `keep_geometry = FALSE`.
+#' attached, the pruned leaves carry the dissolved (unioned) geometry of
+#' their fine leaves unless `keep_geometry = FALSE`.
 #'
 #' @param x A [`GeoScale`].
-#' @param geoframe The geoframe to become the new atom layer.
+#' @param geoframe The geoframe to become the new leaf layer.
 #' @param keep_geometry Dissolve and keep the attached geometry.
 #'   Default: yes, when geometry is attached (needs the sf package;
 #'   drops with a message otherwise).
@@ -333,7 +334,7 @@ prune_geoscale <- function(x, geoframe,
   covered <- !is.na(leaves0[[geoframe]])
   leaves  <- leaves0[covered, , drop = FALSE]
   if (nrow(leaves) == 0L) {
-    .stop("no atoms have a code at geoframe `%s`", geoframe)
+    .stop("no leaves have a code at geoframe `%s`", geoframe)
   }
 
   wts <- geoscale_weights(x)
@@ -351,7 +352,7 @@ prune_geoscale <- function(x, geoframe,
   # meta: preserve EVERYTHING, then adjust identity and coverage
   meta <- S7::prop(x, "meta")
   new_meta <- meta
-  if (!all(covered)) {                       # NA atoms dropped = coverage loss
+  if (!all(covered)) {                       # NA leaves dropped = coverage loss
     new_meta <- .sample_meta(x, new_meta, kept = leaves, tag = "")
   }
   new_meta$parent_name <- meta$name
@@ -380,7 +381,7 @@ prune_geoscale <- function(x, geoframe,
   }
 
   gs <- geoscale_from_leaftable(
-    out, geoframes = keep_lv, key = geoframe,
+    out, geoframes = keep_lv, leaf = geoframe,
     weights = wts, default_weight = meta$default_weight,
     name = new_meta$name, desc = meta$desc,
     geometry = new_geom,
@@ -400,7 +401,7 @@ prune_geoscale <- function(x, geoframe,
 #' The spatial mirror of a partial calendar's `year_fraction`: the
 #' fraction of the ROOT parent's weight totals that this object still
 #' carries. [`filter_geoscale()`] (and [`prune_geoscale()`] when it
-#' drops uncovered atoms) record it in `meta$coverage`; an object that
+#' drops uncovered leaves) record it in `meta$coverage`; an object that
 #' was never sampled reports `1` for every weight.
 #'
 #' @param x A [`GeoScale`].

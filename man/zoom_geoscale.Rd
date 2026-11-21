@@ -15,10 +15,10 @@ zoom_geoscale(
 \arguments{
 \item{x}{A \code{\link{GeoScale}}.}
 
-\item{focus}{Character vector of \strong{atom} codes to keep at full resolution.}
+\item{focus}{Character vector of \strong{leaf} codes to keep at full resolution.}
 
 \item{geoframes}{Ordered geoframes to build rings from, coarsest first.
-Defaults to every geoframe of \code{x} except the atom layer.}
+Defaults to every geoframe of \code{x} except the leaf layer.}
 
 \item{name}{Name of the new geoframe. Default \code{"zoom"}.}
 
@@ -26,29 +26,29 @@ Defaults to every geoframe of \code{x} except the atom layer.}
 code. Default \code{"\%s_rest"}.}
 }
 \value{
-A \code{\link{GeoScale}} with geoframes \code{geoframes[1]}, \code{name} and the atom
+A \code{\link{GeoScale}} with geoframes \code{geoframes[1]}, \code{name} and the leaf
 geoframe; weights and geometry carried through unchanged.
 }
 \description{
-Builds a new geoframe that keeps \code{focus} atoms at full resolution and
+Builds a new geoframe that keeps \code{focus} leaves at full resolution and
 collapses everything else into progressively coarser rings drawn from
-\code{geoframes}. The result is a partition of the atoms, carried as a geoframe.
+\code{geoframes}. The result is a partition of the leaves, carried as a geoframe.
 }
 \details{
-With focus atoms and \code{geoframes = c("nuts0", "nuts1", "nuts2")} (coarsest
-first), each remaining atom joins the \strong{finest} ring that also contains a
-focus atom, so the cut telescopes outward:
+With focus leaves and \code{geoframes = c("nuts0", "nuts1", "nuts2")} (coarsest
+first), each remaining leaf joins the \strong{finest} ring that also contains a
+focus leaf, so the cut telescopes outward:
 \itemize{
-\item the focus atoms themselves, individually;
-\item the rest of each \code{nuts2} holding a focus atom;
+\item the focus leaves themselves, individually;
+\item the rest of each \code{nuts2} holding a focus leaf;
 \item the rest of each \code{nuts1} holding one of those;
 \item the rest of each \code{nuts0} holding one of those;
-\item every other atom, grouped in \code{geoframes[1]}.
+\item every other leaf, grouped in \code{geoframes[1]}.
 }
 
 The intermediate geoframes are \strong{dropped}. A ring like "rest of nuts1" spans
 several \code{nuts2}, so the cut cannot nest with the geoframes it was carved
-from; only \code{geoframes[1]} and the atom geoframe are kept beside it. That is
+from; only \code{geoframes[1]} and the leaf geoframe are kept beside it. That is
 checked, not assumed -- see \code{\link[=geoscale_nests]{geoscale_nests()}}.
 }
 \examples{

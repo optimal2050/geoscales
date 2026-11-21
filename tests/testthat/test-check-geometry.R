@@ -5,19 +5,19 @@
                             c(x, y + s), c(x, y))))
 }
 
-# four unit squares in a row, two per group, with distinct widths so that
-# areas tell the atoms apart
+# four 1 x 1 squares in a row, two per group, with distinct widths so that
+# areas tell the leaves apart
 .grid_gs <- function() {
   skip_if_not_installed("sf")
-  lt <- data.frame(top = c("L", "L", "R", "R"), atom = c("a", "b", "c", "d"))
+  lt <- data.frame(top = c("L", "L", "R", "R"), cell = c("a", "b", "c", "d"))
   g <- sf::st_sfc(
     sf::st_polygon(list(rbind(c(0, 0), c(1, 0), c(1, 1), c(0, 1), c(0, 0)))),
     sf::st_polygon(list(rbind(c(1, 0), c(3, 0), c(3, 1), c(1, 1), c(1, 0)))),
     sf::st_polygon(list(rbind(c(3, 0), c(6, 0), c(6, 1), c(3, 1), c(3, 0)))),
     sf::st_polygon(list(rbind(c(6, 0), c(10, 0), c(10, 1), c(6, 1), c(6, 0)))))
-  gs <- geoscale_from_leaftable(lt, geoframes = c("top", "atom"))
+  gs <- geoscale_from_leaftable(lt, geoframes = c("top", "cell"))
   list(gs = attach_geometry_geoscale(gs, g),
-       ref = sf::st_sf(atom = lt$atom, geometry = g))
+       ref = sf::st_sf(cell = lt$cell, geometry = g))
 }
 
 test_that("a sound object passes, with and without a reference", {
@@ -47,7 +47,7 @@ test_that("shapes on the wrong rows are found against a reference", {
   expect_output(print(r), "FAILED")
   # the reference may be in any row order, and under another column name
   ref2 <- k$ref[c(4, 2, 1, 3), ]
-  names(ref2)[names(ref2) == "atom"] <- "code"
+  names(ref2)[names(ref2) == "cell"] <- "code"
   sf::st_geometry(ref2) <- "geometry"
   ok <- check_geometry_geoscale(k$gs, reference = ref2, by = "code")
   expect_true(all(ok$status[ok$check == "reference"] == "ok"))

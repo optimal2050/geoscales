@@ -8,7 +8,7 @@
 #                 -> admin/adm0_a3 (177) -> geounit -> subunit
 #
 # plus `pop_est` and `gdp_md` as ready-made weights. `ne_states()` adds
-# admin-1 units carrying ISO 3166-2 codes.
+# admin-1 areas carrying ISO 3166-2 codes.
 #
 # =============================================================================
 
@@ -27,17 +27,17 @@
 #' @param ... Passed to the underlying `rnaturalearth` function.
 #'
 #' @return An `sf` object with two added columns: `feature`, the Natural Earth
-#'   unit (`adm0_a3`, or `adm1_code` for states), and `country`, its admin-0
+#'   area (`adm0_a3`, or `adm1_code` for states), and `country`, its admin-0
 #'   code.
 #'
 #' @details
-#' `feature` is the atom and `country` is a grouping of atoms on top of it. At
+#' `feature` is the leaf and `country` is a grouping of leaves on top of it. At
 #' admin-0 the two are the same code; at admin-1 (`geoframe = "states"`)
-#' `feature` is the state and `country` is the admin-0 unit it belongs to.
+#' `feature` is the state and `country` is the admin-0 area it belongs to.
 #'
 #' Codes of `"-99"` mean *unassigned* and are returned as `NA`. That is why
-#' `country` is a geoframe rather than the atom key: it may be missing,
-#' whereas an atom key may not.
+#' `country` is a geoframe rather than the leaf column: it may be missing,
+#' whereas a leaf column may not.
 #'
 #' @examples
 #' \dontrun{
@@ -70,7 +70,7 @@ ne_source <- function(scale = 110, geoframe = c("country", "states"),
                                    returnclass = "sf", ...)
 
   # Gotcha 1: adm0_a3 is the only code column with no "-99" holes, so it is
-  # the atom key, and at admin-0 it is the country grouping as well.
+  # the leaf column, and at admin-0 it is the country grouping as well.
   x$feature <- .ne_na99(x$adm0_a3)
   x$country <- .ne_na99(x$adm0_a3)
   .ne_check_key(x, "adm0_a3")
@@ -115,8 +115,8 @@ ne_source <- function(scale = 110, geoframe = c("country", "states"),
 #' [`GeoScale`] nested `continent -> subregion -> country -> feature`,
 #' weighted by population and GDP.
 #'
-#' `feature` is the atom: the Natural Earth unit. `country` sits above it as a
-#' grouping of atoms, so it can only ever be coarser than `feature`.
+#' `feature` is the leaf: the Natural Earth feature. `country` sits above it as
+#' a grouping of leaves, so it can only ever be coarser than `feature`.
 #'
 #' @inheritParams ne_source
 #' @param geoframes Geoframe columns, coarsest first.

@@ -19,10 +19,10 @@ attach_geometry_geoscale(
 matched on \code{by}; when \code{sfc}, it must already be in \verb{@leaftable} row order.}
 
 \item{by}{Name of the code column in \code{geom} to match on. Defaults to the
-atom geoframe, then \code{"region"}.}
+leaf geoframe, then \code{"region"}.}
 
-\item{geoframe}{Geoframe that \code{geom}'s codes refer to. Defaults to the atom
-geoframe. When coarser, each atom inherits its parent's geometry.}
+\item{geoframe}{Geoframe that \code{geom}'s codes refer to. Defaults to the leaf
+geoframe. When coarser, each leaf inherits its parent's geometry.}
 
 \item{positional}{Acknowledge a by-position bind. An \code{sfc} carries no codes,
 so nothing can check its order; when the constructor re-sorted the

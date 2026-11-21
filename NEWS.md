@@ -2,25 +2,29 @@
 
 ## Breaking changes
 
-* The leaftable has no `region` column any more. The atom key is the finest geoframe's own column, or the column named by `key=` when the atoms are finer than the finest geoframe; `geoscale_key()` returns its name. The atom column in the result of `recast_to_geoatoms()` carries that name, and `recast_from_geoatoms()` expects it. `region` is no longer a reserved name and may be used for a geoframe at any depth. Saved objects must be rebuilt.
-* `geoscale_from_leaftable()` no longer falls back to a `region` column for the key: when the finest geoframe does not identify the atoms, `key=` must be given.
-* `meta$labels` (the name of one per-atom leaftable column) is replaced by the label table below. `labels=` in `geoscale_from_leaftable()` now takes that table.
-* The first argument of `recast_geoscale()`, `recast_to_geoatoms()`, `recast_from_geoatoms()`, `recast_pairs()` and `join_geoscale()` is `data` (was `x`).
-* `weight=` always names a weight of the GeoScale. The data column to weight by in `recast_from_geoatoms()` and `recast_pairs()` is `data_weight=`.
+* Requires nestedscales 0.3.0 and follows its vocabulary, with no deprecated aliases: a *leaf* is a region of the finest layer and one row of the leaftable (was "atom"), and the *leaf column* is the leaftable column that identifies the leaves (was "key"). A member of a geoframe stays a *region*. `key=` now only names the column of a data table that holds the codes, and "unit" only a unit of measure.
+* Renamed functions: `recast_to_geoatoms()` to `recast_to_geoleaves()`, `recast_from_geoatoms()` to `recast_from_geoleaves()`, `geoscale_key()` to `geoscale_leaf_column()`. Renamed argument: `key` to `leaf` in `GeoScale()` and `geoscale_from_leaftable()`. The property `GeoScale@key` is `@leaf`, `summary()` returns `n_leaves` (was `n_atoms`), `geoscale_tree()` lists the part `leaf` with the kind `leaf column`, and printed output and messages say "Leaves" and "leaf".
+* The finest geoframe of `geoscale_example()` is `cell` (was `atom`), which changes its `geoscale_id()`. The codes `A1` to `A6` and `ROW` are unchanged.
+* `geoscale_labels()` returns the columns `geoframe`, `region`, `variant`, `label` (were `frame`, `unit`, ...), the names `attach_labels_geoscale()` takes. A label table given with a `unit` column is no longer accepted; `frame` and `member` are.
+* The leaftable has no `region` column any more. The leaf column is the finest geoframe's own column, or the column named by `leaf=` when the leaves are finer than the finest geoframe; `geoscale_leaf_column()` returns its name. The leaf column in the result of `recast_to_geoleaves()` carries that name, and `recast_from_geoleaves()` expects it. `region` is no longer a reserved name and may be used for a geoframe at any depth. Objects saved with a `region` leaf column must be rebuilt; objects saved while the leaf column was the property `key` are still read.
+* `geoscale_from_leaftable()` no longer falls back to a `region` column for the leaf column: when the finest geoframe does not identify the leaves, `leaf=` must be given.
+* `meta$labels` (the name of one per-leaf leaftable column) is replaced by the label table below. `labels=` in `geoscale_from_leaftable()` now takes that table.
+* The first argument of `recast_geoscale()`, `recast_to_geoleaves()`, `recast_from_geoleaves()`, `recast_pairs()` and `join_geoscale()` is `data` (was `x`).
+* `weight=` always names a weight of the GeoScale. The data column to weight by in `recast_from_geoleaves()` and `recast_pairs()` is `data_weight=`.
 
 ## New features
 
-* Labels per geoframe. `attach_labels_geoscale()` adds display names for regions of any geoframe, in named variants, so a region may have alternative names while another geoframe has none; a row with `unit = NA` names the geoframe itself. `geoscale_labels()` returns the table and `geoscale_label()` looks names up, giving the code where there is no label. Subsets, prunes and zooms keep the labels of what remains, and the plots use the default variant.
-* The data link. `bind_geoscale()` records on a table's region-code columns which GeoScale and geoframe they are on; `geoscale_link()` reports it and `geoscale_id()` gives the identity it stores. `recast_geoscale()`, `recast_to_geoatoms()`, `recast_from_geoatoms()` and `join_geoscale()` take the source geoframe from the link, stop when the data is bound to another GeoScale, and bind their result. Needs nestedscales 0.3.0 or later; with an earlier version the verbs behave as before.
+* Labels per geoframe. `attach_labels_geoscale()` adds display names for regions of any geoframe, in named variants, so a region may have alternative names while another geoframe has none; a row with `region = NA` names the geoframe itself. `geoscale_labels()` returns the table and `geoscale_label()` looks names up, giving the code where there is no label. Subsets, prunes and zooms keep the labels of what remains, and the plots use the default variant.
+* `geoscale_id()` gives the identity of a GeoScale: its name and a hash of its structure.
 * `check_geometry_geoscale()` checks that each shape of the geometry is on the row of its code. Against a reference `sf` that carries the codes it compares shape by shape and names the code a misplaced shape belongs to; without one it reports empty or repeated shapes, an area weight held in another row order, and grouped regions in several pieces.
-* Geoframes hidden from plots. `hide_geoframes_geoscale()` marks geoframes that exist for calculation only, and `gg_geoscale()`, `autoplot()` and `plot()` leave them out; `show_geoframes_geoscale()` reverses it and `geoscale_geoframes(visible = )` lists either set. Recasts, joins, navigation and bound data are unaffected. `gg_geoscale(geoframes = )` chooses the geoframes of one figure, hidden or not.
-* `geoscale_tree()` lists the parts of a GeoScale as a tree and marks each one `fixed` (it enters the identity), `derived` or `mutable`, naming the function that changes it; `str()` prints the same tree. Needs nestedscales 0.3.0 or later.
+* Geoframes hidden from plots. `hide_geoframes_geoscale()` marks geoframes that exist for calculation only, and `gg_geoscale()`, `autoplot()` and `plot()` leave them out; `show_geoframes_geoscale()` reverses it and `geoscale_geoframes(visible = )` lists either set. Recasts, joins and navigation are unaffected. `gg_geoscale(geoframes = )` chooses the geoframes of one figure, hidden or not.
+* `geoscale_tree()` lists the parts of a GeoScale as a tree and marks each one `fixed` (it enters the identity), `derived` or `mutable`, naming the function that changes it; `str()` prints the same tree.
 * `gg_geoscale(data = )` on the icicle and the stack takes data keyed by any geoframe, named by `key=` or found from the columns. The value is recast up from that geoframe to every coarser one it nests in; finer geoframes are outlined without a fill.
 * `gg_geoscale(type = "stack")` fills a single-region geoframe above the colouring geoframe (a nation over its zones) with the next colour of the same palette; it was neutral grey.
 
 ## Bug fixes
 
-* `geom_geoscale()` drawn at a coarser geoframe than the data's codes filled every region with `NA`; the codes are now carried up to the drawn geoframe before `fun` is applied. The code column defaults to the `geoframe`-named column, then the column named after the atom key, then `region`.
+* `geom_geoscale()` drawn at a coarser geoframe than the data's codes filled every region with `NA`; the codes are now carried up to the drawn geoframe before `fun` is applied. The code column defaults to the `geoframe`-named column, then the leaf column, then `region`.
 * `attach_geometry_geoscale()`, `add_area_geoscale()`, `ne_geoscale()` and `geoscale_from_provider()` rebuilt the object from its core parts and dropped its attributes and aliases; they now update it in place.
 
 # geoscales 0.7.3

@@ -26,10 +26,10 @@
 #' @noRd
 .region_labels <- function(x, geoframe) {
   lb <- .label_table(x)
-  lb <- lb[lb$frame == geoframe & !is.na(lb$unit) &
+  lb <- lb[lb$frame == geoframe & !is.na(lb$member) &
              lb$variant == .label_variant(x), , drop = FALSE]
   if (nrow(lb) == 0L) return(NULL)
-  stats::setNames(lb$label, lb$unit)
+  stats::setNames(lb$label, lb$member)
 }
 
 # Apply the label lookup to a vector of codes, leaving unmatched codes alone.
@@ -72,12 +72,12 @@ geoscale_layout <- function(x, weight = NULL, geoframes = NULL) {
   weight <- .resolve_weight(x, weight)
   all_lv <- S7::prop(x, "geoframes")
   drawn  <- .drawn_geoframes(x, geoframes)
-  # every geoframe orders the atoms, drawn or not, so a band keeps its place
+  # every geoframe orders the leaves, drawn or not, so a band keeps its place
   lv     <- all_lv
   leaves <- S7::prop(x, "leaftable")
   members <- S7::prop(x, "members")
 
-  # Order atoms so that every parent group is contiguous.
+  # Order leaves so that every parent group is contiguous.
   ord <- do.call(order, lapply(lv, function(l) {
     match(as.character(leaves[[l]]), members[[l]])
   }))
@@ -195,7 +195,7 @@ geoscale_layout <- function(x, weight = NULL, geoframes = NULL) {
 #'   fill. The map takes `data` keyed by `geoframe`.
 #'   Legend title via `labs(fill = )`.
 #' @param rule Icicle and stack, with `data`: the rule that recasts `z`
-#'   from the atoms to each coarser geoframe (`"weighted_mean"` default;
+#'   from the leaves to each coarser geoframe (`"weighted_mean"` default;
 #'   see [`recast_geoscale()`]). `"share"` colours every band or plane by
 #'   each region's share within the one above it on a fixed linear 0..1
 #'   scale; `"logshare"` is the same on a fixed log10 percent scale.
@@ -223,9 +223,8 @@ geoscale_layout <- function(x, weight = NULL, geoframes = NULL) {
 #'   `TRUE` draws all, and a character vector draws exactly the named ones,
 #'   hidden or not.
 #' @param key Icicle and stack: the geoframe `data` is keyed by, i.e. the
-#'   name of its code column. `NULL` (default) takes the geoframe a bound
-#'   column is on (see [`bind_geoscale()`]), else the finest geoframe that
-#'   is a column of `data`.
+#'   name of its code column. `NULL` (default) takes the finest geoframe
+#'   that is a column of `data`.
 #' @param precision Stack and map: GEOS precision for the dissolve,
 #'   forwarded to [`geoscale_geometry()`]. Default `0` = off.
 #' @param view Stack: a predefined point of view -- `"oblique"` (the
@@ -283,7 +282,7 @@ geoscale_layout <- function(x, weight = NULL, geoframes = NULL) {
 #' that geoframe.
 #'
 #' @section Stack (`type = "stack"`):
-#' One sheared map plane per geoframe, coarsest on top: the same atoms
+#' One sheared map plane per geoframe, coarsest on top: the same leaves
 #' dissolved at each resolution, under a chosen point of view. Without
 #' `data`, regions are coloured by their ancestor at the coarsest geoframe
 #' with two or more regions, so each child carries its parent's colour down
@@ -310,9 +309,9 @@ geoscale_layout <- function(x, weight = NULL, geoframes = NULL) {
 #' }
 #' if (requireNamespace("ggplot2", quietly = TRUE) &&
 #'     requireNamespace("sf", quietly = TRUE)) {
-#'   # the stack and the map need geometry: one unit square per atom
+#'   # the stack and the map need geometry: one 1 x 1 square per leaf
 #'   gs <- geoscale_example()
-#'   n <- length(geoscale_regions(gs, "atom"))
+#'   n <- length(geoscale_regions(gs, "cell"))
 #'   square <- function(i) {
 #'     sf::st_polygon(list(cbind(c(i, i + 1, i + 1, i, i), c(0, 0, 1, 1, 0))))
 #'   }
@@ -468,8 +467,8 @@ gg_geoscale <- function(object,
 
 #' The geoframe a plot's `data` is keyed by
 #'
-#' `key` names it. Otherwise it is the geoframe a bound code column is on,
-#' else the finest geoframe of the object that is a column of `data`.
+#' `key` names it. Otherwise it is the finest geoframe of the object that
+#' is a column of `data`.
 #' @noRd
 .plot_source <- function(x, data, key = NULL) {
   lv <- S7::prop(x, "geoframes")
@@ -478,9 +477,6 @@ gg_geoscale <- function(object,
     if (!key %in% names(data)) .stop("`data` has no column `%s`", key)
     return(key)
   }
-  ln <- geoscale_link(data)
-  ln <- ln[ln$frame %in% lv & ln$column == ln$frame, , drop = FALSE]
-  if (nrow(ln) == 1L) return(ln$frame[[1L]])
   have <- lv[lv %in% names(data)]
   if (length(have) == 0L) {
     .stop(paste0("`data` must be keyed by a geoframe: a column named as one ",
@@ -575,7 +571,7 @@ gg_geoscale <- function(object,
 #' it; a cross-cutting plane climbs further, and the coarsest plane (or
 #' one nesting in nothing above it) is normalised by the grand total. So
 #' the whole figure reads on one 0..1 scale. Values sum-aggregate from
-#' the atoms to each plane first; `weight` plays no part, as in the rule.
+#' the leaves to each plane first; `weight` plays no part, as in the rule.
 #' @noRd
 .geoscale_frame_shares <- function(x, gfs, data, z, src) {
   vals <- lapply(seq_along(gfs), function(i) {
@@ -632,7 +628,7 @@ plot.GeoScale <- function(x, ...) {
 #' The choropleth (type = "map" of gg_geoscale())
 #'
 #' Draws `data[[z]]` over the geometry of `geoframe`, dissolved from the
-#' atoms; without `data`, the region outlines. Needs sf and attached
+#' leaves; without `data`, the region outlines. Needs sf and attached
 #' geometry.
 #' @noRd
 # Qualitative fills for a DISCRETE map (region membership, categories), in
@@ -780,8 +776,8 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
 
 #' The axonometric stack (type = "stack" of gg_geoscale())
 #'
-#' One plane per geoframe, coarsest on top: the same atoms, dissolved at
-#' each resolution. Footprints are normalized to a unit box, mapped
+#' One plane per geoframe, coarsest on top: the same leaves, dissolved at
+#' each resolution. Footprints are normalized to a 1 x 1 box, mapped
 #' through the view axes (rows of the affine matrix are the screen
 #' images of the in-plane axes), optionally shrunk per layer
 #' (perspective), and lifted; painter order is bottom (finest) first, so
@@ -835,7 +831,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
   M <- R %*% rbind(v$e1, v$e2)    # in-plane rotation, then projection
   ctr <- c(c(0.5, 0.5) %*% M)
 
-  # normalise `g` to the unit box of `ref` (default: its own box), so an
+  # normalise `g` to the 1 x 1 box of `ref` (default: its own box), so an
   # overlay drawn on a plane shares that plane's frame of reference
   norm_by <- function(g, ref = g) {
     bb <- sf::st_bbox(ref)
@@ -930,7 +926,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax", ".fill", "region",
     })
   }
 
-  # coarser-geoframe borders over the finer planes: the atoms dissolved
+  # coarser-geoframe borders over the finer planes: the leaves dissolved
   # at each `outline` geoframe, run through the plane's own transform.
   # A plane shows only the outlines of geoframes coarser than its own.
   outlines <- vector("list", nk)

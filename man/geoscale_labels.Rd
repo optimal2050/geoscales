@@ -21,8 +21,9 @@ geoscale_label(x, region, geoframe, variant = NULL)
 \arguments{
 \item{x}{A \code{\link{GeoScale}}.}
 
-\item{labels}{A \code{data.frame} with columns \code{frame} (or \code{geoframe}), \code{unit}
-(or \code{region}), \code{label} and optionally \code{variant}.}
+\item{labels}{A \code{data.frame} with columns \code{geoframe}, \code{region}, \code{label}
+and optionally \code{variant}. The \code{nestedscales} names \code{frame} and \code{member}
+are accepted for the first two.}
 
 \item{variant}{For \code{attach_labels_geoscale()}: the variant the rows belong
 to when \code{labels} has no \code{variant} column (default \code{"label"}). For the
@@ -43,7 +44,7 @@ for the geoframe itself.}
 }
 \value{
 \code{attach_labels_geoscale()} the \code{\link{GeoScale}};
-\code{geoscale_labels()} a \code{data.frame} with columns \code{frame}, \code{unit},
+\code{geoscale_labels()} a \code{data.frame} with columns \code{geoframe}, \code{region},
 \code{variant}, \code{label}; \code{geoscale_label()} a character vector as long as
 \code{region}.
 }
@@ -53,7 +54,7 @@ region at a geoframe and to a named \code{variant} -- a free name such as
 \code{"name"}, \code{"short"} or a language code -- so a region may carry several
 names. The table is sparse: a geoframe may label every region, some, or
 none, and whatever has no label is shown by its code. A row with
-\code{unit = NA} names the geoframe itself.
+\code{region = NA} names the geoframe itself.
 }
 \details{
 \code{attach_labels_geoscale()} adds rows (and may set the default variant),

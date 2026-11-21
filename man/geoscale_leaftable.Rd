@@ -27,11 +27,11 @@ geoscale_leaftable(x)
 \item{data}{Ignored (S3 signature compatibility).}
 }
 \value{
-A \code{data.frame}: one row per atom, with the geoframe columns
+A \code{data.frame}: one row per leaf, with the geoframe columns
 plus any weight columns.
 }
 \description{
-The one-row-per-atom table the geoscale is built on, as a plain
+The one-row-per-leaf table the geoscale is built on, as a plain
 \code{data.frame} — the exported accessor to prefer over reaching for
 \code{x@leaftable} (the twin of \code{timescales::calendar_leaftable()}).
 \code{as.data.frame()} and \code{ggplot2::fortify()} on a GeoScale are

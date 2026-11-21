@@ -19,7 +19,7 @@ filter_geoscale(x, geoframe, region, drop_empty_geoframes = FALSE)
 A \code{\link{GeoScale}}.
 }
 \description{
-Keeps only the atoms belonging to \code{region} at \code{geoframe}, and rebuilds the
+Keeps only the leaves belonging to \code{region} at \code{geoframe}, and rebuilds the
 member vocabularies accordingly. Geometry, when attached, is subset in step.
 }
 \details{
@@ -32,7 +32,7 @@ coverage claim verifiable by the validator), \code{meta$parent_name}
 records the parent, and \code{meta$name} is mangled to
 \code{"parent[geoframe:n]"} so a sample never impersonates its parent in
 the crosswalk registry or in \code{\link[=join_geoscale]{join_geoscale()}} column names. A
-filter that keeps every atom is a true no-op. Read the fraction back
+filter that keeps every leaf is a true no-op. Read the fraction back
 with \code{\link[=geoscale_coverage]{geoscale_coverage()}}.
 }
 \examples{

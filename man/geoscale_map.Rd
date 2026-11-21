@@ -19,7 +19,7 @@ geoscale_map(
 \item{source, target}{Geoframe names of \code{gs}.}
 
 \item{weight}{Weight column for \code{w}. \code{NULL} uses the default weight; when
-the object declares no weights at all, every atom gets weight 1
+the object declares no weights at all, every leaf gets weight 1
 (an equal split).}
 
 \item{from, to}{Deprecated names of \code{source} and \code{target}.}
@@ -29,22 +29,22 @@ A \code{data.frame} with columns \verb{<source>}, \verb{<target>} (\code{NA} =
 uncovered by \code{target}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
 }
 \description{
-Materialises the \code{from -> atoms -> to} route as a table: one row per pair
+Materialises the \code{from -> leaves -> to} route as a table: one row per pair
 of overlapping regions with
 }
 \details{
 \itemize{
-\item \code{n_from} -- atoms in the \code{source} region (its full set, before any
+\item \code{n_from} -- leaves in the \code{source} region (its full set, before any
 target coverage is considered),
-\item \code{n_overlap} -- atoms the pair shares,
-\item \code{w} -- the weight of the overlap (summed atom weights, chosen weight
+\item \code{n_overlap} -- leaves the pair shares,
+\item \code{w} -- the weight of the overlap (summed leaf weights, chosen weight
 column), the quantity \code{"weighted_mean"} aggregation uses,
 \item \code{w_from} -- the full weight of the \code{source} region; \code{w / w_from} is the
 split share \code{"sum"} disaggregation uses.
 }
 
 The two label columns are named by the geoframes; rows with an \code{NA} target
-label are atoms \code{target} does not cover. A crosswalk registered with
+label are leaves \code{target} does not cover. A crosswalk registered with
 \code{\link[=register_geoscale_map]{register_geoscale_map()}} is returned as-is instead of being derived.
 }
 \examples{

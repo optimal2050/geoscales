@@ -20,7 +20,7 @@ unnamed numeric when \code{weight} is given.
 The spatial mirror of a partial calendar's \code{year_fraction}: the
 fraction of the ROOT parent's weight totals that this object still
 carries. \code{\link[=filter_geoscale]{filter_geoscale()}} (and \code{\link[=prune_geoscale]{prune_geoscale()}} when it
-drops uncovered atoms) record it in \code{meta$coverage}; an object that
+drops uncovered leaves) record it in \code{meta$coverage}; an object that
 was never sampled reports \code{1} for every weight.
 }
 \examples{

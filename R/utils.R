@@ -8,7 +8,7 @@
 
 #' Blank-or-NA to NA
 #'
-#' Real-world region tables use `""` and `NA` interchangeably for "this atom
+#' Real-world region tables use `""` and `NA` interchangeably for "this leaf
 #' has no code at this geoframe" (e.g. IDEEA's rest-of-world row). Normalise
 #' both to `NA_character_` on the way in.
 #' @noRd
@@ -50,4 +50,20 @@
   if (length(x) <= n) return(paste(x, collapse = ", "))
   sprintf("%s, ... (%d total)", paste(utils::head(x, n), collapse = ", "),
           length(x))
+}
+
+#' Code columns as plain character
+#'
+#' A column bound with `nestedscales::bind_scale()` is a `scale_member`
+#' vector. The functions of this package match data to a GeoScale by its
+#' codes alone, so such columns are read as the character codes they hold.
+#' Lazy tables are returned unchanged.
+#' @noRd
+.geo_plain_codes <- function(data) {
+  if (!is.data.frame(data)) return(data)
+  bound <- vapply(data, inherits, logical(1), what = "scale_member")
+  for (nm in names(data)[bound]) {
+    data[[nm]] <- as.character(unclass(data[[nm]]))
+  }
+  data
 }

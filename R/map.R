@@ -1,10 +1,10 @@
 # =============================================================================
-# geoscale_map() -- the crosswalk through the atom layer
+# geoscale_map() -- the crosswalk through the leaf layer
 # =============================================================================
-# The spatial mirror of timescales::calendar_map(). The atom layer is already
+# The spatial mirror of timescales::calendar_map(). The leaf layer is already
 # materialised in `@leaftable` (there is no expand_calendar() step), so the
 # crosswalk is a plain aggregation of the leaf table: one row per pair of
-# overlapping regions, carrying the atom counts and weights every recast rule
+# overlapping regions, carrying the leaf counts and weights every recast rule
 # needs. `recast_geoscale()` is a join against this table plus one grouped
 # summarise, which is what lets the converters run unchanged over
 # data.frame / data.table / arrow backends.
@@ -13,7 +13,7 @@
 #   * geoscale_map(gs, source, target)     -- `source`/`target` are geoframe
 #     names of `gs`;
 #   * geoscale_map_between(source, target) -- two GeoScale objects, matched on
-#     shared atom `region` keys (reg32 <-> NUTS style conversions).
+#     shared leaf codes (reg32 <-> NUTS style conversions).
 #
 # The derivation and the registry of exact / hand-audited crosswalks live in
 # nestedscales; these functions keep the geoscales argument names and errors.
@@ -21,26 +21,26 @@
 
 #' Crosswalk between two geoframes of a GeoScale
 #'
-#' Materialises the `from -> atoms -> to` route as a table: one row per pair
+#' Materialises the `from -> leaves -> to` route as a table: one row per pair
 #' of overlapping regions with
 #'
-#' * `n_from` -- atoms in the `source` region (its full set, before any
+#' * `n_from` -- leaves in the `source` region (its full set, before any
 #'   target coverage is considered),
-#' * `n_overlap` -- atoms the pair shares,
-#' * `w` -- the weight of the overlap (summed atom weights, chosen weight
+#' * `n_overlap` -- leaves the pair shares,
+#' * `w` -- the weight of the overlap (summed leaf weights, chosen weight
 #'   column), the quantity `"weighted_mean"` aggregation uses,
 #' * `w_from` -- the full weight of the `source` region; `w / w_from` is the
 #'   split share `"sum"` disaggregation uses.
 #'
 #' The two label columns are named by the geoframes; rows with an `NA` target
-#' label are atoms `target` does not cover. A crosswalk registered with
+#' label are leaves `target` does not cover. A crosswalk registered with
 #' [`register_geoscale_map()`] is returned as-is instead of being derived.
 #'
 #' @param gs The [`GeoScale`] the geoframes belong to.
 #' @param source,target Geoframe names of `gs`.
 #' @param from,to Deprecated names of `source` and `target`.
 #' @param weight Weight column for `w`. `NULL` uses the default weight; when
-#'   the object declares no weights at all, every atom gets weight 1
+#'   the object declares no weights at all, every leaf gets weight 1
 #'   (an equal split).
 #'
 #' @return A `data.frame` with columns `<source>`, `<target>` (`NA` =
@@ -75,34 +75,34 @@ geoscale_map <- function(gs, source, target, weight = NULL,
   nestedscales::scale_map(gs, from, to, weight = weight)
 }
 
-#' Crosswalk between two GeoScales through their shared atoms
+#' Crosswalk between two GeoScales through their shared leaves
 #'
-#' The counterpart of [`geoscale_map()`] for two GeoScales: atoms are matched
-#' on their `region` keys, so a region of `source` overlaps a region of `target`
-#' where they contain the same atoms. Same columns as [`geoscale_map()`], with
-#' the two label columns named after the GeoScales. Atoms of `source` absent
+#' The counterpart of [`geoscale_map()`] for two GeoScales: leaves are matched
+#' on their codes, so a region of `source` overlaps a region of `target`
+#' where they contain the same leaves. Same columns as [`geoscale_map()`], with
+#' the two label columns named after the GeoScales. Leaves of `source` absent
 #' from `target` get an `NA` target (with a warning). A crosswalk registered
 #' with [`register_geoscale_map_between()`] is returned as-is instead of being
 #' derived.
 #'
-#' @param source,target Two named [`GeoScale`] objects whose atom keys overlap.
+#' @param source,target Two named [`GeoScale`] objects whose leaf codes overlap.
 #' @param from,to Deprecated names of `source` and `target`.
 #' @param weight Weight column of `source` for `w`; `NULL` uses its default
-#'   weight, or weight 1 per atom when it declares none.
+#'   weight, or weight 1 per leaf when it declares none.
 #'
 #' @return A `data.frame` with columns `<from name>`, `<to name>`, `n_from`,
 #'   `n_overlap`, `w`, `w_from`.
 #'
 #' @examples
 #' gs <- geoscale_example()
-#' # another hierarchy over the same atoms (ROW has no counterpart: NA target)
+#' # another hierarchy over the same leaves (ROW has no counterpart: NA target)
 #' bands <- geoscale_from_leaftable(
 #'   data.frame(
 #'     band = rep(c("X", "Y"), 3),
-#'     atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+#'     cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
 #'     km2 = c(100, 200, 300, 400, 500, 600)
 #'   ),
-#'   geoframes = c("band", "atom"), name = "bands"
+#'   geoframes = c("band", "cell"), name = "bands"
 #' )
 #' geoscale_map_between(gs, bands)
 #' @export
@@ -135,7 +135,7 @@ geoscale_map_between <- function(source, target, weight = NULL,
 
 #' Register / look up a direct spatial crosswalk
 #'
-#' A registered map short-circuits the atom-layer derivation in
+#' A registered map short-circuits the leaf-layer derivation in
 #' [`geoscale_map()`] or [`geoscale_map_between()`] (and thereby
 #' [`recast_geoscale()`]) for one pair of resolutions -- for cases where the
 #' exact correspondence is known (hand-audited crosswalks, official

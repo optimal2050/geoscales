@@ -62,7 +62,7 @@ fill. The map takes \code{data} keyed by \code{geoframe}.
 Legend title via \code{labs(fill = )}.}
 
 \item{rule}{Icicle and stack, with \code{data}: the rule that recasts \code{z}
-from the atoms to each coarser geoframe (\code{"weighted_mean"} default;
+from the leaves to each coarser geoframe (\code{"weighted_mean"} default;
 see \code{\link[=recast_geoscale]{recast_geoscale()}}). \code{"share"} colours every band or plane by
 each region's share within the one above it on a fixed linear 0..1
 scale; \code{"logshare"} is the same on a fixed log10 percent scale.}
@@ -153,9 +153,8 @@ resolution (\code{outline = "zone"} marks the zones on the region plane).
 hidden or not.}
 
 \item{key}{Icicle and stack: the geoframe \code{data} is keyed by, i.e. the
-name of its code column. \code{NULL} (default) takes the geoframe a bound
-column is on (see \code{\link[=bind_geoscale]{bind_geoscale()}}), else the finest geoframe that
-is a column of \code{data}.}
+name of its code column. \code{NULL} (default) takes the finest geoframe
+that is a column of \code{data}.}
 
 \item{...}{Fixed aesthetics for the figure's main layer: the icicle's
 \code{geom_rect()}, the stack's and the map's \code{geom_sf()} (e.g.
@@ -182,7 +181,7 @@ that geoframe.
 
 \section{Stack (\code{type = "stack"})}{
 
-One sheared map plane per geoframe, coarsest on top: the same atoms
+One sheared map plane per geoframe, coarsest on top: the same leaves
 dissolved at each resolution, under a chosen point of view. Without
 \code{data}, regions are coloured by their ancestor at the coarsest geoframe
 with two or more regions, so each child carries its parent's colour down
@@ -212,9 +211,9 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 }
 if (requireNamespace("ggplot2", quietly = TRUE) &&
     requireNamespace("sf", quietly = TRUE)) {
-  # the stack and the map need geometry: one unit square per atom
+  # the stack and the map need geometry: one 1 x 1 square per leaf
   gs <- geoscale_example()
-  n <- length(geoscale_regions(gs, "atom"))
+  n <- length(geoscale_regions(gs, "cell"))
   square <- function(i) {
     sf::st_polygon(list(cbind(c(i, i + 1, i + 1, i, i), c(0, 0, 1, 1, 0))))
   }
