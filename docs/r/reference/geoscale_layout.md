@@ -8,7 +8,7 @@ ggplot2.
 ## Usage
 
 ``` r
-geoscale_layout(x, weight = NULL)
+geoscale_layout(x, weight = NULL, geoframes = NULL)
 ```
 
 ## Arguments
@@ -21,6 +21,12 @@ geoscale_layout(x, weight = NULL)
 - weight:
 
   Weight column. `NULL` uses the default.
+
+- geoframes:
+
+  The geoframes to lay out: `NULL` (default) those not hidden (see
+  [`hide_geoframes_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.md)),
+  `TRUE` all, or a character vector of names.
 
 ## Value
 

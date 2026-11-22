@@ -48,8 +48,8 @@ Invisibly, the registered provider.
 register_geoscale_provider(
   "toy",
   fetch = function(...) data.frame(top = c("T", "T"),
-                                   unit = c("a", "b"), km2 = c(1, 2)),
-  geoframes = c("top", "unit"), weights = "km2"
+                                   cell = c("a", "b"), km2 = c(1, 2)),
+  geoframes = c("top", "cell"), weights = "km2"
 )
 list_geoscale_providers()
 #>           name                                          desc

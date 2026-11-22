@@ -9,7 +9,7 @@ normalises the country-code column."><meta property="og:image" content="https://
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,17 +87,17 @@ requires <code>rnaturalearthhires</code>, which is <strong>not on CRAN</strong> 
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>sf</code> object with two added columns: <code>feature</code>, the Natural Earth
-unit (<code>adm0_a3</code>, or <code>adm1_code</code> for states), and <code>country</code>, its admin-0
+area (<code>adm0_a3</code>, or <code>adm1_code</code> for states), and <code>country</code>, its admin-0
 code.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>feature</code> is the atom and <code>country</code> is a grouping of atoms on top of it. At
+    <p><code>feature</code> is the leaf and <code>country</code> is a grouping of leaves on top of it. At
 admin-0 the two are the same code; at admin-1 (<code>geoframe = "states"</code>)
-<code>feature</code> is the state and <code>country</code> is the admin-0 unit it belongs to.</p>
+<code>feature</code> is the state and <code>country</code> is the admin-0 area it belongs to.</p>
 <p>Codes of <code>"-99"</code> mean <em>unassigned</em> and are returned as <code>NA</code>. That is why
-<code>country</code> is a geoframe rather than the atom key: it may be missing,
-whereas an atom key may not.</p>
+<code>country</code> is a geoframe rather than the leaf column: it may be missing,
+whereas a leaf column may not.</p>
     </div>
 
     <div class="section level2">

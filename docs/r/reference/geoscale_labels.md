@@ -6,7 +6,7 @@ A label belongs to a region at a geoframe and to a named `variant` – a
 free name such as `"name"`, `"short"` or a language code – so a region
 may carry several names. The table is sparse: a geoframe may label every
 region, some, or none, and whatever has no label is shown by its code. A
-row with `unit = NA` names the geoframe itself.
+row with `region = NA` names the geoframe itself.
 
 ## Usage
 
@@ -33,8 +33,9 @@ geoscale_label(x, region, geoframe, variant = NULL)
 
 - labels:
 
-  A `data.frame` with columns `frame` (or `geoframe`), `unit` (or
-  `region`), `label` and optionally `variant`.
+  A `data.frame` with columns `geoframe`, `region`, `label` and
+  optionally `variant`. The `nestedscales` names `frame` and `member`
+  are accepted for the first two.
 
 - variant:
 
@@ -67,7 +68,7 @@ geoscale_label(x, region, geoframe, variant = NULL)
 
 `attach_labels_geoscale()` the
 [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md);
-`geoscale_labels()` a `data.frame` with columns `frame`, `unit`,
+`geoscale_labels()` a `data.frame` with columns `geoframe`, `region`,
 `variant`, `label`; `geoscale_label()` a character vector as long as
 `region`.
 
@@ -94,10 +95,10 @@ gs <- attach_labels_geoscale(
   variant = "de"
 )
 geoscale_labels(gs)
-#>     frame unit variant     label
-#> 1 country    N    name Northland
-#> 2 country    S    name Southland
-#> 3 country    N      de  Nordland
+#>   geoframe region variant     label
+#> 1  country      N    name Northland
+#> 2  country      S    name Southland
+#> 3  country      N      de  Nordland
 geoscale_label(gs, c("N", "S"), "country")
 #> [1] "Northland" "Southland"
 geoscale_label(gs, c("N", "S"), "country", variant = "de")

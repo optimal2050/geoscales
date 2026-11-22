@@ -1,6 +1,6 @@
 # Geometry dissolved to a geoframe
 
-Unions the atom geometries within each code at `geoframe`.
+Unions the leaf geometries within each code at `geoframe`.
 
 ## Usage
 
@@ -18,7 +18,7 @@ geoscale_geometry(x, geoframe = NULL, precision = 0)
 
 - geoframe:
 
-  Geoframe to dissolve to. Defaults to the atom geoframe.
+  Geoframe to dissolve to. Defaults to the leaf geoframe.
 
 - precision:
 
@@ -29,7 +29,7 @@ geoscale_geometry(x, geoframe = NULL, precision = 0)
   [`sf::st_make_valid()`](https://r-spatial.github.io/sf/reference/valid.html)).
   Default `0` = off — geometry is never silently altered. Use when a
   constructed lattice shows phantom internal borders after dissolve:
-  that means adjacent atoms' shared vertices do not coincide exactly,
+  that means adjacent leaves' shared vertices do not coincide exactly,
   and the honest fix is at the source; `precision=` is the workaround.
 
 ## Value

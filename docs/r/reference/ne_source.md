@@ -33,18 +33,19 @@ ne_source(scale = 110, geoframe = c("country", "states"), country = NULL, ...)
 
 ## Value
 
-An `sf` object with two added columns: `feature`, the Natural Earth unit
+An `sf` object with two added columns: `feature`, the Natural Earth area
 (`adm0_a3`, or `adm1_code` for states), and `country`, its admin-0 code.
 
 ## Details
 
-`feature` is the atom and `country` is a grouping of atoms on top of it.
-At admin-0 the two are the same code; at admin-1 (`geoframe = "states"`)
-`feature` is the state and `country` is the admin-0 unit it belongs to.
+`feature` is the leaf and `country` is a grouping of leaves on top of
+it. At admin-0 the two are the same code; at admin-1
+(`geoframe = "states"`) `feature` is the state and `country` is the
+admin-0 area it belongs to.
 
 Codes of `"-99"` mean *unassigned* and are returned as `NA`. That is why
-`country` is a geoframe rather than the atom key: it may be missing,
-whereas an atom key may not.
+`country` is a geoframe rather than the leaf column: it may be missing,
+whereas a leaf column may not.
 
 ## Examples
 

@@ -39,7 +39,7 @@ print(x, ...)
 
 [`summary()`](https://rdrr.io/r/base/summary.html) returns a list of
 class `"summary_GeoScale"`: `name`, `desc`, `geoframes` (named member
-counts), `unassigned` (named NA-atom counts), `n_atoms`, `weights`,
+counts), `unassigned` (named NA-leaf counts), `n_leaves`, `weights`,
 `weight_totals`, `default_weight`, `coverage` (see
 [`geoscale_coverage()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.md)),
 `sampled`, `parent_name`, `nesting` (adjacent-pair table with offender
@@ -52,24 +52,24 @@ counts, see
 ``` r
 summary(geoscale_example())
 #> <summary of GeoScale 'example' >
-#>   desc:          Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom
-#>   geoframes:      country (2) / state (3) / zone (3) / atom (7)
-#>   atoms:          7
+#>   desc:          Synthetic example: reused code, non-nesting geoframe pair, and an unassigned leaf
+#>   geoframes:      country (2) / state (3) / zone (3) / cell (7)
+#>   leaves:         7
 #>   unassigned:     country (1), state (1), zone (1)
 #>   weight totals:  km2 = 3,100, pop =   300  (default: km2)
 #>   nesting:        country > state: nested
 #>   nesting:        state > zone: CROSS-CUTTING (1 offender(s))
-#>   nesting:        zone > atom: nested
+#>   nesting:        zone > cell: nested
 #>   geometry:       none
 summary(filter_geoscale(geoscale_example(), "country", "N"))
 #> <summary of GeoScale 'example[country:N]' >
-#>   desc:          Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom
-#>   geoframes:      country (1) / state (2) / zone (2) / atom (4)
-#>   atoms:          4
+#>   desc:          Synthetic example: reused code, non-nesting geoframe pair, and an unassigned leaf
+#>   geoframes:      country (1) / state (2) / zone (2) / cell (4)
+#>   leaves:         4
 #>   weight totals:  km2 = 1,000, pop =   200  (default: km2)
 #>   SAMPLED:        km2 32.3%, pop 66.7% of 'example'
 #>   nesting:        country > state: nested
 #>   nesting:        state > zone: nested
-#>   nesting:        zone > atom: nested
+#>   nesting:        zone > cell: nested
 #>   geometry:       none
 ```

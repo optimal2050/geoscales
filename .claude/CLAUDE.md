@@ -51,8 +51,8 @@ $RBIN = (Rscript -e "cat(file.path(R.home('bin'),'R.exe'))")
 
 **Never add `energyRt` as a dependency.** `energyRt` suggests `geoscales`; a
 dependency in the other direction closes a loop. This is why
-`vignettes/articles/plotting.Rmd`, which draws on UTOPIA maps from `energyRt`,
-is a pkgdown-only article listed in `.Rbuildignore` as `^vignettes/articles$` —
+`vignettes/articles/visualization.Rmd`, which draws on the TOPIA layouts from
+`energyRt`, is a pkgdown-only article listed in `.Rbuildignore` as `^vignettes/articles$` —
 `R CMD build` never ships it, so `R CMD check` never sees its `energyRt::`
 calls. The check *does* flag `::` on undeclared packages in vignettes
 (`tools:::.check_packages_used_helper` matches `::` explicitly), so moving that

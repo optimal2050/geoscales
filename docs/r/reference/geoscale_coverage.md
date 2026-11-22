@@ -5,7 +5,7 @@ of the ROOT parent's weight totals that this object still carries.
 [`filter_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/filter_geoscale.md)
 (and
 [`prune_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.md)
-when it drops uncovered atoms) record it in `meta$coverage`; an object
+when it drops uncovered leaves) record it in `meta$coverage`; an object
 that was never sampled reports `1` for every weight.
 
 ## Usage

@@ -1,6 +1,6 @@
 # Register / look up a direct spatial crosswalk
 
-A registered map short-circuits the atom-layer derivation in
+A registered map short-circuits the leaf-layer derivation in
 [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
 or
 [`geoscale_map_between()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map_between.md)

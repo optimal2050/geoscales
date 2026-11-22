@@ -5,7 +5,13 @@ Stores an `sfc` on the object, aligned to `@leaftable` row order.
 ## Usage
 
 ``` r
-attach_geometry_geoscale(x, geom, by = NULL, geoframe = NULL)
+attach_geometry_geoscale(
+  x,
+  geom,
+  by = NULL,
+  geoframe = NULL,
+  positional = FALSE
+)
 ```
 
 ## Arguments
@@ -22,13 +28,21 @@ attach_geometry_geoscale(x, geom, by = NULL, geoframe = NULL)
 
 - by:
 
-  Name of the code column in `geom` to match on. Defaults to the atom
+  Name of the code column in `geom` to match on. Defaults to the leaf
   geoframe, then `"region"`.
 
 - geoframe:
 
-  Geoframe that `geom`'s codes refer to. Defaults to the atom geoframe.
-  When coarser, each atom inherits its parent's geometry.
+  Geoframe that `geom`'s codes refer to. Defaults to the leaf geoframe.
+  When coarser, each leaf inherits its parent's geometry.
+
+- positional:
+
+  Acknowledge a by-position bind. An `sfc` carries no codes, so nothing
+  can check its order; when the constructor re-sorted the leaftable
+  (`meta$row_permuted`) the caller's order is no longer the object's and
+  the bind is refused. Set `TRUE` when the `sfc` is known to be in
+  `@leaftable` order. Ignored for an `sf`, which is matched on `by`.
 
 ## Value
 

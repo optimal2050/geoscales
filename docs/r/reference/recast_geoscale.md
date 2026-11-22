@@ -4,11 +4,11 @@ The central conversion verb: takes a table keyed by region code at
 geoframe `source` and returns one keyed at `target` – a geoframe name of
 the same
 [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md),
-or ANOTHER GeoScale (whose atom layer is the target, matched on shared
-atom `region` keys). Handles both aggregation (fine to coarse) and
+or ANOTHER GeoScale (whose leaf layer is the target, matched on shared
+leaf codes). Handles both aggregation (fine to coarse) and
 disaggregation (coarse to fine) with a single rule per value column;
 geoframes that cross-cut work too, because the route always goes through
-the atom layer. The route is evaluated as one dplyr pipeline against the
+the leaf layer. The route is evaluated as one dplyr pipeline against the
 [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
 crosswalk, so `data` may live in any supported backend (see below). A
 crosswalk registered with
@@ -59,13 +59,13 @@ recast_geoscale(
 
   Target geoframe name of `gs`, or another (named)
   [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
-  – then the target is that object's atom layer, matched on the atom
+  – then the target is that object's leaf layer, matched on the leaf
   codes the two objects share.
 
 - key:
 
   Name of the region-code column in `data`. Defaults to `source` when
-  that column exists, otherwise the GeoScale's atom key.
+  that column exists, otherwise the GeoScale's leaf column.
 
 - values:
 
@@ -89,12 +89,12 @@ recast_geoscale(
   Weight column used by `sum` (splitting), `weighted_mean` and the
   attached shares. `NULL` uses each column's registered weight, falling
   back to the object's default weight; when the object declares no
-  weights at all, atoms weigh 1 (an equal split, with a warning when
+  weights at all, leaves weigh 1 (an equal split, with a warning when
   that choice is material, i.e. when disaggregating).
 
 - na_action:
 
-  What to do with atoms that have no code at `source` or `target`:
+  What to do with leaves that have no code at `source` or `target`:
   `"drop"` (default, with a warning – the affected source share is
   genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA`
   region row so totals conserve).
@@ -132,18 +132,18 @@ call; this is what makes mixed pipelines like
 like `gs`'s geoframes are treated as region attributes and dropped.
 
 The public halves of the route are
-[`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
+[`recast_to_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md)
 and
-[`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md);
+[`recast_from_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md);
 `recast_geoscale(x, gs, from, to)` is equivalent to
-`recast_from_geoatoms(recast_to_geoatoms(x, gs, from), gs, to)`.
+`recast_from_geoleaves(recast_to_geoleaves(x, gs, from), gs, to)`.
 
 Rules (see
 [`GEOSCALE_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEOSCALE_RULES.md)):
-`"sum"` splits each source value across its region's atoms
+`"sum"` splits each source value across its region's leaves
 proportionally to the weight before summing up, so totals are conserved.
-`"weighted_mean"` weights by the atom weights; `"mean"` is the plain
-atom-count mean – the two differ exactly when atom weights differ.
+`"weighted_mean"` weights by the leaf weights; `"mean"` is the plain
+leaf-count mean – the two differ exactly when leaf weights differ.
 `"copy"` requires a constant value per target region; `"sd"` is
 aggregation-only.
 
@@ -179,9 +179,9 @@ result is materialised.
 gs <- geoscale_example()
 
 # Extensive quantity, fine -> coarse: totals are preserved
-x <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+x <- data.frame(cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 capacity = c(1, 2, 3, 4, 5, 6))
-recast_geoscale(x, gs, source = "atom", target = "country", rule = "sum")
+recast_geoscale(x, gs, source = "cell", target = "country", rule = "sum")
 #>   country capacity
 #> 1       N       10
 #> 2       S       11
@@ -196,19 +196,19 @@ recast_geoscale(y, gs, source = "country", target = "state",
 #> 3    S1       20
 
 # Intensive quantity: weighted mean going up, copied going down
-z <- data.frame(atom = c("A1", "A2", "A3", "A4", "A5", "A6"),
+z <- data.frame(cell = c("A1", "A2", "A3", "A4", "A5", "A6"),
                 eff = c(0.3, 0.4, 0.5, 0.5, 0.6, 0.6))
-recast_geoscale(z, gs, source = "atom", target = "state",
+recast_geoscale(z, gs, source = "cell", target = "state",
                 rule = "weighted_mean")
 #>   state       eff
 #> 1    N1 0.3666667
 #> 2    N2 0.5000000
 #> 3    S1 0.6000000
 
-# Share within parent: result stays at the atoms, sums to 1 per country
-recast_geoscale(x, gs, source = "atom", target = "country", rule = "share")
-#> Warning: 1 unit(s) of `atom` have no code at parent `country` and get NA shares (ROW). Use na_action = "keep" to treat them as one group.
-#>   atom  capacity
+# Share within parent: result stays at the leaves, sums to 1 per country
+recast_geoscale(x, gs, source = "cell", target = "country", rule = "share")
+#> Warning: 1 member(s) of `cell` have no code at parent `country` and get NA shares (ROW). Use na_action = "keep" to treat them as one group.
+#>   cell  capacity
 #> 1   A1 0.1000000
 #> 2   A2 0.2000000
 #> 3   A3 0.3000000

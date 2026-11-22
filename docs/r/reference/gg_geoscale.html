@@ -13,7 +13,7 @@ returns the same ggplot; plot() draws it and returns it invisibly."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,6 +91,8 @@ returns the same ggplot; <code><a href="https://rdrr.io/r/graphics/plot.default.
 <span>  outline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  outline_colour <span class="op">=</span> <span class="st">"grey20"</span>,</span>
 <span>  outline_linewidth <span class="op">=</span> <span class="fl">0.6</span>,</span>
+<span>  geoframes <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  key <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -120,15 +122,17 @@ error, not ignored.</p></dd>
 <dd><p>Colour the figure by a value instead of by structure.
 <code>data</code> is a data.frame with the value column named by <code>z</code>; <code>z</code> is
 required whenever <code>data</code> is given. The icicle and the stack take
-<code>data</code> keyed by the atom geoframe and recast the value up to every
-coarser geoframe (see <code>rule</code>), so the whole figure shares one
-continuous fill scale; the map takes <code>data</code> keyed by <code>geoframe</code>.
+<code>data</code> keyed by any geoframe (see <code>key</code>) and recast the value up to
+every coarser geoframe it nests in (see <code>rule</code>), so those bands or
+planes share one continuous fill scale. A geoframe finer than the
+data, or cutting across it, has no value and is outlined without a
+fill. The map takes <code>data</code> keyed by <code>geoframe</code>.
 Legend title via <code>labs(fill = )</code>.</p></dd>
 
 
 <dt id="arg-rule">rule<a class="anchor" aria-label="anchor" href="#arg-rule"></a></dt>
 <dd><p>Icicle and stack, with <code>data</code>: the rule that recasts <code>z</code>
-from the atoms to each coarser geoframe (<code>"weighted_mean"</code> default;
+from the leaves to each coarser geoframe (<code>"weighted_mean"</code> default;
 see <code><a href="recast_geoscale.html">recast_geoscale()</a></code>). <code>"share"</code> colours every band or plane by
 each region's share within the one above it on a fixed linear 0..1
 scale; <code>"logshare"</code> is the same on a fixed log10 percent scale.</p></dd>
@@ -164,7 +168,8 @@ the code.</p></dd>
 
 
 <dt id="arg-geoframe">geoframe<a class="anchor" aria-label="anchor" href="#arg-geoframe"></a></dt>
-<dd><p>Map: the geoframe to draw. Defaults to the atom geoframe.</p></dd>
+<dd><p>Map: the geoframe to draw. Defaults to the finest
+geoframe that is not hidden.</p></dd>
 
 
 <dt id="arg-precision">precision<a class="anchor" aria-label="anchor" href="#arg-precision"></a></dt>
@@ -247,6 +252,19 @@ resolution (<code>outline = "zone"</code> marks the zones on the region plane).
 <code>0.6</code>.</p></dd>
 
 
+<dt id="arg-geoframes">geoframes<a class="anchor" aria-label="anchor" href="#arg-geoframes"></a></dt>
+<dd><p>Icicle and stack: the geoframes to draw. <code>NULL</code>
+(default) draws those not hidden with <code><a href="hide_geoframes_geoscale.html">hide_geoframes_geoscale()</a></code>,
+<code>TRUE</code> draws all, and a character vector draws exactly the named ones,
+hidden or not.</p></dd>
+
+
+<dt id="arg-key">key<a class="anchor" aria-label="anchor" href="#arg-key"></a></dt>
+<dd><p>Icicle and stack: the geoframe <code>data</code> is keyed by, i.e. the
+name of its code column. <code>NULL</code> (default) takes the finest geoframe
+that is a column of <code>data</code>.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Fixed aesthetics for the figure's main layer: the icicle's
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_rect()</a></code>, the stack's and the map's <code><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf()</a></code> (e.g.
@@ -274,7 +292,7 @@ that geoframe.</p>
     <h2 id="stack-type-stack-">Stack (<code>type = "stack"</code>)<a class="anchor" aria-label="anchor" href="#stack-type-stack-"></a></h2>
 
 
-<p>One sheared map plane per geoframe, coarsest on top: the same atoms
+<p>One sheared map plane per geoframe, coarsest on top: the same leaves
 dissolved at each resolution, under a chosen point of view. Without
 <code>data</code>, regions are coloured by their ancestor at the coarsest geoframe
 with two or more regions, so each child carries its parent's colour down
@@ -308,9 +326,9 @@ prints that figure and returns it invisibly, like base <code><a href="https://rd
 <span class="r-plt img"><img src="gg_geoscale-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"sf"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="co"># the stack and the map need geometry: one unit square per atom</span></span></span>
+<span class="r-in"><span>  <span class="co"># the stack and the map need geometry: one 1 x 1 square per leaf</span></span></span>
 <span class="r-in"><span>  <span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"atom"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"cell"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">square</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>    <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st.html" class="external-link">st_polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">i</span>, <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">i</span>, <span class="va">i</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="op">}</span></span></span>

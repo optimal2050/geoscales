@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,7 +115,7 @@ weights.</p>
 <span><span class="co">#&gt;     - subregion (22)</span></span>
 <span><span class="co">#&gt;       - country (177)</span></span>
 <span><span class="co">#&gt;         - feature (177)</span></span>
-<span><span class="co">#&gt; Atoms: 177</span></span>
+<span><span class="co">#&gt; Leaves: 177</span></span>
 <span><span class="co">#&gt; Weights: pop_est, gdp_md (default: pop_est)</span></span>
 <span><span class="co">#&gt; Source: naturalearth</span></span>
 <span><span class="co">#&gt; Geometry: attached (177 features)</span></span></code></pre></div>
@@ -153,8 +153,9 @@ the total is conserved:</p>
 <span></span>
 <span><span class="va">back</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">ne</span>, <span class="va">gs</span>, source <span class="op">=</span> <span class="st">"subregion"</span>, target <span class="op">=</span> <span class="st">"country"</span>,</span>
 <span>                   rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"pop_est"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: 21 source unit(s) present in the scale but missing from the data (e.g.</span></span>
-<span><span class="co">#&gt; Antarctica, Australia and New Zealand, Caribbean, ... (21 total)); produced NAs</span></span>
+<span><span class="co">#&gt; Warning: 21 source member(s) present in the scale but missing from the data</span></span>
+<span><span class="co">#&gt; (e.g. Antarctica, Australia and New Zealand, Caribbean, ... (21 total));</span></span>
+<span><span class="co">#&gt; produced NAs</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">back</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">back</span><span class="op">$</span><span class="va">pop</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     country      pop</span></span>
 <span><span class="co">#&gt; 144     GBR 66834405</span></span>
@@ -170,12 +171,12 @@ round trip is exact:</p>
 <span><span class="co">#&gt; [1] NA</span></span></code></pre></div>
 <p><strong>Aggregation and disaggregation are one operation.</strong>
 Direction follows the geoframe ranks, and <code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code>
-routes through the atom layer either way.</p>
+routes through the leaf layer either way.</p>
 </div>
 <div class="section level2">
 <h2 id="icelands-own-regions">Iceland’s own regions<a class="anchor" aria-label="anchor" href="#icelands-own-regions"></a>
 </h2>
-<p>Natural Earth’s admin-1 layer gives sub-country units. This needs
+<p>Natural Earth’s admin-1 layer gives sub-country areas. This needs
 <code>rnaturalearthhires</code>, which is <strong>not on
 CRAN</strong>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -186,48 +187,51 @@ CRAN</strong>:</p>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 9</span></span></code></pre></div>
-<p>Nine units — but Iceland has eight regions. <code>Reykjavik</code>
-and the surrounding capital area are separate admin-1 features that
-belong to the same region, which Natural Earth records in
-<code>gn_name</code>. That gives a genuinely <strong>ragged</strong>
-hierarchy: one group with two children, seven with one.</p>
+<p>Nine admin-1 areas — but Iceland has eight regions.
+<code>Reykjavik</code> and the surrounding capital area are separate
+admin-1 features that belong to the same region, which Natural Earth
+records in <code>gn_name</code>. That gives a genuinely
+<strong>ragged</strong> hierarchy: one group with two children, seven
+with one.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">isl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  country    <span class="op">=</span> <span class="st">"ISL"</span>,</span>
 <span>  landshluti <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">gn_name</span>,       <span class="co"># Iceland's eight regions</span></span>
-<span>  unit       <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">iso_3166_2</span>,    <span class="co"># the nine Natural Earth units</span></span>
+<span>  admin1     <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">iso_3166_2</span>,    <span class="co"># the nine admin-1 areas</span></span>
 <span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span><span class="va">isl</span>, geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"unit"</span><span class="op">)</span>,</span>
-<span>                          key <span class="op">=</span> <span class="st">"unit"</span>, name <span class="op">=</span> <span class="st">"iceland"</span><span class="op">)</span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">g</span>, <span class="va">s</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"unit"</span><span class="op">)</span></span>
+<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span></span>
+<span>  <span class="va">isl</span>, geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"admin1"</span><span class="op">)</span>,</span>
+<span>  leaf <span class="op">=</span> <span class="st">"admin1"</span>, name <span class="op">=</span> <span class="st">"iceland"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">g</span>, <span class="va">s</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"admin1"</span><span class="op">)</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_area_geoscale.html">add_area_geoscale</a></span><span class="op">(</span><span class="va">g</span>, name <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span>
 <span><span class="co">#&gt; GeoScale: iceland </span></span>
 <span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
 <span><span class="co">#&gt;   - country (1)</span></span>
 <span><span class="co">#&gt;     - landshluti (8)</span></span>
-<span><span class="co">#&gt;       - unit (9)</span></span>
-<span><span class="co">#&gt; Atoms: 9</span></span>
+<span><span class="co">#&gt;       - admin1 (9)</span></span>
+<span><span class="co">#&gt; Leaves: 9</span></span>
 <span><span class="co">#&gt; Weights: km2 (default: km2)</span></span>
 <span><span class="co">#&gt; CRS: WGS 84</span></span>
 <span><span class="co">#&gt; Geometry: attached (9 features)</span></span></code></pre></div>
-<p>The Capital Region is the one that has two units under it:</p>
+<p>The Capital Region is the one that has two areas under it:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/geoscale_navigate.html">geoscale_children</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"landshluti"</span>, <span class="st">"Hofudborgarsvadi"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "IS-0" "IS-1"</span></span>
-<span><span class="fu"><a href="../reference/geoscale_nests.html">geoscale_nests</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"landshluti"</span>, <span class="st">"unit"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/geoscale_nests.html">geoscale_nests</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"landshluti"</span>, <span class="st">"admin1"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="up-units-to-regions-to-country">Up: units to regions to country<a class="anchor" aria-label="anchor" href="#up-units-to-regions-to-country"></a>
+<h3 id="up-areas-to-regions-to-country">Up: areas to regions to country<a class="anchor" aria-label="anchor" href="#up-areas-to-regions-to-country"></a>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>unit <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"unit"</span><span class="op">)</span>,</span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>admin1 <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"admin1"</span><span class="op">)</span>,</span>
 <span>                generation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">9</span>, <span class="fl">50</span>, <span class="fl">500</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">g</span>, source <span class="op">=</span> <span class="st">"unit"</span>, target <span class="op">=</span> <span class="st">"landshluti"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">g</span>, source <span class="op">=</span> <span class="st">"admin1"</span>, target <span class="op">=</span> <span class="st">"landshluti"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          landshluti generation</span></span>
 <span><span class="co">#&gt; 1        Austurland        169</span></span>
 <span><span class="co">#&gt; 2         Sudurland        217</span></span>
@@ -238,7 +242,7 @@ hierarchy: one group with two children, seven with one.</p>
 <span><span class="co">#&gt; 7 Nordurland Vestra        347</span></span>
 <span><span class="co">#&gt; 8 Nordurland Eystra        333</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">g</span>, source <span class="op">=</span> <span class="st">"unit"</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">g</span>, source <span class="op">=</span> <span class="st">"admin1"</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   country generation</span></span>
 <span><span class="co">#&gt; 1     ISL       2903</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">generation</span><span class="op">)</span></span>
@@ -250,20 +254,20 @@ hierarchy: one group with two children, seven with one.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"ISL"</span>, demand <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">tot</span>, <span class="va">g</span>, source <span class="op">=</span> <span class="st">"country"</span>, target <span class="op">=</span> <span class="st">"unit"</span>,</span>
+<span><span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">tot</span>, <span class="va">g</span>, source <span class="op">=</span> <span class="st">"country"</span>, target <span class="op">=</span> <span class="st">"admin1"</span>,</span>
 <span>                 rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="va">dd</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">dd</span><span class="op">$</span><span class="va">demand</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;   unit     demand</span></span>
-<span><span class="co">#&gt; 2 IS-8 243.839793</span></span>
-<span><span class="co">#&gt; 9 IS-6 218.218704</span></span>
-<span><span class="co">#&gt; 1 IS-7 209.284719</span></span>
-<span><span class="co">#&gt; 8 IS-5 123.058147</span></span>
-<span><span class="co">#&gt; 7 IS-4  93.745309</span></span>
-<span><span class="co">#&gt; 6 IS-3  93.738848</span></span>
-<span><span class="co">#&gt; 3 IS-2   8.612705</span></span>
-<span><span class="co">#&gt; 5 IS-1   6.034461</span></span>
-<span><span class="co">#&gt; 4 IS-0   3.467314</span></span></code></pre></div>
-<p>The Capital Region units receive almost nothing, because they are
+<span><span class="co">#&gt;   admin1     demand</span></span>
+<span><span class="co">#&gt; 2   IS-8 243.839793</span></span>
+<span><span class="co">#&gt; 9   IS-6 218.218704</span></span>
+<span><span class="co">#&gt; 1   IS-7 209.284719</span></span>
+<span><span class="co">#&gt; 8   IS-5 123.058147</span></span>
+<span><span class="co">#&gt; 7   IS-4  93.745309</span></span>
+<span><span class="co">#&gt; 6   IS-3  93.738848</span></span>
+<span><span class="co">#&gt; 3   IS-2   8.612705</span></span>
+<span><span class="co">#&gt; 5   IS-1   6.034461</span></span>
+<span><span class="co">#&gt; 4   IS-0   3.467314</span></span></code></pre></div>
+<p>The Capital Region areas receive almost nothing, because they are
 small in area, although they hold most of Iceland’s population and would
 consume most of its electricity. <strong>Area is rarely the right weight
 for demand.</strong> <code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> therefore requires
@@ -273,10 +277,10 @@ leaftable, that column would be the weight.</p>
 <code>weighted_mean</code> copies going down and weight-averages going
 up:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>unit <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"unit"</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">cf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>admin1 <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"admin1"</span><span class="op">)</span>,</span>
 <span>                 cf <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">9</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">cf</span>, <span class="va">g</span>, <span class="st">"unit"</span>, <span class="st">"landshluti"</span>, rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">cf</span>, <span class="va">g</span>, <span class="st">"admin1"</span>, <span class="st">"landshluti"</span>, rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          landshluti       cf</span></span>
 <span><span class="co">#&gt; 1        Austurland 0.219000</span></span>
 <span><span class="co">#&gt; 2         Sudurland 0.262000</span></span>
@@ -290,8 +294,8 @@ up:</p>
 <div class="section level3">
 <h3 id="geometry-follows-the-geoframes">Geometry follows the geoframes<a class="anchor" aria-label="anchor" href="#geometry-follows-the-geoframes"></a>
 </h3>
-<p><code><a href="../reference/geoscale_geometry.html">geoscale_geometry()</a></code> dissolves the atoms up to the
-requested geoframe, so the nine units become eight regions:</p>
+<p><code><a href="../reference/geoscale_geometry.html">geoscale_geometry()</a></code> dissolves the leaves up to the
+requested geoframe, so the nine areas become eight regions:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_geometry.html">geoscale_geometry</a></span><span class="op">(</span><span class="va">g</span>, geoframe <span class="op">=</span> <span class="st">"landshluti"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">shp</span><span class="op">)</span></span>

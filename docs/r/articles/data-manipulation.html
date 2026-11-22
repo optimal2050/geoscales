@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,11 +117,11 @@ column</td>
 </tr>
 <tr class="odd">
 <td>
-<code><a href="../reference/recast_to_geoatoms.html">recast_to_geoatoms()</a></code> /
-<code><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms()</a></code>
+<code><a href="../reference/recast_to_geoleaves.html">recast_to_geoleaves()</a></code> /
+<code><a href="../reference/recast_to_geoleaves.html">recast_from_geoleaves()</a></code>
 </td>
 <td>the route halves</td>
-<td>project down to the atom layer / aggregate up from it</td>
+<td>project down to the leaf layer / aggregate up from it</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/geoscale_map.html">geoscale_map()</a></code></td>
@@ -151,8 +151,8 @@ through <code>|&gt;</code>, and every verb accepts a
 arrow input (see <a href="#backends">Backends</a>).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_example.html">geoscale_example</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">atoms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span><span class="op">$</span><span class="va">atom</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span><span class="op">$</span><span class="va">country</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>atom <span class="op">=</span> <span class="va">atoms</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">leaves</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span><span class="op">$</span><span class="va">cell</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span><span class="op">$</span><span class="va">country</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>cell <span class="op">=</span> <span class="va">leaves</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="attaching-a-geoscale-to-a-table">Attaching a GeoScale to a table<a class="anchor" aria-label="anchor" href="#attaching-a-geoscale-to-a-table"></a>
@@ -180,7 +180,7 @@ columns are never overwritten; a clashing attach errors instead.</p>
 <h2 id="recasting-between-geoframes">Recasting between geoframes<a class="anchor" aria-label="anchor" href="#recasting-between-geoframes"></a>
 </h2>
 <p><code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> converts values — aggregation and
-disaggregation are one operation, routed through the atom layer, so
+disaggregation are one operation, routed through the leaf layer, so
 cross-cutting geoframes need no special handling. Three rules apply:</p>
 <p><strong>1. One rule per value column, and the rule is
 mandatory.</strong> Pass <code>rule=</code> for all columns, or register
@@ -191,7 +191,7 @@ rule is a silent unit error.</p>
 <span><span class="fu"><a href="../reference/register_geoscale_rule.html">register_geoscale_rule</a></span><span class="op">(</span><span class="st">"eff"</span>, <span class="st">"weighted_mean"</span>,       <span class="co"># intensive</span></span>
 <span>                  weight <span class="op">=</span> <span class="st">"pop"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">cap</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"country"</span><span class="op">)</span></span>
+<span><span class="va">cap</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cell"</span>, target <span class="op">=</span> <span class="st">"country"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
 <span><span class="co">#&gt;   country capacity</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -226,7 +226,7 @@ rule is a silent unit error.</p>
 </tr>
 <tr class="odd">
 <td><code>sd</code></td>
-<td>dispersion over atoms</td>
+<td>dispersion over leaves</td>
 <td>degenerates</td>
 </tr>
 </tbody>
@@ -249,11 +249,11 @@ group</em>. Materialised results complete to the <strong>full target
 vocabulary</strong> in member order (<code>NA</code> where nothing
 landed), so downstream joins see a stable schema.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>atom <span class="op">=</span> <span class="va">atoms</span>, year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2030L</span>, <span class="fl">2050L</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>cell <span class="op">=</span> <span class="va">leaves</span>, year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2030L</span>, <span class="fl">2050L</span><span class="op">)</span>,</span>
 <span>                     stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">atom</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.0</span><span class="op">)</span></span>
-<span><span class="va">panel</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"country"</span>,</span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cell</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.0</span><span class="op">)</span></span>
+<span><span class="va">panel</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cell"</span>, target <span class="op">=</span> <span class="st">"country"</span>,</span>
 <span>                         values <span class="op">=</span> <span class="st">"capacity"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
 <span><span class="co">#&gt;   country  year capacity</span></span>
@@ -265,7 +265,7 @@ landed), so downstream joins see a stable schema.</p>
 <p>(<code>values=</code> is explicit here because <code>year</code> is
 numeric — value auto-detection takes every numeric non-key column, so
 numeric identifiers must be named out.)</p>
-<p><strong>3. Coverage is explicit.</strong> Atoms with no code at
+<p><strong>3. Coverage is explicit.</strong> Leaves with no code at
 <code>source</code> or <code>target</code> go through
 <code>na_action=</code>: <code>"drop"</code> (default; warns — the
 affected share is genuinely lost), <code>"keep"</code> (an explicit
@@ -278,40 +278,40 @@ must be filtered before it is passed there.</p>
 <h2 id="the-route-halves-and-cross-geoscale-conversion">The route halves and cross-GeoScale conversion<a class="anchor" aria-label="anchor" href="#the-route-halves-and-cross-geoscale-conversion"></a>
 </h2>
 <p><code><a href="../reference/recast_geoscale.html">recast_geoscale()</a></code> is the fused route
-<code>from -&gt; atoms -&gt; to</code>; its halves are public. Going
-down, extensive columns split by the chosen weight and the atom
+<code>from -&gt; leaves -&gt; to</code>; its halves are public. Going
+down, extensive columns split by the chosen weight and the leaf
 <code>weight</code> is attached so the return trip is exact; going up,
-rules act on the atom rows directly:</p>
+rules act on the leaf rows directly:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_to_geoatoms.html">recast_to_geoatoms</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/recast_to_geoleaves.html">recast_to_geoleaves</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">a</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
-<span><span class="co">#&gt;   atom  capacity weight</span></span>
+<span><span class="co">#&gt;   cell  capacity weight</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> A1           1    100</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> A2           2    200</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> A3           3    300</span></span>
-<span><span class="va">a</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_to_geoatoms.html">recast_from_geoatoms</a></span><span class="op">(</span><span class="va">gs</span>, target <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span><span class="va">a</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_to_geoleaves.html">recast_from_geoleaves</a></span><span class="op">(</span><span class="va">gs</span>, target <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   state capacity</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> N1           3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> N2           7</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> S1          20</span></span></code></pre></div>
-<p>Because the atom rows are keyed by atom codes, the halves also
-convert <strong>across two different GeoScales that share atom
-keys</strong> (reg32 to NUTS style conversions) — and the fused verb
-accepts another GeoScale as <code>target</code>, targeting its atom
+<p>Because the leaf rows are keyed by leaf codes, the halves also
+convert <strong>across two different GeoScales that share leaf
+codes</strong> (reg32 to NUTS style conversions) — and the fused verb
+accepts another GeoScale as <code>target</code>, targeting its leaf
 layer:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lf</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>band <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>, atom <span class="op">=</span> <span class="va">atoms</span>,</span>
+<code class="sourceCode R"><span><span class="va">lf</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>band <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>, cell <span class="op">=</span> <span class="va">leaves</span>,</span>
 <span>             km2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span>, <span class="fl">600</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">gs_b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span><span class="va">lf</span>, geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"band"</span>, <span class="st">"atom"</span><span class="op">)</span>,</span>
+<span><span class="va">gs_b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span><span class="va">lf</span>, geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"band"</span>, <span class="st">"cell"</span><span class="op">)</span>,</span>
 <span>                                name <span class="op">=</span> <span class="st">"bands"</span><span class="op">)</span></span>
 <span><span class="va">cap</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="va">gs_b</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs_b</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"band"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cell"</span>, target <span class="op">=</span> <span class="va">gs_b</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs_b</span>, source <span class="op">=</span> <span class="st">"cell"</span>, target <span class="op">=</span> <span class="st">"band"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
 <span><span class="co">#&gt;   band  capacity</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -322,7 +322,7 @@ layer:</p>
 <h2 id="the-crosswalk-inspectable-and-overridable">The crosswalk, inspectable and overridable<a class="anchor" aria-label="anchor" href="#the-crosswalk-inspectable-and-overridable"></a>
 </h2>
 <p>Every recast is a join against a small crosswalk table — one row per
-overlapping region pair with atom counts (<code>n_from</code>,
+overlapping region pair with leaf counts (<code>n_from</code>,
 <code>n_overlap</code>) and weights (<code>w</code>, the absolute
 overlap weight; <code>w_from</code>, the full source weight —
 <code>w / w_from</code> is the split share):</p>
@@ -380,12 +380,12 @@ class; lazy inputs return the <em>uncollected query</em> unless
 <code class="sourceCode R"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">cap</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dt</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cell"</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="op">)</span>                          <span class="co"># data.table in, data.table out</span></span>
 <span><span class="co">#&gt; [1] "data.table" "data.frame"</span></span>
 <span></span>
 <span><span class="va">lazy</span> <span class="op">&lt;-</span> <span class="fu">dtplyr</span><span class="fu">::</span><span class="fu"><a href="https://dtplyr.tidyverse.org/reference/lazy_dt.html" class="external-link">lazy_dt</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cell"</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">lazy</span><span class="op">)</span>                        <span class="co"># the query, not the result</span></span>
 <span><span class="co">#&gt; [1] "dtplyr_step_call" "dtplyr_step"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="va">lazy</span><span class="op">)</span><span class="op">)</span></span>
@@ -404,7 +404,7 @@ pulled into memory for the geoscale arithmetic.</p>
 <ul>
 <li>
 <a href="concepts.html">Concepts</a> — why the route always goes
-through the atom layer.</li>
+through the leaf layer.</li>
 <li>
 <a href="data-structures.html">Data structures</a> — the registries
 as structures.</li>

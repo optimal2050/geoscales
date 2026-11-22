@@ -1,6 +1,6 @@
 # Crosswalk between two geoframes of a GeoScale
 
-Materialises the `from -> atoms -> to` route as a table: one row per
+Materialises the `from -> leaves -> to` route as a table: one row per
 pair of overlapping regions with
 
 ## Usage
@@ -31,7 +31,7 @@ geoscale_map(
 - weight:
 
   Weight column for `w`. `NULL` uses the default weight; when the object
-  declares no weights at all, every atom gets weight 1 (an equal split).
+  declares no weights at all, every leaf gets weight 1 (an equal split).
 
 - from, to:
 
@@ -44,19 +44,19 @@ A `data.frame` with columns `<source>`, `<target>` (`NA` = uncovered by
 
 ## Details
 
-- `n_from` – atoms in the `source` region (its full set, before any
+- `n_from` – leaves in the `source` region (its full set, before any
   target coverage is considered),
 
-- `n_overlap` – atoms the pair shares,
+- `n_overlap` – leaves the pair shares,
 
-- `w` – the weight of the overlap (summed atom weights, chosen weight
+- `w` – the weight of the overlap (summed leaf weights, chosen weight
   column), the quantity `"weighted_mean"` aggregation uses,
 
 - `w_from` – the full weight of the `source` region; `w / w_from` is the
   split share `"sum"` disaggregation uses.
 
 The two label columns are named by the geoframes; rows with an `NA`
-target label are atoms `target` does not cover. A crosswalk registered
+target label are leaves `target` does not cover. A crosswalk registered
 with
 [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
 is returned as-is instead of being derived.

@@ -13,35 +13,34 @@ reads one, and `str(gs)` prints them with their size and purpose (with
 
 gs <- geoscale_example()
 S7::prop_names(gs)
-#>  [1] "leaftable"  "frames"     "members"    "key"        "meta"      
-#>  [6] "attributes" "aliases"    "labels"     "geoframes"  "geometry"
+#>  [1] "leaftable"  "frames"     "members"    "leaf"       "meta"      
+#>  [6] "attributes" "aliases"    "labels"     "geoframes"  "geometry"  
+#> [11] "hidden"
 ```
 
 | property | type | holds |
 |----|----|----|
-| `@leaftable` | `data.frame` | one row per **atom**: one column per geoframe, and the weight columns |
+| `@leaftable` | `data.frame` | one row per **leaf**: one column per geoframe, and the weight columns |
 | `@geoframes` | `character` | the hierarchy, ordered coarsest first (the same value as `@frames`) |
 | `@members` | named `list` | the ordered code vocabulary at each geoframe |
-| `@key` | `character` | the name of the column that identifies the atoms: the finest geoframe, unless another was named |
-| `@labels` | `data.frame` | display names by `(frame, unit, variant)`; sparse |
-| `@geometry` | `sfc` or `NULL` | optional atom polygons, aligned to leaftable rows |
+| `@leaf` | `character` | the name of the column that identifies the leaves: the finest geoframe, unless another was named |
+| `@labels` | `data.frame` | display names by `(geoframe, region, variant)`; sparse |
+| `@geometry` | `sfc` or `NULL` | optional leaf polygons, aligned to leaftable rows |
 | `@meta` | `list` | `name`, `desc`, `weights`, `default_weight`, `default_label`, `crs`, `source` |
 | `@attributes`, `@aliases` | `data.frame` | inherited from `NestedScale`: member values and alternative spellings |
 
 The object is a **definition**: the regions, the geoframes that group
 them and the weights that size them. It holds no data. Data stays in
-ordinary tables, tied to the object by the region-code columns;
-[`bind_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
-records that tie on the columns themselves. Everything else —
-parent/child tables, ancestry, shares, dissolved shapes — is derived on
-demand; nothing is cached on the object.
+ordinary tables, tied to the object by the region-code columns.
+Everything else — parent/child tables, ancestry, shares, dissolved
+shapes — is derived on demand; nothing is cached on the object.
 
 ## The leaftable
 
 ``` r
 
 geoscale_leaftable(gs)
-#>   country state zone atom  km2 pop
+#>   country state zone cell  km2 pop
 #> 1       N    N1   N1   A1  100  10
 #> 2       N    N1   N1   A2  200  90
 #> 3       N    N2   ZB   A3  300  30
@@ -51,24 +50,25 @@ geoscale_leaftable(gs)
 #> 7    <NA>  <NA> <NA>  ROW 1000   0
 ```
 
-Each row is one atom. The finest geoframe (`atom` here) is the
-**authored node ID** (unique, non-missing) and the atom key,
-`geoscale_key(gs)`; there is no separate key column. Coarser geoframe
-columns may hold `NA` — an atom with no code at a coarser geoframe (a
-rest-of-world row, offshore areas) simply does not participate at that
-resolution, and `na_action=` decides what recasts do about it.
+Each row is one leaf. The finest geoframe (`cell` here) is the
+**authored node ID** (unique, non-missing) and the leaf column,
+`geoscale_leaf_column(gs)`; there is no separate identifier column.
+Coarser geoframe columns may hold `NA` — a leaf with no code at a
+coarser geoframe (a rest-of-world row, offshore areas) simply does not
+participate at that resolution, and `na_action=` decides what recasts do
+about it.
 
 ## Geoframes, members, ranks
 
 ``` r
 
 geoscale_geoframes(gs)
-#> [1] "country" "state"   "zone"    "atom"
-geoscale_geoframes(gs, finest = TRUE)   # the atom geoframe
-#> [1] "atom"
+#> [1] "country" "state"   "zone"    "cell"
+geoscale_geoframes(gs, finest = TRUE)   # the leaf geoframe
+#> [1] "cell"
 geoscale_regions(gs, "state")           # the members at one geoframe
 #> [1] "N1" "N2" "S1"
-geoscale_rank(gs, c("zone", "atom"))    # positions, coarsest = 1
+geoscale_rank(gs, c("zone", "cell"))    # positions, coarsest = 1
 #> [1] 3 4
 ```
 
@@ -84,14 +84,14 @@ is_valid_geoframe(c("COUNTRY", "reg32", "", "2bad"))
 ```
 
 Navigation is derived on demand from the leaftable — and because
-geoframes may cross-cut, ancestry is computed atom-mediated, never as a
+geoframes may cross-cut, ancestry is computed leaf-mediated, never as a
 transitive closure:
 
 ``` r
 
 geoscale_parents(gs, "zone", "ZB", target = "state")   # cross-cut: two parents
 #> [1] "N2" "S1"
-geoscale_ancestors(gs, "atom", "A5")
+geoscale_ancestors(gs, "cell", "A5")
 #>   geoframe region
 #> 1  country      S
 #> 2    state     S1
@@ -102,16 +102,16 @@ geoscale_descendants(gs, "country", "N")
 #> 2    state     N2
 #> 3     zone     N1
 #> 4     zone     ZB
-#> 5     atom     A1
-#> 6     atom     A2
-#> 7     atom     A3
-#> 8     atom     A4
+#> 5     cell     A1
+#> 6     cell     A2
+#> 7     cell     A3
+#> 8     cell     A4
 head(geoscale_ancestry(gs), 4)
 #>   parent_geoframe parent child_geoframe child
-#> 1         country      N           atom    A1
-#> 2         country      N           atom    A2
-#> 3         country      N           atom    A3
-#> 4         country      N           atom    A4
+#> 1         country      N           cell    A1
+#> 2         country      N           cell    A2
+#> 3         country      N           cell    A3
+#> 4         country      N           cell    A4
 ```
 
 ## Weights and meta
@@ -162,10 +162,10 @@ gs_named <- gs |>
     variant = "de"
   )
 geoscale_labels(gs_named)
-#>     frame unit variant     label
-#> 1 country    N    name Northland
-#> 2 country    S    name Southland
-#> 3 country    N      de  Nordland
+#>   geoframe region variant     label
+#> 1  country      N    name Northland
+#> 2  country      S    name Southland
+#> 3  country      N      de  Nordland
 geoscale_label(gs_named, c("N", "S"), "country")
 #> [1] "Northland" "Southland"
 geoscale_label(gs_named, c("N", "S"), "country", variant = "de")
@@ -185,8 +185,7 @@ Construction (any layer:
 [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md))
 enforces:
 
-- the atom key column present, character, unique, no missing/empty
-  values;
+- the leaf column present, character, unique, no missing/empty values;
 - every label row naming a geoframe and a region that exist;
 - every geoframe present as a leaftable column; members exactly the
   non-`NA` values of that column, in a stable order;
@@ -226,7 +225,7 @@ list_geoscale_rules()
 clear_geoscale_rules()
 ```
 
-**Maps** hold exact crosswalks that short-circuit the atom-layer
+**Maps** hold exact crosswalks that short-circuit the leaf-layer
 derivation in
 [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
 — for hand-audited concordances:

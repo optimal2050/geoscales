@@ -6,7 +6,7 @@
 |----|----|----|
 | [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md) | GeoScale → columns | *attach* labels, membership, share/weight to a table (no aggregation) |
 | [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md) | geoframe A → geoframe B | *convert* values between resolutions, one rule per column |
-| [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) / [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md) | the route halves | project down to the atom layer / aggregate up from it |
+| [`recast_to_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md) / [`recast_from_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md) | the route halves | project down to the leaf layer / aggregate up from it |
 | [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md) | A → B crosswalk | the conversion, materialised as a small table |
 | [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md) / [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md) / [`register_geoscale_provider()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.md) | registries | per-column rules, exact crosswalks, map sources |
 | [`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html) | generic | one pipeline verb across time AND space |
@@ -20,8 +20,8 @@ accepts a `data.frame`, tibble, `data.table`, dtplyr, or arrow input
 ``` r
 
 gs <- geoscale_example()
-atoms <- geoscale_leaftable(gs)$atom[!is.na(geoscale_leaftable(gs)$country)]
-cap <- tibble(atom = atoms, capacity = c(1, 2, 3, 4, 5, 6))
+leaves <- geoscale_leaftable(gs)$cell[!is.na(geoscale_leaftable(gs)$country)]
+cap <- tibble(cell = leaves, capacity = c(1, 2, 3, 4, 5, 6))
 ```
 
 ## Attaching a GeoScale to a table
@@ -53,7 +53,7 @@ never overwritten; a clashing attach errors instead.
 
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
 converts values — aggregation and disaggregation are one operation,
-routed through the atom layer, so cross-cutting geoframes need no
+routed through the leaf layer, so cross-cutting geoframes need no
 special handling. Three rules apply:
 
 **1. One rule per value column, and the rule is mandatory.** Pass
@@ -66,7 +66,7 @@ register_geoscale_rule("capacity", "sum")            # extensive
 register_geoscale_rule("eff", "weighted_mean",       # intensive
                   weight = "pop")
 
-cap |> recast_geoscale(gs, source = "atom", target = "country")
+cap |> recast_geoscale(gs, source = "cell", target = "country")
 #> # A tibble: 2 × 2
 #>   country capacity
 #>   <chr>      <dbl>
@@ -80,7 +80,7 @@ cap |> recast_geoscale(gs, source = "atom", target = "country")
 | `weighted_mean` | weight-weighted mean | copy |
 | `mean` | plain mean | copy |
 | `copy` | common value (error if not constant) | copy |
-| `sd` | dispersion over atoms | degenerates |
+| `sd` | dispersion over leaves | degenerates |
 
 Disaggregation is the same call in the other direction — the chosen
 weight drives the split, and a round trip is exact:
@@ -105,11 +105,11 @@ where nothing landed), so downstream joins see a stable schema.
 
 ``` r
 
-panel <- expand.grid(atom = atoms, year = c(2030L, 2050L),
+panel <- expand.grid(cell = leaves, year = c(2030L, 2050L),
                      stringsAsFactors = FALSE) |>
   as_tibble() |>
-  mutate(capacity = seq_along(atom) * 1.0)
-panel |> recast_geoscale(gs, source = "atom", target = "country",
+  mutate(capacity = seq_along(cell) * 1.0)
+panel |> recast_geoscale(gs, source = "cell", target = "country",
                          values = "capacity")
 #> # A tibble: 4 × 3
 #>   country  year capacity
@@ -124,7 +124,7 @@ panel |> recast_geoscale(gs, source = "atom", target = "country",
 auto-detection takes every numeric non-key column, so numeric
 identifiers must be named out.)
 
-**3. Coverage is explicit.** Atoms with no code at `source` or `target`
+**3. Coverage is explicit.** Leaves with no code at `source` or `target`
 go through `na_action=`: `"drop"` (default; warns — the affected share
 is genuinely lost), `"keep"` (an explicit `NA` region row so totals
 conserve), or `"error"`. Downstream, energyRt reads `NA` in a region
@@ -134,23 +134,23 @@ filtered before it is passed there.
 ## The route halves and cross-GeoScale conversion
 
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
-is the fused route `from -> atoms -> to`; its halves are public. Going
-down, extensive columns split by the chosen weight and the atom `weight`
-is attached so the return trip is exact; going up, rules act on the atom
+is the fused route `from -> leaves -> to`; its halves are public. Going
+down, extensive columns split by the chosen weight and the leaf `weight`
+is attached so the return trip is exact; going up, rules act on the leaf
 rows directly:
 
 ``` r
 
 a <- tibble(country = c("N", "S"), capacity = c(10, 20)) |>
-  recast_to_geoatoms(gs, source = "country", rule = "sum", weight = "km2")
+  recast_to_geoleaves(gs, source = "country", rule = "sum", weight = "km2")
 head(a, 3)
 #> # A tibble: 3 × 3
-#>   atom  capacity weight
+#>   cell  capacity weight
 #>   <chr>    <dbl>  <dbl>
 #> 1 A1           1    100
 #> 2 A2           2    200
 #> 3 A3           3    300
-a |> recast_from_geoatoms(gs, target = "state", rule = "sum")
+a |> recast_from_geoleaves(gs, target = "state", rule = "sum")
 #> # A tibble: 3 × 2
 #>   state capacity
 #>   <chr>    <dbl>
@@ -159,20 +159,20 @@ a |> recast_from_geoatoms(gs, target = "state", rule = "sum")
 #> 3 S1          20
 ```
 
-Because the atom rows are keyed by atom codes, the halves also convert
-**across two different GeoScales that share atom keys** (reg32 to NUTS
+Because the leaf rows are keyed by leaf codes, the halves also convert
+**across two different GeoScales that share leaf codes** (reg32 to NUTS
 style conversions) — and the fused verb accepts another GeoScale as
-`target`, targeting its atom layer:
+`target`, targeting its leaf layer:
 
 ``` r
 
-lf <- tibble(band = rep(c("X", "Y"), 3), atom = atoms,
+lf <- tibble(band = rep(c("X", "Y"), 3), cell = leaves,
              km2 = c(100, 200, 300, 400, 500, 600))
-gs_b <- geoscale_from_leaftable(lf, geoframes = c("band", "atom"),
+gs_b <- geoscale_from_leaftable(lf, geoframes = c("band", "cell"),
                                 name = "bands")
 cap |>
-  recast_geoscale(gs, source = "atom", target = gs_b, rule = "sum") |>
-  recast_geoscale(gs_b, source = "atom", target = "band", rule = "sum")
+  recast_geoscale(gs, source = "cell", target = gs_b, rule = "sum") |>
+  recast_geoscale(gs_b, source = "cell", target = "band", rule = "sum")
 #> # A tibble: 2 × 2
 #>   band  capacity
 #>   <chr>    <dbl>
@@ -183,7 +183,7 @@ cap |>
 ## The crosswalk, inspectable and overridable
 
 Every recast is a join against a small crosswalk table — one row per
-overlapping region pair with atom counts (`n_from`, `n_overlap`) and
+overlapping region pair with leaf counts (`n_from`, `n_overlap`) and
 weights (`w`, the absolute overlap weight; `w_from`, the full source
 weight — `w / w_from` is the split share):
 
@@ -251,12 +251,12 @@ return the *uncollected query* unless `collect = TRUE`:
 dt <- data.table::as.data.table(cap)
 
 dt |>
-  recast_geoscale(gs, source = "atom", target = "country", rule = "sum") |>
+  recast_geoscale(gs, source = "cell", target = "country", rule = "sum") |>
   class()                          # data.table in, data.table out
 #> [1] "data.table" "data.frame"
 
 lazy <- dtplyr::lazy_dt(dt) |>
-  recast_geoscale(gs, source = "atom", target = "country", rule = "sum")
+  recast_geoscale(gs, source = "cell", target = "country", rule = "sum")
 class(lazy)                        # the query, not the result
 #> [1] "dtplyr_step_call" "dtplyr_step"
 as.data.frame(dplyr::collect(lazy))
@@ -274,7 +274,7 @@ for the geoscale arithmetic.
 ## Further reading
 
 - [Concepts](https://optimal2050.github.io/geoscales/r/articles/concepts.md)
-  — why the route always goes through the atom layer.
+  — why the route always goes through the leaf layer.
 - [Data
   structures](https://optimal2050.github.io/geoscales/r/articles/data-structures.md)
   — the registries as structures.

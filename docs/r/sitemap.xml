@@ -16,7 +16,7 @@
 <url><loc>https://optimal2050.github.io/geoscales/r/news/index.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.html</loc></url>
-<url><loc>https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/reference/check_geometry_geoscale.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/clear_geoscale_maps.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/clear_geoscale_rules.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/coords_to_region.html</loc></url>
@@ -36,10 +36,11 @@
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_from_provider.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.html</loc></url>
-<url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_key.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_id.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_layout.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_leaftable.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_leaf_column.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_map.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_map_between.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_navigate.html</loc></url>
@@ -49,10 +50,12 @@
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/GEOSCALE_RULES.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_rule_action.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_share.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_tree.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/geoscale_weights.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/get_geoscale_provider.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/get_geoscale_rule.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/index.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/is_valid_geoframe.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/join_geoscale.html</loc></url>
@@ -63,7 +66,7 @@
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/recast_pairs.html</loc></url>
-<url><loc>https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.html</loc></url>
+<url><loc>https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/reexports.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.html</loc></url>
 <url><loc>https://optimal2050.github.io/geoscales/r/reference/register_geoscale_provider.html</loc></url>

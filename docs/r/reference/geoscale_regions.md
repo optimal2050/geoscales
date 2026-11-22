@@ -3,7 +3,7 @@
 The required-geoframe rule applies to arguments that take region CODES
 (codes repeat across geoframes, so nothing is ever inferred from a bare
 code); `geoframe` here only selects the output, so it may default to the
-finest geoframe (the atoms) — the twin of
+finest geoframe (the leaves) — the twin of
 `timescales::calendar_timeslices(x, timeframe = NULL)`.
 
 ## Usage
@@ -33,6 +33,6 @@ A character vector of region codes, in the object's canonical order.
 gs <- geoscale_example()
 geoscale_regions(gs, "state")
 #> [1] "N1" "N2" "S1"
-geoscale_regions(gs)          # the atoms
+geoscale_regions(gs)          # the leaves
 #> [1] "A1"  "A2"  "A3"  "A4"  "A5"  "A6"  "ROW"
 ```

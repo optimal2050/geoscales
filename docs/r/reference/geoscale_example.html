@@ -9,7 +9,7 @@ reproduces three awkward features of real region tables:"><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,18 +62,18 @@ reproduces three awkward features of real region tables:</p>
 
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code><a href="GeoScale.html">GeoScale</a></code> with 7 atoms and geoframes
-<code>country</code>/<code>state</code>/<code>zone</code>/<code>atom</code>.</p>
+    <p>A <code><a href="GeoScale.html">GeoScale</a></code> with 7 leaves and geoframes
+<code>country</code>/<code>state</code>/<code>zone</code>/<code>cell</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
 
 <ul><li><p>a code (<code>"N1"</code>) reused at more than one geoframe, so bare codes are
 ambiguous and every lookup must name its geoframe;</p></li>
-<li><p>a non-nesting pair of geoframes — zone <code>"ZB"</code> draws atoms from two
+<li><p>a non-nesting pair of geoframes — zone <code>"ZB"</code> draws leaves from two
 different states (and two different countries), so <code>state</code> and <code>zone</code> do
 not form a tree;</p></li>
-<li><p>an atom (<code>"ROW"</code>) with no code at any coarser geoframe (partial coverage).</p></li>
+<li><p>a leaf (<code>"ROW"</code>) with no code at any coarser geoframe (partial coverage).</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -81,13 +81,13 @@ not form a tree;</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu">geoscale_example</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gs</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GeoScale: example </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned leaf </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Geoframes (4, coarsest first):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - country (2)  [1 atom(s) unassigned]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     - state (3)  [1 atom(s) unassigned]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       - zone (3)  [1 atom(s) unassigned]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         - atom (7)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Atoms: 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - country (2)  [1 leaf region(s) unassigned]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - state (3)  [1 leaf region(s) unassigned]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       - zone (3)  [1 leaf region(s) unassigned]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         - cell (7)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Leaves: 7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Weights: km2, pop (default: km2)</span>
 <span class="r-in"><span><span class="fu"><a href="geoscale_nests.html">geoscale_nests</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"state"</span>, <span class="st">"zone"</span><span class="op">)</span>   <span class="co"># FALSE - they cross-cut</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>

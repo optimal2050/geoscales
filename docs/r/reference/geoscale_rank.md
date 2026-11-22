@@ -28,6 +28,6 @@ An integer vector of ranks; `NA` for names that are not geoframes of
 
 ``` r
 gs <- geoscale_example()
-geoscale_rank(gs, c("zone", "atom"))
+geoscale_rank(gs, c("zone", "cell"))
 #> [1] 3 4
 ```

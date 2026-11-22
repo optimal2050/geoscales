@@ -4,12 +4,12 @@ region at a geoframe and to a named variant – a free name such as
 "name", "short" or a language code – so a region may carry several
 names. The table is sparse: a geoframe may label every region, some, or
 none, and whatever has no label is shown by its code. A row with
-unit = NA names the geoframe itself.'><meta property="og:description" content='Display names for the members of a GeoScale. A label belongs to a
+region = NA names the geoframe itself.'><meta property="og:description" content='Display names for the members of a GeoScale. A label belongs to a
 region at a geoframe and to a named variant – a free name such as
 "name", "short" or a language code – so a region may carry several
 names. The table is sparse: a geoframe may label every region, some, or
 none, and whatever has no label is shown by its code. A row with
-unit = NA names the geoframe itself.'><meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png"></head><body>
+region = NA names the geoframe itself.'><meta property="og:image" content="https://optimal2050.github.io/geoscales/r/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ unit = NA names the geoframe itself.'><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@ region at a geoframe and to a named <code>variant</code> – a free name such as
 <code>"name"</code>, <code>"short"</code> or a language code – so a region may carry several
 names. The table is sparse: a geoframe may label every region, some, or
 none, and whatever has no label is shown by its code. A row with
-<code>unit = NA</code> names the geoframe itself.</p>
+<code>region = NA</code> names the geoframe itself.</p>
     </div>
 
     <div class="section level2">
@@ -91,8 +91,9 @@ none, and whatever has no label is shown by its code. A row with
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
-<dd><p>A <code>data.frame</code> with columns <code>frame</code> (or <code>geoframe</code>), <code>unit</code>
-(or <code>region</code>), <code>label</code> and optionally <code>variant</code>.</p></dd>
+<dd><p>A <code>data.frame</code> with columns <code>geoframe</code>, <code>region</code>, <code>label</code>
+and optionally <code>variant</code>. The <code>nestedscales</code> names <code>frame</code> and <code>member</code>
+are accepted for the first two.</p></dd>
 
 
 <dt id="arg-variant">variant<a class="anchor" aria-label="anchor" href="#arg-variant"></a></dt>
@@ -125,7 +126,7 @@ for the geoframe itself.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>attach_labels_geoscale()</code> the <code><a href="GeoScale.html">GeoScale</a></code>;
-<code>geoscale_labels()</code> a <code>data.frame</code> with columns <code>frame</code>, <code>unit</code>,
+<code>geoscale_labels()</code> a <code>data.frame</code> with columns <code>geoframe</code>, <code>region</code>,
 <code>variant</code>, <code>label</code>; <code>geoscale_label()</code> a character vector as long as
 <code>region</code>.</p>
     </div>
@@ -152,10 +153,10 @@ the default variant.</p>
 <span class="r-in"><span>  variant <span class="op">=</span> <span class="st">"de"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">geoscale_labels</span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     frame unit variant     label</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 country    N    name Northland</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 country    S    name Southland</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 country    N      de  Nordland</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   geoframe region variant     label</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  country      N    name Northland</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  country      S    name Southland</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  country      N      de  Nordland</span>
 <span class="r-in"><span><span class="fu">geoscale_label</span><span class="op">(</span><span class="va">gs</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, <span class="st">"country"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Northland" "Southland"</span>
 <span class="r-in"><span><span class="fu">geoscale_label</span><span class="op">(</span><span class="va">gs</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>, <span class="st">"country"</span>, variant <span class="op">=</span> <span class="st">"de"</span><span class="op">)</span></span></span>

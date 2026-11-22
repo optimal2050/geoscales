@@ -13,7 +13,7 @@ geoframe in geoframes is present."><meta property="og:image" content="https://op
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,11 +83,11 @@ geoframe in <code>geoframes</code> is present.</p>
 
 <dt id="arg-geoframes">geoframes<a class="anchor" aria-label="anchor" href="#arg-geoframes"></a></dt>
 <dd><p>Ordered character vector of geoframe names, coarsest
-first. The last entry is the atom geoframe.</p></dd>
+first. The last entry is the leaf geoframe.</p></dd>
 
 
 <dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
-<dd><p>Optional <code>data.frame</code> keyed by the atom geoframe, carrying one
+<dd><p>Optional <code>data.frame</code> keyed by the leaf geoframe, carrying one
 or more numeric weight columns.</p></dd>
 
 
@@ -117,17 +117,17 @@ its crosswalk against the finest geoframe.</p>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"S"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>             state   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>             atom  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  geoframes  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"state"</span>, <span class="st">"atom"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>             cell  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  geoframes  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"state"</span>, <span class="st">"cell"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>cell <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                       km2  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">40</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GeoScale: country_state_atom </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GeoScale: country_state_cell </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Geoframes (3, coarsest first):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - country (2)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - state (3)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       - atom (4)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Atoms: 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       - cell (4)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Leaves: 4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Weights: km2 (default: km2)</span>
 </code></pre></div>
     </div>

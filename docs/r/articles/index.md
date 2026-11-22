@@ -4,8 +4,8 @@
 
 - [Concepts](https://optimal2050.github.io/geoscales/r/articles/concepts.md):
 
-  The mental model behind geoscales: atoms, geoframes as partitions (not
-  a tree), authored region IDs, shares and weights, and the naming
+  The mental model behind geoscales: leaves, geoframes as partitions
+  (not a tree), authored region IDs, shares and weights, and the naming
   lattice shared with timescales.
 
 - [Data

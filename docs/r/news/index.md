@@ -1,37 +1,73 @@
 # Changelog
 
-## geoscales (development version)
+## geoscales 0.8.0
 
 ### Breaking changes
 
-- The leaftable has no `region` column any more. The atom key is the
-  finest geoframe’s own column, or the column named by `key=` when the
-  atoms are finer than the finest geoframe;
-  [`geoscale_key()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_key.md)
-  returns its name. The atom column in the result of
-  [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
+- Requires nestedscales 0.3.0 and follows its vocabulary, with no
+  deprecated aliases: a *leaf* is a region of the finest layer and one
+  row of the leaftable (was “atom”), and the *leaf column* is the
+  leaftable column that identifies the leaves (was “key”). A member of a
+  geoframe stays a *region*. `key=` now only names the column of a data
+  table that holds the codes, and “unit” only a unit of measure.
+- Renamed functions: `recast_to_geoatoms()` to
+  [`recast_to_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md),
+  `recast_from_geoatoms()` to
+  [`recast_from_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md),
+  `geoscale_key()` to
+  [`geoscale_leaf_column()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_leaf_column.md).
+  Renamed argument: `key` to `leaf` in
+  [`GeoScale()`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
+  and
+  [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md).
+  The property `GeoScale@key` is `@leaf`,
+  [`summary()`](https://rdrr.io/r/base/summary.html) returns `n_leaves`
+  (was `n_atoms`),
+  [`geoscale_tree()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_tree.md)
+  lists the part `leaf` with the kind `leaf column`, and printed output
+  and messages say “Leaves” and “leaf”.
+- The finest geoframe of
+  [`geoscale_example()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_example.md)
+  is `cell` (was `atom`), which changes its
+  [`geoscale_id()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_id.md).
+  The codes `A1` to `A6` and `ROW` are unchanged.
+- [`geoscale_labels()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
+  returns the columns `geoframe`, `region`, `variant`, `label` (were
+  `frame`, `unit`, …), the names
+  [`attach_labels_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
+  takes. A label table given with a `unit` column is no longer accepted;
+  `frame` and `member` are.
+- The leaftable has no `region` column any more. The leaf column is the
+  finest geoframe’s own column, or the column named by `leaf=` when the
+  leaves are finer than the finest geoframe;
+  [`geoscale_leaf_column()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_leaf_column.md)
+  returns its name. The leaf column in the result of
+  [`recast_to_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md)
   carries that name, and
-  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
+  [`recast_from_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md)
   expects it. `region` is no longer a reserved name and may be used for
-  a geoframe at any depth. Saved objects must be rebuilt.
+  a geoframe at any depth. Objects saved with a `region` leaf column
+  must be rebuilt; objects saved while the leaf column was the property
+  `key` are still read.
 - [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md)
-  no longer falls back to a `region` column for the key: when the finest
-  geoframe does not identify the atoms, `key=` must be given.
-- `meta$labels` (the name of one per-atom leaftable column) is replaced
+  no longer falls back to a `region` column for the leaf column: when
+  the finest geoframe does not identify the leaves, `leaf=` must be
+  given.
+- `meta$labels` (the name of one per-leaf leaftable column) is replaced
   by the label table below. `labels=` in
   [`geoscale_from_leaftable()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.md)
   now takes that table.
 - The first argument of
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
-  [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md),
-  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md),
+  [`recast_to_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md),
+  [`recast_from_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md),
   [`recast_pairs()`](https://optimal2050.github.io/geoscales/r/reference/recast_pairs.md)
   and
   [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
   is `data` (was `x`).
 - `weight=` always names a weight of the GeoScale. The data column to
   weight by in
-  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
+  [`recast_from_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md)
   and
   [`recast_pairs()`](https://optimal2050.github.io/geoscales/r/reference/recast_pairs.md)
   is `data_weight=`.
@@ -42,31 +78,43 @@
   [`attach_labels_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
   adds display names for regions of any geoframe, in named variants, so
   a region may have alternative names while another geoframe has none; a
-  row with `unit = NA` names the geoframe itself.
+  row with `region = NA` names the geoframe itself.
   [`geoscale_labels()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
   returns the table and
   [`geoscale_label()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
   looks names up, giving the code where there is no label. Subsets,
   prunes and zooms keep the labels of what remains, and the plots use
   the default variant.
-
-- The data link.
-  [`bind_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
-  records on a table’s region-code columns which GeoScale and geoframe
-  they are on;
-  [`geoscale_link()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
-  reports it and
-  [`geoscale_id()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
-  gives the identity it stores.
-  [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
-  [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md),
-  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
-  and
-  [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
-  take the source geoframe from the link, stop when the data is bound to
-  another GeoScale, and bind their result. Needs nestedscales 0.3.0 or
-  later; with an earlier version the verbs behave as before.
-
+- [`geoscale_id()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_id.md)
+  gives the identity of a GeoScale: its name and a hash of its
+  structure.
+- [`check_geometry_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/check_geometry_geoscale.md)
+  checks that each shape of the geometry is on the row of its code.
+  Against a reference `sf` that carries the codes it compares shape by
+  shape and names the code a misplaced shape belongs to; without one it
+  reports empty or repeated shapes, an area weight held in another row
+  order, and grouped regions in several pieces.
+- Geoframes hidden from plots.
+  [`hide_geoframes_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.md)
+  marks geoframes that exist for calculation only, and
+  [`gg_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/gg_geoscale.md),
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+  and [`plot()`](https://rdrr.io/r/graphics/plot.default.html) leave
+  them out;
+  [`show_geoframes_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.md)
+  reverses it and `geoscale_geoframes(visible = )` lists either set.
+  Recasts, joins and navigation are unaffected.
+  `gg_geoscale(geoframes = )` chooses the geoframes of one figure,
+  hidden or not.
+- [`geoscale_tree()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_tree.md)
+  lists the parts of a GeoScale as a tree and marks each one `fixed` (it
+  enters the identity), `derived` or `mutable`, naming the function that
+  changes it; [`str()`](https://rdrr.io/r/utils/str.html) prints the
+  same tree.
+- `gg_geoscale(data = )` on the icicle and the stack takes data keyed by
+  any geoframe, named by `key=` or found from the columns. The value is
+  recast up from that geoframe to every coarser one it nests in; finer
+  geoframes are outlined without a fill.
 - `gg_geoscale(type = "stack")` fills a single-region geoframe above the
   colouring geoframe (a nation over its zones) with the next colour of
   the same palette; it was neutral grey.
@@ -77,7 +125,7 @@
   drawn at a coarser geoframe than the data’s codes filled every region
   with `NA`; the codes are now carried up to the drawn geoframe before
   `fun` is applied. The code column defaults to the `geoframe`-named
-  column, then the column named after the atom key, then `region`.
+  column, then the leaf column, then `region`.
 - [`attach_geometry_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.md),
   [`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md),
   [`ne_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.md)
@@ -134,9 +182,9 @@
   `type = c("icicle", "stack", "map")`. The old names are gone.
   [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
   returns the same figure;
-  [`plot()`](https://rspatial.github.io/terra/reference/plot.html) now
-  draws it and returns it invisibly, like base
-  [`plot()`](https://rspatial.github.io/terra/reference/plot.html).
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) now draws it
+  and returns it invisibly, like base
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html).
 - The value column is `z` for every figure (the map’s `fill=` is gone)
   and is required whenever `data` is given. `labels=` replaces `label=`.
   The map’s `title`, `subtitle` and `fill_label` are gone: add
@@ -331,9 +379,7 @@
   by year and vintage. Previously only a column literally named `weight`
   was honoured.
 
-- `na_rm = TRUE` in
-  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
-  and
+- `na_rm = TRUE` in `recast_from_geoatoms()` and
   [`recast_pairs()`](https://optimal2050.github.io/geoscales/r/reference/recast_pairs.md)
   reads an `NA` as “this member says nothing” instead of letting it make
   the whole group `NA`. Only an all-`NA` group stays `NA`, and a
@@ -344,12 +390,12 @@
   One slot of a model can hold an extensive and an intensive quantity
   side by side, which previously took two calls.
 
-- [`summary()`](https://rspatial.github.io/terra/reference/summary.html)
-  output now prints with its formatted view from user code: the local
-  `print` binding S7 leaves in the namespace had captured the
-  `S3method()` registration of `print.summary_Geoscale`, so the method
-  was invisible outside the package. Registered against base’s `print`
-  in `.onLoad` (same fix in timescales).
+- [`summary()`](https://rdrr.io/r/base/summary.html) output now prints
+  with its formatted view from user code: the local `print` binding S7
+  leaves in the namespace had captured the `S3method()` registration of
+  `print.summary_Geoscale`, so the method was invisible outside the
+  package. Registered against base’s `print` in `.onLoad` (same fix in
+  timescales).
 
 - Icicle labels no longer overprint: `geoscale_autoplot()` now draws
   labels widest-rectangle-first with `check_overlap = TRUE` (matching
@@ -363,18 +409,16 @@
 
 ### Base-generic methods on Geoscale
 
-- [`summary()`](https://rspatial.github.io/terra/reference/summary.html)
-  — the quantitative complement of
-  [`print()`](https://rdrr.io/r/base/print.html): member and
-  unassigned-atom counts, per-weight totals, sampled coverage (with the
-  parent’s name), the adjacent-geoframe NESTING table (cross-cutting
+- [`summary()`](https://rdrr.io/r/base/summary.html) — the quantitative
+  complement of [`print()`](https://rdrr.io/r/base/print.html): member
+  and unassigned-atom counts, per-weight totals, sampled coverage (with
+  the parent’s name), the adjacent-geoframe NESTING table (cross-cutting
   pairs flagged with offender counts), geometry status (sf-free).
   Returns a `"summary_Geoscale"` with its own print.
-- [`names()`](https://rspatial.github.io/terra/reference/names.html) —
-  the geoframe names (identical to
+- [`names()`](https://rdrr.io/r/base/names.html) — the geoframe names
+  (identical to
   [`geoscale_geoframes()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.md)).
-- [`as.data.frame()`](https://rspatial.github.io/terra/reference/as.data.frame.html)
-  and
+- [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) and
   [`ggplot2::fortify()`](https://ggplot2.tidyverse.org/reference/fortify.html)
   — the leaftable, so `ggplot(gs) + geom_*()` works directly. All
   mirrored by the timescales twins.
@@ -428,14 +472,13 @@ aliases are kept – old names are gone, not wrapped.
   [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
   column names.
   [`prune_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.md)
-  renames to `"parent@geoframe"` (the
-  [`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.html)
-  convention), now preserves the FULL meta (`crs`, `source`, `labels`),
-  reflects dropped unassigned atoms in coverage, and keeps attached
-  geometry by dissolving it per new atom (`keep_geometry = FALSE` to opt
-  out). Read the fraction with the new `geoscale_coverage(x, weight)`.
-  Code that relied on a subset keeping its parent’s name can find the
-  parent in `meta$parent_name`.
+  renames to `"parent@geoframe"` (the `prune_calendar()` convention),
+  now preserves the FULL meta (`crs`, `source`, `labels`), reflects
+  dropped unassigned atoms in coverage, and keeps attached geometry by
+  dissolving it per new atom (`keep_geometry = FALSE` to opt out). Read
+  the fraction with the new `geoscale_coverage(x, weight)`. Code that
+  relied on a subset keeping its parent’s name can find the parent in
+  `meta$parent_name`.
 
 ### New features
 
@@ -447,8 +490,8 @@ aliases are kept – old names are gone, not wrapped.
   design (column-name arguments, one standard
   [`geom_sf()`](https://ggplot2.tidyverse.org/reference/ggsf.html)
   layer, solid white background for dark-mode pages).
-  [`plot()`](https://rspatial.github.io/terra/reference/plot.html) on a
-  Geoscale now dispatches to `geoscale_autoplot()`.
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a Geoscale
+  now dispatches to `geoscale_autoplot()`.
 - `get_geo_map()` and `list_geo_maps()` complete the crosswalk registry;
   `register_geo_map()`/`clear_geo_maps()` gain examples.
 - [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md),
@@ -560,11 +603,9 @@ provider – under one naming convention shared with timescales.
   layer, cross-cutting geoframes included; identifier (panel) columns
   are preserved as groups; `to =` also accepts another named Geoscale
   (targeting its atom layer via shared atom keys).
-- [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
-  /
-  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
-  expose the route halves; chaining them across two Geoscales converts
-  between region systems that share atom keys.
+- `recast_to_geoatoms()` / `recast_from_geoatoms()` expose the route
+  halves; chaining them across two Geoscales converts between region
+  systems that share atom keys.
 - `geoscale_map(from, to, gs =, weight =)` materialises the crosswalk
   (atom counts and weights per overlapping pair, within one Geoscale or
   across two); `register_geo_map()` installs exact crosswalks,

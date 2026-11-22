@@ -1,7 +1,7 @@
 # GeoScale (S7 class)
 
 A nested spatial partition: a flat table of weighted leaf regions
-("atoms") plus the ordered hierarchy of geoframes that groups them.
+("leaves") plus the ordered hierarchy of geoframes that groups them.
 
 ## Usage
 
@@ -12,8 +12,9 @@ GeoScale(
   members,
   geometry = NULL,
   meta = list(),
-  key = NULL,
-  labels = NULL
+  leaf = NULL,
+  labels = NULL,
+  hidden = character()
 )
 ```
 
@@ -22,8 +23,8 @@ GeoScale(
 - leaftable:
 
   `data.frame` with one column per geoframe in `geoframes` and one or
-  more numeric weight columns. The finest geoframe is the atom key
-  unless `key` names another column.
+  more numeric weight columns. The finest geoframe is the leaf column
+  unless `leaf` names another column.
 
 - geoframes:
 
@@ -46,10 +47,10 @@ GeoScale(
   Named list of attributes (`name`, `desc`, `weights`, `default_weight`,
   `default_label`, `crs`, `source`).
 
-- key:
+- leaf:
 
-  Name of the atom key column: unique and complete. `NULL` (default) is
-  the finest geoframe.
+  Name of the leaf column: unique and complete. `NULL` (default) is the
+  finest geoframe.
 
 - labels:
 

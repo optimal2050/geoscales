@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -160,7 +160,7 @@ normal ggplot2 path.</p>
 <span><span class="co">#&gt;   - nation (1)</span></span>
 <span><span class="co">#&gt;     - zone (5)</span></span>
 <span><span class="co">#&gt;       - province (12)</span></span>
-<span><span class="co">#&gt; Atoms: 12</span></span>
+<span><span class="co">#&gt; Leaves: 12</span></span>
 <span><span class="co">#&gt; Weights: area (default: area)</span></span>
 <span><span class="co">#&gt; Labels: province [name] (default: name)</span></span>
 <span><span class="co">#&gt; CRS: NA</span></span>
@@ -250,8 +250,8 @@ plain-data frame is <code><a href="../reference/geoscale_layout.html">geoscale_l
 <span><span class="co">#&gt; 3     zone     Z2    2 0.08333333 0.25000000    1  1.9 11.315723 0.16666667</span></span>
 <span><span class="co">#&gt; 4     zone     Z3    2 0.25000000 0.50000000    1  1.9 16.973585 0.25000000</span></span></code></pre></div>
 <p>The icicle carries data too — <code>data =</code>/<code>z =</code>
-fill every band with the value recast to that geoframe (atoms keep their
-own values, coarser bands get the weighted mean):</p>
+fill every band with the value recast to that geoframe (leaves keep
+their own values, coarser bands get the weighted mean):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>province <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"province"</span><span class="op">)</span>,</span>
 <span>                  mw <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">15</span>, <span class="fl">75</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">22</span>, <span class="fl">8</span>, <span class="fl">55</span>, <span class="fl">34</span>, <span class="fl">12</span>, <span class="fl">48</span>, <span class="fl">26</span><span class="op">)</span><span class="op">)</span></span>
@@ -259,7 +259,7 @@ own values, coarser bands get the weighted mean):</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"MW"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/structure-data-1.png" class="r-plt" alt="" width="672"></p>
 <p>With geometry attached, <code>type = "stack"</code> draws the
-layer-stack view — the same atoms dissolved at every geoframe,
+layer-stack view — the same leaves dissolved at every geoframe,
 stacked:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span><span class="op">)</span></span></code></pre></div>
@@ -296,57 +296,84 @@ same machinery:</p>
 <span>            z <span class="op">=</span> <span class="st">"capacity"</span>, palette <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/one-call-1.png" class="r-plt" alt="" width="672"></p>
 </div>
+<div class="section level3">
+<h3 id="geoframes-for-calculation-only">Geoframes for calculation only<a class="anchor" aria-label="anchor" href="#geoframes-for-calculation-only"></a>
+</h3>
+<p>A geoframe may be needed for the arithmetic without being something
+to show. <code><a href="../reference/hide_geoframes_geoscale.html">hide_geoframes_geoscale()</a></code> marks it, and the
+figures leave it out; recasts, joins and navigation still use it.
+<code>geoframes = TRUE</code> draws everything for one figure.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gs_h</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hide_geoframes_geoscale.html">hide_geoframes_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"province"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/geoscale_geoframes.html">geoscale_geoframes</a></span><span class="op">(</span><span class="va">gs_h</span>, visible <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "nation" "zone"</span></span>
+<span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs_h</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="st">"isometric"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="visualization_files/figure-html/hidden-1.png" class="r-plt" alt="" width="672"></p>
+</div>
+<div class="section level3">
+<h3 id="data-above-the-leaves">Data above the leaves<a class="anchor" aria-label="anchor" href="#data-above-the-leaves"></a>
+</h3>
+<p><code>data</code> may be keyed by any geoframe. Its own plane and
+every coarser one it nests in are coloured; finer planes are outlined,
+since no value was given for them.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">zones</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>zone <span class="op">=</span> <span class="fu"><a href="../reference/geoscale_regions.html">geoscale_regions</a></span><span class="op">(</span><span class="va">gs</span>, <span class="st">"zone"</span><span class="op">)</span>,</span>
+<span>                    gw <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">19</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="st">"isometric"</span>,</span>
+<span>            data <span class="op">=</span> <span class="va">zones</span>, z <span class="op">=</span> <span class="st">"gw"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="visualization_files/figure-html/coarse-data-1.png" class="r-plt" alt="" width="672"></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="a-real-map-iceland-with-data-attached">A real map: Iceland, with data attached<a class="anchor" aria-label="anchor" href="#a-real-map-iceland-with-data-attached"></a>
 </h2>
 <p>The same workflow on real boundaries. Natural Earth’s admin-1 layer
-gives nine units for Iceland that group into its eight regions
+gives nine admin-1 areas for Iceland that group into its eight regions
 (<em>landshluti</em>) — a genuinely <strong>ragged</strong> hierarchy,
 because Reykjavik and the surrounding capital area are separate features
 of one region:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ne_source.html">ne_source</a></span><span class="op">(</span>geoframe <span class="op">=</span> <span class="st">"states"</span>, country <span class="op">=</span> <span class="st">"Iceland"</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">isl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country    <span class="op">=</span> <span class="st">"ISL"</span>,</span>
 <span>             landshluti <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">gn_name</span>,</span>
-<span>             unit       <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">iso_3166_2</span><span class="op">)</span>,</span>
-<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"unit"</span><span class="op">)</span>,</span>
-<span>  key <span class="op">=</span> <span class="st">"unit"</span>, name <span class="op">=</span> <span class="st">"iceland"</span></span>
+<span>             admin1     <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">iso_3166_2</span><span class="op">)</span>,</span>
+<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"admin1"</span><span class="op">)</span>,</span>
+<span>  leaf <span class="op">=</span> <span class="st">"admin1"</span>, name <span class="op">=</span> <span class="st">"iceland"</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">s</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"unit"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">s</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"admin1"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_area_geoscale.html">add_area_geoscale</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span></span>
 <span><span class="va">isl</span></span>
 <span><span class="co">#&gt; GeoScale: iceland </span></span>
 <span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
 <span><span class="co">#&gt;   - country (1)</span></span>
 <span><span class="co">#&gt;     - landshluti (8)</span></span>
-<span><span class="co">#&gt;       - unit (9)</span></span>
-<span><span class="co">#&gt; Atoms: 9</span></span>
+<span><span class="co">#&gt;       - admin1 (9)</span></span>
+<span><span class="co">#&gt; Leaves: 9</span></span>
 <span><span class="co">#&gt; Weights: km2 (default: km2)</span></span>
 <span><span class="co">#&gt; CRS: WGS 84</span></span>
 <span><span class="co">#&gt; Geometry: attached (9 features)</span></span></code></pre></div>
 <p><code><a href="../reference/add_area_geoscale.html">add_area_geoscale()</a></code> attached real data — equal-area km²
-per unit — which is also the object’s default weight. Drawn straight
-from the leaftable:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+per admin-1 area — which is also the object’s default weight. Drawn
+straight from the leaftable:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">isl</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>unit <span class="op">=</span> <span class="va">lt</span><span class="op">$</span><span class="va">unit</span>, km2 <span class="op">=</span> <span class="va">lt</span><span class="op">$</span><span class="va">km2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">isl</span>, z <span class="op">=</span> <span class="st">"km2"</span>, geoframe <span class="op">=</span> <span class="st">"unit"</span>,</span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>admin1 <span class="op">=</span> <span class="va">lt</span><span class="op">$</span><span class="va">admin1</span>, km2 <span class="op">=</span> <span class="va">lt</span><span class="op">$</span><span class="va">km2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">isl</span>, z <span class="op">=</span> <span class="st">"km2"</span>, geoframe <span class="op">=</span> <span class="st">"admin1"</span>,</span>
 <span>                colour <span class="op">=</span> <span class="st">"white"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span>, trans <span class="op">=</span> <span class="st">"sqrt"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Iceland's nine Natural Earth units, by area"</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Iceland's nine admin-1 areas, by area"</span>,</span>
 <span>       fill <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/geom_geoscale.html">theme_geoscale</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/iceland-area-1.png" class="r-plt" alt="" width="672"></p>
 <p>And the full loop in one pipeline: a national total split down to the
 regions by area (<code>rule = "sum"</code> conserves it), drawn at the
-<em>landshluti</em> geoframe — where the two capital-area units render
-as one region:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<em>landshluti</em> geoframe — where the two admin-1 areas of the
+capital render as one region:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"ISL"</span>, capacity_mw <span class="op">=</span> <span class="fl">3000</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">isl</span>, source <span class="op">=</span> <span class="st">"country"</span>, target <span class="op">=</span> <span class="st">"landshluti"</span>,</span>
 <span>                  rule <span class="op">=</span> <span class="st">"sum"</span>, weight <span class="op">=</span> <span class="st">"km2"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -363,12 +390,12 @@ as one region:</p>
 <h2 id="one-resource-three-geoframes">One resource, three geoframes<a class="anchor" aria-label="anchor" href="#one-resource-three-geoframes"></a>
 </h2>
 <p>The wind-cluster GeoScale from the <a href="https://optimal2050.github.io/geoscales/r/articles/geoscales.html">get-started
-vignette</a> carries Iceland’s mean wind speed on its cluster atoms;
+vignette</a> carries Iceland’s mean wind speed on its cluster leaves;
 recasting the same values up the hierarchy shows exactly what each
 aggregation keeps — the temporal twin of this figure (one wind year at
 three calendar resolutions) lives in the <a href="https://optimal2050.github.io/timescales/r/articles/visualization.html" class="external-link">timescales
 visualization vignette</a>:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"../../data-raw/iceland_wind.rds"</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">gf</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cluster"</span>, <span class="st">"landshluti"</span>, <span class="st">"country"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">gf</span> <span class="op">==</span> <span class="st">"cluster"</span><span class="op">)</span> <span class="va">iw</span><span class="op">$</span><span class="va">wind</span> <span class="kw">else</span></span>

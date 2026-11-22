@@ -55,7 +55,7 @@ join_geoscale(
 
 - meta:
 
-  Attach `"<name>.share"` and `"<name>.weight"` columns (summed atom
+  Attach `"<name>.share"` and `"<name>.weight"` columns (summed leaf
   weights of each keyed code, shares normalised over the geoframe;
   default `FALSE`). Skipped with a warning when the object declares no
   weights.

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,7 @@
     <div class="section level2">
       <h2 id="the-geoscale-class">The GeoScale class<a class="anchor" aria-label="anchor" href="#the-geoscale-class"></a></h2>
 
-      <div class="section-desc"><p>A nested spatial partition: a flat table of weighted leaf regions (“atoms”) plus the ordered geoframes that group them.</p></div>
+      <div class="section-desc"><p>A nested spatial partition: a flat table of weighted leaf regions (“leaves”) plus the ordered geoframes that group them.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -93,10 +93,10 @@
 
         <dt>
 
-          <code><a href="geoscale_key.html">geoscale_key()</a></code>
+          <code><a href="geoscale_leaf_column.html">geoscale_leaf_column()</a></code>
 
         </dt>
-        <dd>The atom key of a GeoScale</dd>
+        <dd>The leaf column of a GeoScale</dd>
 
         <dt>
 
@@ -118,6 +118,27 @@
 
         </dt>
         <dd>Labels of regions and geoframes</dd>
+
+        <dt>
+
+          <code><a href="hide_geoframes_geoscale.html">hide_geoframes_geoscale()</a></code> <code><a href="hide_geoframes_geoscale.html">show_geoframes_geoscale()</a></code>
+
+        </dt>
+        <dd>Hide geoframes from plots</dd>
+
+        <dt>
+
+          <code><a href="geoscale_tree.html">geoscale_tree()</a></code>
+
+        </dt>
+        <dd>The parts of a GeoScale and which of them may change</dd>
+
+        <dt>
+
+          <code><a href="geoscale_id.html">geoscale_id()</a></code>
+
+        </dt>
+        <dd>The identity of a GeoScale</dd>
 
         <dt>
 
@@ -165,7 +186,7 @@
       </dl></div><div class="section level2">
       <h2 id="conversion">Conversion<a class="anchor" aria-label="anchor" href="#conversion"></a></h2>
 
-      <div class="section-desc"><p>Aggregation and disaggregation are one operation. Values are projected down to atoms and aggregated up to the target, so direction follows the geoframe ranks and cross-cutting geoframes need no special handling.</p></div>
+      <div class="section-desc"><p>Aggregation and disaggregation are one operation. Values are projected down to leaves and aggregated up to the target, so direction follows the geoframe ranks and cross-cutting geoframes need no special handling.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -181,10 +202,10 @@
 
         <dt>
 
-          <code><a href="recast_to_geoatoms.html">recast_to_geoatoms()</a></code> <code><a href="recast_to_geoatoms.html">recast_from_geoatoms()</a></code>
+          <code><a href="recast_to_geoleaves.html">recast_to_geoleaves()</a></code> <code><a href="recast_to_geoleaves.html">recast_from_geoleaves()</a></code>
 
         </dt>
-        <dd>Recast region data down to the atom layer, and back</dd>
+        <dd>Recast region data down to the leaf layer, and back</dd>
 
         <dt>
 
@@ -212,7 +233,7 @@
           <code><a href="geoscale_map_between.html">geoscale_map_between()</a></code>
 
         </dt>
-        <dd>Crosswalk between two GeoScales through their shared atoms</dd>
+        <dd>Crosswalk between two GeoScales through their shared leaves</dd>
 
         <dt>
 
@@ -234,13 +255,6 @@
 
         </dt>
         <dd>Attach a GeoScale to region-keyed data</dd>
-
-        <dt>
-
-          <code><a href="bind_geoscale.html">bind_geoscale()</a></code> <code><a href="bind_geoscale.html">geoscale_link()</a></code> <code><a href="bind_geoscale.html">geoscale_id()</a></code>
-
-        </dt>
-        <dd>Bind a table to a GeoScale</dd>
 
         <dt>
 
@@ -406,6 +420,13 @@
 
         </dt>
         <dd>Compute area weights from attached geometry</dd>
+
+        <dt>
+
+          <code><a href="check_geometry_geoscale.html">check_geometry_geoscale()</a></code>
+
+        </dt>
+        <dd>Check that the geometry of a GeoScale is on the right regions</dd>
       </dl></div><div class="section level2">
       <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a></h2>
 

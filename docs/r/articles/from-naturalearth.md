@@ -38,7 +38,7 @@ gs
 #>     - subregion (22)
 #>       - country (177)
 #>         - feature (177)
-#> Atoms: 177
+#> Leaves: 177
 #> Weights: pop_est, gdp_md (default: pop_est)
 #> Source: naturalearth
 #> Geometry: attached (177 features)
@@ -81,8 +81,9 @@ ne <- agg[agg$subregion == "Northern Europe", ]
 
 back <- recast_geoscale(ne, gs, source = "subregion", target = "country",
                    rule = "sum", weight = "pop_est")
-#> Warning: 21 source unit(s) present in the scale but missing from the data (e.g.
-#> Antarctica, Australia and New Zealand, Caribbean, ... (21 total)); produced NAs
+#> Warning: 21 source member(s) present in the scale but missing from the data
+#> (e.g. Antarctica, Australia and New Zealand, Caribbean, ... (21 total));
+#> produced NAs
 head(back[order(-back$pop), ], 4)
 #>     country      pop
 #> 144     GBR 66834405
@@ -105,11 +106,11 @@ sum(back$pop) == sum(ne$pop)
 **Aggregation and disaggregation are one operation.** Direction follows
 the geoframe ranks, and
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
-routes through the atom layer either way.
+routes through the leaf layer either way.
 
 ## Iceland’s own regions
 
-Natural Earth’s admin-1 layer gives sub-country units. This needs
+Natural Earth’s admin-1 layer gives sub-country areas. This needs
 `rnaturalearthhires`, which is **not on CRAN**:
 
 ``` r
@@ -126,7 +127,7 @@ nrow(d)
 #> [1] 9
 ```
 
-Nine units — but Iceland has eight regions. `Reykjavik` and the
+Nine admin-1 areas — but Iceland has eight regions. `Reykjavik` and the
 surrounding capital area are separate admin-1 features that belong to
 the same region, which Natural Earth records in `gn_name`. That gives a
 genuinely **ragged** hierarchy: one group with two children, seven with
@@ -137,45 +138,47 @@ one.
 isl <- data.frame(
   country    = "ISL",
   landshluti = d$gn_name,       # Iceland's eight regions
-  unit       = d$iso_3166_2,    # the nine Natural Earth units
+  admin1     = d$iso_3166_2,    # the nine admin-1 areas
   stringsAsFactors = FALSE
 )
 
-g <- geoscale_from_leaftable(isl, geoframes = c("country", "landshluti", "unit"),
-                          key = "unit", name = "iceland")
-g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", geoframe = "unit")
+g <- geoscale_from_leaftable(
+  isl, geoframes = c("country", "landshluti", "admin1"),
+  leaf = "admin1", name = "iceland"
+)
+g <- attach_geometry_geoscale(g, s, by = "iso_3166_2", geoframe = "admin1")
 g <- add_area_geoscale(g, name = "km2")
 g
 #> GeoScale: iceland 
 #> Geoframes (3, coarsest first):
 #>   - country (1)
 #>     - landshluti (8)
-#>       - unit (9)
-#> Atoms: 9
+#>       - admin1 (9)
+#> Leaves: 9
 #> Weights: km2 (default: km2)
 #> CRS: WGS 84
 #> Geometry: attached (9 features)
 ```
 
-The Capital Region is the one that has two units under it:
+The Capital Region is the one that has two areas under it:
 
 ``` r
 
 geoscale_children(g, "landshluti", "Hofudborgarsvadi")
 #> [1] "IS-0" "IS-1"
-geoscale_nests(g, "landshluti", "unit")
+geoscale_nests(g, "landshluti", "admin1")
 #> [1] TRUE
 ```
 
-### Up: units to regions to country
+### Up: areas to regions to country
 
 ``` r
 
 set.seed(1)
-x <- data.frame(unit = geoscale_regions(g, "unit"),
+x <- data.frame(admin1 = geoscale_regions(g, "admin1"),
                 generation = round(runif(9, 50, 500)))
 
-recast_geoscale(x, g, source = "unit", target = "landshluti", rule = "sum")
+recast_geoscale(x, g, source = "admin1", target = "landshluti", rule = "sum")
 #>          landshluti generation
 #> 1        Austurland        169
 #> 2         Sudurland        217
@@ -189,7 +192,7 @@ recast_geoscale(x, g, source = "unit", target = "landshluti", rule = "sum")
 
 ``` r
 
-recast_geoscale(x, g, source = "unit", target = "country", rule = "sum")
+recast_geoscale(x, g, source = "admin1", target = "country", rule = "sum")
 #>   country generation
 #> 1     ISL       2903
 sum(x$generation)
@@ -202,22 +205,22 @@ sum(x$generation)
 
 tot <- data.frame(country = "ISL", demand = 1000)
 
-dd <- recast_geoscale(tot, g, source = "country", target = "unit",
+dd <- recast_geoscale(tot, g, source = "country", target = "admin1",
                  rule = "sum", weight = "km2")
 dd[order(-dd$demand), ]
-#>   unit     demand
-#> 2 IS-8 243.839793
-#> 9 IS-6 218.218704
-#> 1 IS-7 209.284719
-#> 8 IS-5 123.058147
-#> 7 IS-4  93.745309
-#> 6 IS-3  93.738848
-#> 3 IS-2   8.612705
-#> 5 IS-1   6.034461
-#> 4 IS-0   3.467314
+#>   admin1     demand
+#> 2   IS-8 243.839793
+#> 9   IS-6 218.218704
+#> 1   IS-7 209.284719
+#> 8   IS-5 123.058147
+#> 7   IS-4  93.745309
+#> 6   IS-3  93.738848
+#> 3   IS-2   8.612705
+#> 5   IS-1   6.034461
+#> 4   IS-0   3.467314
 ```
 
-The Capital Region units receive almost nothing, because they are small
+The Capital Region areas receive almost nothing, because they are small
 in area, although they hold most of Iceland’s population and would
 consume most of its electricity. **Area is rarely the right weight for
 demand.**
@@ -230,10 +233,10 @@ copies going down and weight-averages going up:
 
 ``` r
 
-cf <- data.frame(unit = geoscale_regions(g, "unit"),
+cf <- data.frame(admin1 = geoscale_regions(g, "admin1"),
                  cf = round(runif(9, 0.2, 0.5), 3))
 
-recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "km2")
+recast_geoscale(cf, g, "admin1", "landshluti", rule = "weighted_mean", weight = "km2")
 #>          landshluti       cf
 #> 1        Austurland 0.219000
 #> 2         Sudurland 0.262000
@@ -248,7 +251,7 @@ recast_geoscale(cf, g, "unit", "landshluti", rule = "weighted_mean", weight = "k
 ### Geometry follows the geoframes
 
 [`geoscale_geometry()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geometry.md)
-dissolves the atoms up to the requested geoframe, so the nine units
+dissolves the leaves up to the requested geoframe, so the nine areas
 become eight regions:
 
 ``` r

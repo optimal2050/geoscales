@@ -40,13 +40,13 @@ theme_geoscale(...)
   Geoframe to draw. `NULL` is inferred: the single geoframe name among
   the data's columns (as in
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)),
-  or the atom geoframe when `z = NULL`.
+  or the leaf geoframe when `z = NULL`.
 
 - region:
 
   Name of the region-code column of the data. Defaults to the
   `geoframe`-named column when present, else the column named after the
-  atom key, else `"region"`.
+  leaf column, else `"region"`.
 
 - fun:
 
@@ -108,9 +108,9 @@ if (requireNamespace("ggplot2", quietly = TRUE) &&
   sq <- function(x0) sf::st_polygon(list(cbind(
     c(x0, x0 + 1, x0 + 1, x0, x0), c(0, 0, 1, 1, 0))))
   gs <- geoscale_from_leaftable(
-    data.frame(state = c("N", "N", "S"), atom = c("a", "b", "c"),
+    data.frame(state = c("N", "N", "S"), cell = c("a", "b", "c"),
                km2 = c(1, 2, 3)),
-    geoframes = c("state", "atom"), name = "toy"
+    geoframes = c("state", "cell"), name = "toy"
   ) |>
     attach_geometry_geoscale(sf::st_sfc(sq(0), sq(1), sq(2)))
 

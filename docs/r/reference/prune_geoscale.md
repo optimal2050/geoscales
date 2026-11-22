@@ -2,8 +2,8 @@
 
 Returns a new
 [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
-whose atom layer is `geoframe`, dropping every finer geoframe. Weights
-are summed over the collapsed atoms.
+whose leaf layer is `geoframe`, dropping every finer geoframe. Weights
+are summed over the collapsed leaves.
 
 ## Usage
 
@@ -20,7 +20,7 @@ prune_geoscale(x, geoframe, keep_geometry = !is.null(S7::prop(x, "geometry")))
 
 - geoframe:
 
-  The geoframe to become the new atom layer.
+  The geoframe to become the new leaf layer.
 
 - keep_geometry:
 
@@ -38,21 +38,21 @@ The result is renamed `"name@geoframe"` (the
 [`timescales::prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.html)
 convention) with the parent recorded in `meta$parent_name`; every other
 meta field (`crs`, `source`, `labels`, inherited `coverage`) is
-preserved. Atoms with no code at `geoframe` are dropped, and that loss
+preserved. Leaves with no code at `geoframe` are dropped, and that loss
 is reflected in `meta$coverage` (see
 [`geoscale_coverage()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.md)).
-With geometry attached, the pruned atoms carry the dissolved (unioned)
-geometry of their fine atoms unless `keep_geometry = FALSE`.
+With geometry attached, the pruned leaves carry the dissolved (unioned)
+geometry of their fine leaves unless `keep_geometry = FALSE`.
 
 ## Examples
 
 ``` r
 prune_geoscale(geoscale_example(), "state")
 #> GeoScale: example@state 
-#> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
+#> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned leaf 
 #> Geoframes (2, coarsest first):
 #>   - country (2)
 #>     - state (3)
-#> Atoms: 3
+#> Leaves: 3
 #> Weights: km2, pop (default: km2)
 ```

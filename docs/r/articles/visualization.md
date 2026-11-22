@@ -41,7 +41,7 @@ gs
 #>   - nation (1)
 #>     - zone (5)
 #>       - province (12)
-#> Atoms: 12
+#> Leaves: 12
 #> Weights: area (default: area)
 #> Labels: province [name] (default: name)
 #> CRS: NA
@@ -160,7 +160,7 @@ head(geoscale_layout(gs), 4)
 ```
 
 The icicle carries data too — `data =`/`z =` fill every band with the
-value recast to that geoframe (atoms keep their own values, coarser
+value recast to that geoframe (leaves keep their own values, coarser
 bands get the weighted mean):
 
 ``` r
@@ -174,7 +174,7 @@ gg_geoscale(gs, data = cap, z = "mw") +
 ![](visualization_files/figure-html/structure-data-1.png)
 
 With geometry attached, `type = "stack"` draws the layer-stack view —
-the same atoms dissolved at every geoframe, stacked:
+the same leaves dissolved at every geoframe, stacked:
 
 ``` r
 
@@ -219,10 +219,44 @@ gg_geoscale(gs, type = "map", data = x, geoframe = "province",
 
 ![](visualization_files/figure-html/one-call-1.png)
 
+### Geoframes for calculation only
+
+A geoframe may be needed for the arithmetic without being something to
+show.
+[`hide_geoframes_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.md)
+marks it, and the figures leave it out; recasts, joins and navigation
+still use it. `geoframes = TRUE` draws everything for one figure.
+
+``` r
+
+gs_h <- hide_geoframes_geoscale(gs, "province")
+geoscale_geoframes(gs_h, visible = TRUE)
+#> [1] "nation" "zone"
+gg_geoscale(gs_h, type = "stack", view = "isometric")
+```
+
+![](visualization_files/figure-html/hidden-1.png)
+
+### Data above the leaves
+
+`data` may be keyed by any geoframe. Its own plane and every coarser one
+it nests in are coloured; finer planes are outlined, since no value was
+given for them.
+
+``` r
+
+zones <- data.frame(zone = geoscale_regions(gs, "zone"),
+                    gw = c(5, 11, 12, 19, 8))
+gg_geoscale(gs, type = "stack", view = "isometric",
+            data = zones, z = "gw", rule = "sum")
+```
+
+![](visualization_files/figure-html/coarse-data-1.png)
+
 ## A real map: Iceland, with data attached
 
 The same workflow on real boundaries. Natural Earth’s admin-1 layer
-gives nine units for Iceland that group into its eight regions
+gives nine admin-1 areas for Iceland that group into its eight regions
 (*landshluti*) — a genuinely **ragged** hierarchy, because Reykjavik and
 the surrounding capital area are separate features of one region:
 
@@ -234,37 +268,37 @@ d <- as.data.frame(s)
 isl <- geoscale_from_leaftable(
   data.frame(country    = "ISL",
              landshluti = d$gn_name,
-             unit       = d$iso_3166_2),
-  geoframes = c("country", "landshluti", "unit"),
-  key = "unit", name = "iceland"
+             admin1     = d$iso_3166_2),
+  geoframes = c("country", "landshluti", "admin1"),
+  leaf = "admin1", name = "iceland"
 ) |>
-  attach_geometry_geoscale(s, by = "iso_3166_2", geoframe = "unit") |>
+  attach_geometry_geoscale(s, by = "iso_3166_2", geoframe = "admin1") |>
   add_area_geoscale(name = "km2")
 isl
 #> GeoScale: iceland 
 #> Geoframes (3, coarsest first):
 #>   - country (1)
 #>     - landshluti (8)
-#>       - unit (9)
-#> Atoms: 9
+#>       - admin1 (9)
+#> Leaves: 9
 #> Weights: km2 (default: km2)
 #> CRS: WGS 84
 #> Geometry: attached (9 features)
 ```
 
 [`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md)
-attached real data — equal-area km² per unit — which is also the
+attached real data — equal-area km² per admin-1 area — which is also the
 object’s default weight. Drawn straight from the leaftable:
 
 ``` r
 
 lt <- geoscale_leaftable(isl)
 
-ggplot(tibble(unit = lt$unit, km2 = lt$km2)) +
-  geom_geoscale(gs = isl, z = "km2", geoframe = "unit",
+ggplot(tibble(admin1 = lt$admin1, km2 = lt$km2)) +
+  geom_geoscale(gs = isl, z = "km2", geoframe = "admin1",
                 colour = "white", linewidth = 0.3) +
   scale_fill_viridis_c(option = "G", trans = "sqrt") +
-  labs(title = "Iceland's nine Natural Earth units, by area",
+  labs(title = "Iceland's nine admin-1 areas, by area",
        fill = "km2") +
   theme_geoscale()
 ```
@@ -273,7 +307,8 @@ ggplot(tibble(unit = lt$unit, km2 = lt$km2)) +
 
 And the full loop in one pipeline: a national total split down to the
 regions by area (`rule = "sum"` conserves it), drawn at the *landshluti*
-geoframe — where the two capital-area units render as one region:
+geoframe — where the two admin-1 areas of the capital render as one
+region:
 
 ``` r
 
@@ -295,7 +330,7 @@ tibble(country = "ISL", capacity_mw = 3000) |>
 
 The wind-cluster GeoScale from the [get-started
 vignette](https://optimal2050.github.io/geoscales/r/articles/geoscales.html)
-carries Iceland’s mean wind speed on its cluster atoms; recasting the
+carries Iceland’s mean wind speed on its cluster leaves; recasting the
 same values up the hierarchy shows exactly what each aggregation keeps —
 the temporal twin of this figure (one wind year at three calendar
 resolutions) lives in the [timescales visualization

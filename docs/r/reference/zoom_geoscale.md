@@ -1,8 +1,8 @@
 # Telescoping zoom: fine detail in a focus area, coarse elsewhere
 
-Builds a new geoframe that keeps `focus` atoms at full resolution and
+Builds a new geoframe that keeps `focus` leaves at full resolution and
 collapses everything else into progressively coarser rings drawn from
-`geoframes`. The result is a partition of the atoms, carried as a
+`geoframes`. The result is a partition of the leaves, carried as a
 geoframe.
 
 ## Usage
@@ -26,12 +26,12 @@ zoom_geoscale(
 
 - focus:
 
-  Character vector of **atom** codes to keep at full resolution.
+  Character vector of **leaf** codes to keep at full resolution.
 
 - geoframes:
 
   Ordered geoframes to build rings from, coarsest first. Defaults to
-  every geoframe of `x` except the atom layer.
+  every geoframe of `x` except the leaf layer.
 
 - name:
 
@@ -46,28 +46,28 @@ zoom_geoscale(
 
 A
 [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
-with geoframes `geoframes[1]`, `name` and the atom geoframe; weights and
+with geoframes `geoframes[1]`, `name` and the leaf geoframe; weights and
 geometry carried through unchanged.
 
 ## Details
 
-With focus atoms and `geoframes = c("nuts0", "nuts1", "nuts2")`
-(coarsest first), each remaining atom joins the **finest** ring that
-also contains a focus atom, so the cut telescopes outward:
+With focus leaves and `geoframes = c("nuts0", "nuts1", "nuts2")`
+(coarsest first), each remaining leaf joins the **finest** ring that
+also contains a focus leaf, so the cut telescopes outward:
 
-- the focus atoms themselves, individually;
+- the focus leaves themselves, individually;
 
-- the rest of each `nuts2` holding a focus atom;
+- the rest of each `nuts2` holding a focus leaf;
 
 - the rest of each `nuts1` holding one of those;
 
 - the rest of each `nuts0` holding one of those;
 
-- every other atom, grouped in `geoframes[1]`.
+- every other leaf, grouped in `geoframes[1]`.
 
 The intermediate geoframes are **dropped**. A ring like "rest of nuts1"
 spans several `nuts2`, so the cut cannot nest with the geoframes it was
-carved from; only `geoframes[1]` and the atom geoframe are kept beside
+carved from; only `geoframes[1]` and the leaf geoframe are kept beside
 it. That is checked, not assumed – see
 [`geoscale_nests()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_nests.md).
 
@@ -87,7 +87,7 @@ gs <- geoscale_example()
 z <- zoom_geoscale(gs, focus = "A1",
                    geoframes = c("country", "state"))
 geoscale_geoframes(z)
-#> [1] "country" "zoom"    "atom"   
+#> [1] "country" "zoom"    "cell"   
 geoscale_regions(z, "zoom")
 #> [1] "A1"      "N1_rest" "N_rest"  "S"      
 ```

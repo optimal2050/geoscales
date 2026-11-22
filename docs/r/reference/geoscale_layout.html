@@ -11,7 +11,7 @@ Exposed so the layout can be drawn with something other than ggplot2."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@ Exposed so the layout can be drawn with something other than ggplot2.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">geoscale_layout</span><span class="op">(</span><span class="va">x</span>, weight <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">geoscale_layout</span><span class="op">(</span><span class="va">x</span>, weight <span class="op">=</span> <span class="cn">NULL</span>, geoframes <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,6 +73,12 @@ Exposed so the layout can be drawn with something other than ggplot2.</p>
 
 <dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
 <dd><p>Weight column. <code>NULL</code> uses the default.</p></dd>
+
+
+<dt id="arg-geoframes">geoframes<a class="anchor" aria-label="anchor" href="#arg-geoframes"></a></dt>
+<dd><p>The geoframes to lay out: <code>NULL</code> (default) those not
+hidden (see <code><a href="hide_geoframes_geoscale.html">hide_geoframes_geoscale()</a></code>), <code>TRUE</code> all, or a character
+vector of names.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,13 +96,13 @@ The codes are arbitrary, the weights (area, population) are data, and
 region systems drawn by different hands rarely nest — converting values
 between them is where unit errors live.</p>
 <p><code>geoscales</code> represents any such carving as a
-<strong>GeoScale</strong>: a set of <em>atoms</em> (the finest regions)
+<strong>GeoScale</strong>: a set of <em>leaves</em> (the finest regions)
 plus ordered <em>geoframes</em> that group them — the spatial companion
 to a <code><a href="https://optimal2050.github.io/timescales/r/reference/Calendar.html" class="external-link">timescales::Calendar</a></code>. One object provides:</p>
 <ul>
 <li>a stable schema for region codes and their weights,</li>
 <li>well-defined conversions between any two resolutions — including
-cross-cutting ones, because every conversion routes through the atom
+cross-cutting ones, because every conversion routes through the leaf
 layer,</li>
 <li>attachment of hierarchy columns to tables, and ggplot2-ready
 maps.</li>
@@ -121,10 +121,10 @@ provider, parent-child crosswalks, or an existing wide table:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"N"</span>, <span class="st">"S"</span>, <span class="st">"S"</span><span class="op">)</span>,</span>
 <span>    state   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"N2"</span>, <span class="st">"S1"</span>, <span class="st">"S1"</span><span class="op">)</span>,</span>
-<span>    atom    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span>, <span class="st">"A5"</span>, <span class="st">"A6"</span><span class="op">)</span>,</span>
+<span>    cell    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A4"</span>, <span class="st">"A5"</span>, <span class="st">"A6"</span><span class="op">)</span>,</span>
 <span>    km2     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">300</span>, <span class="fl">400</span>, <span class="fl">500</span>, <span class="fl">600</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"state"</span>, <span class="st">"atom"</span><span class="op">)</span>,</span>
+<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"state"</span>, <span class="st">"cell"</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"tour"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">gs</span></span>
@@ -132,8 +132,8 @@ provider, parent-child crosswalks, or an existing wide table:</p>
 <span><span class="co">#&gt; Geoframes (3, coarsest first):</span></span>
 <span><span class="co">#&gt;   - country (2)</span></span>
 <span><span class="co">#&gt;     - state (3)</span></span>
-<span><span class="co">#&gt;       - atom (6)</span></span>
-<span><span class="co">#&gt; Atoms: 6</span></span>
+<span><span class="co">#&gt;       - cell (6)</span></span>
+<span><span class="co">#&gt; Leaves: 6</span></span>
 <span><span class="co">#&gt; Weights: km2 (default: km2)</span></span></code></pre></div>
 <p>(<code><a href="../reference/geoscale_build.html">geoscale_build()</a></code> assembles the same thing from ragged
 parent-child crosswalks; <code><a href="../reference/geoscale_from_provider.html">geoscale_from_provider()</a></code> pulls a
@@ -145,9 +145,9 @@ source like Natural Earth — see
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span><span class="op">@</span><span class="va">geoframes</span>                 <span class="co"># the hierarchy, coarsest first</span></span>
-<span><span class="co">#&gt; [1] "country" "state"   "atom"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>        <span class="co"># one row per atom</span></span>
-<span><span class="co">#&gt;   country state atom km2</span></span>
+<span><span class="co">#&gt; [1] "country" "state"   "cell"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/geoscale_leaftable.html">geoscale_leaftable</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>        <span class="co"># one row per leaf</span></span>
+<span><span class="co">#&gt;   country state cell km2</span></span>
 <span><span class="co">#&gt; 1       N    N1   A1 100</span></span>
 <span><span class="co">#&gt; 2       N    N1   A2 200</span></span>
 <span><span class="co">#&gt; 3       N    N2   A3 300</span></span>
@@ -165,8 +165,8 @@ source like Natural Earth — see
 <p>One rule per value column; aggregation and disaggregation are the
 same operation, and totals conserve under <code>"sum"</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>atom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">cap</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>cell <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>, capacity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cap</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cell"</span>, target <span class="op">=</span> <span class="st">"country"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
 <span><span class="co">#&gt;   country capacity</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -215,10 +215,10 @@ article):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></code></pre></div>
 <p><img src="geoscales_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672"></p>
-<p>With geometry attached (any <code>sfc</code> aligned with the atoms),
-<code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> puts values on a map inside a normal
-<code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code> pipeline. The data must be keyed at the drawn
-geoframe, so finer data is recast up first:</p>
+<p>With geometry attached (any <code>sfc</code> aligned with the
+leaves), <code><a href="../reference/geom_geoscale.html">geom_geoscale()</a></code> puts values on a map inside a
+normal <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code> pipeline. The data must be keyed at the
+drawn geoframe, so finer data is recast up first:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sq</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st.html" class="external-link">st_polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">x</span>, <span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">y</span>, <span class="va">y</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">y</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -226,7 +226,7 @@ geoframe, so finer data is recast up first:</p>
 <span>  <span class="fu">sq</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu">sq</span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cap</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"atom"</span>, target <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/recast_geoscale.html">recast_geoscale</a></span><span class="op">(</span><span class="va">gs</span>, source <span class="op">=</span> <span class="st">"cell"</span>, target <span class="op">=</span> <span class="st">"state"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/geom_geoscale.html">geom_geoscale</a></span><span class="op">(</span>gs <span class="op">=</span> <span class="va">gs</span>, z <span class="op">=</span> <span class="st">"capacity"</span>, geoframe <span class="op">=</span> <span class="st">"state"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -242,7 +242,7 @@ geoframe, so finer data is recast up first:</p>
 hierarchy: Iceland’s onshore wind resource from the <a href="https://globalwindatlas.info/" class="external-link">Global Wind Atlas</a>, clustered
 <em>within</em> each administrative region into contiguous wind-speed
 classes. This is a common construction in renewable modeling: a model
-uses a handful of supply regions per admin unit, ranked by resource
+uses a handful of supply regions per admin area, ranked by resource
 quality, rather than two million raster cells.</p>
 <p>The pipeline below is complete and pasteable (packages: sf, terra,
 dplyr, <a href="https://github.com/optimal2050/globalwindatlas" class="external-link">globalwindatlas</a>;
@@ -284,8 +284,8 @@ regions:</p>
 <p><strong>Classes to clusters</strong> — everything in a projected CRS
 (ISN93 Lambert), where the geometry ops are robust. Two boundary rules
 keep the later dissolves exact (up-aggregation on the map is a
-<em>union</em> of atoms, and unions only merge cleanly when shared edges
-match to the last coordinate): region borders are simplified
+<em>union</em> of leaves, and unions only merge cleanly when shared
+edges match to the last coordinate): region borders are simplified
 <em>topology-aware</em> (<code><a href="http://andyteucher.ca/rmapshaper/reference/ms_simplify.html" class="external-link">rmapshaper::ms_simplify()</a></code>
 simplifies each shared arc once — <code><a href="https://r-spatial.github.io/sf/reference/geos_unary.html" class="external-link">sf::st_simplify()</a></code> would
 treat each side independently and leave sliver “ghost borders”), and
@@ -344,20 +344,20 @@ itself, the last class being the region’s remainder:</p>
 <span>  fun <span class="op">=</span> <span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, ID <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">clusters</span><span class="op">$</span><span class="va">km2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_measures.html" class="external-link">st_area</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span>, <span class="st">"km^2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Assemble the GeoScale</strong> — the clusters are the
-atoms:</p>
+leaves:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span></span>
 <span>  <span class="va">clusters</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"Iceland"</span>, landshluti <span class="op">=</span> <span class="va">region</span>, <span class="va">cluster</span>, <span class="va">km2</span><span class="op">)</span>,</span>
 <span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"cluster"</span><span class="op">)</span>,</span>
-<span>  key <span class="op">=</span> <span class="st">"cluster"</span>, name <span class="op">=</span> <span class="st">"iceland_wind"</span></span>
+<span>  leaf <span class="op">=</span> <span class="st">"cluster"</span>, name <span class="op">=</span> <span class="st">"iceland_wind"</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">clusters</span>, by <span class="op">=</span> <span class="st">"cluster"</span>, geoframe <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">wind</span> <span class="op">&lt;-</span> <span class="va">clusters</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">cluster</span>, <span class="va">wind</span><span class="op">)</span></span></code></pre></div>
 <p>The result is an ordinary three-geoframe GeoScale — the clusters are
-its atoms, so everything above applies. The repository ships it
+its leaves, so everything above applies. The repository ships it
 pre-built (<code>data-raw/iceland_wind.rds</code>, written by
 <code>data-raw/iceland_wind.R</code>), which is what renders here:
 recast the per-cluster wind speed up to the regions with an
@@ -383,7 +383,7 @@ area-weighted mean,</p>
 <span><span class="co">#&gt; 6          Sudurnes 9.524734</span></span>
 <span><span class="co">#&gt; 7        Vestfirdir 9.313962</span></span>
 <span><span class="co">#&gt; 8        Vesturland 9.527264</span></span></code></pre></div>
-<p>or hand the atom-level values straight to the stack view, which
+<p>or hand the leaf-level values straight to the stack view, which
 recasts them onto every plane itself (<code>data</code>/<code>z</code>)
 and labels a chosen geoframe (<code>labels</code>).
 <code>palette = NA</code> leaves the fill scale to the caller — here the
@@ -414,7 +414,7 @@ Vortex, funded by ESMAP.</em></p>
 </h2>
 <ul>
 <li>
-<a href="concepts.html">Concepts</a> — atoms, partitions vs trees,
+<a href="concepts.html">Concepts</a> — leaves, partitions vs trees,
 the shared *scales glossary.</li>
 <li>
 <a href="data-structures.html">Data structures</a> — anatomy of a

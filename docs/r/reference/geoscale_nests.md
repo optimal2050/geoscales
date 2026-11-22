@@ -33,7 +33,7 @@ Nesting is *not* required by
 [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
 —
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
-routes through the atom layer and works either way. This function is a
+routes through the leaf layer and works either way. This function is a
 diagnostic.
 
 ## Examples

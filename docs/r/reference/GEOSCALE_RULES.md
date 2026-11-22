@@ -45,8 +45,8 @@ and
 
 - `sd`:
 
-  Up: standard deviation over the atoms (aggregation only; going down it
-  degenerates to `NA` for single-atom groups).
+  Up: standard deviation over the leaves (aggregation only; going down
+  it degenerates to `NA` for single-leaf groups).
 
 - `share`:
 

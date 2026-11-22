@@ -22,7 +22,7 @@ geoscale_family(x, parent = NULL, child = NULL)
 ## Value
 
 A `data.frame` with columns `parent_geoframe`, `parent`,
-`child_geoframe`, `child`. Atoms unassigned at either geoframe are
+`child_geoframe`, `child`. Leaves unassigned at either geoframe are
 omitted.
 
 ## Examples

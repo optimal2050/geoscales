@@ -41,6 +41,8 @@ gg_geoscale(
   outline = NULL,
   outline_colour = "grey20",
   outline_linewidth = 0.6,
+  geoframes = NULL,
+  key = NULL,
   ...
 )
 
@@ -72,15 +74,16 @@ plot(x, ...)
   Colour the figure by a value instead of by structure. `data` is a
   data.frame with the value column named by `z`; `z` is required
   whenever `data` is given. The icicle and the stack take `data` keyed
-  by the atom geoframe and recast the value up to every coarser geoframe
-  (see `rule`), so the whole figure shares one continuous fill scale;
-  the map takes `data` keyed by `geoframe`. Legend title via
-  `labs(fill = )`.
+  by any geoframe (see `key`) and recast the value up to every coarser
+  geoframe it nests in (see `rule`), so those bands or planes share one
+  continuous fill scale. A geoframe finer than the data, or cutting
+  across it, has no value and is outlined without a fill. The map takes
+  `data` keyed by `geoframe`. Legend title via `labs(fill = )`.
 
 - rule:
 
   Icicle and stack, with `data`: the rule that recasts `z` from the
-  atoms to each coarser geoframe (`"weighted_mean"` default; see
+  leaves to each coarser geoframe (`"weighted_mean"` default; see
   [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)).
   `"share"` colours every band or plane by each region's share within
   the one above it on a fixed linear 0..1 scale; `"logshare"` is the
@@ -118,7 +121,8 @@ plot(x, ...)
 
 - geoframe:
 
-  Map: the geoframe to draw. Defaults to the atom geoframe.
+  Map: the geoframe to draw. Defaults to the finest geoframe that is not
+  hidden.
 
 - precision:
 
@@ -197,6 +201,20 @@ plot(x, ...)
   Stack: colour and width of the `outline` borders, recycled over
   `outline`. Defaults `"grey20"` and `0.6`.
 
+- geoframes:
+
+  Icicle and stack: the geoframes to draw. `NULL` (default) draws those
+  not hidden with
+  [`hide_geoframes_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.md),
+  `TRUE` draws all, and a character vector draws exactly the named ones,
+  hidden or not.
+
+- key:
+
+  Icicle and stack: the geoframe `data` is keyed by, i.e. the name of
+  its code column. `NULL` (default) takes the finest geoframe that is a
+  column of `data`.
+
 - ...:
 
   Fixed aesthetics for the figure's main layer: the icicle's
@@ -224,7 +242,7 @@ that geoframe.
 
 ## Stack (`type = "stack"`)
 
-One sheared map plane per geoframe, coarsest on top: the same atoms
+One sheared map plane per geoframe, coarsest on top: the same leaves
 dissolved at each resolution, under a chosen point of view. Without
 `data`, regions are coloured by their ancestor at the coarsest geoframe
 with two or more regions, so each child carries its parent's colour down
@@ -256,9 +274,9 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 if (requireNamespace("ggplot2", quietly = TRUE) &&
     requireNamespace("sf", quietly = TRUE)) {
-  # the stack and the map need geometry: one unit square per atom
+  # the stack and the map need geometry: one 1 x 1 square per leaf
   gs <- geoscale_example()
-  n <- length(geoscale_regions(gs, "atom"))
+  n <- length(geoscale_regions(gs, "cell"))
   square <- function(i) {
     sf::st_polygon(list(cbind(c(i, i + 1, i + 1, i, i), c(0, 0, 1, 1, 0))))
   }

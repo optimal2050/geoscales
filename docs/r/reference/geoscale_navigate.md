@@ -93,11 +93,11 @@ geoscale_descendants(gs, "country", "N")
 #> 2    state     N2
 #> 3     zone     N1
 #> 4     zone     ZB
-#> 5     atom     A1
-#> 6     atom     A2
-#> 7     atom     A3
-#> 8     atom     A4
-geoscale_ancestors(gs, "atom", "A5")
+#> 5     cell     A1
+#> 6     cell     A2
+#> 7     cell     A3
+#> 8     cell     A4
+geoscale_ancestors(gs, "cell", "A5")
 #>   geoframe region
 #> 1  country      S
 #> 2    state     S1

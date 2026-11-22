@@ -28,11 +28,11 @@ geoscale_build(
 - geoframes:
 
   Ordered character vector of geoframe names, coarsest first. The last
-  entry is the atom geoframe.
+  entry is the leaf geoframe.
 
 - weights:
 
-  Optional `data.frame` keyed by the atom geoframe, carrying one or more
+  Optional `data.frame` keyed by the leaf geoframe, carrying one or more
   numeric weight columns.
 
 - name, desc:
@@ -63,16 +63,16 @@ geoscale_build(
   data.frame(country = c("N", "N", "S"),
              state   = c("N1", "N2", "S1")),
   data.frame(state = c("N1", "N1", "N2", "S1"),
-             atom  = c("A1", "A2", "A3", "A4")),
-  geoframes  = c("country", "state", "atom"),
-  weights = data.frame(atom = c("A1", "A2", "A3", "A4"),
+             cell  = c("A1", "A2", "A3", "A4")),
+  geoframes  = c("country", "state", "cell"),
+  weights = data.frame(cell = c("A1", "A2", "A3", "A4"),
                        km2  = c(10, 20, 30, 40))
 )
-#> GeoScale: country_state_atom 
+#> GeoScale: country_state_cell 
 #> Geoframes (3, coarsest first):
 #>   - country (2)
 #>     - state (3)
-#>       - atom (4)
-#> Atoms: 4
+#>       - cell (4)
+#> Leaves: 4
 #> Weights: km2 (default: km2)
 ```

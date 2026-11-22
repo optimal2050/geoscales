@@ -1,6 +1,6 @@
 # Subset a GeoScale by region
 
-Keeps only the atoms belonging to `region` at `geoframe`, and rebuilds
+Keeps only the leaves belonging to `region` at `geoframe`, and rebuilds
 the member vocabularies accordingly. Geometry, when attached, is subset
 in step.
 
@@ -47,7 +47,7 @@ records the parent, and `meta$name` is mangled to `"parent[geoframe:n]"`
 so a sample never impersonates its parent in the crosswalk registry or
 in
 [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
-column names. A filter that keeps every atom is a true no-op. Read the
+column names. A filter that keeps every leaf is a true no-op. Read the
 fraction back with
 [`geoscale_coverage()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_coverage.md).
 
@@ -58,13 +58,13 @@ gs <- geoscale_example()
 n <- filter_geoscale(gs, "country", "N")
 n
 #> GeoScale: example[country:N] 
-#> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
+#> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned leaf 
 #> Geoframes (4, coarsest first):
 #>   - country (1)
 #>     - state (2)
 #>       - zone (2)
-#>         - atom (4)
-#> Atoms: 4
+#>         - cell (4)
+#> Leaves: 4
 #> Weights: km2, pop (default: km2)
 geoscale_coverage(n)
 #>       km2       pop 

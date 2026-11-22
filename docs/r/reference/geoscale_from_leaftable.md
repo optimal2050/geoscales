@@ -1,6 +1,6 @@
 # Build a GeoScale from a flat table of leaf regions
 
-The general constructor. Takes a wide `data.frame` with one row per atom
+The general constructor. Takes a wide `data.frame` with one row per leaf
 (the finest region) and one column per geoframe, and returns a
 [`GeoScale`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md).
 
@@ -10,12 +10,13 @@ The general constructor. Takes a wide `data.frame` with one row per atom
 geoscale_from_leaftable(
   leaftable,
   geoframes,
-  key = NULL,
+  leaf = NULL,
   weights = NULL,
   default_weight = NULL,
   members = NULL,
   geometry = NULL,
   labels = NULL,
+  hidden = NULL,
   name = "",
   desc = "",
   row_order = c("nested", "given"),
@@ -27,7 +28,7 @@ geoscale_from_leaftable(
 
 - leaftable:
 
-  `data.frame` with one row per atom, one column per name in
+  `data.frame` with one row per leaf, one column per name in
   `geoframes`, and optionally numeric weight columns.
 
 - geoframes:
@@ -35,12 +36,12 @@ geoscale_from_leaftable(
   Ordered character vector of geoframe names, **coarsest first**. Each
   must be a column of `leaftable`.
 
-- key:
+- leaf:
 
-  Name of the column holding the unique atom key. Defaults to the finest
-  geoframe (the last entry of `geoframes`), which must then be complete
-  and unique. Name another column when the atoms are finer than the
-  finest geoframe.
+  Name of the leaf column, the column that identifies the leaves.
+  Defaults to the finest geoframe (the last entry of `geoframes`), which
+  must then be complete and unique. Name another column when the leaves
+  are finer than the finest geoframe.
 
 - weights:
 
@@ -63,9 +64,14 @@ geoscale_from_leaftable(
 
 - labels:
 
-  Optional table of display names with columns `frame`, `unit`, `label`
-  and optionally `variant`; see
+  Optional table of display names with columns `geoframe`, `region`,
+  `label` and optionally `variant`; see
   [`attach_labels_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md).
+
+- hidden:
+
+  Optional names of geoframes to leave out of plots; see
+  [`hide_geoframes_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.md).
 
 - name, desc:
 
@@ -89,7 +95,7 @@ A
 ## Details
 
 Blank strings (`""`) in geoframe columns are normalised to `NA`, meaning
-"this atom has no code at this geoframe" — partial coverage is normal in
+"this leaf has no code at this geoframe" — partial coverage is normal in
 real region tables.
 
 ## Examples
@@ -98,15 +104,15 @@ real region tables.
 df <- data.frame(
   country = c("C1", "C1", "C1", "C2"),
   zone    = c("Z1", "Z1", "Z2", "Z3"),
-  atom    = c("A1", "A2", "A3", "A4"),
+  cell    = c("A1", "A2", "A3", "A4"),
   km2     = c(100, 200, 300, 400)
 )
-geoscale_from_leaftable(df, geoframes = c("country", "zone", "atom"))
+geoscale_from_leaftable(df, geoframes = c("country", "zone", "cell"))
 #> GeoScale: <unnamed> 
 #> Geoframes (3, coarsest first):
 #>   - country (2)
 #>     - zone (3)
-#>       - atom (4)
-#> Atoms: 4
+#>       - cell (4)
+#> Leaves: 4
 #> Weights: km2 (default: km2)
 ```

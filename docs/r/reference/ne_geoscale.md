@@ -51,8 +51,9 @@ self-documenting and reproducible.
 
 ## Details
 
-`feature` is the atom: the Natural Earth unit. `country` sits above it
-as a grouping of atoms, so it can only ever be coarser than `feature`.
+`feature` is the leaf: the Natural Earth feature. `country` sits above
+it as a grouping of leaves, so it can only ever be coarser than
+`feature`.
 
 Do not derive area weights from `scale = 110`; see
 [`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md).

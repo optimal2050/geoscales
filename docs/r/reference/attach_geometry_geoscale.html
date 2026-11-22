@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">attach_geometry_geoscale</span><span class="op">(</span><span class="va">x</span>, <span class="va">geom</span>, by <span class="op">=</span> <span class="cn">NULL</span>, geoframe <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">attach_geometry_geoscale</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">geom</span>,</span>
+<span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  geoframe <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  positional <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -72,12 +78,20 @@ matched on <code>by</code>; when <code>sfc</code>, it must already be in <code>@
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
 <dd><p>Name of the code column in <code>geom</code> to match on. Defaults to the
-atom geoframe, then <code>"region"</code>.</p></dd>
+leaf geoframe, then <code>"region"</code>.</p></dd>
 
 
 <dt id="arg-geoframe">geoframe<a class="anchor" aria-label="anchor" href="#arg-geoframe"></a></dt>
-<dd><p>Geoframe that <code>geom</code>'s codes refer to. Defaults to the atom
-geoframe. When coarser, each atom inherits its parent's geometry.</p></dd>
+<dd><p>Geoframe that <code>geom</code>'s codes refer to. Defaults to the leaf
+geoframe. When coarser, each leaf inherits its parent's geometry.</p></dd>
+
+
+<dt id="arg-positional">positional<a class="anchor" aria-label="anchor" href="#arg-positional"></a></dt>
+<dd><p>Acknowledge a by-position bind. An <code>sfc</code> carries no codes,
+so nothing can check its order; when the constructor re-sorted the
+leaftable (<code>meta$row_permuted</code>) the caller's order is no longer the
+object's and the bind is refused. Set <code>TRUE</code> when the <code>sfc</code> is known to be
+in <code>@leaftable</code> order. Ignored for an <code>sf</code>, which is matched on <code>by</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

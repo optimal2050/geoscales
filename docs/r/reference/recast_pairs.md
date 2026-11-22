@@ -48,7 +48,7 @@ recast_pairs(
 - source:
 
   Geoframe the endpoint codes belong to. `NULL` (default) is the finest
-  (atom) geoframe.
+  (leaf) geoframe.
 
 - src, dst:
 
@@ -119,7 +119,7 @@ quadratic in the region count and almost entirely empty.
 ## See also
 
 [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md),
-[`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
+[`recast_from_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md)
 
 ## Examples
 

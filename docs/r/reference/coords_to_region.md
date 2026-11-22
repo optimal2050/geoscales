@@ -3,7 +3,7 @@
 The spatial twin of
 [`timescales::datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.html):
 raw observations enter the structure here. Each point is matched to the
-region at `geoframe` (the atoms by default) whose geometry contains it;
+region at `geoframe` (the leaves by default) whose geometry contains it;
 points outside every region return `NA`. A point exactly on a shared
 border is assigned to the first matching region in the object's
 canonical order.

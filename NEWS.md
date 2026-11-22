@@ -1,4 +1,4 @@
-# geoscales (development version)
+# geoscales 0.8.0
 
 ## Breaking changes
 

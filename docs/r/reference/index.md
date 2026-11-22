@@ -3,7 +3,7 @@
 ## The GeoScale class
 
 A nested spatial partition: a flat table of weighted leaf regions
-(“atoms”) plus the ordered geoframes that group them.
+(“leaves”) plus the ordered geoframes that group them.
 
 - [`GeoScale()`](https://optimal2050.github.io/geoscales/r/reference/GeoScale.md)
   : GeoScale (S7 class)
@@ -21,8 +21,8 @@ A nested spatial partition: a flat table of weighted leaf regions
 - [`geoscale_rank()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_rank.md)
   : Geoframe rank
 
-- [`geoscale_key()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_key.md)
-  : The atom key of a GeoScale
+- [`geoscale_leaf_column()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_leaf_column.md)
+  : The leaf column of a GeoScale
 
 - [`geoscale_weights()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_weights.md)
   : Weight columns of a GeoScale
@@ -34,6 +34,16 @@ A nested spatial partition: a flat table of weighted leaf regions
   [`geoscale_labels()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
   [`geoscale_label()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_labels.md)
   : Labels of regions and geoframes
+
+- [`hide_geoframes_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.md)
+  [`show_geoframes_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/hide_geoframes_geoscale.md)
+  : Hide geoframes from plots
+
+- [`geoscale_tree()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_tree.md)
+  : The parts of a GeoScale and which of them may change
+
+- [`geoscale_id()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_id.md)
+  : The identity of a GeoScale
 
 - [`summary(`*`<GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/summary.GeoScale.md)
   [`summary(`*`<geoscales::GeoScale>`*`)`](https://optimal2050.github.io/geoscales/r/reference/summary.GeoScale.md)
@@ -61,14 +71,14 @@ crosswalks, or a wide table you already have.
 ## Conversion
 
 Aggregation and disaggregation are one operation. Values are projected
-down to atoms and aggregated up to the target, so direction follows the
+down to leaves and aggregated up to the target, so direction follows the
 geoframe ranks and cross-cutting geoframes need no special handling.
 
 - [`recast_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/recast_geoscale.md)
   : Recast values from one spatial resolution to another
-- [`recast_to_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
-  [`recast_from_geoatoms()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoatoms.md)
-  : Recast region data down to the atom layer, and back
+- [`recast_to_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md)
+  [`recast_from_geoleaves()`](https://optimal2050.github.io/geoscales/r/reference/recast_to_geoleaves.md)
+  : Recast region data down to the leaf layer, and back
 - [`recast_pairs()`](https://optimal2050.github.io/geoscales/r/reference/recast_pairs.md)
   : Recast data keyed by a pair of regions
 - [`reexports`](https://optimal2050.github.io/geoscales/r/reference/reexports.md)
@@ -77,7 +87,7 @@ geoframe ranks and cross-cutting geoframes need no special handling.
 - [`geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map.md)
   : Crosswalk between two geoframes of a GeoScale
 - [`geoscale_map_between()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_map_between.md)
-  : Crosswalk between two GeoScales through their shared atoms
+  : Crosswalk between two GeoScales through their shared leaves
 - [`register_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
   [`register_geoscale_map_between()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
   [`get_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.md)
@@ -88,10 +98,6 @@ geoframe ranks and cross-cutting geoframes need no special handling.
   : Clear the registered spatial crosswalks
 - [`join_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/join_geoscale.md)
   : Attach a GeoScale to region-keyed data
-- [`bind_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
-  [`geoscale_link()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
-  [`geoscale_id()`](https://optimal2050.github.io/geoscales/r/reference/bind_geoscale.md)
-  : Bind a table to a GeoScale
 - [`GEOSCALE_RULES`](https://optimal2050.github.io/geoscales/r/reference/GEOSCALE_RULES.md)
   : Supported aggregation rules
 - [`register_geoscale_rule()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_rule.md)
@@ -151,6 +157,8 @@ Optional, and backed by ‘sf’. The core is geometry-free.
   : Map coordinates to the regions that contain them
 - [`add_area_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/add_area_geoscale.md)
   : Compute area weights from attached geometry
+- [`check_geometry_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/check_geometry_geoscale.md)
+  : Check that the geometry of a GeoScale is on the right regions
 
 ## Visualization
 

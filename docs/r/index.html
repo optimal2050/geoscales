@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">geoscales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,7 @@
 <p>geoscales provides <strong>nested regions and spatial hierarchies</strong> for optimization and simulation models: organize the spatial dimension of model data, convert it between region systems, and draw every geoframe at once.</p>
 <ul>
 <li>
-<a href="https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.html"><code>geoscale_from_leaftable()</code></a> builds a <code>GeoScale</code> — ordered geoframes, their members, and one leaftable row per leaf region (“atom”) with its weights (area, population, capacity); <a href="https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.html"><code>ne_geoscale()</code></a> builds one straight from Natural Earth, and <a href="https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.html"><code>attach_geometry_geoscale()</code></a> adds boundaries from any source — the package ships integration code, not maps.</li>
+<a href="https://optimal2050.github.io/geoscales/r/reference/geoscale_from_leaftable.html"><code>geoscale_from_leaftable()</code></a> builds a <code>GeoScale</code> — ordered geoframes, their members, and one leaftable row per leaf region with its weights (area, population, capacity); <a href="https://optimal2050.github.io/geoscales/r/reference/ne_geoscale.html"><code>ne_geoscale()</code></a> builds one straight from Natural Earth, and <a href="https://optimal2050.github.io/geoscales/r/reference/attach_geometry_geoscale.html"><code>attach_geometry_geoscale()</code></a> adds boundaries from any source — the package ships integration code, not maps.</li>
 <li>
 <a href="https://optimal2050.github.io/geoscales/r/reference/join_geoscale.html"><code>join_geoscale()</code></a> decorates a table keyed by regions with the geoscale’s columns — the table keeps its class (data.frame, tibble, data.table, dtplyr/arrow in; the same class out).</li>
 <li>
@@ -126,11 +126,11 @@
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">ne</span><span class="op">)</span></span>
 <span><span class="va">iceland</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/geoscale_from_leaftable.html">geoscale_from_leaftable</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"ISL"</span>, landshluti <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">gn_name</span>,</span>
-<span>             unit <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">iso_3166_2</span><span class="op">)</span>,</span>
-<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"unit"</span><span class="op">)</span>,</span>
-<span>  key <span class="op">=</span> <span class="st">"unit"</span>, name <span class="op">=</span> <span class="st">"iceland"</span></span>
+<span>             admin1 <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">iso_3166_2</span><span class="op">)</span>,</span>
+<span>  geoframes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"landshluti"</span>, <span class="st">"admin1"</span><span class="op">)</span>,</span>
+<span>  leaf <span class="op">=</span> <span class="st">"admin1"</span>, name <span class="op">=</span> <span class="st">"iceland"</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">ne</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"unit"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/attach_geometry_geoscale.html">attach_geometry_geoscale</a></span><span class="op">(</span><span class="va">ne</span>, by <span class="op">=</span> <span class="st">"iso_3166_2"</span>, geoframe <span class="op">=</span> <span class="st">"admin1"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/gg_geoscale.html">gg_geoscale</a></span><span class="op">(</span><span class="va">iceland</span>, type <span class="op">=</span> <span class="st">"stack"</span>, view <span class="op">=</span> <span class="st">"top-down"</span>, gap <span class="op">=</span> <span class="fl">.35</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-demo-stack-iceland-1.png" alt="" width="100%"></p>

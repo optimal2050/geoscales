@@ -58,12 +58,12 @@ unexported.
 gs <- geoscale_example()
 gs["country", "N"]
 #> GeoScale: example[country:N] 
-#> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned atom 
+#> Description: Synthetic example: reused code, non-nesting geoframe pair, and an unassigned leaf 
 #> Geoframes (4, coarsest first):
 #>   - country (1)
 #>     - state (2)
 #>       - zone (2)
-#>         - atom (4)
-#> Atoms: 4
+#>         - cell (4)
+#> Leaves: 4
 #> Weights: km2, pop (default: km2)
 ```

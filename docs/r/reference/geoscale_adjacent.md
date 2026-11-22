@@ -28,7 +28,7 @@ geoscale_adjacent(
 
 - geoframe:
 
-  Geoframe whose features are compared. Defaults to the atom geoframe.
+  Geoframe whose features are compared. Defaults to the leaf geoframe.
   Geometry is dissolved to it first, so any geoframe works.
 
 - within:
