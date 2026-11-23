@@ -1,7 +1,8 @@
 """Replay specs/json/*.json, written by tools/specs/make_json_goldens.R from
-the R sources: construction, navigation, recast, maps, joins and geometry --
-results, warnings and error messages. Geometry is compared as type, area
-(geodesic on WGS84 for lon/lat, as sf with s2 off) and bounds."""
+the R sources: construction, navigation, recast, maps, joins, labels,
+identity, parts, weights, hidden geoframes and geometry -- results, warnings
+and error messages. Geometry is compared as type, area (geodesic on WGS84
+for lon/lat, as sf with s2 off) and bounds."""
 import json
 import math
 import warnings
@@ -14,7 +15,7 @@ import pytest
 import geoscales as gs
 
 JSON = Path(__file__).resolve().parents[2] / "specs" / "json"
-TOPICS = ["construct", "navigate", "recast", "geometry"]
+TOPICS = ["construct", "navigate", "recast", "labels", "identity", "geometry"]
 CASES = [(t, i, c) for t in TOPICS
          for i, c in enumerate(json.loads((JSON / ("%s.json" % t)).read_text(
              encoding="utf-8"))["cases"])]
@@ -72,7 +73,8 @@ def build_gs(spec):
                                geometry=[shapely.from_wkt(w) for w in wkt],
                                crs=g["crs"])
         x = gs.attach_geometry_geoscale(x, shp, by=g["by"], geoframe=g["geoframe"])
-    for st in spec.get("steps") or []:
+    steps = spec.get("steps") or []
+    for st in [steps] if isinstance(steps, dict) else steps:
         pos, kw = call_args(st["args"])
         x = getattr(gs, st["fn"])(x, *pos, **kw)
     return x
@@ -89,6 +91,15 @@ def decode(a):
             return gpd.GeoDataFrame(table(s["table"]).to_pandas(),
                                     geometry=[shapely.from_wkt(w) for w in wkt],
                                     crs=s["crs"])
+        if "sfc" in a:
+            import geopandas as gpd
+            import shapely
+
+            s = a["sfc"]
+            wkt = s["wkt"] if isinstance(s["wkt"], list) else [s["wkt"]]
+            return gpd.GeoSeries([shapely.from_wkt(w) for w in wkt], crs=s["crs"])
+        if "named" in a:
+            return dict(a["named"])
         if "scale" in a:
             return build_gs(a["scale"])
         if "table" in a:
@@ -163,25 +174,33 @@ def describe(x):
     m = x.meta
     return {"frames": list(x.frames), "members": {k: list(v) for k, v in
                                                   x.members.items()},
+            "leaf": gs.geoscale_leaf_column(x), "id": gs.geoscale_id(x),
             "name": m.get("name"), "parent_name": m.get("parent_name"),
             "weights": list(m.get("weights") or ()),
-            "default_weight": m.get("default_weight"), "coverage": m.get("coverage"),
-            "parent_totals": m.get("parent_totals"), "crs": m.get("crs")}
+            "default_weight": m.get("default_weight"),
+            "default_label": m.get("default_label"),
+            "row_permuted": m.get("row_permuted"), "coverage": m.get("coverage"),
+            "parent_totals": m.get("parent_totals"), "crs": m.get("crs"),
+            "hidden": gs.geoscale_geoframes(x, visible=False)}
 
 
 def compare(got, want, ordered):
     kind = want["kind"]
     if kind == "geoscale":
         v = dict(want["value"])
-        lt, geom = v.pop("leaftable"), v.pop("geometry")
+        lt, geom, labels = v.pop("leaftable"), v.pop("geometry"), v.pop("labels")
         assert norm(describe(got)) == norm({k: v.get(k) for k in describe(got)})
         assert rows(got.leaftable) == json_rows(lt)
+        assert rows(gs.geoscale_labels(got)) == json_rows(labels)
         same_geom(geom_info(got.geometry, got.meta.get("crs")), geom)
     elif kind == "sf":
         assert rows(pa.Table.from_pandas(got.drop(columns=got.geometry.name),
                                          preserve_index=False)) == json_rows(
             want["value"])
         same_geom(geom_info(list(got.geometry.values), got.crs), want["geometry"])
+    elif kind == "tree":
+        assert got.header == want["header"]
+        assert rows(got.table) == json_rows(want["value"])
     elif kind == "table":
         have, exp = rows(got), json_rows(want["value"])
         if ordered:
@@ -218,7 +237,7 @@ def _clean():
 @pytest.mark.parametrize("case", CASES, ids=[label(c) for c in CASES])
 def test_json_golden(case):
     topic, _, c = case
-    if topic == "geometry" or "geometry" in json.dumps(c["args"]):
+    if topic == "geometry" or '"geometry"' in json.dumps(c["args"]):
         pytest.importorskip("shapely")
         pytest.importorskip("pyproj")
         pytest.importorskip("geopandas")

@@ -8,7 +8,8 @@ import pyarrow as pa
 
 from ._utils import _check_geoframe, _check_geoscale, _stop
 from .construct import geoscale_from_leaftable
-from .geoscale_class import GeoScale, geoscale_weights
+from .geoscale_class import GeoScale, _hidden, _trim_hidden, geoscale_weights
+from .labels import _trim_labels
 
 
 def _geoframe_cols(t: pa.Table) -> pa.Table:
@@ -35,8 +36,13 @@ def geoscale_nests(x: GeoScale, parent: str, child: str):
 
 
 def geoscale_ancestry(x: GeoScale) -> pa.Table:
+    """Every ancestor-descendant pair of codes, sorted by parent geoframe,
+    parent, child geoframe and child (in code-point order; R sorts in the
+    collation of the session)."""
     _check_geoscale(x)
-    return _geoframe_cols(ns.scale_ancestry(x))
+    out = _geoframe_cols(ns.scale_ancestry(x))
+    keys = ["parent_geoframe", "parent", "child_geoframe", "child"]
+    return out.sort_by([(k, "ascending") for k in keys])
 
 
 def _nav(fn: Any, x: GeoScale, geoframe: str, region: Any, target: str | None):
@@ -71,8 +77,9 @@ def geoscale_ancestors(x: GeoScale, geoframe: str, region: Any,
 
 def filter_geoscale(x: GeoScale, geoframe: str, region: Any,
                     drop_empty_geoframes: bool = False) -> GeoScale:
-    """Keep the atoms of `region` at `geoframe`; a sample of the root parent.
-    Attached geometry follows the kept rows."""
+    """Keep the leaves of `region` at `geoframe`; a sample of the root
+    parent. Attached geometry follows the kept rows, and the labels and
+    hidden geoframes of what remains are kept."""
     _check_geoscale(x)
     _check_geoframe(x, geoframe)
     return ns.filter_scale(x, geoframe, region, drop_empty_frames=drop_empty_geoframes)
@@ -105,8 +112,9 @@ def _sample_meta(x: GeoScale, meta: dict, kept: pa.Table, tag: str) -> dict:
 
 def prune_geoscale(x: GeoScale, geoframe: str,
                    keep_geometry: bool | None = None) -> GeoScale:
-    """Collapse to `geoframe` (it becomes the atom layer), summing weights;
-    renamed `"name@geoframe"`. Attached geometry is dissolved per code."""
+    """Collapse to `geoframe` (it becomes the leaf layer), summing weights;
+    renamed `"name@geoframe"`. Attached geometry is dissolved per code, and
+    the labels and hidden geoframes of the geoframes that remain are kept."""
     _check_geoscale(x)
     _check_geoframe(x, geoframe)
     if keep_geometry is None:
@@ -118,7 +126,7 @@ def prune_geoscale(x: GeoScale, geoframe: str,
     covered = [c is not None for c in codes0]
     lt = lt0.filter(pa.array(covered))
     if lt.num_rows == 0:
-        _stop("no atoms have a code at geoframe `%s`", geoframe)
+        _stop("no leaves have a code at geoframe `%s`", geoframe)
     wts = geoscale_weights(x)
     keys = list(zip(*(lt[g].to_pylist() for g in keep_lv), strict=True))
     first: dict = {}
@@ -132,7 +140,6 @@ def prune_geoscale(x: GeoScale, geoframe: str,
         for k, v in zip(keys, lt[w].to_pylist(), strict=True):
             acc[k] = acc.get(k, 0.0) + (float(v) if v is not None and v == v else 0.0)
         cols[w] = pa.array([acc[k] for k in groups], pa.float64())
-    cols["region"] = cols[geoframe]
     out = pa.table(cols)
 
     meta = x.meta
@@ -141,16 +148,8 @@ def prune_geoscale(x: GeoScale, geoframe: str,
         new_meta = _sample_meta(x, new_meta, lt, "")
     new_meta["parent_name"] = meta.get("name")
     new_meta["name"] = "%s@%s" % (meta.get("name") or "", geoframe)
-    gs = geoscale_from_leaftable(out, geoframes=keep_lv, key="region", weights=wts,
-                                 default_weight=meta.get("default_weight"),
-                                 name=new_meta["name"], desc=meta.get("desc") or "")
-    for k in ("weights", "default_weight"):  # R's modifyList(): NULL removes
-        if gs.meta.get(k) is None:
-            new_meta.pop(k, None)
-        else:
-            new_meta[k] = gs.meta[k]
-    if new_meta.get("parent_name") is None:
-        new_meta.pop("parent_name", None)
+    # dissolved per pruned row before construction: the constructor permutes
+    # the geometry with the rows it re-orders
     geometry = None
     if keep_geometry and x.geometry is not None:
         from .geometry import _dissolve
@@ -158,6 +157,18 @@ def prune_geoscale(x: GeoScale, geoframe: str,
         gk = [g for g, c in zip(x.geometry, covered, strict=True) if c]
         geometry = [_dissolve([g for g, k in zip(gk, keys, strict=True) if k == grp])
                     for grp in groups]
-    return GeoScale(leaftable=gs.leaftable, geoframes=gs.frames, members=gs.members,
-                    geometry=geometry, meta=new_meta)
+    gs = geoscale_from_leaftable(
+        out, geoframes=keep_lv, leaf=geoframe, weights=wts,
+        default_weight=meta.get("default_weight"), name=new_meta["name"],
+        desc=meta.get("desc") or "", geometry=geometry,
+        labels=_trim_labels(x.labels, keep_lv, {g: x.members[g] for g in keep_lv}),
+        hidden=_trim_hidden(_hidden(x), keep_lv))
+    for k in ("weights", "default_weight"):  # R's modifyList(): NULL removes
+        if gs.meta.get(k) is None:
+            new_meta.pop(k, None)
+        else:
+            new_meta[k] = gs.meta[k]
+    if new_meta.get("parent_name") is None:
+        new_meta.pop("parent_name", None)
+    return ns.scale_set_props(gs, check=True, meta=new_meta)
 

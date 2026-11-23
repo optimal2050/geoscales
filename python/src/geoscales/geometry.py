@@ -2,7 +2,7 @@
 GeoDataFrame input/output), the counterparts of sf. Optional: install
 `geoscales[geo]`.
 
-Geometry is per atom, in leaftable row order; its CRS is `meta$crs`.
+Geometry is per leaf, in leaftable row order; its CRS is `meta["crs"]`.
 """
 from __future__ import annotations
 
@@ -11,9 +11,10 @@ from typing import Any
 
 import numpy as np
 import pyarrow as pa
+from nestedscales import scale_set_props
 
 from ._utils import _check_geoframe, _check_geoscale, _stop, _warn
-from .geoscale_class import GeoScale
+from .geoscale_class import GeoScale, _as_geometry
 
 
 def _need_geo(what: str = "this operation") -> None:
@@ -64,14 +65,17 @@ def _dissolve(geoms: Sequence[Any]) -> Any:
 
 
 def attach_geometry_geoscale(x: GeoScale, geom: Any, by: str | None = None,
-                             geoframe: str | None = None,
+                             geoframe: str | None = None, positional: bool = False,
                              crs: Any = None) -> GeoScale:
-    """Attach per-atom geometry.
+    """Attach one geometry per leaf.
 
-    `geom` is a GeoDataFrame matched on code column `by` (default: the
-    geoframe's name, else `region`; with a coarser `geoframe` every atom
-    inherits its parent's shape), or a sequence of shapely geometries
-    already in leaftable row order (then `crs=` gives its CRS).
+    `geom` is a GeoDataFrame matched on the code column `by` (default: the
+    geoframe's name, else the leaf column; with a coarser `geoframe` every
+    leaf inherits the shape of its parent), or a GeoSeries or sequence of
+    shapely geometries already in leaftable row order (R's `sfc`; `crs=`
+    gives the CRS of a plain sequence). A sequence carries no codes and
+    binds by position, which is refused when the rows were re-sorted at
+    construction (`meta["row_permuted"]`) unless `positional=True`.
     """
     _check_geoscale(x)
     _need_geo("attach_geometry_geoscale()")
@@ -80,7 +84,7 @@ def attach_geometry_geoscale(x: GeoScale, geom: Any, by: str | None = None,
     _check_geoframe(x, geoframe)
     if _is_gdf(geom):
         if by is None:
-            by = geoframe if geoframe in geom.columns else "region"
+            by = geoframe if geoframe in geom.columns else x.leaf
         if by not in geom.columns:
             _stop("`geom` has no column `%s`; pass `by=`", by)
         codes = [None if c is None else str(c) for c in geom[by].tolist()]
@@ -91,18 +95,30 @@ def attach_geometry_geoscale(x: GeoScale, geom: Any, by: str | None = None,
             _stop("no codes in `geom$%s` match geoframe `%s`", by, geoframe)
         n_miss = sum(i is None for i in idx)
         if n_miss:
-            _warn("%d atom(s) have no matching geometry and are empty", n_miss)
+            _warn("%d leaf region(s) have no matching geometry", n_miss)
         out = [None if i is None else values[i] for i in idx]
         crs = geom.crs
+    elif isinstance(geom, (str, bytes)) or not hasattr(geom, "__len__"):
+        _stop("`geom` must be an `sf` or `sfc` object")
     else:
+        if hasattr(geom, "values") and hasattr(geom, "crs"):  # GeoSeries
+            crs = geom.crs if crs is None else crs
+            geom = geom.values
         out = list(geom)
         if len(out) != x.leaftable.num_rows:
             _stop("`geom` has %d geometries but `leaves` has %d rows; supply an `sf` "
                   "object to match on codes instead", len(out), x.leaftable.num_rows)
+        # a bind by position cannot be verified once the constructor has
+        # re-sorted the rows
+        if not positional and x.meta.get("row_permuted") is True:
+            _stop("`geom` is an `sfc`, which binds by position, but the leaftable "
+                  "was re-sorted when this GeoScale was built, so position no "
+                  "longer tracks the order `geom` is in. Supply an `sf` with `by=` "
+                  "naming its code column, or pass `positional = TRUE` if the "
+                  "`sfc` is already in `@leaftable` row order.")
     meta = dict(x.meta)
     meta["crs"] = _crs_string(crs)
-    return GeoScale(leaftable=x.leaftable, geoframes=x.frames, members=x.members,
-                    geometry=out, meta=meta)
+    return scale_set_props(x, check=True, geometry=_as_geometry(out), meta=meta)
 
 
 def geoscale_geometry(x: GeoScale, geoframe: str | None = None,
@@ -134,7 +150,8 @@ def geoscale_geometry(x: GeoScale, geoframe: str | None = None,
 
 def add_area_geoscale(x: GeoScale, name: str = "km2",
                       crs: str = "ESRI:54034") -> GeoScale:
-    """Add each atom's area (km2, in the equal-area `crs`) as a weight column."""
+    """Add the area of each leaf (km2, in the equal-area `crs`) as a weight
+    column."""
     _check_geoscale(x)
     _need_geo("add_area_geoscale()")
     import shapely
@@ -156,8 +173,7 @@ def add_area_geoscale(x: GeoScale, name: str = "km2",
     meta = dict(x.meta)
     meta["weights"] = list(dict.fromkeys([*(meta.get("weights") or ()), name]))
     meta["default_weight"] = meta.get("default_weight") or name
-    return GeoScale(leaftable=lt, geoframes=x.frames, members=x.members,
-                    geometry=x.geometry, meta=meta)
+    return scale_set_props(x, check=True, leaftable=lt, meta=meta)
 
 
 def coords_to_region(x: Any, gs: GeoScale, geoframe: str | None = None,

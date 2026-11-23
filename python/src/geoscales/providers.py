@@ -1,9 +1,10 @@
 """Data providers (ports of R/providers.R and R/naturalearth.R).
 
-A provider fetches a table (or GeoDataFrame) of atoms; `geoscale_from_provider()`
-turns it into a GeoScale. The built-in "naturalearth" provider reads the
-Natural Earth admin-0 / admin-1 shapefiles (downloaded from naciscdn.org on
-first use and cached), where R reads rnaturalearth's data packages.
+A provider fetches a table (or GeoDataFrame) of leaf regions;
+`geoscale_from_provider()` turns it into a GeoScale. The built-in
+"naturalearth" provider reads the Natural Earth admin-0 / admin-1 shapefiles
+(downloaded from naciscdn.org on first use and cached), where R reads
+rnaturalearth's data packages.
 """
 from __future__ import annotations
 
@@ -12,11 +13,11 @@ from pathlib import Path
 from typing import Any
 
 import pyarrow as pa
-from nestedscales import backend_pull
+from nestedscales import backend_pull, scale_set_props
 
 from ._utils import _as_list, _preview, _stop, _warn
 from .construct import geoscale_from_leaftable
-from .geoscale_class import GeoScale
+from .geoscale_class import GeoScale, _as_geometry
 
 _PROVIDER_REGISTRY: dict[str, dict] = {}
 
@@ -78,14 +79,14 @@ def geoscale_from_provider(provider: Any = "naturalearth",
     if missing:
         _stop("source has no column(s): %s", _preview(missing))
     wts = [w for w in _as_list(weights) if w in t.column_names]
-    gs = geoscale_from_leaftable(t.select([*geoframes, *wts]), geoframes=geoframes,
-                                 weights=wts, name=name, desc=desc, source=src_name)
-    if geom is not None:
-        meta = dict(gs.meta)
-        if crs is not None:
-            meta["crs"] = crs
-        gs = GeoScale(leaftable=gs.leaftable, geoframes=gs.frames,
-                      members=gs.members, geometry=geom, meta=meta)
+    # the geometry goes through the constructor, which re-orders it with the
+    # rows it sorts; R binds it by position after the sort
+    gs = geoscale_from_leaftable(
+        t.select([*geoframes, *wts]), geoframes=geoframes, weights=wts,
+        geometry=None if geom is None else _as_geometry(geom), name=name, desc=desc,
+        source=src_name)
+    if geom is not None and crs is not None:
+        gs = scale_set_props(gs, check=True, meta={**gs.meta, "crs": crs})
     return gs
 
 
@@ -164,8 +165,7 @@ def ne_geoscale(scale: int = 110,
                                 desc="Natural Earth admin-0 hierarchy")
     meta = dict(gs.meta)
     meta.update(source="naturalearth", scale=scale)
-    return GeoScale(leaftable=gs.leaftable, geoframes=gs.frames, members=gs.members,
-                    geometry=gs.geometry, meta=meta)
+    return scale_set_props(gs, check=True, meta=meta)
 
 
 register_geoscale_provider(

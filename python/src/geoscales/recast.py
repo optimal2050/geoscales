@@ -1,10 +1,10 @@
-"""recast_geoscale() and the geoatom halves (port of R/recast.R and
-R/recast-pairs.R).
+"""recast_geoscale() and the two halves of its route through the leaves
+(port of R/recast.R and R/recast-pairs.R).
 
 `recast_geoscale()` is nestedscales' `recast_scale()` on a GeoScale. The
-halves are kept local, as in R: `recast_from_geoatoms()` returns the
+halves are kept local, as in R: `recast_from_geoleaves()` returns the
 OBSERVED target regions only (no completion to the full vocabulary), unlike
-nestedscales' `recast_from_atoms()`.
+nestedscales' `recast_from_leaves()`.
 """
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ import nestedscales as ns
 import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
+from nestedscales.backend import backend_scan
 from nestedscales.recast import _group_parts, _group_result
 
 from ._utils import (
@@ -107,13 +108,17 @@ def _as_str(t: pa.Table, c: str) -> pa.Table:
     return t
 
 
-def recast_geoscale(x: Any, gs: GeoScale, source: str | None = None,
+def recast_geoscale(data: Any, gs: GeoScale, source: str | None = None,
                     target: str | GeoScale | None = None, key: str | None = None,
                     values: Any = None, rule: Any = None, weight: Any = None,
                     na_action: NaAction = "drop", parent: str | None = None,
                     collect: bool | None = None) -> Any:
-    """Recast region data between geoframes (or onto another GeoScale's atoms,
-    matched on shared `region` keys)."""
+    """Recast region data between geoframes, or onto the finest geoframe of
+    another GeoScale, matched on shared leaf codes.
+
+    `key` names the column of `data` that holds the codes; `weight` names a
+    weight of the GeoScale.
+    """
     na_action = _match_arg(na_action, ("drop", "error", "keep"), "na_action")
     _check_geoscale(gs, "gs")
     if isinstance(target, GeoScale):
@@ -121,49 +126,51 @@ def recast_geoscale(x: Any, gs: GeoScale, source: str | None = None,
         if any(r in ("share", "logshare") for r in rv):
             _stop('rule "share" needs a parent geoframe of the same GeoScale; it '
                   "cannot recast across objects")
-        g = recast_to_geoatoms(x, gs, source=source, key=key, values=values,
-                               rule=rule, weight=weight, collect=collect)
-        return recast_from_geoatoms(g, target, target=target.frames[-1],
-                                    values=values, rule=rule, na_action=na_action,
-                                    collect=collect)
-    return ns.recast_scale(x, gs, source=source, target=target, key=key,
+        g = recast_to_geoleaves(data, gs, source=source, key=key, values=values,
+                                rule=rule, weight=weight, collect=collect)
+        return recast_from_geoleaves(g, target, target=target.frames[-1],
+                                     key=gs.leaf, values=values, rule=rule,
+                                     na_action=na_action, collect=collect)
+    return ns.recast_scale(data, gs, source=source, target=target, key=key,
                            values=values, rule=rule, weight=weight,
                            na_action=na_action, parent=parent, collect=collect)
 
 
-def recast_to_geoatoms(x: Any, gs: GeoScale, source: str | None = None,
-                       key: str | None = None, values: Any = None, rule: Any = None,
-                       weight: Any = None, attach_weight: bool = True,
-                       collect: bool | None = None) -> Any:
-    """Project region data DOWN to the atoms: `sum` columns split by the weight
-    share, others repeated; a `weight` column attached. Keyed by `region`."""
+def recast_to_geoleaves(data: Any, gs: GeoScale, source: str | None = None,
+                        key: str | None = None, values: Any = None, rule: Any = None,
+                        weight: Any = None, attach_weight: bool = True,
+                        collect: bool | None = None) -> Any:
+    """Project region data DOWN to the leaves: `sum` columns split by the
+    weight share, others repeated; a `weight` column attached. The result is
+    keyed by the leaf column, under its name (`geoscale_leaf_column()`)."""
     _check_geoscale(gs, "gs")
-    bk = ns.backend_of(x, "x")
-    schema = ns.backend_schema(x, bk)
+    bk = ns.backend_of(data, "data")
+    schema = ns.backend_schema(data, bk)
     _check_gs_cols(schema)
     if source is None:
         source = _infer_from(gs, schema, key)
     _check_geoframe(gs, source, "source")
+    lcol = gs.leaf
     if key is None:
-        key = source if source in schema.names else "region"
+        key = source if source in schema.names else lcol
     if key not in schema.names:
-        _stop("`x` has no column named `%s`; pass `key=`", key)
+        _stop("`data` has no column named `%s`; pass `key=`", key)
     if attach_weight and "weight" in schema.names:
-        _stop("`x` already has a `weight` column; rename it first")
-    if key != "region" and "region" in schema.names:
-        _stop("`x` already has a `region` column; rename it first")
+        _stop("`data` already has a `weight` column; rename it first")
+    if key != lcol and lcol in schema.names:
+        _stop("`data` already has a `%s` column; rename it first", lcol)
     gf = list(gs.frames)
     values = _values_for(schema, key, gf, values)
     id_cols = [c for c in schema.names if c != key and c not in values and c not in gf]
     rules = _rules_for(values, rule, weight)
-    _no_share(rules, "recast_to_geoatoms")
+    _no_share(rules, "recast_to_geoleaves")
     wt = list(dict.fromkeys(r["weight"] or "" for r in rules.values()))
     if len(wt) > 1:
         _stop("the value columns resolve to different weights (%s); recast them in "
               "separate calls or pass one `weight=`", _preview(wt))
     wcol = _map_weight(gs, wt[0] if wt[0] else (weight if isinstance(weight, str)
                                                 else None))
-    t = _as_str(ns.backend_scan(x, bk), key)
+    t = _as_str(backend_scan(data, bk), key)
     lt = gs.leaftable
     src_keys = [k for k in pc.unique(t[key]).to_pylist() if k is not None]
     known = set(v for v in lt[source].to_pylist() if v is not None)
@@ -172,7 +179,7 @@ def recast_to_geoatoms(x: Any, gs: GeoScale, source: str | None = None,
         _warn("%d code(s) in `x$%s` are not present at geoframe `%s`: %s",
               len(unknown), key, source, _preview(unknown))
 
-    codes, regions = lt[source].to_pylist(), lt["region"].to_pylist()
+    codes, regions = lt[source].to_pylist(), lt[lcol].to_pylist()
     w = ([1.0] * lt.num_rows if wcol is None else
          [0.0 if z is None or z != z else float(z) for z in lt[wcol].to_pylist()])
     rows = [(c, r, z) for c, r, z in zip(codes, regions, w, strict=True)
@@ -182,28 +189,28 @@ def recast_to_geoatoms(x: Any, gs: GeoScale, source: str | None = None,
     for c, _, z in rows:
         tot[c] = tot.get(c, 0.0) + z
         cnt[c] = cnt.get(c, 0) + 1
-    atoms = pa.table({
+    leaves = pa.table({
         "__gs_k": pa.array([c for c, _, _ in rows], pa.string()),
-        "region": pa.array([r for _, r, _ in rows], pa.string()),
+        "__gs_leaf": pa.array([r for _, r, _ in rows], pa.string()),
         "__gs_f": pa.array([z / tot[c] if tot[c] > 0 else 1 / cnt[c]
                             for c, _, z in rows], pa.float64()),
         "__gs_a": pa.array(np.arange(len(rows))),
         **({"weight": pa.array([z for _, _, z in rows], pa.float64())}
            if attach_weight else {})})
-    jkey = key
-    if key == "region":  # the data's key gives way to the atoms' region
-        t = t.rename_columns(["__gs_key" if c == key else c for c in t.column_names])
-        jkey = "__gs_key"
     t = t.append_column("__gs_x", pa.array(np.arange(t.num_rows)))
-    out = t.join(atoms, keys=jkey, right_keys="__gs_k", join_type="inner")
+    out = t.join(leaves, keys=key, right_keys="__gs_k", join_type="inner")
     out = out.take(pc.sort_indices(out, sort_keys=[("__gs_x", "ascending"),
                                                    ("__gs_a", "ascending")]))
     for v in values:
         if rules[v]["rule"] == "sum":
             out = out.set_column(out.column_names.index(v), v, pc.multiply(
                 pc.cast(out[v], pa.float64()), out["__gs_f"]))
-    keep = ["region", *id_cols, *values, *(["weight"] if attach_weight else [])]
-    return ns.backend_restore(out.select(keep), bk, collect)
+    # the leaf column takes the name of the GeoScale's leaf column; when the
+    # source is the leaf geoframe that is the column it replaces
+    keep = ["__gs_leaf", *id_cols, *values, *(["weight"] if attach_weight else [])]
+    out = out.select(keep)
+    out = out.rename_columns([lcol, *keep[1:]])
+    return ns.backend_restore(out, bk, collect)
 
 
 def _summarise(joined: pa.Table, grp: Sequence[str], values: Sequence[str],
@@ -262,62 +269,72 @@ def _member_sort(res: pa.Table, cols: Sequence[str], members: Sequence[Sequence[
     return res.take(pa.array(order, pa.int64()))
 
 
-def recast_from_geoatoms(x: Any, gs: GeoScale, target: str, key: str | None = None,
-                         values: Any = None, rule: Any = None,
-                         weight: str | None = None, na_rm: bool = False,
-                         na_action: NaAction = "drop",
-                         collect: bool | None = None) -> Any:
-    """Aggregate atom-keyed rows UP to `target`. Returns the OBSERVED target
-    regions only, in member order."""
+def recast_from_geoleaves(data: Any, gs: GeoScale, target: str,
+                          key: str | None = None, values: Any = None,
+                          rule: Any = None, weight: str | None = None,
+                          data_weight: str | None = None, na_rm: bool = False,
+                          na_action: NaAction = "drop",
+                          collect: bool | None = None) -> Any:
+    """Aggregate leaf-keyed rows UP to `target`. Returns the OBSERVED target
+    regions only, in member order.
+
+    `key` names the column of `data` that holds the leaf codes (default: the
+    leaf column of the GeoScale). `data_weight` names a column of `data` to
+    weight by; without it a `weight` column of `data` is used when there is
+    one, else the weight `weight` of the GeoScale (its default weight when
+    None).
+    """
     na_action = _match_arg(na_action, ("drop", "error", "keep"), "na_action")
     _check_geoscale(gs, "gs")
-    bk = ns.backend_of(x, "x")
+    bk = ns.backend_of(data, "data")
     _check_geoframe(gs, target, "target")
-    schema = ns.backend_schema(x, bk)
+    schema = ns.backend_schema(data, bk)
     _check_gs_cols(schema)
+    lcol = gs.leaf
     if key is None:
-        key = "region"
+        key = lcol
     if key not in schema.names:
-        _stop("`x` has no column named `%s`; pass `key=`", key)
+        _stop("`data` has no column named `%s`; pass `key=`", key)
     wt_col = "weight"
-    if weight is not None:
-        if not isinstance(weight, str):
-            _stop("`weight` must be a single column name of `x`")
-        if weight not in schema.names:
-            _stop("`x` has no column named `%s` to weight by", weight)
-        wt_col = weight
-    gf = list(gs.frames)
+    if data_weight is not None:
+        if not isinstance(data_weight, str):
+            _stop("`data_weight` must be a single column name of `data`")
+        if data_weight not in schema.names:
+            _stop("`data` has no column named `%s` to weight by", data_weight)
+        wt_col = data_weight
+    # the key column holds leaves here, whatever geoframe shares its name
+    gf = [g for g in gs.frames if g != key]
     values = _values_for(schema, key, [*gf, wt_col], values)
     id_cols = [c for c in schema.names if c not in (key, wt_col) and c not in values
                and c not in gf]
     rules = _rules_for(values, rule, None)
-    _no_share(rules, "recast_from_geoatoms")
+    _no_share(rules, "recast_from_geoleaves")
     has_weight = wt_col in schema.names
     lt = gs.leaftable
-    atoms = {key: lt["region"], "__gs_to": pc.cast(lt[target], pa.string())}
+    leaves = {key: lt[lcol], "__gs_to": pc.cast(lt[target], pa.string())}
     if not has_weight:
-        wcol = _map_weight(gs, None)
-        atoms[wt_col] = (pa.array([1.0] * lt.num_rows) if wcol is None else
+        wcol = _map_weight(gs, weight)
+        leaves[wt_col] = (pa.array([1.0] * lt.num_rows) if wcol is None else
                          pc.fill_null(pc.cast(lt[wcol], pa.float64()), 0.0))
-    atoms = pa.table(atoms)
-    t = _as_str(ns.backend_scan(x, bk), key)
+    leaves = pa.table(leaves)
+    t = _as_str(backend_scan(data, bk), key)
     src_keys = [k for k in pc.unique(t[key]).to_pylist() if k is not None]
-    regions = set(lt["region"].to_pylist())
+    regions = set(lt[lcol].to_pylist())
     unknown = [k for k in src_keys if k not in regions]
     if unknown:
-        _warn("%d code(s) in `x$%s` are not atoms of the GeoScale: %s",
+        _warn("%d code(s) in `x$%s` are not leaves of the GeoScale: %s",
               len(unknown), key, _preview(unknown))
     if not any(k in regions for k in src_keys):
-        _stop("no rows of `x` matched the GeoScale's atoms; check `key=`")
-    joined = t.join(atoms, keys=key, join_type="left outer")
+        _stop("no rows of `data` matched the GeoScale's leaves; check `key=`")
+    joined = t.join(leaves, keys=key, join_type="left outer")
     n_na = joined["__gs_to"].null_count
     if n_na:
         if na_action == "error":
-            _stop("%d row(s) of `x` fall on atoms with no code at geoframe `%s`; "
+            _stop("%d row(s) of `data` fall on leaves with no code at geoframe `%s`; "
                   'use na_action = "drop" or "keep"', n_na, target)
         if na_action == "drop":
-            _warn("%d row(s) of `x` fall on atoms with no code at geoframe `%s` and "
-                  'were dropped; use na_action = "keep" to conserve totals',
+            _warn("%d row(s) of `data` fall on leaves with no code at geoframe `%s` "
+                  'and were dropped; use na_action = "keep" to conserve totals',
                   n_na, target)
             joined = joined.filter(pc.is_valid(joined["__gs_to"]))
     grp = [*id_cols, "__gs_to"]
@@ -331,16 +348,17 @@ def recast_from_geoatoms(x: Any, gs: GeoScale, target: str, key: str | None = No
     return ns.backend_restore(res, bk, collect)
 
 
-def recast_pairs(x: Any, gs: GeoScale, target: str, source: str | None = None,
+def recast_pairs(data: Any, gs: GeoScale, target: str, source: str | None = None,
                  src: str = "src", dst: str = "dst", values: Any = None,
-                 rule: Any = None, weight: str | None = None, na_rm: bool = False,
-                 directed: bool = True, drop_internal: bool = True,
-                 collect: bool | None = None) -> Any:
+                 rule: Any = None, data_weight: str | None = None,
+                 na_rm: bool = False, directed: bool = True,
+                 drop_internal: bool = True, collect: bool | None = None) -> Any:
     """Aggregate origin-destination pairs (columns `src`, `dst` at `source`)
-    to `target` codes. Aggregation only; internal pairs are dropped."""
+    to `target` codes. Aggregation only; internal pairs are dropped.
+    `data_weight` names a column of `data` to weight by."""
     _check_geoscale(gs, "gs")
-    bk = ns.backend_of(x, "x")
-    schema = ns.backend_schema(x, bk)
+    bk = ns.backend_of(data, "data")
+    schema = ns.backend_schema(data, bk)
     _check_gs_cols(schema)
     _check_geoframe(gs, target, "target")
     if source is None:
@@ -353,14 +371,14 @@ def recast_pairs(x: Any, gs: GeoScale, target: str, source: str | None = None,
         _stop("`src` and `dst` must differ")
     for nm in (src, dst):
         if nm not in schema.names:
-            _stop("`x` has no column named `%s`; pass `src=` / `dst=`", nm)
+            _stop("`data` has no column named `%s`; pass `src=` / `dst=`", nm)
     wt_col = "weight"
-    if weight is not None:
-        if not isinstance(weight, str):
-            _stop("`weight` must be a single column name of `x`")
-        if weight not in schema.names:
-            _stop("`x` has no column named `%s` to weight by", weight)
-        wt_col = weight
+    if data_weight is not None:
+        if not isinstance(data_weight, str):
+            _stop("`data_weight` must be a single column name of `data`")
+        if data_weight not in schema.names:
+            _stop("`data` has no column named `%s` to weight by", data_weight)
+        wt_col = data_weight
     gf = list(gs.frames)
     drop = [src, dst, wt_col, *gf]
     values = [v for v in _values_for(schema, src, drop, values) if v != dst]
@@ -373,7 +391,7 @@ def recast_pairs(x: Any, gs: GeoScale, target: str, source: str | None = None,
     look = list(dict.fromkeys(zip(lt[source].to_pylist(), lt[target].to_pylist(),
                                   strict=True)))
     look = [(a, b) for a, b in look if a is not None]
-    t = _as_str(_as_str(ns.backend_scan(x, bk), src), dst)
+    t = _as_str(_as_str(backend_scan(data, bk), src), dst)
     ends = list(dict.fromkeys(v for c in (src, dst) for v in
                               pc.unique(t[c]).to_pylist() if v is not None))
     froms = set(a for a, _ in look)
@@ -382,7 +400,7 @@ def recast_pairs(x: Any, gs: GeoScale, target: str, source: str | None = None,
         _warn("%d endpoint code(s) are not present at geoframe `%s` and their pairs "
               "were dropped: %s", len(unknown), source, _preview(unknown))
     if not any(e in froms for e in ends):
-        _stop("no endpoint of `x` matched geoframe `%s`; check `from=`, `src=` and "
+        _stop("no endpoint of `data` matched geoframe `%s`; check `from=`, `src=` and "
               "`dst=`", source)
     ls = pa.table({src: pa.array([a for a, _ in look], pa.string()),
                    "__gs_src": pa.array([b for _, b in look], pa.string())})

@@ -9,9 +9,20 @@ description = "Regions and spatial hierarchies for modeling: nested geographic s
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
+keywords = ["regions", "geography", "aggregation", "spatial", "modeling"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: GIS",
+]
 authors = [{ name = "Oleg Lugovoy", email = "olugovoy@optimalsolution.dev" }]
 dependencies = [
-  "nestedscales",
+  "nestedscales>=0.3.0",
   "pyarrow>=14",
   "numpy>=1.23",
 ]
@@ -25,6 +36,9 @@ docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5", "mkdocstrings[python]>=0.26", 
 
 [project.urls]
 Homepage = "https://github.com/optimal2050/geoscales"
+Documentation = "https://optimal2050.github.io/geoscales/python/"
+Repository = "https://github.com/optimal2050/geoscales"
+Issues = "https://github.com/optimal2050/geoscales/issues"
 
 [tool.hatch.version]
 path = "src/geoscales/__init__.py"

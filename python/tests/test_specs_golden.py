@@ -59,11 +59,11 @@ def run_spec_op(spec):
                                       rule=p["rule"], weight=p.get("weight"),
                                       na_action=p.get("na_action", "drop"))
         if op == "to_atoms":
-            return gs.recast_to_geoatoms(x, g, source=p.get("from"), rule=p["rule"],
-                                         weight=p.get("weight"))
+            return gs.recast_to_geoleaves(x, g, source=p.get("from"), rule=p["rule"],
+                                          weight=p.get("weight"))
         if op == "from_atoms":
-            return gs.recast_from_geoatoms(x, g, target=p["to"], rule=p["rule"],
-                                           values=p.get("values"))
+            return gs.recast_from_geoleaves(x, g, target=p["to"], rule=p["rule"],
+                                            values=p.get("values"))
         if op == "join":
             return gs.join_geoscale(x, g, geoframe=p.get("geoframe"),
                                     geoframes=p.get("geoframes"),

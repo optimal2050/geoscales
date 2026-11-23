@@ -26,7 +26,7 @@ def geoscale_map(gs: GeoScale, source: str, target: str,
 
 def geoscale_map_between(source: GeoScale, target: GeoScale,
                          weight: str | None = None) -> pa.Table:
-    """Crosswalk between two GeoScales through their shared atoms."""
+    """Crosswalk between two GeoScales through their shared leaf codes."""
     _check_geoscale(source, "source")
     _check_geoscale(target, "target")
     return ns.scale_map_between(source, target, weight=weight)
@@ -68,22 +68,23 @@ def clear_geoscale_maps(name: str | Sequence[str] | None = None) -> None:
     ns.clear_scale_maps(name)
 
 
-def join_geoscale(x: Any, gs: GeoScale, key: str | None = None,
+def join_geoscale(data: Any, gs: GeoScale, key: str | None = None,
                   geoframe: str | None = None,
                   geoframes: bool | str | Sequence[str] | None = None,
                   meta: bool = False, weight: str | None = None,
                   as_factor: bool = True, collect: bool | None = None) -> Any:
-    """Attach the GeoScale's label, coarser codes (`<name>.<geoframe>`) and
-    share/weight to `x`."""
+    """Attach to `data` a code column named after the GeoScale, the codes of
+    coarser geoframes (`<name>.<geoframe>`) and the share and weight of each
+    region. `key` names the column of `data` that holds the codes."""
     _check_geoscale(gs, "gs")
     if geoframe is None:
-        cols = ns.backend_schema(x).names
+        cols = ns.backend_schema(data).names
         hit = [g for g in gs.frames if g in cols]
         if len(hit) != 1:
-            _stop("cannot infer the code geoframe from `x`'s columns (found: %s); "
+            _stop("cannot infer the code geoframe from `data`'s columns (found: %s); "
                   "pass `geoframe=`", "none" if not hit else _preview(hit))
         geoframe = hit[0]
     _check_geoframe(gs, geoframe, "geoframe")
-    return ns.join_scale(x, gs, key=key, frame=geoframe, attach=geoframes,
+    return ns.join_scale(data, gs, key=key, frame=geoframe, attach=geoframes,
                          meta=meta, weight=weight, as_factor=as_factor,
                          collect=collect)
