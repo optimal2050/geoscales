@@ -1,5 +1,7 @@
 # geoscales
 
+Documentation: <https://optimal2050.github.io/geoscales/r/>
+
 ## Overview
 
 geoscales provides **nested regions and spatial hierarchies** for
