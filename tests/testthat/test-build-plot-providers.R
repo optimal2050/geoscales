@@ -197,6 +197,36 @@ test_that("providers can be registered and listed", {
   expect_error(get_geoscale_provider("nope"), "unknown provider")
 })
 
+test_that("provider geometry follows the rows into nested order", {
+  skip_if_not_installed("sf")
+  # one unit square per cell, at x = 10, 20, 30 for b1, a1, b2
+  square <- function(x) {
+    sf::st_polygon(list(rbind(c(x, 0), c(x + 1, 0), c(x + 1, 1), c(x, 1),
+                              c(x, 0))))
+  }
+  at <- c(b1 = 10, a1 = 20, b2 = 30)
+  src <- sf::st_sf(
+    top = c("B", "A", "B"), cell = names(at),
+    geometry = sf::st_sfc(lapply(unname(at), square))
+  )
+  gs <- geoscale_from_provider(src, geoframes = c("top", "cell"))
+  expect_true(S7::prop(gs, "meta")$row_permuted)
+  cells <- geoscale_leaftable(gs)$cell
+  # members keep their order of appearance, so B comes first
+  expect_identical(cells, c("b1", "b2", "a1"))
+  left <- vapply(S7::prop(gs, "geometry"),
+                 function(g) sf::st_bbox(g)[["xmin"]], numeric(1))
+  expect_identical(unname(left), unname(at[cells]))
+
+  # rows already in nested order keep their geometry in place
+  ord <- src[c(2, 1, 3), ]
+  gs2 <- geoscale_from_provider(ord, geoframes = c("top", "cell"))
+  expect_false(S7::prop(gs2, "meta")$row_permuted)
+  left2 <- vapply(S7::prop(gs2, "geometry"),
+                  function(g) sf::st_bbox(g)[["xmin"]], numeric(1))
+  expect_identical(unname(left2), unname(at[geoscale_leaftable(gs2)$cell]))
+})
+
 test_that("the Natural Earth provider errors helpfully when absent", {
   skip_if(requireNamespace("rnaturalearth", quietly = TRUE))
   expect_error(ne_source(), "rnaturalearth")

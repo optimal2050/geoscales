@@ -152,12 +152,9 @@ geoscale_from_provider <- function(provider = "naturalearth",
   keep <- c(geoframes, intersect(weights, names(src)))
   out <- src[, keep, drop = FALSE]
 
-  gs <- geoscale_from_leaftable(
+  # the constructor permutes `geometry` with the rows it sorts
+  geoscale_from_leaftable(
     out, geoframes = geoframes, weights = intersect(weights, names(src)),
-    name = name, desc = desc, source = src_name
+    geometry = geom, name = name, desc = desc, source = src_name
   )
-  if (!is.null(geom)) {
-    gs <- S7::set_props(gs, geometry = geom)
-  }
-  gs
 }

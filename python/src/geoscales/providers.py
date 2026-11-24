@@ -80,7 +80,7 @@ def geoscale_from_provider(provider: Any = "naturalearth",
         _stop("source has no column(s): %s", _preview(missing))
     wts = [w for w in _as_list(weights) if w in t.column_names]
     # the geometry goes through the constructor, which re-orders it with the
-    # rows it sorts; R binds it by position after the sort
+    # rows it sorts
     gs = geoscale_from_leaftable(
         t.select([*geoframes, *wts]), geoframes=geoframes, weights=wts,
         geometry=None if geom is None else _as_geometry(geom), name=name, desc=desc,
